@@ -10,23 +10,12 @@ nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; t
 nav a { margin: 0 12px; text-decoration: none; color: #0366d6; font-weight: 600; }
 h1,h2,h3 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; margin-top: 0.2em; }
 .card { background: #fff; padding: 1.2em 1.4em; margin: 1.1em 0; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-img.profile { width: 180px; border-radius: 50%; float: left; margin: 0 20px 10px 0; }
+.small { font-size: 0.92rem; color: #444; }
+.note { font-size: 0.9rem; color: #555; }
 table { border-collapse: collapse; width: 100%; margin: 1em 0; }
 th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
 th { background: #f0f4f8; }
-.small { font-size: 0.92rem; color: #444; }
-.muted { color: #666; }
 .badge { display: inline-block; background: #003366; color: #fff; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.8rem; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-.kv { background: #f7fbff; border: 1px solid #e6eef7; border-radius: 8px; padding: 10px 12px; }
-.kv .key { font-weight: 700; font-size: 0.85rem; color: #355; }
-.kv .val { margin-top: 4px; }
-.note { font-size: 0.9rem; color: #555; }
-.todo { background: #fff9e6; border-left: 4px solid #f0c000; padding: 6px 10px; border-radius: 6px; }
-.footer { margin-top: 2rem; font-size: 0.9rem; color: #666; }
-a.btn { display: inline-block; padding: 8px 12px; border: 1px solid #0366d6; border-radius: 6px; text-decoration: none; }
-a.btn:hover { background: #0366d6; color: #fff; }
-ul.tight > li { margin: 0.2em 0; }
 </style>
 </head>
 <body>
@@ -45,64 +34,32 @@ ul.tight > li { margin: 0.2em 0; }
 
 
 <div class="card">
-  <h2>At-a-Glance</h2>
-  <div class="grid">
-    <div class="kv"><div class="key">Program</div><div class="val">Ph.D. Candidate, Supply Chain Management, Rutgers Business School</div></div>
-    <div class="kv"><div class="key">GPA</div><div class="val">4.0 / 4.0</div></div>
-    <div class="kv"><div class="key">Memberships</div><div class="val">INFORMS (2022–present); POMS (2022–present); DSI (2022–present)</div></div>
-    <div class="kv"><div class="key">Primary Areas</div><div class="val">Healthcare operations; appointment scheduling; ED flow; nurse staffing; dialysis; oncology outpatient; Triple/Quadruple Aim</div></div>
-  </div>
+  <h2>Working Papers (Under Peer Review)</h2>
+  <ul class="small">
+    <li><strong>Clinician Empowerment and the Triple Aim: Resource Adequacy, Disparities, and Quality</strong> — <em>Journal of Operations Management</em>; Rev.1 R&amp;R (Major), in progress. Authors: Zhou, C.; Dreyfus, D.*; Bagchi, A..</li>
+    <li><strong>Optimizing Oncology Outpatient Flow via Simulation and Analytics</strong> — <em>Annals of Operations Research</em>; Rev.1 R&amp;R, due Jan 31, 2026. Authors: Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A. M..</li>
+    <li><strong>Operating in Underserved Markets: Chain Affiliation, Dynamic Capabilities, and Care Performance</strong> — <em>Health Care Management Science</em> (SI); Round 1 under review. Authors: Dreyfus, D.*; Zhou, C.; Lin, T..</li>
+    <li><strong>Resilient Dialysis Operations: Leveraging Contract RNs and Support Staff in Fissured Workforces</strong> — <em>Journal of Operations Management</em> (SI); Rev.2 under review (submitted Sep 7, 2025). Authors: Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L..</li>
+  </ul>
+  <p class="note">Titles paraphrased for public listing under double-blind policies; manuscripts retain official titles. Authors follow CV style (surname, initials); “*” denotes corresponding author.</p>
 </div>
 
 <div class="card">
-  <h2>Embedded PDF (if present)</h2>
-  <p class="small">If your browser supports it and the file is present in this folder, the PDF will render below. Otherwise, use the download link.</p>
-  <p><a class="btn" href="CvResumeChenhao05252025.pdf">Download CV (PDF)</a></p>
-  <object data="CvResumeChenhao05252025.pdf" type="application/pdf" width="100%" height="800">
-    <p>PDF preview unavailable. <a href="CvResumeChenhao05252025.pdf">Download the CV</a>.</p>
-  </object>
+  <h2>Upcoming Submissions</h2>
+  <ul class="small">
+    <li><strong>From Triple Aim to Quadruple Aim</strong> — Target: POMS; first draft nearing submission.</li>
+  </ul>
 </div>
 
 <div class="card">
-  <h2>Integrated Summary</h2>
-  <h3>Education</h3>
-  <ul class="tight">
-    <li>Rutgers Business School — Ph.D. Candidate, Supply Chain Management (2021–present), GPA 4.0/4.0</li>
-    <li>NYU Tandon — M.S., Engineering/Industrial Management (2021)</li>
-    <li>Boston University Questrom — B.S., Business Administration (2019, Dean’s List)</li>
-  </ul>
-  <h3>Working Papers (Under Review)</h3>
-  <ul class="tight">
-    <li>Exploring the Triple Aim Through Clinician Empowerment — JOM (2025) — <span class="todo">Authors: add coauthors</span>.</li>
-    <li>Oncology Outpatient Workflow Optimization — Annals of OR (2025) — <span class="todo">Authors: add coauthors</span>.</li>
-    <li>Healthcare Operations in Disadvantaged Communities — HCMS (2025) — <span class="todo">Authors: add coauthors</span>.</li>
-    <li>Dialysis-Center Resilience — JOM Rev.1 (2025) — <span class="todo">Authors: add coauthors</span>.</li>
-  </ul>
-  <h3>Conferences (Selected)</h3>
-  <ul class="tight">
-    <li>INFORMS 2025 — Session Chair & Presenter (Service Science Track).</li>
-    <li>DSI 2025 — Presenter.</li>
-    <li>POMS 2025 — Assigned Session Chair (unable to serve).</li>
-    <li>DSI 2024 — Presenter.</li>
-    <li>INFORMS 2024 — Presenter.</li>
-    <li>INFORMS 2023 — Presenter.</li>
-    <li>POMS 2023 (CHOM) — Research in Practice Presentation, Orlando; program flyer included.</li>
-  </ul>
-  <h3>Teaching</h3>
-  <ul class="tight">
-    <li>Lecturer: Demand Planning &amp; Fulfillment (Summer 2025; Winter 2025). Overall Effectiveness: 4.91; Course Quality: 5.00 (my course).</li>
-    <li>Teaching Assistant: Project Management (2021–2025); Supply Chain Analytics; Operations Analysis; others.</li>
-  </ul>
-  <h3>Professional Experience (Selected)</h3>
-  <ul class="tight">
-    <li>Investment Researcher, Lujiazui International Trust Co., Ltd. (2020).</li>
-    <li>Resource Development Manager, Evergreen (2018).</li>
-    <li>Intern, Rural China Education Foundation (2017).</li>
-    <li>Intern, China Securities Co., Ltd. (2016).</li>
+  <h2>In Progress</h2>
+  <ul class="small">
+    <li><strong>ED Flow — Ambulance Diversion</strong> — IRB approved; hospital data feedback suspended.</li>
+    <li><strong>Nurse Staffing &amp; Care Operations</strong> — Drafting; data analysis &amp; collection.</li>
+    <li><strong>ED Congestion &amp; Inpatient LOS Variability</strong> — Proposal (Nov 14, 2024, Jong M. Lim); conceptual stage; data cleaning in progress.</li>
   </ul>
 </div>
 
-<div class="footer small">Last updated 2025-09-12.</div>
-<!-- This page synthesizes information from other pages and embeds the PDF. -->
+<div class="card small">Last updated 2025-09-12.</div>
 </body>
 </html>
