@@ -38,7 +38,7 @@
     .brand img { width: 36px; height: 36px; border-radius: 999px; object-fit: cover; border: 2px solid var(--primary-weak); }
     .menu { display: flex; flex-wrap: wrap; gap: 6px 12px; }
     .menu a { text-decoration: none; color: var(--text); font-weight: 600; padding: 6px 10px; border-radius: 10px; }
-    .menu a:hover, .menu a[aria-current="page"] { background: var(--primary-weak); color: var(--primary); }
+    .menu a:hover, .menu a.active { background: var(--primary-weak); color: var(--primary); }
 
     /* Hero */
     .hero { display: grid; grid-template-columns: 1.4fr 0.8fr; gap: 20px; align-items: center; margin-top: 18px; }
@@ -95,7 +95,7 @@
         <div>Chenhao Zhou</div>
       </div>
       <div class="menu">
-        <a href="index.html" aria-current="page">Home</a>
+        <a href="index.html" class="active">Home</a>
         <a href="research.html">Research</a>
         <a href="milestones.html">Milestones</a>
         <a href="conference.html">Conferences</a>
