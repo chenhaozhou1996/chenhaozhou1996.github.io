@@ -10,23 +10,12 @@ nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; t
 nav a { margin: 0 12px; text-decoration: none; color: #0366d6; font-weight: 600; }
 h1,h2,h3 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; margin-top: 0.2em; }
 .card { background: #fff; padding: 1.2em 1.4em; margin: 1.1em 0; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-img.profile { width: 180px; border-radius: 50%; float: left; margin: 0 20px 10px 0; }
+.small { font-size: 0.92rem; color: #444; }
+.note { font-size: 0.9rem; color: #555; }
 table { border-collapse: collapse; width: 100%; margin: 1em 0; }
 th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
 th { background: #f0f4f8; }
-.small { font-size: 0.92rem; color: #444; }
-.muted { color: #666; }
 .badge { display: inline-block; background: #003366; color: #fff; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.8rem; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-.kv { background: #f7fbff; border: 1px solid #e6eef7; border-radius: 8px; padding: 10px 12px; }
-.kv .key { font-weight: 700; font-size: 0.85rem; color: #355; }
-.kv .val { margin-top: 4px; }
-.note { font-size: 0.9rem; color: #555; }
-.todo { background: #fff9e6; border-left: 4px solid #f0c000; padding: 6px 10px; border-radius: 6px; }
-.footer { margin-top: 2rem; font-size: 0.9rem; color: #666; }
-a.btn { display: inline-block; padding: 8px 12px; border: 1px solid #0366d6; border-radius: 6px; text-decoration: none; }
-a.btn:hover { background: #0366d6; color: #fff; }
-ul.tight > li { margin: 0.2em 0; }
 </style>
 </head>
 <body>
@@ -45,68 +34,59 @@ ul.tight > li { margin: 0.2em 0; }
 
 
 <div class="card">
-  <h2>Working Papers & Manuscripts (Under Review)</h2>
+  <h2>Working Papers (Under Peer Review)</h2>
   <table>
-    <thead><tr><th>Title</th><th>Status</th><th>Outlet / Target</th><th>Authors</th></tr></thead>
+    <thead><tr><th>Paraphrased Title</th><th>Status</th><th>Journal / Track</th><th>Authors (full)</th></tr></thead>
     <tbody>
       <tr>
-        <td><strong>Exploring the Triple Aim Through Clinician Empowerment</strong> (2025)</td>
-        <td>Under review</td>
-        <td><em>Journal of Operations Management</em></td>
-        <td>Chenhao Zhou; <span class="todo">[Add coauthors]</span></td>
+        <td><strong>Clinician Empowerment and the Triple Aim: Resource Adequacy, Disparities, and Quality</strong></td>
+        <td><span class="badge">Revision 1</span> — R&amp;R (Major), in progress</td>
+        <td><em>Journal of Operations Management</em></td><td>Zhou, C.; Dreyfus, D.*; Bagchi, A.</td>
+        <td>Zhou, C.*; Dreyfus, D.; Bagchi, A.</td>
       </tr>
       <tr>
-        <td><strong>Oncology Outpatient Workflow Optimization</strong> (2025)</td>
-        <td>Under review</td>
-        <td><em>Annals of Operations Research</em></td>
-        <td>Chenhao Zhou; <span class="todo">[Add coauthors]</span></td>
+        <td><strong>Optimizing Oncology Outpatient Flow via Simulation and Analytics</strong></td>
+        <td><span class="badge">Revision 1</span> — R&amp;R, due Jan 31, 2026</td>
+        <td><em>Annals of Operations Research</em></td><td>Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A. M.</td>
+        <td>Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A. M.</td>
       </tr>
       <tr>
-        <td><strong>Healthcare Operations in Disadvantaged Communities</strong> (2025)</td>
-        <td>Under review</td>
-        <td><em>HCMS</em></td>
-        <td>Chenhao Zhou; <span class="todo">[Add coauthors]</span></td>
+        <td><strong>Operating in Underserved Markets: Chain Affiliation, Dynamic Capabilities, and Care Performance</strong></td>
+        <td>Under review — Round 1</td>
+        <td><em>Health Care Management Science</em></td><td>Dreyfus, D.*; Zhou, C.; Lin, T.</td>
+        <td>Dreyfus, D.; Zhou, C.*; Lin, T.</td>
       </tr>
       <tr>
-        <td><strong>Dialysis-Center Resilience</strong> (Rev. 1, 2025)</td>
-        <td>Rev. 1</td>
-        <td><em>Journal of Operations Management</em></td>
-        <td>Chenhao Zhou; <span class="todo">[Add coauthors]</span></td>
+        <td><strong>Resilient Dialysis Operations: Leveraging Contract RNs and Support Staff in Fissured Workforces</strong></td>
+        <td><span class="badge">Revision 2</span> — Under review (submitted Sep 7, 2025)</td>
+        <td><em>Journal of Operations Management</em></td><td>Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L.</td>
+        <td>Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L.</td>
       </tr>
     </tbody>
   </table>
-  <p class="note">Author lines include the site owner and a placeholder to add verified coauthor names from the full CV. Replace <span class="todo">[Add coauthors]</span> once confirmed.</p>
+  <p class="note">Note: Where journals apply double-blind reviewing, the titles above are paraphrased for public display. Manuscripts retain the official submission titles. Author lists are shown per CV style (surname, initials); “*” marks the corresponding author.</p>
 </div>
 
 <div class="card">
-  <h2>Other Research Projects</h2>
+  <h2>Upcoming Submissions (Near-term)</h2>
   <ul>
-    <li><strong>Patient-Centered Appointment Scheduling</strong> — status: Paused.</li>
-    <li><strong>Emergency Department Flow</strong> — predictive model for ambulance diversion.</li>
-    <li><strong>Nurse Staffing Levels and Care Operations</strong>.</li>
-    <li><strong>From Triple Aim to Quadruple Aim</strong>.</li>
+    <li><strong>From Triple Aim to Quadruple Aim: Workforce Engagement and Healthcare Operational Performance</strong> — Target: POMS; Status: first draft nearing submission.</li>
   </ul>
 </div>
 
 <div class="card">
-  <h2>Service & Reviewing</h2>
-  <table>
-    <thead><tr><th>Year(s)</th><th>Role</th><th>Venue / Track</th><th>Notes</th></tr></thead>
-    <tbody>
-      <tr><td>2025</td><td>Session Chair</td><td>INFORMS, Service Science Track</td><td>Chair & Presenter</td></tr>
-      <tr><td>2024</td><td>Reviewer</td><td>DSI Annual Conference — Healthcare Track</td><td>Program reviewer</td></tr>
-      <tr><td>2025</td><td>Reviewer</td><td>DSI Annual Conference — Project Management; Gig Economy & Social Media Research Tracks</td><td>Program reviewer</td></tr>
-      <tr><td>2022–present</td><td>Member</td><td>INFORMS; POMS; DSI</td><td>Professional memberships</td></tr>
-    </tbody>
-  </table>
+  <h2>In Progress</h2>
+  <ul>
+    <li><strong>Improving Emergency Department Flow: A Predictive Model for Ambulance Diversion</strong> — IRB approved; hospital data feedback currently suspended.</li>
+    <li><strong>Do Nurse Staffing Levels Influence Turnover and Care Operations?</strong> — Drafting; data analysis &amp; collection ongoing.</li>
+  </ul>
 </div>
 
 <div class="card">
-  <h2>Selected Conference Presentations</h2>
-  <p>See <a href="conference.html">Conferences</a> for the full, formatted list including session types and talk titles.</p>
+  <h2>Conceptual / Proposal</h2>
+  <p><strong>Systems approach to addressing ED congestion: The impact of inpatient length of stay variability on emergency department crowding</strong> — Project proposal (Nov 14, 2024; Jong M. Lim). Concept framing completed; data cleaning pipeline under development.</p>
 </div>
 
-<div class="footer small">Last updated 2025-09-12.</div>
-<!-- Source data taken from the provided research.html and conference.html. -->
+<div class="card small">Last updated 2025-09-12.</div>
 </body>
 </html>
