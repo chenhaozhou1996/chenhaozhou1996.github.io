@@ -16,7 +16,7 @@
       --primary: #0f4c81; /* deep blue */
       --primary-weak: #e6eef7;
       --ring: rgba(15, 76, 129, 0.2);
-      --maxw: 1000px;
+      --maxw: 920px;   /* ↓ 更窄，更紧凑 */
       --radius: 14px;
       --shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
     }
@@ -26,54 +26,64 @@
       margin: 0; font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
       background: linear-gradient(180deg, var(--bg), #fbfdff 40%);
       color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased;
+      font-size: 15.5px; /* ↓ 整体略小 */
     }
-    .container { max-width: var(--maxw); margin: 0 auto; padding: 28px 20px 56px; }
-
-    /* Top notice for screen readers */
-    .skip { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
-    .skip:focus { position: static; width: auto; height: auto; padding: 8px 10px; background: var(--surface); border-radius: 8px; box-shadow: var(--shadow); }
+    .container { max-width: var(--maxw); margin: 0 auto; padding: 24px 18px 48px; }
 
     /* Header & Nav */
     header { position: sticky; top: 0; z-index: 50; backdrop-filter: saturate(140%) blur(6px); }
     .navwrap { border-bottom: 1px solid #e5e7eb; background: rgba(255,255,255,0.7); }
-    nav { max-width: var(--maxw); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; }
-    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: 0.3px; color: var(--primary); }
-    .brand img { width: 44px; height: 44px; border-radius: 999px; object-fit: cover; border: 3px solid var(--primary-weak); }
-    .menu { display: flex; flex-wrap: wrap; gap: 8px 14px; }
-    .menu a { text-decoration: none; color: var(--text); font-weight: 600; padding: 8px 12px; border-radius: 10px; }
+    nav { max-width: var(--maxw); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: 0.3px; color: var(--primary); }
+    .brand img { width: 36px; height: 36px; border-radius: 999px; object-fit: cover; border: 2px solid var(--primary-weak); }
+    .menu { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+    .menu a { text-decoration: none; color: var(--text); font-weight: 600; padding: 6px 10px; border-radius: 10px; }
     .menu a:hover, .menu a[aria-current="page"] { background: var(--primary-weak); color: var(--primary); }
 
     /* Hero */
-    .hero { display: grid; grid-template-columns: 1.1fr 1.5fr; gap: 24px; align-items: center; margin-top: 28px; }
+    .hero { display: grid; grid-template-columns: 1.4fr 0.8fr; gap: 20px; align-items: center; margin-top: 18px; }
     .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid #eef2f7; }
-    .hero .card { padding: 22px; }
-    .title { font-size: clamp(28px, 3vw, 40px); line-height: 1.15; letter-spacing: -0.02em; margin: 6px 0 6px; color: #0b2545; }
+    .hero .card { padding: 18px; }
+    .title { font-size: clamp(24px, 2.4vw, 34px); line-height: 1.15; letter-spacing: -0.02em; margin: 6px 0 6px; color: #0b2545; }
     .subtitle { color: var(--muted); margin-top: 4px; }
-    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 10px; }
-    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--primary); color: #fff; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: .2px; }
-    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    .btn { display:inline-block; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--primary); text-decoration: none; font-weight: 700; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 8px; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; background: var(--primary); color: #fff; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .2px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .btn { display:inline-block; padding: 6px 10px; border-radius: 10px; border: 1px solid var(--primary); text-decoration: none; font-weight: 700; }
     .btn:hover { background: var(--primary); color:#fff; box-shadow: 0 8px 16px var(--ring); }
 
+    /* Limit hero image size strongly */
+    .hero [aria-label="Profile Image"] img {
+      max-width: 260px;   /* ↓ 关键：头像/大图硬性上限 */
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      margin: 0 auto;
+      display: block;
+    }
+
     /* Key-Value grid */
-    .kvgrid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
-    .kv { padding: 12px 14px; border-radius: 12px; background: #f9fbff; border: 1px solid #e6eef7; }
-    .kv .k { font-size: 12px; font-weight: 800; color: #274; letter-spacing: .3px; text-transform: uppercase; }
+    .kvgrid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
+    .kv { padding: 10px 12px; border-radius: 12px; background: #f9fbff; border: 1px solid #e6eef7; }
+    .kv .k { font-size: 11px; font-weight: 800; color: #274; letter-spacing: .3px; text-transform: uppercase; }
     .kv .v { margin-top: 6px; font-weight: 600; color: #0b2545; }
 
     /* Sections */
-    section { margin-top: 26px; }
-    section .card { padding: 20px 22px; }
-    h2 { font-size: clamp(20px, 2.2vw, 26px); margin: 0 0 12px; color: #0b2545; }
+    section { margin-top: 22px; }
+    section .card { padding: 16px 18px; }
+    h2 { font-size: clamp(18px, 2vw, 22px); margin: 0 0 10px; color: #0b2545; }
     .tight { margin: 0; padding-left: 20px; }
     .tight li { margin: 6px 0; }
-    .meta { font-size: 14px; color: var(--muted); }
+    .meta { font-size: 13px; color: var(--muted); }
 
     /* Footer */
-    footer { margin-top: 26px; color: var(--muted); font-size: 14px; text-align: center; }
+    footer { margin-top: 22px; color: var(--muted); font-size: 13px; text-align: center; }
 
     /* Responsive */
-    @media (max-width: 860px) { .hero { grid-template-columns: 1fr; } .menu { justify-content: flex-end; } }
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; }
+      nav { padding: 10px 14px; }
+    }
   </style>
 </head>
 <body>
@@ -121,7 +131,7 @@
         </div>
       </div>
       <div class="card" aria-label="Profile Image">
-        <img alt="Portrait of Chenhao Zhou" src="images/profile.jpg" style="display:block;width:100%;height:auto;border-radius:12px;" />
+        <img alt="Portrait of Chenhao Zhou" src="images/profile.jpg" />
       </div>
     </section>
 
@@ -137,20 +147,32 @@
       </div>
     </section>
 
-    <!-- RECENT CONFERENCES -->
+    <!-- CONFERENCES (clean, grouped by year; no talk titles) -->
     <section>
       <div class="card">
-        <h2>Recent Conferences & Presentations (selected)</h2>
-        <ul class="tight">
-          <li>INFORMS 2025 (Service Science Track) — Session Chair & Presenter: “Smart Resource Allocation Under Uncertainty: Cross-Industry Innovations in Service Systems”.</li>
-          <li>DSI 2025 — Presenter: “Organizational Learning in a Fissured Healthcare Workforce: Contract Clinicians, Tenured Support Staff, and Care Quality”.</li>
-          <li>POMS 2025 — Assigned Session Chair (unable to serve).</li>
-          <li>DSI 2024 — “An Empirical Examination of the Triple Aim Within Dialysis Facilities”.</li>
-          <li>INFORMS 2024 — “Patient-Centric Appointment Scheduling Considering Patient Heterogeneity”.</li>
-          <li>INFORMS 2023 — “Improving ED Flow: A Predictive Model for Ambulance Diversion”.</li>
-          <li>POMS 2023 (CHOM) — “Patient-Centered Appointment Scheduling: Incorporating Patient Preferences and Resource Availabilities”.</li>
-        </ul>
-        <p class="meta"><a href="conference.html">Full list & details</a></p>
+        <h2>Conferences & Activities</h2>
+        <div>
+          <h3>2025</h3>
+          <ul class="tight">
+            <li>INFORMS Annual Meeting — Session Chair（Scheduled）</li>
+            <li>DSI Annual Conference — Presenter（Scheduled）</li>
+          </ul>
+        </div>
+        <div>
+          <h3>2024</h3>
+          <ul class="tight">
+            <li>DSI Annual Conference — Presenter（Completed）</li>
+            <li>INFORMS Annual Meeting — Presenter（Completed）</li>
+          </ul>
+        </div>
+        <div>
+          <h3>2023</h3>
+          <ul class="tight">
+            <li>INFORMS Annual Meeting — Presenter（Completed）</li>
+            <li>POMS Annual Meeting (CHOM) — Invited Presenter（Completed）</li>
+          </ul>
+        </div>
+        <p class="meta"><a href="conference.html">Full list</a></p>
       </div>
     </section>
 
