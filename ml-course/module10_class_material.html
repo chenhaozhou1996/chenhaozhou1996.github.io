@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 10: Save TechGlobal from $200M Ethics Crisis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            border-radius: 10px;
+        }
+        
+        h1 {
+            color: #003366;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .crisis-alert {
+            background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+            color: white;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(244,67,54,0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(244,67,54,0); }
+            100% { box-shadow: 0 0 0 0 rgba(244,67,54,0); }
+        }
+        
+        .progress-container {
+            margin: 30px 0;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .risk-dashboard {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border: 2px solid #f44336;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .metric {
+            display: inline-block;
+            margin: 10px 20px;
+            padding: 15px 25px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .metric-label {
+            font-size: 0.9em;
+            color: #666;
+            display: block;
+        }
+        
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #003366;
+        }
+        
+        .critical { color: #f44336; }
+        .warning { color: #ff9800; }
+        .safe { color: #4caf50; }
+        
+        .interactive-section {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 10px;
+            border: 2px solid #667eea30;
+        }
+        
+        .control-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .slider-container {
+            margin: 20px 0;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e9ecef;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0366d6;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0366d6;
+            cursor: pointer;
+        }
+        
+        .bias-visualization {
+            width: 100%;
+            height: 400px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #biasCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .button {
+            background: #0366d6;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+        
+        .button:hover {
+            background: #0256c7;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(3,102,214,0.3);
+        }
+        
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .button.success {
+            background: #4caf50;
+        }
+        
+        .button.success:hover {
+            background: #45a049;
+        }
+        
+        .button.danger {
+            background: #f44336;
+        }
+        
+        .button.danger:hover {
+            background: #da190b;
+        }
+        
+        .decision-point {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 10px;
+        }
+        
+        .decision-options {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .decision-button {
+            padding: 15px 25px;
+            background: white;
+            border: 2px solid #0366d6;
+            color: #0366d6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            margin: 5px;
+            min-width: 200px;
+        }
+        
+        .decision-button:hover {
+            background: #0366d6;
+            color: white;
+        }
+        
+        .hint-box {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .hint-box.visible {
+            display: block;
+        }
+        
+        .fairness-matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .matrix-cell {
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+            background: #f8f9fa;
+        }
+        
+        .matrix-header {
+            background: #495057;
+            color: white;
+            font-weight: bold;
+            grid-column: span 3;
+        }
+        
+        .bias-detected {
+            background: #ffebee;
+            border: 2px solid #f44336;
+        }
+        
+        .bias-mitigated {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+        
+        .challenge-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .lawsuit-ticker {
+            background: #1e1e1e;
+            color: #f44336;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 20px 0;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        
+        .ticker-content {
+            display: inline-block;
+            animation: scroll 20s linear infinite;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .achievement {
+            background: linear-gradient(135deg, #ffd93d 0%, #ffc107 100%);
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            text-align: center;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .achievement.unlocked {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .final-report {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 40px 0;
+            display: none;
+        }
+        
+        .final-report.visible {
+            display: block;
+        }
+        
+        .mitigation-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .mitigation-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .mitigation-card:hover {
+            border-color: #0366d6;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .mitigation-card.selected {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+        
+        .explainability-demo {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚖️ Operation: Ethical AI Rescue</h1>
+            <p style="font-size: 1.2em; color: #666;">Save TechGlobal from $200M Discrimination Crisis</p>
+        </div>
+
+        <div class="crisis-alert">
+            <h2>🚨 URGENT: Legal Crisis Escalating</h2>
+            <div class="lawsuit-ticker">
+                <span class="ticker-content">
+                    +++ BREAKING: EEOC Investigation Launched +++ Class Action Filed: 10,000 Plaintiffs +++ 
+                    Stock Down 30% +++ CEO Subpoenaed +++ EU GDPR Violation Notice +++ 
+                    Major Clients Canceling Contracts +++ Board Emergency Meeting Called +++
+                </span>
+            </div>
+            <p><strong>Time Critical:</strong> You have 2 hours to implement ethical AI safeguards before regulatory shutdown.</p>
+        </div>
+
+        <div class="progress-container">
+            <h3>Crisis Resolution Progress</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%">
+                    <span id="progressText">0%</span>
+                </div>
+            </div>
+            <p id="progressDescription" style="margin-top: 10px; text-align: center;">Beginning emergency response...</p>
+        </div>
+
+        <div class="risk-dashboard">
+            <h3>💰 Financial Risk Dashboard</h3>
+            <div class="metric">
+                <span class="metric-label">Current Liability</span>
+                <span class="metric-value critical" id="currentRisk">$200M</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Violations Detected</span>
+                <span class="metric-value critical" id="violations">12</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Compliance Score</span>
+                <span class="metric-value critical" id="complianceScore">23%</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Risk Mitigated</span>
+                <span class="metric-value" id="mitigated">$0</span>
+            </div>
+        </div>
+
+        <!-- Challenge 1: Discover the Bias -->
+        <div class="challenge-section" id="challenge1">
+            <h2>🔍 Challenge 1: Audit the AI Systems</h2>
+            <p>Your first task is to identify where bias exists in TechGlobal's AI systems. The board needs evidence of the problems before approving remediation budget.</p>
+            
+            <div class="interactive-section">
+                <h3>System Audit Dashboard</h3>
+                <canvas id="biasCanvas" width="900" height="400"></canvas>
+                
+                <div class="decision-point">
+                    <p>📊 Based on the audit results, which system poses the highest legal risk?</p>
+                    <div class="decision-options">
+                        <button class="decision-button" onclick="checkAnswer1('hiring')">Hiring System (73% gender bias)</button>
+                        <button class="decision-button" onclick="checkAnswer1('lending')">Lending Algorithm (62% racial bias)</button>
+                        <button class="decision-button" onclick="checkAnswer1('healthcare')">Healthcare Model (45% age bias)</button>
+                    </div>
+                </div>
+                
+                <div class="hint-box" id="hint1">
+                    <strong>💡 Insight:</strong> While the hiring system shows the highest bias percentage, all three systems are above the legal threshold of 20% disparate impact. The hiring system affects the most people and has the highest visibility, making it priority #1 for immediate action.
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenge 2: Understand Fairness Metrics -->
+        <div class="challenge-section" id="challenge2" style="display: none;">
+            <h2>📐 Challenge 2: Choose Your Fairness Metrics</h2>
+            <p>Different fairness metrics can conflict with each other. Choose the right metrics for each use case to satisfy legal requirements.</p>
+            
+            <div class="interactive-section">
+                <div class="control-panel">
+                    <h3>Fairness Metric Selector</h3>
+                    
+                    <div class="fairness-matrix">
+                        <div class="matrix-header">Hiring System Metrics</div>
+                        <div class="matrix-cell">
+                            <strong>Demographic Parity</strong><br>
+                            <span style="font-size: 0.9em;">Equal selection rates</span><br>
+                            <span id="dpValue">Difference: 32%</span>
+                        </div>
+                        <div class="matrix-cell">
+                            <strong>Equalized Odds</strong><br>
+                            <span style="font-size: 0.9em;">Equal TPR & FPR</span><br>
+                            <span id="eoValue">Difference: 28%</span>
+                        </div>
+                        <div class="matrix-cell">
+                            <strong>Disparate Impact</strong><br>
+                            <span style="font-size: 0.9em;">80% rule</span><br>
+                            <span id="diValue">Ratio: 0.42</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <p><strong>Select primary metric for legal compliance:</strong></p>
+                        <div class="decision-options">
+                            <button class="decision-button" onclick="selectMetric('dp')">Demographic Parity</button>
+                            <button class="decision-button" onclick="selectMetric('eo')">Equalized Odds</button>
+                            <button class="decision-button" onclick="selectMetric('di')">Disparate Impact (80% Rule)</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hint-box" id="hint2">
+                    <strong>💡 Legal Context:</strong> The EEOC primarily uses the Disparate Impact "80% rule" for employment decisions. A selection rate ratio below 0.8 creates a presumption of discrimination that must be justified by business necessity.
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenge 3: Implement Bias Mitigation -->
+        <div class="challenge-section" id="challenge3" style="display: none;">
+            <h2>🛠️ Challenge 3: Mitigate the Bias</h2>
+            <p>Choose and implement mitigation strategies. Each has different costs and effectiveness.</p>
+            
+            <div class="interactive-section">
+                <h3>Mitigation Strategy Selection</h3>
+                
+                <div class="mitigation-options">
+                    <div class="mitigation-card" onclick="selectMitigation('reweight')">
+                        <h4>Pre-processing: Reweighting</h4>
+                        <p>Adjust training data weights</p>
+                        <p><strong>Bias Reduction:</strong> 40-60%</p>
+                        <p><strong>Accuracy Cost:</strong> 1-2%</p>
+                        <p><strong>Implementation:</strong> 1 week</p>
+                    </div>
+                    
+                    <div class="mitigation-card" onclick="selectMitigation('constraint')">
+                        <h4>In-processing: Constraints</h4>
+                        <p>Add fairness to objective</p>
+                        <p><strong>Bias Reduction:</strong> 60-80%</p>
+                        <p><strong>Accuracy Cost:</strong> 3-5%</p>
+                        <p><strong>Implementation:</strong> 2 weeks</p>
+                    </div>
+                    
+                    <div class="mitigation-card" onclick="selectMitigation('threshold')">
+                        <h4>Post-processing: Thresholds</h4>
+                        <p>Adjust decision boundaries</p>
+                        <p><strong>Bias Reduction:</strong> 70-90%</p>
+                        <p><strong>Accuracy Cost:</strong> 2-4%</p>
+                        <p><strong>Implementation:</strong> 3 days</p>
+                    </div>
+                    
+                    <div class="mitigation-card" onclick="selectMitigation('ensemble')">
+                        <h4>Ensemble: All Methods</h4>
+                        <p>Combine all approaches</p>
+                        <p><strong>Bias Reduction:</strong> 85-95%</p>
+                        <p><strong>Accuracy Cost:</strong> 4-7%</p>
+                        <p><strong>Implementation:</strong> 3 weeks</p>
+                    </div>
+                </div>
+                
+                <div class="control-panel" style="margin-top: 20px;">
+                    <h4>Mitigation Simulator</h4>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Fairness Weight:</span>
+                            <span id="fairnessWeight">0.5</span>
+                        </div>
+                        <input type="range" id="fairnessSlider" min="0" max="1" step="0.1" value="0.5" oninput="updateMitigation()">
+                    </div>
+                    
+                    <canvas id="mitigationCanvas" width="900" height="300"></canvas>
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="button success" onclick="applyMitigation()">Apply Mitigation Strategy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenge 4: Implement Explainability -->
+        <div class="challenge-section" id="challenge4" style="display: none;">
+            <h2>🔎 Challenge 4: Make AI Decisions Explainable</h2>
+            <p>GDPR Article 22 requires explanations for automated decisions. Implement an explainability system.</p>
+            
+            <div class="interactive-section">
+                <h3>Decision Explanation Generator</h3>
+                
+                <div class="explainability-demo">
+                    <h4>Sample Application #4823</h4>
+                    <pre id="explanationOutput">
+Applicant Profile:
+- Gender: Female
+- Education: MS Computer Science, Stanford
+- Experience: 8 years
+- Skills Match: 92%
+- Interview Score: 8.7/10
+
+AI Decision: REJECTED ❌
+
+Analyzing decision factors...
+                    </pre>
+                </div>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <button class="button" onclick="generateExplanation()">Generate Explanation</button>
+                    <button class="button danger" onclick="detectBiasInDecision()">Detect Bias in Decision</button>
+                </div>
+                
+                <div class="hint-box" id="hint4">
+                    <strong>⚠️ Bias Detected:</strong> The model is penalizing the combination of "Female" and "8 years experience" due to historical data where women with 5-10 years experience had higher turnover (often due to lack of advancement opportunities). This creates a self-perpetuating cycle of discrimination.
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenge 5: Continuous Monitoring -->
+        <div class="challenge-section" id="challenge5" style="display: none;">
+            <h2>📊 Challenge 5: Deploy Continuous Monitoring</h2>
+            <p>Set up real-time monitoring to detect and prevent future bias before it causes legal issues.</p>
+            
+            <div class="interactive-section">
+                <h3>Live Fairness Monitor</h3>
+                
+                <div class="control-panel">
+                    <h4>Real-Time Bias Detection</h4>
+                    <canvas id="monitoringCanvas" width="900" height="300"></canvas>
+                    
+                    <div style="margin-top: 20px;">
+                        <button class="button" onclick="startMonitoring()">Start Live Monitoring</button>
+                        <button class="button" onclick="simulateDataDrift()">Simulate Data Drift</button>
+                        <button class="button success" onclick="triggerRetraining()">Trigger Retraining</button>
+                    </div>
+                </div>
+                
+                <div id="alertsContainer" style="margin-top: 20px;">
+                    <!-- Alerts will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenge 6: Board Presentation -->
+        <div class="challenge-section" id="challenge6" style="display: none;">
+            <h2>💼 Challenge 6: Present to the Board</h2>
+            <p>Convince the board to approve your ethical AI framework with clear ROI demonstration.</p>
+            
+            <div class="interactive-section">
+                <h3>Executive Summary Builder</h3>
+                
+                <div class="decision-point">
+                    <p>Select your key argument for the board:</p>
+                    <div class="decision-options">
+                        <button class="decision-button" onclick="presentArgument('compliance')">Legal Compliance: Avoid $200M in fines</button>
+                        <button class="decision-button" onclick="presentArgument('reputation')">Brand Value: 73% consumers demand ethical AI</button>
+                        <button class="decision-button" onclick="presentArgument('talent')">Talent Retention: 62% employees considering leaving</button>
+                        <button class="decision-button" onclick="presentArgument('opportunity')">Market Opportunity: $50M in new inclusive markets</button>
+                    </div>
+                </div>
+                
+                <div id="boardResponse" style="margin-top: 20px; display: none;">
+                    <!-- Board response will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="achievement" id="achievement1">
+            <h3>🏆 Achievement: Bias Detective</h3>
+            <p>Successfully identified bias across all AI systems!</p>
+        </div>
+        
+        <div class="achievement" id="achievement2">
+            <h3>🏆 Achievement: Fairness Expert</h3>
+            <p>Mastered all major fairness metrics!</p>
+        </div>
+        
+        <div class="achievement" id="achievement3">
+            <h3>🏆 Achievement: Ethics Champion</h3>
+            <p>Achieved 95% bias reduction while maintaining accuracy!</p>
+        </div>
+        
+        <div class="achievement" id="achievement4">
+            <h3>🏆 Achievement: Compliance Hero</h3>
+            <p>Prevented $200M in regulatory fines!</p>
+        </div>
+
+        <!-- Final Report -->
+        <div class="final-report" id="finalReport">
+            <h2>📊 Mission Complete: Crisis Averted!</h2>
+            <p style="font-size: 1.2em; margin: 20px 0;">Outstanding leadership! You've transformed TechGlobal from facing criminal charges to becoming an industry leader in ethical AI.</p>
+            
+            <h3>Crisis Resolution Summary:</h3>
+            <ul style="font-size: 1.1em; line-height: 1.8;">
+                <li>✅ Reduced hiring bias from 73% to 4% (within legal threshold)</li>
+                <li>✅ Achieved 87% disparate impact ratio (above 80% requirement)</li>
+                <li>✅ Prevented $200M in fines and lawsuits</li>
+                <li>✅ Unlocked $50M in new market opportunities</li>
+                <li>✅ Retained 95% of key talent (saved $20M in turnover costs)</li>
+                <li>✅ Stock price recovered and exceeded previous high by 15%</li>
+            </ul>
+            
+            <h3>Implemented Solutions:</h3>
+            <ul>
+                <li>Comprehensive bias detection framework across all AI systems</li>
+                <li>Multi-stage mitigation pipeline (pre, in, and post-processing)</li>
+                <li>Real-time fairness monitoring with automatic alerts</li>
+                <li>Complete explainability system for all decisions</li>
+                <li>Board-approved ethical AI governance structure</li>
+            </ul>
+            
+            <h3>Long-term Impact:</h3>
+            <p>Your ethical AI framework is now the industry gold standard. TechGlobal has become the preferred vendor for government contracts requiring bias-free AI, opening $500M in new opportunities over the next 5 years. The company's "Ethics First" approach has attracted top talent and improved employee satisfaction by 40%.</p>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="button" style="background: white; color: #28a745; border: 2px solid white; font-size: 1.1em; padding: 15px 40px;" onclick="downloadReport()">
+                    📥 Download Compliance Certificate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentChallenge = 1;
+        let progress = 0;
+        let totalRisk = 200000000;
+        let mitigatedRisk = 0;
+        let violationsCount = 12;
+        let complianceScore = 23;
+        let selectedMitigation = null;
+        let monitoringActive = false;
+        
+        // Initialize
+        window.onload = function() {
+            drawBiasAudit();
+            updateProgress(5);
+        };
+        
+        // Draw initial bias audit visualization
+        function drawBiasAudit() {
+            const canvas = document.getElementById('biasCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw bar chart showing bias levels
+            const systems = [
+                { name: 'Hiring', bias: 73, color: '#f44336' },
+                { name: 'Lending', bias: 62, color: '#ff9800' },
+                { name: 'Healthcare', bias: 45, color: '#ffc107' },
+                { name: 'Marketing', bias: 28, color: '#ffeb3b' },
+                { name: 'Pricing', bias: 15, color: '#8bc34a' }
+            ];
+            
+            const barWidth = 120;
+            const spacing = 40;
+            const startX = 100;
+            const maxHeight = 250;
+            
+            // Draw axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(80, 350);
+            ctx.lineTo(820, 350);
+            ctx.moveTo(80, 350);
+            ctx.lineTo(80, 50);
+            ctx.stroke();
+            
+            // Draw legal threshold line
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(80, 350 - (20 / 100) * maxHeight);
+            ctx.lineTo(820, 350 - (20 / 100) * maxHeight);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            ctx.fillStyle = '#f44336';
+            ctx.font = '12px Georgia';
+            ctx.fillText('Legal Threshold (20%)', 85, 350 - (20 / 100) * maxHeight - 5);
+            
+            // Draw bars
+            systems.forEach((system, i) => {
+                const x = startX + i * (barWidth + spacing);
+                const height = (system.bias / 100) * maxHeight;
+                const y = 350 - height;
+                
+                // Draw bar
+                ctx.fillStyle = system.color;
+                ctx.fillRect(x, y, barWidth, height);
+                
+                // Draw percentage
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 16px Georgia';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${system.bias}%`, x + barWidth / 2, y - 10);
+                
+                // Draw label
+                ctx.font = '14px Georgia';
+                ctx.fillText(system.name, x + barWidth / 2, 370);
+            });
+            
+            // Title
+            ctx.fillStyle = '#003366';
+            ctx.font = 'bold 18px Georgia';
+            ctx.textAlign = 'left';
+            ctx.fillText('AI System Bias Levels (% Disparate Impact)', 300, 30);
+        }
+        
+        // Check answer for Challenge 1
+        function checkAnswer1(answer) {
+            const hint = document.getElementById('hint1');
+            hint.classList.add('visible');
+            
+            if (answer === 'hiring') {
+                updateProgress(20);
+                mitigatedRisk += 10000000;
+                updateDashboard();
+                
+                setTimeout(() => {
+                    document.getElementById('achievement1').classList.add('unlocked');
+                    document.getElementById('challenge2').style.display = 'block';
+                    document.getElementById('challenge2').scrollIntoView({ behavior: 'smooth' });
+                }, 1500);
+            }
+        }
+        
+        // Select fairness metric
+        function selectMetric(metric) {
+            document.getElementById('hint2').classList.add('visible');
+            
+            if (metric === 'di') {
+                updateProgress(35);
+                mitigatedRisk += 20000000;
+                violationsCount -= 2;
+                complianceScore += 15;
+                updateDashboard();
+                
+                setTimeout(() => {
+                    document.getElementById('achievement2').classList.add('unlocked');
+                    document.getElementById('challenge3').style.display = 'block';
+                    document.getElementById('challenge3').scrollIntoView({ behavior: 'smooth' });
+                }, 1500);
+            }
+        }
+        
+        // Select mitigation strategy
+        function selectMitigation(strategy) {
+            // Clear previous selection
+            document.querySelectorAll('.mitigation-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Mark selected
+            event.currentTarget.classList.add('selected');
+            selectedMitigation = strategy;
+            
+            // Draw mitigation effect visualization
+            drawMitigationEffect(strategy);
+        }
+        
+        // Update mitigation visualization
+        function updateMitigation() {
+            const weight = document.getElementById('fairnessSlider').value;
+            document.getElementById('fairnessWeight').textContent = weight;
+            
+            if (selectedMitigation) {
+                drawMitigationEffect(selectedMitigation);
+            }
+        }
+        
+        // Draw mitigation effect
+        function drawMitigationEffect(strategy) {
+            const canvas = document.getElementById('mitigationCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const weight = parseFloat(document.getElementById('fairnessSlider').value);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Calculate metrics based on strategy and weight
+            let biasReduction = 0;
+            let accuracyCost = 0;
+            
+            switch(strategy) {
+                case 'reweight':
+                    biasReduction = 40 + weight * 20;
+                    accuracyCost = 1 + weight * 1;
+                    break;
+                case 'constraint':
+                    biasReduction = 60 + weight * 20;
+                    accuracyCost = 3 + weight * 2;
+                    break;
+                case 'threshold':
+                    biasReduction = 70 + weight * 20;
+                    accuracyCost = 2 + weight * 2;
+                    break;
+                case 'ensemble':
+                    biasReduction = 85 + weight * 10;
+                    accuracyCost = 4 + weight * 3;
+                    break;
+            }
+            
+            // Draw comparison bars
+            const metrics = [
+                { label: 'Current Bias', value: 73, color: '#f44336' },
+                { label: 'After Mitigation', value: 73 * (1 - biasReduction / 100), color: '#4caf50' },
+                { label: 'Current Accuracy', value: 92, color: '#2196f3' },
+                { label: 'After Mitigation', value: 92 - accuracyCost, color: '#ff9800' }
+            ];
+            
+            const barWidth = 150;
+            const spacing = 50;
+            const startX = 100;
+            
+            metrics.forEach((metric, i) => {
+                const x = startX + i * (barWidth + spacing);
+                const height = metric.value * 2;
+                const y = 250 - height;
+                
+                ctx.fillStyle = metric.color;
+                ctx.fillRect(x, y, barWidth, height);
+                
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 14px Georgia';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${metric.value.toFixed(1)}%`, x + barWidth / 2, y - 10);
+                
+                ctx.font = '12px Georgia';
+                ctx.fillText(metric.label, x + barWidth / 2, 270);
+            });
+        }
+        
+        // Apply mitigation
+        function applyMitigation() {
+            if (!selectedMitigation) {
+                alert('Please select a mitigation strategy first!');
+                return;
+            }
+            
+            updateProgress(50);
+            mitigatedRisk += 50000000;
+            violationsCount -= 4;
+            complianceScore += 25;
+            updateDashboard();
+            
+            document.getElementById('achievement3').classList.add('unlocked');
+            
+            setTimeout(() => {
+                document.getElementById('challenge4').style.display = 'block';
+                document.getElementById('challenge4').scrollIntoView({ behavior: 'smooth' });
+            }, 1500);
+        }
+        
+        // Generate explanation for decision
+        function generateExplanation() {
+            const output = document.getElementById('explanationOutput');
+            output.textContent = `Applicant Profile:
+- Gender: Female
+- Education: MS Computer Science, Stanford
+- Experience: 8 years
+- Skills Match: 92%
+- Interview Score: 8.7/10
+
+AI Decision: REJECTED ❌
+
+Decision Factors (SHAP Analysis):
+1. Experience_Gender_Interaction: -0.42 (STRONG NEGATIVE)
+   → Model learned bias from historical data
+2. Skills Match: +0.38 (POSITIVE)
+3. Education Quality: +0.31 (POSITIVE)
+4. Interview Score: +0.28 (POSITIVE)
+5. Years Experience: -0.22 (NEGATIVE - unexpected)
+
+⚠️ BIAS ALERT: Negative weight on female + experience combination
+This violates Equal Opportunity Employment laws`;
+            
+            document.getElementById('hint4').classList.add('visible');
+        }
+        
+        // Detect bias in decision
+        function detectBiasInDecision() {
+            updateProgress(65);
+            mitigatedRisk += 30000000;
+            violationsCount -= 3;
+            complianceScore += 20;
+            updateDashboard();
+            
+            setTimeout(() => {
+                document.getElementById('challenge5').style.display = 'block';
+                document.getElementById('challenge5').scrollIntoView({ behavior: 'smooth' });
+            }, 1500);
+        }
+        
+        // Start monitoring
+        function startMonitoring() {
+            monitoringActive = true;
+            animateMonitoring();
+            
+            updateProgress(80);
+            mitigatedRisk += 40000000;
+            violationsCount -= 2;
+            complianceScore += 15;
+            updateDashboard();
+        }
+        
+        // Animate monitoring chart
+        function animateMonitoring() {
+            if (!monitoringActive) return;
+            
+            const canvas = document.getElementById('monitoringCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Simulate real-time data
+            const timePoints = 20;
+            const metrics = [];
+            
+            for (let i = 0; i < timePoints; i++) {
+                metrics.push({
+                    x: i * 45,
+                    bias: 20 + Math.random() * 10 - 5,
+                    threshold: 20
+                });
+            }
+            
+            // Draw threshold line
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(0, 150);
+            ctx.lineTo(900, 150);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw bias trend
+            ctx.strokeStyle = '#2196f3';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            metrics.forEach((point, i) => {
+                const y = 300 - point.bias * 6;
+                if (i === 0) ctx.moveTo(point.x, y);
+                else ctx.lineTo(point.x, y);
+            });
+            ctx.stroke();
+            
+            // Continue animation
+            if (monitoringActive) {
+                setTimeout(() => animateMonitoring(), 1000);
+            }
+        }
+        
+        // Simulate data drift
+        function simulateDataDrift() {
+            const alertContainer = document.getElementById('alertsContainer');
+            const alert = document.createElement('div');
+            alert.style.cssText = 'background: #ffebee; border: 2px solid #f44336; padding: 15px; border-radius: 8px; margin: 10px 0;';
+            alert.innerHTML = `
+                <strong>⚠️ DRIFT DETECTED:</strong> Gender bias increasing in real-time predictions<br>
+                Current: 28% | Threshold: 20% | Action: Immediate retraining required
+            `;
+            alertContainer.appendChild(alert);
+        }
+        
+        // Trigger retraining
+        function triggerRetraining() {
+            monitoringActive = false;
+            
+            updateProgress(90);
+            mitigatedRisk += 50000000;
+            violationsCount = 1;
+            complianceScore = 87;
+            updateDashboard();
+            
+            setTimeout(() => {
+                document.getElementById('challenge6').style.display = 'block';
+                document.getElementById('challenge6').scrollIntoView({ behavior: 'smooth' });
+            }, 1500);
+        }
+        
+        // Present argument to board
+        function presentArgument(argument) {
+            const response = document.getElementById('boardResponse');
+            response.style.display = 'block';
+            
+            let boardDecision = '';
+            
+            switch(argument) {
+                case 'compliance':
+                    boardDecision = `<div style="background: #e8f5e9; padding: 20px; border-radius: 8px;">
+                        <h4>✅ Board Approval: Unanimous</h4>
+                        <p>"The legal risk is undeniable. $200M in fines would destroy shareholder value. Your ethical AI framework is approved with full funding."</p>
+                        <p><strong>Budget Approved:</strong> $10M for implementation</p>
+                        <p><strong>Timeline:</strong> Immediate deployment authorized</p>
+                    </div>`;
+                    break;
+                case 'reputation':
+                    boardDecision = `<div style="background: #e8f5e9; padding: 20px; border-radius: 8px;">
+                        <h4>✅ Board Approval: Strong Support</h4>
+                        <p>"Brand value is our biggest asset. Consumer trust in ethical AI will differentiate us from competitors."</p>
+                        <p><strong>Additional Initiative:</strong> Public transparency report quarterly</p>
+                    </div>`;
+                    break;
+                case 'talent':
+                    boardDecision = `<div style="background: #fff3cd; padding: 20px; border-radius: 8px;">
+                        <h4>⚠️ Board Approval: Conditional</h4>
+                        <p>"Talent retention is concerning, but we need more data. Approved for pilot program with quarterly review."</p>
+                        <p><strong>Budget:</strong> $5M for pilot</p>
+                    </div>`;
+                    break;
+                case 'opportunity':
+                    boardDecision = `<div style="background: #e8f5e9; padding: 20px; border-radius: 8px;">
+                        <h4>✅ Board Approval: Enthusiastic</h4>
+                        <p>"$50M in new markets plus avoiding $200M in risks? This is a $250M opportunity. Full support!"</p>
+                        <p><strong>Bonus Approved:</strong> Ethics team receives innovation award</p>
+                    </div>`;
+                    break;
+            }
+            
+            response.innerHTML = boardDecision;
+            
+            updateProgress(100);
+            mitigatedRisk = totalRisk;
+            violationsCount = 0;
+            complianceScore = 95;
+            updateDashboard();
+            
+            document.getElementById('achievement4').classList.add('unlocked');
+            
+            setTimeout(() => {
+                document.getElementById('finalReport').classList.add('visible');
+                document.getElementById('finalReport').scrollIntoView({ behavior: 'smooth' });
+            }, 2000);
+        }
+        
+        // Update dashboard metrics
+        function updateDashboard() {
+            document.getElementById('currentRisk').textContent = `$${((totalRisk - mitigatedRisk) / 1000000).toFixed(0)}M`;
+            document.getElementById('currentRisk').className = mitigatedRisk > totalRisk * 0.5 ? 'metric-value warning' : 
+                                                               mitigatedRisk > totalRisk * 0.8 ? 'metric-value safe' : 
+                                                               'metric-value critical';
+            
+            document.getElementById('violations').textContent = violationsCount;
+            document.getElementById('violations').className = violationsCount < 5 ? 'metric-value safe' : 
+                                                               violationsCount < 10 ? 'metric-value warning' : 
+                                                               'metric-value critical';
+            
+            document.getElementById('complianceScore').textContent = `${complianceScore}%`;
+            document.getElementById('complianceScore').className = complianceScore > 80 ? 'metric-value safe' : 
+                                                                   complianceScore > 50 ? 'metric-value warning' : 
+                                                                   'metric-value critical';
+            
+            document.getElementById('mitigated').textContent = `$${(mitigatedRisk / 1000000).toFixed(0)}M`;
+            document.getElementById('mitigated').className = mitigatedRisk > 100000000 ? 'metric-value safe' : 'metric-value';
+        }
+        
+        // Update progress bar
+        function updateProgress(value) {
+            progress = value;
+            const bar = document.getElementById('progressBar');
+            const text = document.getElementById('progressText');
+            const desc = document.getElementById('progressDescription');
+            
+            bar.style.width = value + '%';
+            text.textContent = value + '%';
+            
+            if (value === 5) {
+                desc.textContent = 'Initiating emergency audit...';
+            } else if (value === 20) {
+                desc.textContent = 'Critical bias identified! Analyzing legal exposure...';
+            } else if (value === 35) {
+                desc.textContent = 'Fairness metrics selected. Preparing mitigation...';
+            } else if (value === 50) {
+                desc.textContent = 'Bias mitigation deployed! Testing effectiveness...';
+            } else if (value === 65) {
+                desc.textContent = 'Explainability system activated...';
+            } else if (value === 80) {
+                desc.textContent = 'Monitoring systems online...';
+            } else if (value === 90) {
+                desc.textContent = 'Preparing board presentation...';
+            } else if (value === 100) {
+                desc.textContent = 'Crisis resolved! TechGlobal is now compliant!';
+                bar.style.background = 'linear-gradient(90deg, #4caf50, #8bc34a)';
+            }
+        }
+        
+        // Download compliance report
+        function downloadReport() {
+            alert('Downloading Ethical AI Compliance Certificate...\n\nCertified Compliant with:\n- EEOC Employment Guidelines\n- EU GDPR Article 22\n- California Unruh Act\n- Fair Housing Act\n\nRisk Mitigation: $200M prevented\nNew Opportunities: $50M unlocked\nCompliance Score: 95%');
+        }
+    </script>
+</body>
+</html>

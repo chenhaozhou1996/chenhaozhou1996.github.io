@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Learning for Business Analytics | Interactive Course Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e27;
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Animated Background */
+        .neural-network-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        .node {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #3b82f6;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            animation: pulse 3s infinite;
+        }
+        
+        .connection {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+            animation: flow 3s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.5); opacity: 1; }
+        }
+        
+        @keyframes flow {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(100%); }
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.95) 0%, rgba(124, 58, 237, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            padding: 60px 30px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .course-title {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #60a5fa 0%, #c084fc 50%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 40px rgba(96, 165, 250, 0.3);
+        }
+        
+        .course-subtitle {
+            font-size: 1.2em;
+            color: #cbd5e1;
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        
+        .instructor-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .instructor-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        /* Course Stats */
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 40px 30px;
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-card {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+        
+        /* Learning Path */
+        .learning-path {
+            padding: 60px 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .path-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .path-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .path-description {
+            color: #cbd5e1;
+            font-size: 1.1em;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Module Grid */
+        .modules-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            padding: 0 20px;
+        }
+        
+        .module-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.9) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .module-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .module-number {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .module-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .module-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #f1f5f9;
+        }
+        
+        .module-subtitle {
+            color: #60a5fa;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+        }
+        
+        .module-description {
+            color: #cbd5e1;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+        
+        .module-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .tag {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+        }
+        
+        .module-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .status-available {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+        
+        .status-coming {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+        
+        .status-completed {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+        }
+        
+        .difficulty {
+            display: flex;
+            gap: 3px;
+        }
+        
+        .difficulty-bar {
+            width: 20px;
+            height: 8px;
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 4px;
+        }
+        
+        .difficulty-bar.filled {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+        
+        /* Interactive Timeline */
+        .timeline-section {
+            padding: 60px 30px;
+            background: rgba(30, 41, 59, 0.3);
+        }
+        
+        .timeline {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            padding: 40px 0;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #3b82f6, #8b5cf6, #ec4899);
+            transform: translateX(-50%);
+        }
+        
+        .timeline-item {
+            display: flex;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+        
+        .timeline-content {
+            flex: 1;
+            padding: 20px;
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 15px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            margin: 0 40px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-content:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            top: 30px;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            animation: pulseDot 2s infinite;
+        }
+        
+        @keyframes pulseDot {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+        }
+        
+        /* Progress Overview */
+        .progress-overview {
+            padding: 60px 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .overall-progress {
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .progress-title {
+            font-size: 1.3em;
+            color: #f1f5f9;
+        }
+        
+        .progress-percentage {
+            font-size: 2em;
+            font-weight: bold;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .progress-bar-large {
+            background: rgba(59, 130, 246, 0.2);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill-large {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            width: 30%;
+            border-radius: 10px;
+            position: relative;
+            animation: progressGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes progressGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+        }
+        
+        /* Achievement Section */
+        .achievements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        
+        .achievement-card {
+            background: rgba(51, 65, 85, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .achievement-card.unlocked {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        
+        .achievement-card.unlocked::before {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            color: #4ade80;
+            font-size: 1.2em;
+        }
+        
+        .achievement-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            filter: grayscale(1);
+            opacity: 0.5;
+        }
+        
+        .achievement-card.unlocked .achievement-icon {
+            filter: grayscale(0);
+            opacity: 1;
+        }
+        
+        .achievement-name {
+            font-size: 0.9em;
+            color: #94a3b8;
+        }
+        
+        .achievement-card.unlocked .achievement-name {
+            color: #60a5fa;
+            font-weight: 600;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 30px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.3) 0%, rgba(124, 58, 237, 0.3) 100%);
+        }
+        
+        .cta-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #60a5fa, #c084fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .cta-description {
+            color: #cbd5e1;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .cta-button {
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .cta-primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+        
+        .cta-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.5);
+        }
+        
+        .cta-secondary {
+            background: transparent;
+            color: #60a5fa;
+            border: 2px solid rgba(59, 130, 246, 0.5);
+        }
+        
+        .cta-secondary:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: #60a5fa;
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 40px 30px;
+            text-align: center;
+            background: rgba(10, 14, 39, 0.9);
+            color: #64748b;
+        }
+        
+        /* Loading Animation */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(59, 130, 246, 0.1) 100%);
+            background-size: 200% 100%;
+            animation: skeleton 1.5s infinite;
+        }
+        
+        @keyframes skeleton {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .course-title {
+                font-size: 2em;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .timeline-line {
+                left: 20px;
+            }
+            
+            .timeline-item {
+                flex-direction: column !important;
+            }
+            
+            .timeline-content {
+                margin: 0 0 0 40px;
+            }
+            
+            .timeline-dot {
+                left: 20px;
+            }
+            
+            .modules-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Interactive Elements */
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+        
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Neural Network Background -->
+    <div class="neural-network-bg" id="neuralBg"></div>
+    
+    <!-- Header Section -->
+    <header class="header">
+        <h1 class="course-title">Machine Learning for Business Analytics</h1>
+        <p class="course-subtitle">
+            Transform data into strategic decisions through hands-on ML projects. 
+            Master the complete journey from basic analytics to advanced AI deployment.
+        </p>
+        <div class="instructor-badge">
+            <div class="instructor-avatar">👨‍🏫</div>
+            <span>Interactive Learning Experience | 10 Comprehensive Modules</span>
+        </div>
+    </header>
+    
+    <!-- Course Statistics -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-number">10</div>
+            <div class="stat-label">Interactive Modules</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">50+</div>
+            <div class="stat-label">Real Cases</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">100+</div>
+            <div class="stat-label">Coding Exercises</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">$100M+</div>
+            <div class="stat-label">Business Impact</div>
+        </div>
+    </div>
+    
+    <!-- Learning Path Section -->
+    <section class="learning-path">
+        <div class="path-header">
+            <h2 class="path-title">Your ML Journey</h2>
+            <p class="path-description">
+                Each module builds on the previous, taking you from ML novice to business analytics expert
+            </p>
+        </div>
+        
+        <div class="modules-container">
+            <!-- Module 1 -->
+            <div class="module-card" onclick="navigateToModule(1)">
+                <div class="module-number">01</div>
+                <div class="module-icon">🚀</div>
+                <h3 class="module-title">ML Foundations</h3>
+                <p class="module-subtitle">Your Analytics Transformation Begins</p>
+                <p class="module-description">
+                    Journey from Excel to Python. Build your first predictive model in 3 hours. 
+                    Discover how Netflix predicts what you'll watch next.
+                </p>
+                <div class="module-tags">
+                    <span class="tag">Python Basics</span>
+                    <span class="tag">Pandas</span>
+                    <span class="tag">First Model</span>
+                </div>
+                <div class="module-status">
+                    <span class="status-badge status-available">Start Now</span>
+                    <div class="difficulty">
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar"></div>
+                        <div class="difficulty-bar"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Module 2 -->
+            <div class="module-card" onclick="navigateToModule(2)">
+                <div class="module-number">02</div>
+                <div class="module-icon">📈</div>
+                <h3 class="module-title">Sales Prediction Mastery</h3>
+                <p class="module-subtitle">Linear & Multiple Regression</p>
+                <p class="module-description">
+                    Help Sarah save MegaMart from $3M inventory crisis. Build models that predict 
+                    sales with 94% accuracy using weather, promotions, and seasonality.
+                </p>
+                <div class="module-tags">
+                    <span class="tag">Regression</span>
+                    <span class="tag">Forecasting</span>
+                    <span class="tag">ROI Analysis</span>
+                </div>
+                <div class="module-status">
+                    <span class="status-badge status-available">Available</span>
+                    <div class="difficulty">
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Module 3 -->
+            <div class="module-card" onclick="navigateToModule(3)">
+                <div class="module-number">03</div>
+                <div class="module-icon">🎯</div>
+                <h3 class="module-title">Classification Power</h3>
+                <p class="module-subtitle">Predict Customer Behavior</p>
+                <p class="module-description">
+                    Predict which customers will churn before they leave. Use logistic regression 
+                    and decision trees to save $25M in retention costs.
+                </p>
+                <div class="module-tags">
+                    <span class="tag">Classification</span>
+                    <span class="tag">Churn</span>
+                    <span class="tag">Decision Trees</span>
+                </div>
+                <div class="module-status">
+                    <span class="status-badge status-coming">Coming Soon</span>
+                    <div class="difficulty">
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Module 4 -->
+            <div class="module-card" onclick="navigateToModule(4)">
+                <div class="module-number">04</div>
+                <div class="module-icon">🎨</div>
+                <h3 class="module-title">Customer Segmentation</h3>
+                <p class="module-subtitle">Clustering & Unsupervised Learning</p>
+                <p class="module-description">
+                    Discover hidden customer segments to fight Amazon. Use K-Means clustering 
+                    to personalize marketing and recover $52M in lost revenue.
+                </p>
+                <div class="module-tags">
+                    <span class="tag">K-Means</span>
+                    <span class="tag">RFM Analysis</span>
+                    <span class="tag">Personalization</span>
+                </div>
+                <div class="module-status">
+                    <span class="status-badge status-available">Available</span>
+                    <div class="difficulty">
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Module 5 -->
+            <div class="module-card" onclick="navigateToModule(5)">
+                <div class="module-number">05</div>
+                <div class="module-icon">⏰</div>
+                <h3 class="module-title">Time Series Mastery</h3>
+                <p class="module-subtitle">Predict the Future</p>
+                <p class="module-description">
+                    Master Black Friday chaos with 96% accurate hourly predictions. Use ARIMA 
+                    and Prophet to optimize staffing and prevent $8M in losses.
+                </p>
+                <div class="module-tags">
+                    <span class="tag">ARIMA</span>
+                    <span class="tag">Prophet</span>
+                    <span class="tag">Seasonality</span>
+                </div>
+                <div class="module-status">
+                    <span class="status-badge status-available">Available</span>
+                    <div class="difficulty">
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Module 6 -->
+            <div class="module-card" onclick="navigateToModule(6)">
+                <div class="module-number">06</div>
+                <div class="module-icon">📝</div>
+                <h3 class="module-title">Text Analytics & NLP</h3>
+                <p class="module-subtitle">Mine Customer Sentiment</p>
+                <p class="module-description">
+                    Transform 1M customer reviews into actionable insights. Use sentiment analysis 
+                    and topic modeling to improve products and boost ratings to 4.8 stars.
+                </p>
+                <div class="module-tags">
+                    <span class="tag">NLP</span>
+                    <span class="tag">Sentiment</span>
+                    <span class="tag">Topic Modeling</span>
+                </div>
+                <div class="module-status">
+                    <span class="status-badge status-coming">Coming Soon</span>
+                    <div class="difficulty">
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Module 7 -->
+            <div class="module-card" onclick="navigateToModule(7)">
+                <div class="module-number">07</div>
+                <div class="module-icon">🤖</div>
+                <h3 class="module-title">Recommendation Engines</h3>
+                <p class="module-subtitle">Build Your Own Netflix</p>
+                <p class="module-description">
+                    Create personalized recommendations that increase sales by 35%. Master 
+                    collaborative filtering and content-based systems used by Amazon and Spotify.
+                </p>
+                <div class="module-tags">
+                    <span class="tag">Collaborative</span>
+                    <span class="tag">Content-Based</span>
+                    <span class="tag">Matrix Factorization</span>
+                </div>
+                <div class="module-status">
+                    <span class="status-badge status-coming">Coming Soon</span>
+                    <div class="difficulty">
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Module 8 -->
+            <div class="module-card" onclick="navigateToModule(8)">
+                <div class="module-number">08</div>
+                <div class="module-icon">🧠</div>
+                <h3 class="module-title">Deep Learning Applications</h3>
+                <p class="module-subtitle">Neural Networks for Business</p>
+                <p class="module-description">
+                    Build neural networks for image recognition in retail, fraud detection in 
+                    finance, and demand forecasting that outperforms traditional methods by 40%.
+                </p>
+                <div class="module-tags">
+                    <span class="tag">Neural Networks</span>
+                    <span class="tag">TensorFlow</span>
+                    <span class="tag">Computer Vision</span>
+                </div>
+                <div class="module-status">
+                    <span class="status-badge status-coming">Week 8</span>
+                    <div class="difficulty">
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Module 9 -->
+            <div class="module-card" onclick="navigateToModule(9)">
+                <div class="module-number">09</div>
+                <div class="module-icon">🏭</div>
+                <h3 class="module-title">Production Deployment</h3>
+                <p class="module-subtitle">From Prototype to Production</p>
+                <p class="module-description">
+                    Deploy ML models that serve 10M predictions daily. Master MLOps, A/B testing, 
+                    model monitoring, and build APIs that integrate with business systems.
+                </p>
+                <div class="module-tags">
+                    <span class="tag">MLOps</span>
+                    <span class="tag">APIs</span>
+                    <span class="tag">Docker</span>
+                </div>
+                <div class="module-status">
+                    <span class="status-badge status-coming">Week 9</span>
+                    <div class="difficulty">
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Module 10 -->
+            <div class="module-card" onclick="navigateToModule(10)">
+                <div class="module-number">10</div>
+                <div class="module-icon">💎</div>
+                <h3 class="module-title">Capstone Project</h3>
+                <p class="module-subtitle">Your $100M Impact</p>
+                <p class="module-description">
+                    Lead a complete ML transformation for a real company. Present to executives, 
+                    demonstrate ROI, and add a portfolio piece worth showcasing to employers.
+                </p>
+                <div class="module-tags">
+                    <span class="tag">End-to-End</span>
+                    <span class="tag">Portfolio</span>
+                    <span class="tag">Presentation</span>
+                </div>
+                <div class="module-status">
+                    <span class="status-badge status-coming">Final Week</span>
+                    <div class="difficulty">
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                        <div class="difficulty-bar filled"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Timeline Section -->
+    <section class="timeline-section">
+        <div class="path-header">
+            <h2 class="path-title">Learning Milestones</h2>
+            <p class="path-description">Track your progression from fundamentals to mastery</p>
+        </div>
+        
+        <div class="timeline">
+            <div class="timeline-line"></div>
+            
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <h3>Week 1-2: Foundation</h3>
+                    <p>Master Python, understand ML concepts, build first model</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <h3>Week 3-4: Prediction Power</h3>
+                    <p>Regression, classification, real business applications</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <h3>Week 5-6: Advanced Analytics</h3>
+                    <p>Clustering, time series, uncover hidden patterns</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <h3>Week 7-8: AI Applications</h3>
+                    <p>NLP, recommendations, deep learning</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <h3>Week 9-10: Production Ready</h3>
+                    <p>Deploy models, capstone project, portfolio piece</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Progress Overview -->
+    <section class="progress-overview">
+        <div class="overall-progress">
+            <div class="progress-header">
+                <h3 class="progress-title">Overall Course Progress</h3>
+                <span class="progress-percentage">30%</span>
+            </div>
+            <div class="progress-bar-large">
+                <div class="progress-fill-large"></div>
+            </div>
+        </div>
+        
+        <h3 style="color: #f1f5f9; margin-bottom: 20px;">Your Achievements</h3>
+        <div class="achievements">
+            <div class="achievement-card unlocked">
+                <div class="achievement-icon">🎯</div>
+                <div class="achievement-name">First Model</div>
+            </div>
+            <div class="achievement-card unlocked">
+                <div class="achievement-icon">📊</div>
+                <div class="achievement-name">Data Explorer</div>
+            </div>
+            <div class="achievement-card unlocked">
+                <div class="achievement-icon">💡</div>
+                <div class="achievement-name">Problem Solver</div>
+            </div>
+            <div class="achievement-card">
+                <div class="achievement-icon">🚀</div>
+                <div class="achievement-name">ML Expert</div>
+            </div>
+            <div class="achievement-card">
+                <div class="achievement-icon">🏆</div>
+                <div class="achievement-name">Business Impact</div>
+            </div>
+            <div class="achievement-card">
+                <div class="achievement-icon">⭐</div>
+                <div class="achievement-name">Course Master</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2 class="cta-title">Ready to Transform Your Career?</h2>
+        <p class="cta-description">
+            Join thousands of professionals who've mastered ML for business. 
+            Start with Module 1 and build your first model today.
+        </p>
+        <div class="cta-buttons">
+            <a href="#" class="cta-button cta-primary" onclick="startLearning()">
+                Start Learning Now
+            </a>
+            <a href="#" class="cta-button cta-secondary" onclick="viewSyllabus()">
+                Download Syllabus
+            </a>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 Machine Learning for Business Analytics | Designed for Impact</p>
+    </footer>
+    
+    <script>
+        // Generate Neural Network Background
+        function createNeuralNetwork() {
+            const bg = document.getElementById('neuralBg');
+            const nodeCount = 20;
+            const connectionCount = 15;
+            
+            // Create nodes
+            for (let i = 0; i < nodeCount; i++) {
+                const node = document.createElement('div');
+                node.className = 'node';
+                node.style.left = Math.random() * 100 + '%';
+                node.style.top = Math.random() * 100 + '%';
+                node.style.animationDelay = Math.random() * 3 + 's';
+                bg.appendChild(node);
+            }
+            
+            // Create connections
+            for (let i = 0; i < connectionCount; i++) {
+                const connection = document.createElement('div');
+                connection.className = 'connection';
+                connection.style.left = Math.random() * 100 + '%';
+                connection.style.top = Math.random() * 100 + '%';
+                connection.style.width = (50 + Math.random() * 100) + 'px';
+                connection.style.transform = `rotate(${Math.random() * 360}deg)`;
+                connection.style.animationDelay = Math.random() * 3 + 's';
+                bg.appendChild(connection);
+            }
+        }
+        
+        // Navigation Functions
+        function navigateToModule(moduleNumber) {
+            const moduleNames = {
+                1: 'foundation',
+                2: 'regression',
+                3: 'classification',
+                4: 'clustering',
+                5: 'timeseries',
+                6: 'nlp',
+                7: 'recommendation',
+                8: 'deeplearning',
+                9: 'deployment',
+                10: 'capstone'
+            };
+            
+            // Simulate navigation
+            console.log(`Navigating to Module ${moduleNumber}: ${moduleNames[moduleNumber]}`);
+            
+            // Add loading animation
+            event.currentTarget.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                event.currentTarget.style.transform = '';
+                alert(`Loading Module ${moduleNumber}: ${moduleNames[moduleNumber]}\n\nThis would navigate to the interactive module.`);
+            }, 300);
+        }
+        
+        function startLearning() {
+            navigateToModule(1);
+        }
+        
+        function viewSyllabus() {
+            alert('Downloading comprehensive syllabus PDF...');
+        }
+        
+        // Smooth scroll for timeline
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe timeline items
+        document.querySelectorAll('.timeline-content').forEach(item => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(20px)';
+            item.style.transition = 'all 0.6s ease';
+            observer.observe(item);
+        });
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            createNeuralNetwork();
+            
+            // Animate progress bars
+            setTimeout(() => {
+                document.querySelector('.progress-fill-large').style.width = '30%';
+            }, 500);
+            
+            // Add hover effects
+            document.querySelectorAll('.module-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.querySelector('.module-icon').classList.add('float-animation');
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.querySelector('.module-icon').classList.remove('float-animation');
+                });
+            });
+        });
+        
+        // Parallax effect for hero
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.header');
+            parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+        });
+    </script>
+</body>
+</html>

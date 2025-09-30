@@ -1,0 +1,2096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Module 4: Clustering - Find Your Hidden Customer Segments | 发现隐藏的客户金矿</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #030712;
+            color: #1e293b;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Animated Background */
+        .galaxy-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #030712 0%, #1e1b4b 50%, #312e81 100%);
+            z-index: -2;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .cluster-loader {
+            width: 100px;
+            height: 100px;
+            position: relative;
+        }
+        
+        .cluster-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            animation: cluster-pulse 2s infinite;
+        }
+        
+        .cluster-dot:nth-child(1) {
+            background: #fbbf24;
+            top: 0;
+            left: 40px;
+            animation-delay: 0s;
+        }
+        
+        .cluster-dot:nth-child(2) {
+            background: #34d399;
+            top: 40px;
+            left: 0;
+            animation-delay: 0.5s;
+        }
+        
+        .cluster-dot:nth-child(3) {
+            background: #60a5fa;
+            top: 40px;
+            right: 0;
+            animation-delay: 1s;
+        }
+        
+        .cluster-dot:nth-child(4) {
+            background: #f472b6;
+            bottom: 0;
+            left: 40px;
+            animation-delay: 1.5s;
+        }
+        
+        @keyframes cluster-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.5); opacity: 1; }
+        }
+        
+        /* Navigation */
+        .nav-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(3, 7, 18, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 15px 30px;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            background: linear-gradient(90deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .progress-container {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 30px;
+        }
+        
+        .progress-bar {
+            background: rgba(99, 102, 241, 0.2);
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #60a5fa 0%, #a78bfa 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+        }
+        
+        .nav-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .nav-btn {
+            background: rgba(99, 102, 241, 0.2);
+            color: white;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Chapter Container */
+        .chapter {
+            display: none;
+            padding-top: 80px;
+            min-height: 100vh;
+            animation: fadeIn 0.5s;
+        }
+        
+        .chapter.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 80px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -250px;
+            right: -250px;
+            animation: float 10s infinite ease-in-out;
+        }
+        
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -200px;
+            left: -200px;
+            animation: float 10s infinite ease-in-out reverse;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+        
+        .hero-title {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(139, 92, 246, 0.5); }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 30px rgba(139, 92, 246, 0.8), 0 0 40px rgba(139, 92, 246, 0.6); }
+        }
+        
+        .hero-subtitle {
+            font-size: 1.4em;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* Content Section */
+        .content-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+        
+        /* Story Card */
+        .story-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+            transition: transform 0.3s;
+        }
+        
+        .story-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.2);
+        }
+        
+        .story-card::before {
+            content: attr(data-emoji);
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            font-size: 150px;
+            opacity: 0.08;
+            transform: rotate(-15deg);
+        }
+        
+        .story-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .story-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .story-title {
+            font-size: 2em;
+            color: #1e293b;
+            font-weight: bold;
+        }
+        
+        .story-content {
+            line-height: 1.8;
+            font-size: 1.1em;
+            color: #475569;
+        }
+        
+        /* Customer Visualization */
+        .customer-map {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .customer-dots {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        
+        .customer-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0.7;
+        }
+        
+        .customer-dot:hover {
+            transform: scale(2);
+            opacity: 1;
+            z-index: 10;
+        }
+        
+        .cluster-1 { background: #fbbf24; }
+        .cluster-2 { background: #34d399; }
+        .cluster-3 { background: #60a5fa; }
+        .cluster-4 { background: #f472b6; }
+        .cluster-unknown { background: #94a3b8; }
+        
+        /* Interactive Clustering Tool */
+        .clustering-tool {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .tool-header {
+            font-size: 1.5em;
+            color: #1e293b;
+            margin-bottom: 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .control-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .control-label {
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #e2e8f0 0%, #6366f1 var(--value), #e2e8f0 var(--value));
+            outline: none;
+            transition: background 0.3s;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.5);
+            transition: transform 0.2s;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        
+        .value-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+        
+        /* Segment Cards */
+        .segment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .segment-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .segment-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+        
+        .segment-card.segment-1::before { background: #fbbf24; }
+        .segment-card.segment-2::before { background: #34d399; }
+        .segment-card.segment-3::before { background: #60a5fa; }
+        .segment-card.segment-4::before { background: #f472b6; }
+        
+        .segment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .segment-card.selected {
+            border-color: #6366f1;
+            background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+        }
+        
+        .segment-emoji {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .segment-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        
+        .segment-stats {
+            color: #64748b;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        
+        .segment-value {
+            font-weight: bold;
+            color: #1e293b;
+        }
+        
+        /* K-Means Visualization */
+        .kmeans-demo {
+            background: #1e293b;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            color: white;
+        }
+        
+        .kmeans-canvas {
+            background: #0f172a;
+            border-radius: 10px;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .centroid {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid white;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+        
+        .data-point {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s;
+        }
+        
+        /* Action Buttons */
+        .action-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .action-btn:active {
+            transform: translateY(0);
+        }
+        
+        .action-btn.secondary {
+            background: white;
+            color: #6366f1;
+            border: 2px solid #6366f1;
+        }
+        
+        /* Business Impact */
+        .impact-dashboard {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .metric-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            color: #059669;
+            font-size: 0.95em;
+            font-weight: 600;
+        }
+        
+        /* Quiz Section */
+        .quiz-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .quiz-question {
+            font-size: 1.3em;
+            color: #92400e;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        .quiz-options {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .quiz-option {
+            background: white;
+            border: 2px solid #fed7aa;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.05em;
+        }
+        
+        .quiz-option:hover {
+            border-color: #f59e0b;
+            background: #fffbeb;
+            transform: translateX(5px);
+        }
+        
+        .quiz-option.correct {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+            animation: correctPulse 0.5s;
+        }
+        
+        .quiz-option.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        /* Code Block */
+        .code-section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        
+        .code-title {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .run-code-btn {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .run-code-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        
+        .code-block {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        
+        .code-output {
+            background: #0f172a;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        /* Achievement Popup */
+        .achievement {
+            position: fixed;
+            bottom: 30px;
+            right: -400px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transition: right 0.5s ease;
+            z-index: 2000;
+            max-width: 350px;
+            border-left: 4px solid #fbbf24;
+        }
+        
+        .achievement.show {
+            right: 30px;
+        }
+        
+        .achievement-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .achievement-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            animation: bounce 1s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            25% { transform: translateY(-10px); }
+            50% { transform: translateY(0); }
+            75% { transform: translateY(-5px); }
+        }
+        
+        .achievement-text {
+            flex: 1;
+        }
+        
+        .achievement-title {
+            font-weight: bold;
+            color: #1e293b;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .achievement-desc {
+            color: #64748b;
+            font-size: 0.9em;
+        }
+        
+        /* Floating Help Button */
+        .help-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            transition: transform 0.3s;
+            z-index: 100;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .help-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5em;
+            }
+            
+            .story-card {
+                padding: 25px;
+            }
+            
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .segment-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="cluster-loader">
+            <div class="cluster-dot"></div>
+            <div class="cluster-dot"></div>
+            <div class="cluster-dot"></div>
+            <div class="cluster-dot"></div>
+        </div>
+        <h2 style="color: white; margin-top: 40px;">Discovering Hidden Patterns...</h2>
+        <p style="color: rgba(255,255,255,0.8); margin-top: 10px;">Loading Module 4: Clustering Magic</p>
+    </div>
+    
+    <!-- Galaxy Background -->
+    <div class="galaxy-background"></div>
+    <div class="stars" id="starsContainer"></div>
+    
+    <!-- Navigation -->
+    <nav class="nav-header">
+        <div class="nav-content">
+            <div class="nav-title">
+                <span>🌟</span>
+                <span>Module 4: Market Segmentation with Clustering</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <button class="nav-btn" onclick="previousChapter()">← Back</button>
+                <button class="nav-btn" onclick="nextChapter()">Next →</button>
+                <button class="nav-btn" onclick="showMenu()">📚 Menu</button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Chapter 1: The Amazon Crisis -->
+    <div class="chapter active" id="chapter1">
+        <div class="hero-section">
+            <h1 class="hero-title">🎯 The $50M Mystery</h1>
+            <p class="hero-subtitle">
+                <span id="typingText"></span>
+            </p>
+        </div>
+        
+        <div class="content-section">
+            <div class="story-card" data-emoji="😱">
+                <div class="story-header">
+                    <div class="story-icon">💔</div>
+                    <h2 class="story-title">The Shocking Discovery</h2>
+                </div>
+                <div class="story-content">
+                    <p style="font-size: 1.15em; line-height: 1.8;">
+                        Three months after Sarah's successful sales prediction model, MegaMart faces a new crisis. The quarterly report just landed on her desk, and the numbers are devastating.
+                    </p>
+                    
+                    <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #ef4444;">
+                        <h3 style="color: #991b1b; margin-bottom: 15px;">📊 Q3 2024 Customer Report</h3>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; color: #7f1d1d;">
+                            <div><strong>Lost Customers:</strong> 47,000</div>
+                            <div><strong>Revenue Impact:</strong> -$50M</div>
+                            <div><strong>Market Share Lost:</strong> -3.2%</div>
+                            <div><strong>Competitor Gain:</strong> Amazon +85%</div>
+                        </div>
+                    </div>
+                    
+                    <p style="margin: 20px 0;">
+                        The CEO storms into Sarah's office: <em>"We're treating all customers the same with generic marketing emails. Amazon somehow knows exactly what each customer wants. We're losing the personalization war!"</em>
+                    </p>
+                    
+                    <p style="margin: 20px 0;">
+                        Sarah realizes the problem immediately. MegaMart has 2 million customers but treats them as one homogeneous group. Meanwhile, Amazon has discovered something MegaMart hasn't seen...
+                    </p>
+                    
+                    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 20px; border-radius: 10px; margin: 25px 0;">
+                        <p style="color: #1e40af; font-size: 1.1em; text-align: center; font-weight: 600;">
+                            🔍 "There must be hidden customer segments we're not seeing. If we can find them, we can fight back!"
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Interactive Customer Visualization -->
+            <div class="story-card">
+                <div class="story-header">
+                    <div class="story-icon">👥</div>
+                    <h2 class="story-title">Your 2 Million Customers</h2>
+                </div>
+                <div class="story-content">
+                    <p>Look at MegaMart's customer base. Can you spot any patterns?</p>
+                    
+                    <div class="customer-map">
+                        <div class="customer-dots" id="customerMap">
+                            <!-- Dots will be generated here -->
+                        </div>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <p style="color: #64748b; font-size: 0.95em;">
+                                Each dot represents 1,000 customers. Gray = Unknown segment
+                            </p>
+                            <button class="action-btn" style="margin-top: 15px;" onclick="revealPatterns()">
+                                🔮 Reveal Hidden Patterns
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quiz -->
+            <div class="quiz-section">
+                <div class="quiz-question">
+                    🤔 What's the main problem with MegaMart's current approach?
+                </div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(this, 'wrong')">
+                        Prices are too high
+                    </div>
+                    <div class="quiz-option" onclick="checkAnswer(this, 'correct')">
+                        One-size-fits-all marketing to diverse customer groups
+                    </div>
+                    <div class="quiz-option" onclick="checkAnswer(this, 'wrong')">
+                        Not enough products in inventory
+                    </div>
+                    <div class="quiz-option" onclick="checkAnswer(this, 'wrong')">
+                        Website is too slow
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chapter 2: Understanding Clustering -->
+    <div class="chapter" id="chapter2">
+        <div class="hero-section" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
+            <h1 class="hero-title">🎨 The Art of Finding Groups</h1>
+            <p class="hero-subtitle">How clustering reveals hidden patterns in chaos</p>
+        </div>
+        
+        <div class="content-section">
+            <!-- Cafeteria Analogy -->
+            <div class="story-card" data-emoji="🍽️">
+                <div class="story-header">
+                    <div class="story-icon">🏫</div>
+                    <h2 class="story-title">The High School Cafeteria Principle</h2>
+                </div>
+                <div class="story-content">
+                    <p style="font-size: 1.1em; line-height: 1.8; margin-bottom: 20px;">
+                        Remember high school? Students naturally formed groups in the cafeteria. Nobody assigned them - they clustered naturally based on shared interests.
+                    </p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 2fr); gap: 20px; margin: 30px 0;">
+                        <div style="background: #fef3c7; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🏈</div>
+                            <strong>Athletes</strong><br>
+                            Similar: Sports interests<br>
+                            Different from: Study habits
+                        </div>
+                        <div style="background: #dcfce7; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">📚</div>
+                            <strong>Study Group</strong><br>
+                            Similar: Academic focus<br>
+                            Different from: Social activities
+                        </div>
+                        <div style="background: #fee2e2; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🎸</div>
+                            <strong>Musicians</strong><br>
+                            Similar: Creative interests<br>
+                            Different from: Sports
+                        </div>
+                        <div style="background: #e0e7ff; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🎮</div>
+                            <strong>Gamers</strong><br>
+                            Similar: Gaming passion<br>
+                            Different from: Outdoor activities
+                        </div>
+                    </div>
+                    
+                    <p style="font-size: 1.15em; color: #6366f1; text-align: center; margin: 30px 0; font-weight: 600;">
+                        Clustering algorithms do the same thing - find natural groups in your data!
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Interactive K-Means Demo -->
+            <div class="kmeans-demo">
+                <h3 style="font-size: 1.5em; margin-bottom: 20px;">🤖 Watch K-Means Clustering in Action</h3>
+                <p style="margin-bottom: 20px; opacity: 0.9;">
+                    K-Means finds groups by: 1) Placing centers randomly, 2) Assigning points to nearest center, 3) Moving centers to group middle, 4) Repeat until stable
+                </p>
+                
+                <div class="kmeans-canvas" id="kmeansCanvas">
+                    <!-- Animation will appear here -->
+                </div>
+                
+                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                    <button class="action-btn" onclick="startKMeans()">▶ Start Animation</button>
+                    <button class="action-btn secondary" onclick="resetKMeans()">🔄 Reset</button>
+                    <button class="action-btn" onclick="stepKMeans()">Step Forward →</button>
+                </div>
+            </div>
+            
+            <!-- The Math (Simple) -->
+            <div class="code-section">
+                <div class="code-header">
+                    <span class="code-title">🧮 The Simple Math Behind Clustering</span>
+                    <button class="run-code-btn" onclick="runClusteringCode()">▶ Run Code</button>
+                </div>
+                <div class="code-block">
+import numpy as np
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+
+# Your customer data (simplified to 2D for visualization)
+customers = {
+    'age': [22, 67, 45, 23, 68, 44, 25, 70, 42],
+    'spending': [500, 200, 1200, 450, 180, 1100, 480, 150, 1300]
+}
+
+# Convert to array
+X = np.array([customers['age'], customers['spending']]).T
+
+# Apply K-Means clustering
+kmeans = KMeans(n_clusters=3, random_state=42)
+clusters = kmeans.fit_predict(X)
+
+print("🎯 Customer Segments Found!")
+print("="*40)
+for i in range(3):
+    cluster_data = X[clusters == i]
+    print(f"\nSegment {i+1}:")
+    print(f"  Average Age: {cluster_data[:, 0].mean():.0f} years")
+    print(f"  Average Spending: ${cluster_data[:, 1].mean():.0f}")
+    
+    # Business interpretation
+    if cluster_data[:, 0].mean() < 30:
+        print("  📱 Profile: Young Digital Natives")
+        print("  💡 Strategy: Mobile-first, social media marketing")
+    elif cluster_data[:, 0].mean() > 60:
+        print("  📰 Profile: Senior Savers")
+        print("  💡 Strategy: Email, discounts, traditional ads")
+    else:
+        print("  💼 Profile: Premium Professionals")
+        print("  💡 Strategy: Quality focus, convenience features")
+                </div>
+                <div class="code-output" id="clusteringOutput"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chapter 3: Discovering MegaMart's Segments -->
+    <div class="chapter" id="chapter3">
+        <div class="hero-section" style="background: linear-gradient(135deg, #34d399 0%, #10b981 100%);">
+            <h1 class="hero-title">💎 Finding Your Gold Mines</h1>
+            <p class="hero-subtitle">Uncover the four hidden customer segments in your data</p>
+        </div>
+        
+        <div class="content-section">
+            <!-- Interactive Clustering Tool -->
+            <div class="clustering-tool">
+                <div class="tool-header">
+                    <span>🔬</span>
+                    <span>MegaMart Customer Segmentation Laboratory</span>
+                </div>
+                
+                <div class="control-grid">
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>👥</span>
+                            <span>Number of Clusters</span>
+                            <span class="value-badge" id="clusterCount">4</span>
+                        </div>
+                        <input type="range" class="slider" id="clusterSlider" min="2" max="8" value="4" onchange="updateClusters()">
+                    </div>
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>💰</span>
+                            <span>Spending Weight</span>
+                            <span class="value-badge" id="spendingWeight">1.0x</span>
+                        </div>
+                        <input type="range" class="slider" id="spendingSlider" min="0" max="2" step="0.1" value="1" onchange="updateWeights()">
+                    </div>
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>📊</span>
+                            <span>Frequency Weight</span>
+                            <span class="value-badge" id="frequencyWeight">1.0x</span>
+                        </div>
+                        <input type="range" class="slider" id="frequencySlider" min="0" max="2" step="0.1" value="1" onchange="updateWeights()">
+                    </div>
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>📅</span>
+                            <span>Recency Weight</span>
+                            <span class="value-badge" id="recencyWeight">1.0x</span>
+                        </div>
+                        <input type="range" class="slider" id="recencySlider" min="0" max="2" step="0.1" value="1" onchange="updateWeights()">
+                    </div>
+                </div>
+                
+                <button class="action-btn" style="width: 100%; margin-top: 20px;" onclick="runSegmentation()">
+                    🚀 Run Segmentation Analysis
+                </button>
+            </div>
+            
+            <!-- Visualization -->
+            <div id="segmentationViz" style="margin: 30px 0;"></div>
+            
+            <!-- Segment Results -->
+            <div class="segment-grid" id="segmentResults" style="display: none;">
+                <div class="segment-card segment-1" onclick="selectSegment(1)">
+                    <div class="segment-emoji">👑</div>
+                    <div class="segment-name">VIP Champions</div>
+                    <div class="segment-stats">
+                        Size: <span class="segment-value">8%</span> (160K customers)<br>
+                        Avg Spending: <span class="segment-value">$4,500/year</span><br>
+                        Visit Frequency: <span class="segment-value">2x/week</span><br>
+                        Lifetime Value: <span class="segment-value">$45,000</span>
+                    </div>
+                </div>
+                
+                <div class="segment-card segment-2" onclick="selectSegment(2)">
+                    <div class="segment-emoji">💎</div>
+                    <div class="segment-name">Loyal Regulars</div>
+                    <div class="segment-stats">
+                        Size: <span class="segment-value">22%</span> (440K customers)<br>
+                        Avg Spending: <span class="segment-value">$1,800/year</span><br>
+                        Visit Frequency: <span class="segment-value">1x/week</span><br>
+                        Lifetime Value: <span class="segment-value">$12,000</span>
+                    </div>
+                </div>
+                
+                <div class="segment-card segment-3" onclick="selectSegment(3)">
+                    <div class="segment-emoji">🌱</div>
+                    <div class="segment-name">Occasional Shoppers</div>
+                    <div class="segment-stats">
+                        Size: <span class="segment-value">45%</span> (900K customers)<br>
+                        Avg Spending: <span class="segment-value">$600/year</span><br>
+                        Visit Frequency: <span class="segment-value">1x/month</span><br>
+                        Lifetime Value: <span class="segment-value">$3,000</span>
+                    </div>
+                </div>
+                
+                <div class="segment-card segment-4" onclick="selectSegment(4)">
+                    <div class="segment-emoji">😴</div>
+                    <div class="segment-name">Dormant Users</div>
+                    <div class="segment-stats">
+                        Size: <span class="segment-value">25%</span> (500K customers)<br>
+                        Avg Spending: <span class="segment-value">$150/year</span><br>
+                        Visit Frequency: <span class="segment-value">2x/year</span><br>
+                        Lifetime Value: <span class="segment-value">$500</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Strategy Recommendations -->
+            <div class="story-card" id="strategyCard" style="display: none;">
+                <div class="story-header">
+                    <div class="story-icon">💡</div>
+                    <h2 class="story-title">Personalized Marketing Strategies</h2>
+                </div>
+                <div class="story-content" id="strategyContent">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chapter 4: Business Impact -->
+    <div class="chapter" id="chapter4">
+        <div class="hero-section" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);">
+            <h1 class="hero-title">💰 The $50M Recovery Plan</h1>
+            <p class="hero-subtitle">Transform segments into profit with targeted strategies</p>
+        </div>
+        
+        <div class="content-section">
+            <!-- ROI Calculator -->
+            <div class="impact-dashboard">
+                <h3 style="color: #059669; font-size: 1.5em; margin-bottom: 20px;">📈 Segmentation ROI Calculator</h3>
+                
+                <div class="control-grid">
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>👑</span>
+                            <span>VIP Retention Improvement</span>
+                            <span class="value-badge" id="vipRetention">+15%</span>
+                        </div>
+                        <input type="range" class="slider" id="vipSlider" min="0" max="30" value="15" onchange="calculateROI()">
+                    </div>
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>💎</span>
+                            <span>Regular Upsell Success</span>
+                            <span class="value-badge" id="regularUpsell">+20%</span>
+                        </div>
+                        <input type="range" class="slider" id="regularSlider" min="0" max="40" value="20" onchange="calculateROI()">
+                    </div>
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>🌱</span>
+                            <span>Occasional Activation</span>
+                            <span class="value-badge" id="occasionalActivation">+10%</span>
+                        </div>
+                        <input type="range" class="slider" id="occasionalSlider" min="0" max="20" value="10" onchange="calculateROI()">
+                    </div>
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>😴</span>
+                            <span>Dormant Reactivation</span>
+                            <span class="value-badge" id="dormantReactivation">+5%</span>
+                        </div>
+                        <input type="range" class="slider" id="dormantSlider" min="0" max="15" value="5" onchange="calculateROI()">
+                    </div>
+                </div>
+                
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="revenueImpact">+$52.4M</div>
+                        <div class="metric-label">Annual Revenue Impact</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="customerRetained">41K</div>
+                        <div class="metric-label">Customers Retained</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="conversionRate">+18%</div>
+                        <div class="metric-label">Conversion Rate Lift</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="roiPercent">847%</div>
+                        <div class="metric-label">ROI</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Campaign Builder -->
+            <div class="story-card">
+                <div class="story-header">
+                    <div class="story-icon">📧</div>
+                    <h2 class="story-title">Personalized Campaign Builder</h2>
+                </div>
+                <div class="story-content">
+                    <p style="margin-bottom: 20px;">Design targeted campaigns for each segment:</p>
+                    
+                    <div style="display: grid; gap: 20px;">
+                        <div style="background: #fef3c7; padding: 20px; border-radius: 10px;">
+                            <h4 style="color: #92400e; margin-bottom: 10px;">👑 VIP Champions Campaign</h4>
+                            <ul style="line-height: 1.8; color: #78350f;">
+                                <li>Early access to new products</li>
+                                <li>Exclusive VIP events and previews</li>
+                                <li>Personal shopping assistant</li>
+                                <li>Free same-day delivery</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: #dcfce7; padding: 20px; border-radius: 10px;">
+                            <h4 style="color: #166534; margin-bottom: 10px;">💎 Loyal Regulars Campaign</h4>
+                            <ul style="line-height: 1.8; color: #14532d;">
+                                <li>Points multiplier weekends</li>
+                                <li>Birthday month specials</li>
+                                <li>Product recommendations based on history</li>
+                                <li>Member-only flash sales</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: #dbeafe; padding: 20px; border-radius: 10px;">
+                            <h4 style="color: #1e3a8a; margin-bottom: 10px;">🌱 Occasional Shoppers Campaign</h4>
+                            <ul style="line-height: 1.8; color: #1e3a8a;">
+                                <li>Seasonal reminders and offers</li>
+                                <li>Bundle deals for bulk purchases</li>
+                                <li>Free shipping thresholds</li>
+                                <li>Category-specific promotions</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: #fce7f3; padding: 20px; border-radius: 10px;">
+                            <h4 style="color: #831843; margin-bottom: 10px;">😴 Dormant Users Campaign</h4>
+                            <ul style="line-height: 1.8; color: #831843;">
+                                <li>"We miss you" 30% off coupon</li>
+                                <li>Show what's new since last visit</li>
+                                <li>Simplified re-engagement email</li>
+                                <li>Win-back survey with incentive</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- A/B Testing Results -->
+            <div class="code-section">
+                <div class="code-header">
+                    <span class="code-title">📊 A/B Test Results: Generic vs Segmented</span>
+                    <button class="run-code-btn" onclick="showTestResults()">Show Results</button>
+                </div>
+                <div class="code-block">
+# A/B Test: Generic Marketing vs Segmented Approach
+# Test Duration: 30 days
+# Sample Size: 100,000 customers (50K each group)
+
+results = {
+    'Generic Campaign (Control)': {
+        'open_rate': 0.18,
+        'click_rate': 0.02,
+        'conversion_rate': 0.008,
+        'revenue_per_customer': 12.50
+    },
+    'Segmented Campaign (Test)': {
+        'open_rate': 0.42,
+        'click_rate': 0.08,
+        'conversion_rate': 0.035,
+        'revenue_per_customer': 47.80
+    }
+}
+
+print("🔬 A/B TEST RESULTS")
+print("="*50)
+print("\n📧 Email Performance:")
+print(f"Generic Open Rate: {results['Generic Campaign (Control)']['open_rate']*100:.1f}%")
+print(f"Segmented Open Rate: {results['Segmented Campaign (Test)']['open_rate']*100:.1f}%")
+print(f"📈 Improvement: +{(results['Segmented Campaign (Test)']['open_rate']/results['Generic Campaign (Control)']['open_rate']-1)*100:.0f}%")
+
+print("\n💰 Revenue Impact:")
+generic_revenue = 50000 * results['Generic Campaign (Control)']['revenue_per_customer']
+segmented_revenue = 50000 * results['Segmented Campaign (Test)']['revenue_per_customer']
+print(f"Generic Campaign: ${generic_revenue:,.0f}")
+print(f"Segmented Campaign: ${segmented_revenue:,.0f}")
+print(f"💎 Additional Revenue: ${segmented_revenue - generic_revenue:,.0f}")
+
+print("\n✅ Statistical Significance: p < 0.001")
+print("🎯 Decision: Roll out segmented approach to all customers!")
+                </div>
+                <div class="code-output" id="testResults"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chapter 5: Victory -->
+    <div class="chapter" id="chapter5">
+        <div class="hero-section" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">
+            <h1 class="hero-title">🏆 Victory Against Amazon!</h1>
+            <p class="hero-subtitle">How clustering saved MegaMart and won back customers</p>
+        </div>
+        
+        <div class="content-section">
+            <div class="story-card" data-emoji="🎉">
+                <div class="story-header">
+                    <div class="story-icon">📈</div>
+                    <h2 class="story-title">The Stunning Turnaround</h2>
+                </div>
+                <div class="story-content">
+                    <h3 style="color: #059669; margin-bottom: 20px;">Three Months Later...</h3>
+                    <p style="font-size: 1.1em; line-height: 1.8; margin-bottom: 25px;">
+                        Sarah implemented the segmentation strategy across all MegaMart stores and digital channels. The Q4 results just arrived...
+                    </p>
+                    
+                    <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); padding: 30px; border-radius: 15px; margin: 30px 0;">
+                        <h3 style="color: #166534; margin-bottom: 20px;">📊 Q4 2024 Results</h3>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+                                <div style="font-size: 2em; color: #10b981; font-weight: bold;">+$54.2M</div>
+                                <div style="color: #059669;">Revenue Recovery</div>
+                            </div>
+                            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+                                <div style="font-size: 2em; color: #10b981; font-weight: bold;">+38,000</div>
+                                <div style="color: #059669;">Customers Won Back</div>
+                            </div>
+                            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+                                <div style="font-size: 2em; color: #10b981; font-weight: bold;">4.7⭐</div>
+                                <div style="color: #059669;">Customer Satisfaction</div>
+                            </div>
+                            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+                                <div style="font-size: 2em; color: #10b981; font-weight: bold;">-12%</div>
+                                <div style="color: #059669;">Amazon's Local Share</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f0f9ff; padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #0284c7;">
+                        <h4 style="color: #0c4a6e; margin-bottom: 15px;">💬 CEO's Message to the Board:</h4>
+                        <p style="color: #075985; font-style: italic; line-height: 1.8;">
+                            "Sarah's clustering model didn't just recover our losses - it revolutionized how we understand our customers. For the first time, we're competing with Amazon on personalization and winning! 
+                            Sarah is promoted to Chief Customer Intelligence Officer with a mandate to roll this out globally."
+                        </p>
+                    </div>
+                    
+                    <h3 style="margin-top: 40px; margin-bottom: 20px;">🎯 Key Success Factors:</h3>
+                    <ul style="line-height: 2; font-size: 1.05em;">
+                        <li>✅ Identified 4 distinct customer segments instead of treating everyone the same</li>
+                        <li>✅ Created personalized marketing campaigns with 3.5x higher conversion</li>
+                        <li>✅ Reduced customer churn by 76% in VIP segment</li>
+                        <li>✅ Increased average order value by 42% through better targeting</li>
+                        <li>✅ Achieved 847% ROI on clustering implementation</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Your Certificate -->
+            <div class="story-card" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
+                <div class="story-header">
+                    <div class="story-icon" style="background: white; color: #f59e0b;">🏅</div>
+                    <h2 class="story-title" style="color: white;">Certificate of Mastery</h2>
+                </div>
+                <div class="story-content" style="text-align: center; padding: 40px; color: white;">
+                    <h2 style="font-size: 2.5em; margin-bottom: 30px;">Clustering Expert Certification</h2>
+                    <p style="font-size: 1.3em; margin-bottom: 30px;">
+                        This certifies that
+                    </p>
+                    <div style="font-size: 2em; font-weight: bold; margin: 30px 0; padding: 20px; background: rgba(255,255,255,0.2); border-radius: 10px;">
+                        [YOUR NAME]
+                    </div>
+                    <p style="font-size: 1.2em; margin: 30px 0;">
+                        has successfully mastered<br>
+                        <strong>Customer Segmentation with K-Means Clustering</strong>
+                    </p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 40px 0;">
+                        <div>
+                            <div style="font-size: 2.5em; font-weight: bold;">4</div>
+                            <div>Segments Discovered</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 2.5em; font-weight: bold;">$54M</div>
+                            <div>Revenue Generated</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 2.5em; font-weight: bold;">847%</div>
+                            <div>ROI Achieved</div>
+                        </div>
+                    </div>
+                    
+                    <button class="action-btn" style="background: white; color: #f59e0b; padding: 15px 40px; font-size: 1.1em;">
+                        📥 Download Certificate
+                    </button>
+                </div>
+            </div>
+            
+            <!-- What You Learned -->
+            <div class="story-card">
+                <div class="story-header">
+                    <div class="story-icon">🧠</div>
+                    <h2 class="story-title">What You've Mastered</h2>
+                </div>
+                <div class="story-content">
+                    <div style="display: grid; gap: 15px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">✓</div>
+                            <div>
+                                <strong>Clustering Fundamentals:</strong> Understanding how unsupervised learning finds hidden patterns
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">✓</div>
+                            <div>
+                                <strong>K-Means Algorithm:</strong> How it works, when to use it, and parameter tuning
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">✓</div>
+                            <div>
+                                <strong>RFM Analysis:</strong> Using Recency, Frequency, and Monetary value for customer segmentation
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">✓</div>
+                            <div>
+                                <strong>Segment Strategy:</strong> Creating targeted marketing campaigns for different groups
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">✓</div>
+                            <div>
+                                <strong>Business Impact:</strong> Calculating ROI and proving value to stakeholders
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); padding: 25px; border-radius: 12px; margin: 30px 0;">
+                        <h3 style="color: #3730a3; margin-bottom: 15px;">🚀 Next Module Preview</h3>
+                        <p style="color: #4338ca; line-height: 1.8;">
+                            <strong>Module 5: Time Series Forecasting</strong><br>
+                            Sarah's next challenge: Black Friday is coming! Can she predict hourly demand patterns to optimize staffing and inventory? Learn ARIMA, Prophet, and neural networks for time series.
+                        </p>
+                        <button class="action-btn" style="margin-top: 15px;">
+                            Start Module 5 →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Help Button -->
+    <div class="help-btn" onclick="showHint()">💡</div>
+    
+    <!-- Achievement Popup -->
+    <div class="achievement" id="achievementPopup">
+        <div class="achievement-content">
+            <div class="achievement-icon" id="achievementIcon">🏆</div>
+            <div class="achievement-text">
+                <div class="achievement-title" id="achievementTitle">Achievement Unlocked!</div>
+                <div class="achievement-desc" id="achievementDesc">You discovered your first customer segment!</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let currentChapter = 1;
+        let totalChapters = 5;
+        let progress = 0;
+        let segments = [];
+        let selectedSegment = null;
+        let kmeansStep = 0;
+        let animationRunning = false;
+        
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                initializeModule();
+            }, 2000);
+        });
+        
+        function initializeModule() {
+            // Create stars
+            createStars();
+            
+            // Initialize typing effect
+            startTypingEffect();
+            
+            // Generate initial customer dots
+            generateCustomerDots();
+            
+            // Initialize K-Means visualization
+            initializeKMeans();
+        }
+        
+        // Create starfield background
+        function createStars() {
+            const container = document.getElementById('starsContainer');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        }
+        
+        // Typing effect
+        function startTypingEffect() {
+            const text = "MegaMart is losing $50M to Amazon. The secret weapon? Hidden customer segments.";
+            let index = 0;
+            const element = document.getElementById('typingText');
+            
+            function type() {
+                if (index < text.length) {
+                    element.textContent += text.charAt(index);
+                    index++;
+                    setTimeout(type, 50);
+                }
+            }
+            
+            if (element) {
+                type();
+            }
+        }
+        
+        // Generate customer dots
+        function generateCustomerDots() {
+            const container = document.getElementById('customerMap');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 200; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'customer-dot cluster-unknown';
+                dot.style.left = Math.random() * 100 + '%';
+                dot.style.top = Math.random() * 100 + '%';
+                dot.title = 'Unknown segment';
+                container.appendChild(dot);
+            }
+        }
+        
+        // Reveal patterns in customer data
+        function revealPatterns() {
+            const dots = document.querySelectorAll('.customer-dot');
+            const clusters = ['cluster-1', 'cluster-2', 'cluster-3', 'cluster-4'];
+            const positions = [
+                { x: 20, y: 20, spread: 15 },  // Cluster 1
+                { x: 70, y: 30, spread: 20 },  // Cluster 2
+                { x: 30, y: 70, spread: 25 },  // Cluster 3
+                { x: 75, y: 75, spread: 15 }   // Cluster 4
+            ];
+            
+            dots.forEach((dot, index) => {
+                const clusterIndex = Math.floor(index / 50);
+                const cluster = clusters[clusterIndex];
+                const position = positions[clusterIndex];
+                
+                setTimeout(() => {
+                    dot.className = 'customer-dot ' + cluster;
+                    
+                    // Animate to cluster position
+                    const offsetX = (Math.random() - 0.5) * position.spread;
+                    const offsetY = (Math.random() - 0.5) * position.spread;
+                    
+                    dot.style.left = (position.x + offsetX) + '%';
+                    dot.style.top = (position.y + offsetY) + '%';
+                }, index * 10);
+            });
+            
+            showAchievement('👁️', 'Pattern Revealer', 'You discovered hidden customer segments!');
+            updateProgress(20);
+        }
+        
+        // Initialize K-Means visualization
+        function initializeKMeans() {
+            const canvas = document.getElementById('kmeansCanvas');
+            if (!canvas) return;
+            
+            // Generate random data points
+            for (let i = 0; i < 50; i++) {
+                const point = document.createElement('div');
+                point.className = 'data-point';
+                point.style.left = Math.random() * 100 + '%';
+                point.style.top = Math.random() * 100 + '%';
+                point.style.background = '#94a3b8';
+                canvas.appendChild(point);
+            }
+        }
+        
+        // Start K-Means animation
+        function startKMeans() {
+            if (animationRunning) return;
+            animationRunning = true;
+            kmeansStep = 0;
+            
+            const interval = setInterval(() => {
+                stepKMeans();
+                kmeansStep++;
+                
+                if (kmeansStep > 5) {
+                    clearInterval(interval);
+                    animationRunning = false;
+                    showAchievement('🤖', 'Algorithm Master', 'You understand K-Means clustering!');
+                }
+            }, 1000);
+        }
+        
+        // Step through K-Means
+        function stepKMeans() {
+            const canvas = document.getElementById('kmeansCanvas');
+            const points = canvas.querySelectorAll('.data-point');
+            const colors = ['#fbbf24', '#34d399', '#60a5fa', '#f472b6'];
+            
+            if (kmeansStep === 0) {
+                // Place centroids
+                for (let i = 0; i < 3; i++) {
+                    const centroid = document.createElement('div');
+                    centroid.className = 'centroid';
+                    centroid.style.left = (25 + i * 25) + '%';
+                    centroid.style.top = (30 + Math.random() * 40) + '%';
+                    centroid.style.background = colors[i];
+                    canvas.appendChild(centroid);
+                }
+            } else {
+                // Assign points to nearest centroid
+                const centroids = canvas.querySelectorAll('.centroid');
+                
+                points.forEach(point => {
+                    let minDist = Infinity;
+                    let nearestCentroid = 0;
+                    
+                    centroids.forEach((centroid, index) => {
+                        const dx = parseFloat(point.style.left) - parseFloat(centroid.style.left);
+                        const dy = parseFloat(point.style.top) - parseFloat(centroid.style.top);
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < minDist) {
+                            minDist = dist;
+                            nearestCentroid = index;
+                        }
+                    });
+                    
+                    point.style.background = colors[nearestCentroid];
+                });
+                
+                // Move centroids to cluster centers
+                if (kmeansStep % 2 === 0) {
+                    centroids.forEach((centroid, index) => {
+                        const clusterPoints = Array.from(points).filter(
+                            p => p.style.background === colors[index]
+                        );
+                        
+                        if (clusterPoints.length > 0) {
+                            const avgX = clusterPoints.reduce((sum, p) => 
+                                sum + parseFloat(p.style.left), 0) / clusterPoints.length;
+                            const avgY = clusterPoints.reduce((sum, p) => 
+                                sum + parseFloat(p.style.top), 0) / clusterPoints.length;
+                            
+                            centroid.style.left = avgX + '%';
+                            centroid.style.top = avgY + '%';
+                        }
+                    });
+                }
+            }
+        }
+        
+        // Reset K-Means
+        function resetKMeans() {
+            const canvas = document.getElementById('kmeansCanvas');
+            canvas.innerHTML = '';
+            initializeKMeans();
+            kmeansStep = 0;
+        }
+        
+        // Check quiz answer
+        function checkAnswer(element, result) {
+            const options = element.parentElement.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.style.pointerEvents = 'none');
+            
+            if (result === 'correct') {
+                element.classList.add('correct');
+                showAchievement('🎯', 'Quick Learner', 'Perfect answer!');
+                updateProgress(10);
+            } else {
+                element.classList.add('incorrect');
+            }
+        }
+        
+        // Update cluster count
+        function updateClusters() {
+            const value = document.getElementById('clusterSlider').value;
+            document.getElementById('clusterCount').textContent = value;
+        }
+        
+        // Update weights
+        function updateWeights() {
+            document.getElementById('spendingWeight').textContent = 
+                document.getElementById('spendingSlider').value + 'x';
+            document.getElementById('frequencyWeight').textContent = 
+                document.getElementById('frequencySlider').value + 'x';
+            document.getElementById('recencyWeight').textContent = 
+                document.getElementById('recencySlider').value + 'x';
+        }
+        
+        // Run segmentation
+        function runSegmentation() {
+            // Show loading animation
+            const button = event.target;
+            button.textContent = '⏳ Analyzing 2 million customers...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                // Show results
+                document.getElementById('segmentResults').style.display = 'grid';
+                createSegmentationVisualization();
+                
+                button.textContent = '✅ Segmentation Complete!';
+                
+                showAchievement('🔬', 'Data Scientist', 'Successfully segmented 2M customers!');
+                updateProgress(25);
+            }, 2000);
+        }
+        
+        // Create segmentation visualization
+        function createSegmentationVisualization() {
+            const data = [
+                {
+                    x: [500, 1200, 2000, 3500, 4500],
+                    y: [1, 3, 6, 8, 12],
+                    mode: 'markers',
+                    marker: {
+                        size: [25, 40, 60, 35, 20],
+                        color: ['#f472b6', '#60a5fa', '#34d399', '#fbbf24', '#8b5cf6']
+                    },
+                    text: ['Dormant', 'Occasional', 'Regular', 'Loyal', 'VIP'],
+                    name: 'Customer Segments'
+                }
+            ];
+            
+            const layout = {
+                title: 'Customer Segments by Value and Frequency',
+                xaxis: { title: 'Annual Spending ($)' },
+                yaxis: { title: 'Visits per Month' },
+                showlegend: false,
+                height: 400
+            };
+            
+            Plotly.newPlot('segmentationViz', data, layout);
+        }
+        
+        // Select segment
+        function selectSegment(id) {
+            // Update selection
+            document.querySelectorAll('.segment-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // Show strategy
+            document.getElementById('strategyCard').style.display = 'block';
+            
+            const strategies = {
+                1: {
+                    title: 'VIP Champions Strategy',
+                    content: `
+                        <h4 style="color: #6366f1; margin-bottom: 15px;">Retention is Everything</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Personal Account Manager:</strong> Assign dedicated support for top 1%</li>
+                            <li><strong>Exclusive Access:</strong> 48-hour early access to all sales and new products</li>
+                            <li><strong>VIP Events:</strong> Quarterly exclusive shopping events with 30% discounts</li>
+                            <li><strong>Free Everything:</strong> Shipping, returns, gift wrapping, personal shopping</li>
+                            <li><strong>Birthday Surprise:</strong> $100 gift card on their birthday</li>
+                        </ul>
+                        <p style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px;">
+                            <strong>Expected Impact:</strong> 15% retention improvement = $10.8M additional revenue
+                        </p>
+                    `
+                },
+                2: {
+                    title: 'Loyal Regulars Strategy',
+                    content: `
+                        <h4 style="color: #6366f1; margin-bottom: 15px;">Increase Basket Size</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Smart Recommendations:</strong> AI-powered product suggestions</li>
+                            <li><strong>Bundle Deals:</strong> Save 20% when buying complementary items</li>
+                            <li><strong>Loyalty Points:</strong> 2x points on weekdays to spread traffic</li>
+                            <li><strong>Category Expansion:</strong> Introduce them to new departments</li>
+                            <li><strong>Referral Rewards:</strong> $20 for each friend they bring</li>
+                        </ul>
+                        <p style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px;">
+                            <strong>Expected Impact:</strong> 20% basket increase = $15.8M additional revenue
+                        </p>
+                    `
+                },
+                3: {
+                    title: 'Occasional Shoppers Strategy',
+                    content: `
+                        <h4 style="color: #6366f1; margin-bottom: 15px;">Increase Visit Frequency</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Timely Reminders:</strong> Seasonal shopping reminders</li>
+                            <li><strong>Flash Sales:</strong> 4-hour surprise sales via app notifications</li>
+                            <li><strong>Gamification:</strong> Spin-to-win discounts on each visit</li>
+                            <li><strong>Social Proof:</strong> Show what similar customers bought</li>
+                            <li><strong>Easy Reorder:</strong> One-click repeat of previous purchases</li>
+                        </ul>
+                        <p style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px;">
+                            <strong>Expected Impact:</strong> 1 extra visit/month = $21.6M additional revenue
+                        </p>
+                    `
+                },
+                4: {
+                    title: 'Dormant Users Strategy',
+                    content: `
+                        <h4 style="color: #6366f1; margin-bottom: 15px;">Win-Back Campaign</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>We Miss You:</strong> 40% off coupon for return visit</li>
+                            <li><strong>What's New:</strong> Showcase improvements since they left</li>
+                            <li><strong>Survey Incentive:</strong> $10 for telling us why they left</li>
+                            <li><strong>Mobile App:</strong> Exclusive app-only deals to re-engage</li>
+                            <li><strong>No Expiry Points:</strong> Restore all their old loyalty points</li>
+                        </ul>
+                        <p style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px;">
+                            <strong>Expected Impact:</strong> 5% reactivation = $3.75M additional revenue
+                        </p>
+                    `
+                }
+            };
+            
+            document.getElementById('strategyContent').innerHTML = strategies[id].content;
+        }
+        
+        // Calculate ROI
+        function calculateROI() {
+            const vip = document.getElementById('vipSlider').value;
+            const regular = document.getElementById('regularSlider').value;
+            const occasional = document.getElementById('occasionalSlider').value;
+            const dormant = document.getElementById('dormantSlider').value;
+            
+            // Update display values
+            document.getElementById('vipRetention').textContent = '+' + vip + '%';
+            document.getElementById('regularUpsell').textContent = '+' + regular + '%';
+            document.getElementById('occasionalActivation').textContent = '+' + occasional + '%';
+            document.getElementById('dormantReactivation').textContent = '+' + dormant + '%';
+            
+            // Calculate impact
+            const vipRevenue = 160000 * 4500 * (vip / 100);
+            const regularRevenue = 440000 * 1800 * (regular / 100);
+            const occasionalRevenue = 900000 * 600 * (occasional / 100);
+            const dormantRevenue = 500000 * 150 * (dormant / 100);
+            
+            const totalRevenue = (vipRevenue + regularRevenue + occasionalRevenue + dormantRevenue) / 1000000;
+            const customersRetained = (160000 * vip + 440000 * regular * 0.5 + 900000 * occasional * 0.3 + 500000 * dormant * 0.2) / 100 / 1000;
+            const conversionLift = (vip * 0.3 + regular * 0.25 + occasional * 0.2 + dormant * 0.1) / 4;
+            const roi = (totalRevenue * 1000000 / 150000 - 1) * 100;
+            
+            // Update display
+            document.getElementById('revenueImpact').textContent = '+$' + totalRevenue.toFixed(1) + 'M';
+            document.getElementById('customerRetained').textContent = customersRetained.toFixed(0) + 'K';
+            document.getElementById('conversionRate').textContent = '+' + conversionLift.toFixed(0) + '%';
+            document.getElementById('roiPercent').textContent = roi.toFixed(0) + '%';
+        }
+        
+        // Run clustering code
+        function runClusteringCode() {
+            const output = document.getElementById('clusteringOutput');
+            output.style.display = 'block';
+            output.innerHTML = `🎯 Customer Segments Found!
+========================================
+
+Segment 1:
+  Average Age: 24 years
+  Average Spending: $476
+  📱 Profile: Young Digital Natives
+  💡 Strategy: Mobile-first, social media marketing
+
+Segment 2:
+  Average Age: 68 years
+  Average Spending: $177
+  📰 Profile: Senior Savers
+  💡 Strategy: Email, discounts, traditional ads
+
+Segment 3:
+  Average Age: 44 years
+  Average Spending: $1200
+  💼 Profile: Premium Professionals
+  💡 Strategy: Quality focus, convenience features`;
+            
+            showAchievement('📊', 'Cluster Expert', 'You understand customer segmentation!');
+        }
+        
+        // Show test results
+        function showTestResults() {
+            const output = document.getElementById('testResults');
+            output.style.display = 'block';
+            output.innerHTML = `🔬 A/B TEST RESULTS
+==================================================
+
+📧 Email Performance:
+Generic Open Rate: 18.0%
+Segmented Open Rate: 42.0%
+📈 Improvement: +133%
+
+💰 Revenue Impact:
+Generic Campaign: $625,000
+Segmented Campaign: $2,390,000
+💎 Additional Revenue: $1,765,000
+
+✅ Statistical Significance: p < 0.001
+🎯 Decision: Roll out segmented approach to all customers!`;
+        }
+        
+        // Navigation
+        function nextChapter() {
+            if (currentChapter < totalChapters) {
+                currentChapter++;
+                updateChapter();
+            }
+        }
+        
+        function previousChapter() {
+            if (currentChapter > 1) {
+                currentChapter--;
+                updateChapter();
+            }
+        }
+        
+        function updateChapter() {
+            document.querySelectorAll('.chapter').forEach(ch => {
+                ch.classList.remove('active');
+            });
+            document.getElementById('chapter' + currentChapter).classList.add('active');
+            window.scrollTo(0, 0);
+            updateProgress(currentChapter * 20);
+        }
+        
+        // Progress tracking
+        function updateProgress(amount) {
+            progress = Math.min(100, progress + amount);
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            if (progress === 100 && currentChapter === totalChapters) {
+                showAchievement('🎓', 'Module Complete!', 'You are now a Clustering Expert!');
+            }
+        }
+        
+        // Show achievement
+        function showAchievement(icon, title, description) {
+            const popup = document.getElementById('achievementPopup');
+            document.getElementById('achievementIcon').textContent = icon;
+            document.getElementById('achievementTitle').textContent = title;
+            document.getElementById('achievementDesc').textContent = description;
+            
+            popup.classList.add('show');
+            
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Show hint
+        function showHint() {
+            const hints = [
+                "💡 Clustering finds natural groups without being told what to look for",
+                "💡 K-Means needs you to specify the number of clusters (K)",
+                "💡 RFM stands for Recency, Frequency, and Monetary value",
+                "💡 Different segments need different marketing strategies",
+                "💡 Even a 1% improvement in VIP retention can mean millions in revenue"
+            ];
+            
+            const hint = hints[Math.floor(Math.random() * hints.length)];
+            alert(hint);
+        }
+        
+        // Show menu
+        function showMenu() {
+            alert('Chapter Menu:\n\n1. The $50M Mystery\n2. Understanding Clustering\n3. Finding Segments\n4. Business Impact\n5. Victory!');
+        }
+    </script>
+</body>
+</html>
