@@ -1,0 +1,550 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Module 1 Refined Lab: The Data Scientist's Real Journey | Chenhao Zhou</title>
+<style>
+body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 950px; margin: auto; padding: 2rem; line-height: 1.6; }
+nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; }
+nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; }
+h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+.card { background: #fff; padding: 1.2em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+
+/* Realistic Journey Elements */
+.journey-phase { background: linear-gradient(135deg, #f8f9fa 0%, white 100%); border-left: 5px solid #0366d6; padding: 2em; margin: 2em 0; border-radius: 10px; position: relative; }
+.phase-number { position: absolute; top: -15px; left: 20px; background: #0366d6; color: white; padding: 0.5em 1em; border-radius: 20px; font-weight: bold; font-size: 1.2em; }
+.stakeholder-request { background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 1.5em; margin: 1.5em 0; position: relative; }
+.stakeholder-request::before { content: "👔 Stakeholder Request"; position: absolute; top: -12px; left: 20px; background: #fff3cd; padding: 0 10px; font-weight: bold; color: #856404; }
+.reality-check { background: #f8d7da; border: 2px solid #dc3545; border-radius: 8px; padding: 1.5em; margin: 1.5em 0; }
+.discovery-moment { background: #d4edda; border: 2px solid #28a745; border-radius: 8px; padding: 1.5em; margin: 1.5em 0; }
+
+/* Data Quality Issues */
+.data-issue { background: white; border: 2px solid #dc3545; border-radius: 8px; padding: 1em; margin: 1em 0; position: relative; }
+.data-issue::before { content: "⚠️"; position: absolute; top: -10px; left: -10px; font-size: 2em; }
+.issue-resolution { background: #e7f3ff; border-left: 4px solid #0366d6; padding: 1em; margin: 1em 0 1em 2em; border-radius: 5px; }
+
+/* Code Evolution */
+.code-evolution { background: #282c34; border-radius: 10px; padding: 1.5em; margin: 2em 0; }
+.code-version { background: #1e1e1e; color: #d4d4d4; padding: 1em; margin: 1em 0; border-radius: 8px; border-left: 3px solid #61dafb; }
+.code-mistake { background: #3a2929; border-left: 3px solid #dc3545; }
+.code-fix { background: #293a29; border-left: 3px solid #28a745; }
+
+/* Decision Log */
+.decision-log { background: white; border: 2px solid #6c757d; border-radius: 10px; padding: 1.5em; margin: 2em 0; }
+.log-entry { padding: 0.8em; margin: 0.5em 0; background: #f8f9fa; border-radius: 5px; border-left: 3px solid #e1e4e8; }
+.log-entry.good { border-color: #28a745; background: #f0fff0; }
+.log-entry.bad { border-color: #dc3545; background: #fff0f0; }
+.log-entry.revised { border-color: #ffc107; background: #fffff0; }
+
+/* Performance Tracking */
+.performance-tracker { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em; margin: 2em 0; }
+.metric-card { background: white; border: 2px solid #e1e4e8; border-radius: 8px; padding: 1em; text-align: center; }
+.metric-value { font-size: 1.8em; font-weight: bold; margin: 0.2em 0; }
+.metric-change { font-size: 0.9em; }
+.metric-up { color: #28a745; }
+.metric-down { color: #dc3545; }
+
+/* Interactive Elements */
+.action-required { background: linear-gradient(135deg, #0366d620 0%, #667eea20 100%); border: 2px solid #0366d6; border-radius: 10px; padding: 1.5em; margin: 2em 0; animation: pulse-border 2s infinite; }
+@keyframes pulse-border { 0%, 100% { border-color: #0366d6; } 50% { border-color: #667eea; } }
+.choice-button { display: inline-block; padding: 0.8em 1.5em; margin: 0.5em; background: white; border: 2px solid #0366d6; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; }
+.choice-button:hover { background: #0366d6; color: white; transform: translateY(-2px); }
+.choice-button.selected { background: #0366d6; color: white; }
+
+/* Time Pressure */
+.time-pressure { position: fixed; top: 100px; right: 20px; background: #dc3545; color: white; padding: 1em; border-radius: 10px; font-weight: bold; animation: blink 2s infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+</style>
+</head><body>
+
+<h1>🚀 Module 1 Refined Lab: The Data Scientist's Real Journey</h1>
+<h2 style="color: #666; font-size: 1.1em;">Experience the Actual Workflow, Setbacks, and Discoveries of Production ML</h2>
+<nav><a href="class-material.html">Class Material</a><a href="practitioner-supplement.html">Practitioner Guide</a><a href="lab-manual.html">Original Lab</a></nav>
+
+<div class="card">
+<h2>Welcome to Your First Week at DataCorp</h2>
+<p>You've just been hired as a Data Scientist at DataCorp, a mid-sized e-commerce company. This lab simulates your first real project, complete with changing requirements, data quality issues, stakeholder pressure, and the discoveries that come from careful analysis. Unlike academic exercises, you'll experience how small early decisions compound into major consequences.</p>
+<p><strong>Your Mission:</strong> Build a customer spending prediction model for the holiday season. Budget allocation depends on your model: $10M is at stake.</p>
+</div>
+
+<!-- PHASE 1: Initial Optimism -->
+<div class="journey-phase">
+<span class="phase-number">Day 1</span>
+<h2>Phase 1: The Honeymoon Period</h2>
+<p><strong>9:00 AM:</strong> You arrive excited. Your manager sends you the project brief.</p>
+
+<div class="stakeholder-request">
+<p>"Welcome aboard! We need a model to predict customer spending for Q4. The CEO wants 95% accuracy - she saw our competitor claiming that in their press release. You have our customer database with 2 years of history. Should be straightforward, right? Need initial results by Friday."</p>
+<p style="margin-top: 1em;"><strong>Translation:</strong> Unrealistic expectations, competitive pressure, tight deadline.</p>
+</div>
+
+<div class="action-required">
+<h4>Your First Decision: Setting Expectations</h4>
+<p>How do you respond to the 95% accuracy requirement?</p>
+<div style="display: flex; gap: 1em; flex-wrap: wrap;">
+<div class="choice-button" onclick="makeDecision('promise', this)">Promise 95%</div>
+<div class="choice-button" onclick="makeDecision('investigate', this)">Investigate First</div>
+<div class="choice-button" onclick="makeDecision('pushback', this)">Challenge Assumption</div>
+</div>
+<div id="decision-outcome-1" style="margin-top: 1em; display: none;"></div>
+</div>
+
+<h3>9:30 AM: First Look at the Data</h3>
+<div class="code-evolution">
+<div class="code-version">
+<strong>Your Initial Attempt (Optimistic):</strong>
+<pre style="color: #abb2bf; margin: 0;">
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+
+# Load data - seems simple enough!
+df = pd.read_csv('customers.csv')
+print(f"Dataset shape: {df.shape}")
+# Output: (10000, 47)  # Lots of features, great!
+
+# Quick model - let's see baseline
+X = df.drop('spending', axis=1)
+y = df['spending']
+
+# Standard split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+model = LinearRegression()
+model.fit(X_train, y_train)
+print(f"R² Score: {model.score(X_test, y_test):.3f}")
+# Output: 0.923  # Wow, so close to 95%!
+</pre>
+</div>
+</div>
+
+<div class="reality-check">
+<strong>10:15 AM - Reality Hits:</strong> You realize the model is using customer_id as a feature! It's memorizing customers, not learning patterns. When you remove it, performance drops to 0.71.
+</div>
+</div>
+
+<!-- PHASE 2: Data Quality Discovery -->
+<div class="journey-phase">
+<span class="phase-number">Day 2</span>
+<h2>Phase 2: The Data Quality Nightmare</h2>
+<p><strong>9:00 AM:</strong> After yesterday's customer_id fiasco, you decide to properly explore the data.</p>
+
+<div class="data-issue">
+<strong>Issue #1: Missing Values Hidden as Zeros</strong>
+<p>30% of customers have 0 for 'email_opens' - they're actually NULLs from before email tracking started!</p>
+<div class="issue-resolution">
+<strong>Your Fix:</strong> Create 'has_email_history' feature, impute carefully
+<pre>df['has_email_history'] = df['email_opens'] > 0
+df.loc[~df['has_email_history'], 'email_opens'] = df[df['has_email_history']]['email_opens'].median()</pre>
+</div>
+</div>
+
+<div class="data-issue">
+<strong>Issue #2: Data Leakage from the Future</strong>
+<p>'total_lifetime_value' includes future purchases! It's literally the answer with noise.</p>
+<div class="issue-resolution">
+<strong>Your Fix:</strong> Remove it and all features calculated after the prediction point
+<pre># Remove features that wouldn't be known at prediction time
+leaked_features = ['total_lifetime_value', 'future_purchases', 'next_month_active']
+X = X.drop(columns=leaked_features)</pre>
+</div>
+</div>
+
+<div class="data-issue">
+<strong>Issue #3: Duplicate Customers</strong>
+<p>2,000 rows are duplicates with slightly different feature values - data pipeline bug!</p>
+<div class="issue-resolution">
+<strong>Your Fix:</strong> Aggregate duplicates intelligently
+<pre># Keep the most recent record for each customer
+df = df.sort_values('last_updated').drop_duplicates('customer_email', keep='last')</pre>
+</div>
+</div>
+
+<div class="performance-tracker">
+<div class="metric-card">
+<div>Original R²</div>
+<div class="metric-value">0.923</div>
+<div class="metric-change metric-down">Inflated!</div>
+</div>
+<div class="metric-card">
+<div>After Removing ID</div>
+<div class="metric-value">0.710</div>
+<div class="metric-change metric-down">↓ 23%</div>
+</div>
+<div class="metric-card">
+<div>After Fixing Leakage</div>
+<div class="metric-value">0.645</div>
+<div class="metric-change metric-down">↓ 6.5%</div>
+</div>
+<div class="metric-card">
+<div>After Deduplication</div>
+<div class="metric-value">0.672</div>
+<div class="metric-change metric-up">↑ 2.7%</div>
+</div>
+</div>
+
+<div class="stakeholder-request">
+<p><strong>2:00 PM - Manager Check-in:</strong> "How's the 95% accuracy model coming along?"</p>
+<p><strong>Your Response:</strong> "I found serious data quality issues. Real baseline is 67%, not 92%. But this is actually good - we now know the truth."</p>
+<p><strong>Manager:</strong> "The CEO won't be happy... Can you just use the original numbers for the presentation?"</p>
+</div>
+
+<div class="action-required">
+<h4>Ethical Decision Point</h4>
+<p>Your manager suggests using inflated numbers for the executive presentation. What do you do?</p>
+<div style="display: flex; gap: 1em; flex-wrap: wrap;">
+<div class="choice-button" onclick="makeDecision('comply', this)">Use Inflated Numbers</div>
+<div class="choice-button" onclick="makeDecision('refuse', this)">Stand Your Ground</div>
+<div class="choice-button" onclick="makeDecision('compromise', this)">Propose Alternative</div>
+</div>
+<div id="decision-outcome-2" style="margin-top: 1em; display: none;"></div>
+</div>
+</div>
+
+<!-- PHASE 3: Feature Engineering Reality -->
+<div class="journey-phase">
+<span class="phase-number">Day 3</span>
+<h2>Phase 3: Feature Engineering - The Art and Science</h2>
+<p><strong>9:00 AM:</strong> With clean data, you begin thoughtful feature engineering.</p>
+
+<div class="decision-log">
+<h4>Feature Engineering Decision Log</h4>
+<div class="log-entry">
+<strong>9:15 AM:</strong> Create 'days_since_last_purchase' - customers who bought recently buy more
+</div>
+<div class="log-entry good">
+<strong>9:45 AM:</strong> ✅ Add 'purchase_velocity' = purchases / account_age - captures engagement rate
+</div>
+<div class="log-entry bad">
+<strong>10:30 AM:</strong> ❌ Add polynomial features (degree=3) - overfitting immediately! Removed.
+</div>
+<div class="log-entry revised">
+<strong>11:00 AM:</strong> ⚠️ Add interaction terms selectively - only those with business logic
+</div>
+<div class="log-entry good">
+<strong>11:45 AM:</strong> ✅ Create 'seasonal_buyer' flag - some customers only buy during sales
+</div>
+</div>
+
+<div class="code-evolution">
+<div class="code-version code-mistake">
+<strong>Mistake: Over-Engineering Features</strong>
+<pre style="color: #abb2bf; margin: 0;">
+# Too many features - overfitting trap!
+from sklearn.preprocessing import PolynomialFeatures
+poly = PolynomialFeatures(degree=3, include_bias=False)
+X_poly = poly.fit_transform(X)
+print(f"Features exploded from {X.shape[1]} to {X_poly.shape[1]}")
+# Output: Features exploded from 23 to 2,024!
+
+# Model performance:
+# Train R²: 0.982  # Suspiciously high!
+# Test R²: 0.593   # Worse than before!
+</pre>
+</div>
+
+<div class="code-version code-fix">
+<strong>Fix: Thoughtful Feature Selection</strong>
+<pre style="color: #abb2bf; margin: 0;">
+# Business-driven feature engineering
+df['recency'] = (pd.Timestamp.now() - pd.to_datetime(df['last_purchase_date'])).dt.days
+df['frequency'] = df['total_purchases'] / df['account_age_days'] * 365
+df['monetary'] = df['total_spent'] / df['total_purchases'].clip(lower=1)
+df['engagement_score'] = (
+    df['email_opens'] * 0.3 + 
+    df['website_visits'] * 0.5 + 
+    df['app_sessions'] * 0.2
+)
+
+# Only meaningful interactions
+df['premium_engagement'] = df['is_premium'] * df['engagement_score']
+df['recency_frequency'] = df['recency'] * df['frequency']
+
+# Result: 29 well-chosen features
+# Train R²: 0.756
+# Test R²: 0.742  # Much better generalization!
+</pre>
+</div>
+</div>
+
+<div class="discovery-moment">
+<strong>Key Discovery:</strong> Feature quality beats feature quantity. 29 thoughtful features outperform 2,024 polynomial features. The model is learning real patterns, not memorizing noise.
+</div>
+</div>
+
+<!-- PHASE 4: The Overfitting Trap -->
+<div class="journey-phase">
+<span class="phase-number">Day 4</span>
+<h2>Phase 4: The Overfitting Trap and Recovery</h2>
+<p><strong>9:00 AM:</strong> Pressure mounting. CEO presentation tomorrow. You try to boost performance.</p>
+
+<div class="time-pressure">
+CEO Presentation in: 24 HOURS
+</div>
+
+<h3>The Desperation Spiral</h3>
+<div class="code-evolution">
+<div class="code-version code-mistake">
+<strong>10:00 AM - Desperation Move #1: Complex Model</strong>
+<pre style="color: #abb2bf; margin: 0;">
+from sklearn.ensemble import RandomForestRegressor
+
+# "More complex model = better performance, right?"
+rf_model = RandomForestRegressor(n_estimators=500, max_depth=20, min_samples_leaf=1)
+rf_model.fit(X_train_scaled, y_train)
+
+# Results:
+print(f"Train R²: {rf_model.score(X_train_scaled, y_train):.3f}")  # 0.995
+print(f"Test R²: {rf_model.score(X_test_scaled, y_test):.3f}")     # 0.681
+
+# WORSE than simple linear regression!
+</pre>
+</div>
+
+<div class="code-version code-mistake">
+<strong>11:00 AM - Desperation Move #2: Remove "Outliers"</strong>
+<pre style="color: #abb2bf; margin: 0;">
+# "Maybe outliers are hurting performance?"
+Q1 = y_train.quantile(0.25)
+Q3 = y_train.quantile(0.75)
+IQR = Q3 - Q1
+
+# Remove "outliers" - actually high-value customers!
+mask = ~((y_train < Q1 - 1.5 * IQR) | (y_train > Q3 + 1.5 * IQR))
+X_train_filtered = X_train_scaled[mask]
+y_train_filtered = y_train[mask]
+
+# Results: Model can't predict high spenders anymore!
+# Lost ability to identify most valuable customers
+</pre>
+</div>
+</div>
+
+<h3>2:00 PM - The Turning Point</h3>
+<div class="discovery-moment">
+<strong>Realization:</strong> You're making the model worse by chasing metrics. Step back. What does the business actually need?
+<ul style="margin-top: 1em;">
+<li>Accurate predictions for customer segments, not perfect overall R²</li>
+<li>Ability to identify high-value customers (top 20%)</li>
+<li>Robust performance on new customers</li>
+</ul>
+</div>
+
+<div class="code-evolution">
+<div class="code-version code-fix">
+<strong>3:00 PM - The Right Approach: Regularized Linear Model</strong>
+<pre style="color: #abb2bf; margin: 0;">
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import GridSearchCV
+
+# Proper regularization with business-focused validation
+param_grid = {'alpha': np.logspace(-2, 2, 50)}
+
+# Custom scorer: weighted by customer value
+def business_scorer(y_true, y_pred):
+    # Penalize errors on high-value customers more
+    weights = np.where(y_true > y_true.quantile(0.8), 2.0, 1.0)
+    weighted_errors = weights * (y_true - y_pred) ** 2
+    return -np.mean(weighted_errors)
+
+ridge_cv = GridSearchCV(
+    Ridge(), 
+    param_grid, 
+    cv=5,
+    scoring=business_scorer
+)
+
+ridge_cv.fit(X_train_scaled, y_train)
+best_model = ridge_cv.best_estimator_
+
+# Results:
+print(f"Overall Test R²: {best_model.score(X_test_scaled, y_test):.3f}")  # 0.759
+print(f"High-value Customer R²: {high_value_r2:.3f}")                     # 0.821
+print(f"Can identify 73% of top 20% spenders")
+</pre>
+</div>
+</div>
+
+<div class="performance-tracker">
+<div class="metric-card">
+<div>Linear (No Reg)</div>
+<div class="metric-value">0.742</div>
+<div class="metric-change">Baseline</div>
+</div>
+<div class="metric-card">
+<div>Random Forest</div>
+<div class="metric-value">0.681</div>
+<div class="metric-change metric-down">Overfit!</div>
+</div>
+<div class="metric-card">
+<div>Ridge (Optimized)</div>
+<div class="metric-value">0.759</div>
+<div class="metric-change metric-up">Best!</div>
+</div>
+<div class="metric-card">
+<div>High-Value Accuracy</div>
+<div class="metric-value">82.1%</div>
+<div class="metric-change metric-up">Key Metric!</div>
+</div>
+</div>
+</div>
+
+<!-- PHASE 5: The Presentation -->
+<div class="journey-phase">
+<span class="phase-number">Day 5</span>
+<h2>Phase 5: The Executive Presentation</h2>
+<p><strong>9:00 AM:</strong> Presentation day. You've prepared two narratives.</p>
+
+<div class="action-required">
+<h4>Final Decision: How to Present Your Results</h4>
+<p>The CEO is expecting 95% accuracy. You achieved 76% overall, but 82% on high-value customers. How do you frame this?</p>
+
+<div style="display: flex; gap: 1em; flex-wrap: wrap;">
+<div class="choice-button" onclick="makeDecision('technical', this)">Focus on R² Metrics</div>
+<div class="choice-button" onclick="makeDecision('business', this)">Focus on Business Value</div>
+<div class="choice-button" onclick="makeDecision('story', this)">Tell the Journey</div>
+</div>
+<div id="decision-outcome-3" style="margin-top: 1em; display: none;"></div>
+</div>
+
+<h3>The Winning Narrative</h3>
+<div class="discovery-moment">
+<h4>What Actually Worked:</h4>
+<p><strong>Opening:</strong> "I discovered our data had quality issues inflating apparent performance. After fixing these, I built a model that identifies 73% of our highest-value customers with 82% accuracy."</p>
+
+<p><strong>Business Impact:</strong> "This means for our $10M Q4 inventory investment, we can allocate $7.3M with high confidence, reducing waste by an estimated $1.8M compared to uniform distribution."</p>
+
+<p><strong>Honest Assessment:</strong> "The 95% accuracy our competitor claims likely includes data leakage. Our 76% is real-world performance you can bank on."</p>
+
+<p><strong>CEO Response:</strong> "Finally, someone who tells me the truth! This saves us from a costly mistake. Approved for production."</p>
+</div>
+</div>
+
+<!-- FINAL SECTION: Lessons Learned -->
+<div class="card" style="background: linear-gradient(135deg, #28a74520 0%, #20c99720 100%);">
+<h2>🎓 The Real Lessons from Your First Week</h2>
+
+<h3>Technical Lessons</h3>
+<ol style="line-height: 1.8;">
+<li><strong>Data quality trumps model complexity:</strong> Week spent on data cleaning = months saved in production</li>
+<li><strong>Simple models first:</strong> Linear regression found issues that Random Forest would hide</li>
+<li><strong>Regularization > Complexity:</strong> Ridge with α=1.3 beat 500-tree Random Forest</li>
+<li><strong>Custom metrics matter:</strong> Business value ≠ R² score</li>
+<li><strong>Feature engineering > Feature extraction:</strong> 29 thoughtful features beat 2,024 polynomial features</li>
+</ol>
+
+<h3>Professional Lessons</h3>
+<ol style="line-height: 1.8;">
+<li><strong>Set realistic expectations early:</strong> Better to disappoint initially than fail in production</li>
+<li><strong>Document everything:</strong> Your decision log saved you in the presentation</li>
+<li><strong>Ethics matter:</strong> Refusing to use inflated numbers built trust</li>
+<li><strong>Focus on business value:</strong> 73% of high-value customers > 95% overall accuracy</li>
+<li><strong>Tell stories, not statistics:</strong> CEOs understand impact, not R² scores</li>
+</ol>
+
+<h3>The Cascade Effect - Final Tally</h3>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2em; margin: 2em 0;">
+<div>
+<h4>Small Decision</h4>
+<ul>
+<li>Removed customer_id feature</li>
+<li>Fixed data leakage</li>
+<li>Used time-based validation</li>
+<li>Added regularization (α=1.3)</li>
+<li>Custom business metric</li>
+</ul>
+</div>
+<div>
+<h4>Big Impact</h4>
+<ul>
+<li>Prevented $4M loss from overfitting</li>
+<li>Saved $1.8M in inventory costs</li>
+<li>Built CEO trust with honesty</li>
+<li>Model actually works in production</li>
+<li>Promoted to Senior DS in 6 months</li>
+</ul>
+</div>
+</div>
+
+<div style="text-align: center; margin-top: 2em; padding: 2em; background: white; border-radius: 10px;">
+<h3>Your Performance Review</h3>
+<p style="font-size: 1.2em; color: #0366d6;">Outstanding First Week</p>
+<p>"Demonstrated technical excellence, business acumen, and ethical integrity. Rare combination of skills that will define successful data scientists of the future."</p>
+<p style="margin-top: 1em;">- Your Manager (who got promoted too)</p>
+</div>
+</div>
+
+<script>
+// Decision tracking
+let decisions = {};
+
+function makeDecision(choice, element) {
+    // Store decision
+    const decisionPoint = element.parentElement.parentElement;
+    const decisionId = decisionPoint.querySelector('[id^="decision-outcome"]').id;
+    decisions[decisionId] = choice;
+    
+    // Highlight selected choice
+    element.parentElement.querySelectorAll('.choice-button').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    
+    // Show outcome
+    const outcomeDiv = document.getElementById(decisionId);
+    outcomeDiv.style.display = 'block';
+    
+    // Decision-specific outcomes
+    const outcomes = {
+        'decision-outcome-1': {
+            'promise': `<div style="background: #f8d7da; padding: 1em; border-radius: 5px;">
+                <strong>You promised 95% accuracy.</strong><br>
+                Consequence: You'll spend the week chasing an impossible target, making increasingly desperate decisions that lead to overfitting. The model will fail spectacularly in production, damaging your credibility.
+                </div>`,
+            'investigate': `<div style="background: #d4edda; padding: 1em; border-radius: 5px;">
+                <strong>Smart move! You said: "Let me investigate the data first and provide a realistic assessment."</strong><br>
+                Consequence: Manager appreciates the professionalism. You buy time to set proper expectations. This thoughtful approach will pay off when you deliver real, sustainable results.
+                </div>`,
+            'pushback': `<div style="background: #fff3cd; padding: 1em; border-radius: 5px;">
+                <strong>You challenged: "95% accuracy is unrealistic without understanding the problem. Competitor claims may be inflated."</strong><br>
+                Consequence: Manager is taken aback but respects your expertise. You've set the stage for an honest conversation about what's actually achievable.
+                </div>`
+        },
+        'decision-outcome-2': {
+            'comply': `<div style="background: #f8d7da; padding: 1em; border-radius: 5px;">
+                <strong>You used the inflated numbers.</strong><br>
+                Consequence: Short-term relief, but when the model deploys and fails, the data quality issues are discovered. You're blamed for hiding known problems. Trust permanently damaged. Career at DataCorp effectively over.
+                </div>`,
+            'refuse': `<div style="background: #d4edda; padding: 1em; border-radius: 5px;">
+                <strong>You stood your ground: "I cannot present false numbers. It will lead to bad business decisions."</strong><br>
+                Consequence: Manager is frustrated but secretly respects your integrity. When you present the real story, the CEO appreciates the honesty. You become known as the "trustworthy data scientist."
+                </div>`,
+            'compromise': `<div style="background: #fff3cd; padding: 1em; border-radius: 5px;">
+                <strong>You proposed: "Let's present both numbers with clear explanations of the data quality issues found."</strong><br>
+                Consequence: Good middle ground. Transparency builds trust while showing the journey from inflated to real metrics. CEO understands the competitor's "95%" is likely inflated too.
+                </div>`
+        },
+        'decision-outcome-3': {
+            'technical': `<div style="background: #f8d7da; padding: 1em; border-radius: 5px;">
+                <strong>You focused on technical metrics: R², RMSE, MAE...</strong><br>
+                Result: CEO's eyes glaze over. "So... is it good or bad? Will it work?" You've failed to communicate value. Project gets deprioritized.
+                </div>`,
+            'business': `<div style="background: #d4edda; padding: 1em; border-radius: 5px;">
+                <strong>You focused on business value: "$1.8M savings, 73% of high-value customers identified"</strong><br>
+                Result: CEO leans forward, interested. "So we can confidently allocate 73% of our budget?" Approved for immediate production deployment. You're the hero.
+                </div>`,
+            'story': `<div style="background: #d4edda; padding: 1em; border-radius: 5px;">
+                <strong>You told the journey: From inflated 92% to real 76%, but 82% on what matters most.</strong><br>
+                Result: CEO appreciates the transparency and process. "This is why we hired data scientists - to find the truth, not just confirm biases." Becomes a case study for company-wide data literacy training.
+                </div>`
+        }
+    };
+    
+    outcomeDiv.innerHTML = outcomes[decisionId][choice] || 'Decision recorded.';
+}
+
+// Track time on page
+let startTime = Date.now();
+window.addEventListener('beforeunload', function() {
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000 / 60);
+    console.log(`Time spent on lab: ${timeSpent} minutes`);
+});
+</script>
+
+</body></html>

@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 10 Lab: Build a $200M Ethical AI System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f093fb10 0%, #f5576c10 100%);
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #003366;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .timer-section {
+            position: sticky;
+            top: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            z-index: 100;
+        }
+        
+        #timer {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .task {
+            background: #f8f9fa;
+            border-left: 4px solid #0366d6;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .task.completed {
+            border-left-color: #4caf50;
+            background: #e8f5e9;
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .task-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #003366;
+        }
+        
+        .task-points {
+            background: #0366d6;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .task.completed .task-points {
+            background: #4caf50;
+        }
+        
+        .code-editor {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            min-height: 200px;
+            position: relative;
+        }
+        
+        .code-editor textarea {
+            width: 100%;
+            background: transparent;
+            color: #abb2bf;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: 1.5;
+            resize: vertical;
+            min-height: 150px;
+        }
+        
+        .run-button {
+            background: #4caf50;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+        
+        .run-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76,175,80,0.3);
+        }
+        
+        .hint-button {
+            background: #ffc107;
+            color: #333;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+        
+        .hint-button:hover {
+            background: #ffb300;
+            transform: translateY(-2px);
+        }
+        
+        .hint-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .hint-box.visible {
+            display: block;
+        }
+        
+        .output-console {
+            background: #1e1e1e;
+            color: #4caf50;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .checkpoint {
+            background: linear-gradient(135deg, #a8e6cf20 0%, #dcedc120 100%);
+            border: 2px solid #81c784;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 10px;
+        }
+        
+        .checkpoint-title {
+            color: #4caf50;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .progress-tracker {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .progress-tracker::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e9ecef;
+            z-index: 0;
+        }
+        
+        .progress-step {
+            background: white;
+            border: 3px solid #e9ecef;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .progress-step.completed {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: white;
+        }
+        
+        .progress-step.active {
+            background: #0366d6;
+            border-color: #0366d6;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(3,102,214,0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(3,102,214,0); }
+            100% { box-shadow: 0 0 0 0 rgba(3,102,214,0); }
+        }
+        
+        .performance-metrics {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .metric-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #003366;
+            margin-top: 5px;
+        }
+        
+        .final-submission {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 40px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .final-submission.visible {
+            display: block;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .checklist-item input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .code-comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+        
+        .code-keyword {
+            color: #c678dd;
+        }
+        
+        .code-string {
+            color: #98c379;
+        }
+        
+        .code-function {
+            color: #61afef;
+        }
+        
+        .critical-alert {
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚖️ Lab Mission: Build Ethical AI Framework</h1>
+            <p style="font-size: 1.2em; color: #666;">Prevent $200M in discrimination lawsuits in 90 minutes</p>
+        </div>
+
+        <div class="timer-section">
+            <div>⏱️ Time Remaining: <span id="timer">90:00</span></div>
+            <div style="font-size: 0.9em; margin-top: 5px;">Complete all tasks to achieve compliance!</div>
+        </div>
+
+        <div class="critical-alert">
+            <strong>⚠️ CRITICAL ALERT:</strong> TechGlobal's AI systems are under federal investigation. You have 90 minutes to implement comprehensive bias detection and mitigation before regulatory shutdown. The company's survival depends on your code.
+        </div>
+
+        <div class="progress-tracker">
+            <div class="progress-step active" id="step1">1</div>
+            <div class="progress-step" id="step2">2</div>
+            <div class="progress-step" id="step3">3</div>
+            <div class="progress-step" id="step4">4</div>
+            <div class="progress-step" id="step5">5</div>
+            <div class="progress-step" id="step6">6</div>
+            <div class="progress-step" id="step7">7</div>
+            <div class="progress-step" id="step8">8</div>
+        </div>
+
+        <!-- Task 1: Load and Analyze Biased Data -->
+        <div class="task" id="task1">
+            <div class="task-header">
+                <span class="task-title">🔍 Task 1: Discover the Discrimination</span>
+                <span class="task-points">10 points</span>
+            </div>
+            
+            <p>Load TechGlobal's hiring data and identify patterns of discrimination. This dataset contains 50,000 job applications with concerning bias patterns.</p>
+            
+            <div class="code-editor">
+                <textarea id="code1" placeholder="# Import required libraries
+import pandas as pd
+import numpy as np
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+
+# TODO: Load the problematic AI training data
+# hiring_data = pd.read_csv('techglobal_hiring.csv')
+
+# TODO: Analyze protected attributes distribution
+# protected_attrs = ['gender', 'race', 'age_group']
+# for attr in protected_attrs:
+#     print(f'{attr} distribution:')
+#     print(hiring_data[attr].value_counts(normalize=True))
+#     print()
+
+# TODO: Calculate hiring rates by protected group
+# This will reveal the discrimination patterns
+# for attr in protected_attrs:
+#     hiring_by_group = hiring_data.groupby(attr)['hired'].mean()
+#     print(f'Hiring rate by {attr}:')
+#     print(hiring_by_group)
+#     print(f'Disparate impact ratio: {hiring_by_group.min() / hiring_by_group.max():.3f}')
+#     print()"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask1()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(1)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint1">
+                <strong>💡 Hint:</strong> Look for disparate impact ratios below 0.8 (the 80% rule). Key patterns to identify:
+                <ul>
+                    <li>Gender: Female candidates hired at 27% vs Male at 73%</li>
+                    <li>Race: Significant disparities across ethnic groups</li>
+                    <li>Age: Discrimination against 40+ candidates</li>
+                </ul>
+                Calculate: min(selection_rate) / max(selection_rate) for each attribute
+            </div>
+            
+            <div class="output-console" id="output1">
+                > Ready to execute your code...
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox" id="check1_1" onchange="updateTask1()">
+                <label for="check1_1">Data loaded (50,000 applications)</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check1_2" onchange="updateTask1()">
+                <label for="check1_2">Discrimination patterns identified</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check1_3" onchange="updateTask1()">
+                <label for="check1_3">Disparate impact ratios calculated</label>
+            </div>
+        </div>
+
+        <!-- Task 2: Build Bias Detection System -->
+        <div class="task" id="task2">
+            <div class="task-header">
+                <span class="task-title">⚖️ Task 2: Build Comprehensive Bias Detector</span>
+                <span class="task-points">15 points</span>
+            </div>
+            
+            <p>Create a bias detection system that implements multiple fairness metrics required for legal compliance.</p>
+            
+            <div class="code-editor">
+                <textarea id="code2" placeholder="class BiasDetector:
+    '''
+    Comprehensive bias detection for AI models.
+    Implements EEOC, GDPR, and state law requirements.
+    '''
+    
+    def __init__(self, y_true, y_pred, sensitive_features):
+        self.y_true = y_true
+        self.y_pred = y_pred
+        self.sensitive_features = sensitive_features
+        
+    def demographic_parity_difference(self, feature):
+        '''
+        Calculate demographic parity difference.
+        Legal threshold: < 0.1 (10% maximum difference)
+        '''
+        # TODO: Calculate selection rate for each group
+        # selection_rates = {}
+        # for group in feature.unique():
+        #     mask = feature == group
+        #     selection_rates[group] = self.y_pred[mask].mean()
+        
+        # TODO: Calculate max difference
+        # dp_diff = max(rates) - min(rates)
+        # return dp_diff, selection_rates
+        pass
+    
+    def disparate_impact_ratio(self, feature):
+        '''
+        Calculate disparate impact (80% rule).
+        Legal threshold: >= 0.8
+        '''
+        # TODO: Implement 80% rule calculation
+        # selection_rates = {...}
+        # di_ratio = min(rates) / max(rates) if max(rates) > 0 else 1
+        # return di_ratio, selection_rates
+        pass
+    
+    def equalized_odds_difference(self, feature):
+        '''
+        Calculate equalized odds (TPR and FPR equality).
+        '''
+        # TODO: Calculate TPR and FPR for each group
+        # tpr_by_group = {}
+        # fpr_by_group = {}
+        # for group in feature.unique():
+        #     mask = feature == group
+        #     # Calculate confusion matrix
+        #     # Calculate TPR = TP/(TP+FN)
+        #     # Calculate FPR = FP/(FP+TN)
+        pass
+    
+    def generate_compliance_report(self):
+        '''
+        Generate report for regulatory filing.
+        '''
+        # TODO: Run all metrics for all sensitive features
+        # Create comprehensive compliance report
+        pass
+
+# Test your bias detector
+# detector = BiasDetector(y_test, predictions, sensitive_test)
+# report = detector.generate_compliance_report()"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask2()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(2)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint2">
+                <strong>💡 Hint:</strong> Remember the key fairness metrics:
+                <pre style="background: #f8f9fa; padding: 10px; border-radius: 5px;">
+# Demographic Parity: P(Ŷ=1|A=a) = P(Ŷ=1|A=b)
+rates = [pred[feature==g].mean() for g in groups]
+dp_diff = max(rates) - min(rates)
+
+# Disparate Impact: min/max selection rate ratio
+di_ratio = min(rates) / max(rates) if max(rates) > 0 else 1
+
+# Equalized Odds: Equal TPR and FPR across groups
+tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+tpr = tp / (tp + fn)
+fpr = fp / (fp + tn)</pre>
+            </div>
+            
+            <div class="output-console" id="output2">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Task 3: Implement Pre-processing Mitigation -->
+        <div class="task" id="task3">
+            <div class="task-header">
+                <span class="task-title">🔧 Task 3: Pre-processing - Fix the Data</span>
+                <span class="task-points">20 points</span>
+            </div>
+            
+            <p>Implement data reweighting to reduce historical bias before training. This is your first line of defense.</p>
+            
+            <div class="code-editor">
+                <textarea id="code3" placeholder="def reweight_data(X, y, sensitive_feature):
+    '''
+    Reweight training samples to achieve fairness.
+    Reduces historical bias in data.
+    
+    Returns:
+    - sample_weights: Weight for each training sample
+    - bias_reduction: Expected bias reduction percentage
+    '''
+    
+    # TODO: Calculate base rates
+    # overall_positive_rate = y.mean()
+    # n_total = len(y)
+    
+    # TODO: Calculate weights for each group-outcome combination
+    # weights = np.ones(len(y))
+    # for group in sensitive_feature.unique():
+    #     for outcome in [0, 1]:
+    #         # Find samples in this group-outcome
+    #         mask = (sensitive_feature == group) & (y == outcome)
+    #         
+    #         # Calculate reweighting factor
+    #         # Goal: Equal representation across groups
+    #         n_group = (sensitive_feature == group).sum()
+    #         n_outcome = (y == outcome).sum()
+    #         n_both = mask.sum()
+    #         
+    #         # Weight = (P(group) * P(outcome)) / P(group, outcome)
+    #         if n_both > 0:
+    #             weight = (n_group * n_outcome) / (n_total * n_both)
+    #             weights[mask] = weight
+    
+    # TODO: Normalize weights to sum to n_total
+    # weights = weights * n_total / weights.sum()
+    
+    # TODO: Calculate expected bias reduction
+    # Original bias vs weighted bias
+    
+    return weights, bias_reduction
+
+# Apply reweighting
+weights, reduction = reweight_data(X_train, y_train, sensitive_train['gender'])
+print(f'Expected bias reduction: {reduction:.1f}%')
+
+# Train model with weights
+# model.fit(X_train, y_train, sample_weight=weights)"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask3()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(3)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint3">
+                <strong>💡 Hint:</strong> Reweighting formula to achieve demographic parity:
+                <ul>
+                    <li>For each (group, outcome) combination</li>
+                    <li>Weight = P(group) × P(outcome) / P(group AND outcome)</li>
+                    <li>This makes the weighted distribution fair</li>
+                    <li>Expected to reduce bias by 40-60% with minimal accuracy loss</li>
+                </ul>
+            </div>
+            
+            <div class="output-console" id="output3">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Checkpoint 1 -->
+        <div class="checkpoint">
+            <div class="checkpoint-title">🏁 Checkpoint 1: Bias Detection Complete</div>
+            <p>Excellent progress! You've identified and begun mitigating discrimination. Current status:</p>
+            <div class="performance-metrics">
+                <div class="metric-card">
+                    <div class="metric-label">Violations Found</div>
+                    <div class="metric-value" id="violations1">12</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Bias Reduced</div>
+                    <div class="metric-value" id="biasReduced1">45%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Compliance Score</div>
+                    <div class="metric-value" id="compliance1">35%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Risk Mitigated</div>
+                    <div class="metric-value" id="riskMitigated1">$45M</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 4: In-processing Fairness Constraints -->
+        <div class="task" id="task4">
+            <div class="task-header">
+                <span class="task-title">🎯 Task 4: In-processing - Fair Learning</span>
+                <span class="task-points">20 points</span>
+            </div>
+            
+            <p>Implement fairness constraints directly in the model training objective. This ensures the model learns fair patterns.</p>
+            
+            <div class="code-editor">
+                <textarea id="code4" placeholder="class FairClassifier:
+    '''
+    Classifier with built-in fairness constraints.
+    Optimizes accuracy AND fairness simultaneously.
+    '''
+    
+    def __init__(self, fairness_constraint='demographic_parity', lambda_fair=0.5):
+        self.fairness_constraint = fairness_constraint
+        self.lambda_fair = lambda_fair  # Fairness vs accuracy tradeoff
+        self.model = None
+        
+    def fit(self, X, y, sensitive_feature):
+        '''
+        Train with fairness constraints using Lagrangian optimization.
+        '''
+        from sklearn.linear_model import LogisticRegression
+        
+        # TODO: Grid search over fairness-accuracy tradeoff
+        # best_model = None
+        # best_score = -np.inf
+        
+        # for lambda_val in np.linspace(0, 1, 11):
+        #     # Adjust objective based on fairness constraint
+        #     
+        #     # Train candidate model
+        #     model = LogisticRegression()
+        #     
+        #     # If using demographic parity constraint:
+        #     # Modify loss = accuracy_loss + lambda * fairness_loss
+        #     
+        #     # Evaluate combined objective
+        #     accuracy = model.score(X, y)
+        #     fairness_violation = self._calculate_fairness_loss(
+        #         model.predict(X), sensitive_feature
+        #     )
+        #     
+        #     combined_score = accuracy - lambda_val * fairness_violation
+        #     
+        #     if combined_score > best_score:
+        #         best_score = combined_score
+        #         best_model = model
+        #         self.lambda_fair = lambda_val
+        
+        # self.model = best_model
+        pass
+    
+    def _calculate_fairness_loss(self, predictions, sensitive_feature):
+        '''
+        Calculate fairness constraint violation.
+        '''
+        # TODO: Implement based on fairness_constraint type
+        # For demographic parity:
+        # rates = [predictions[sensitive_feature==g].mean() for g in groups]
+        # violation = max(rates) - min(rates)
+        pass
+    
+    def predict(self, X):
+        return self.model.predict(X)
+
+# Train fair classifier
+fair_clf = FairClassifier(fairness_constraint='demographic_parity')
+fair_clf.fit(X_train, y_train, sensitive_train['gender'])
+
+# Evaluate fairness improvement
+# predictions = fair_clf.predict(X_test)
+# Calculate new bias metrics"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask4()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(4)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint4">
+                <strong>💡 Hint:</strong> Lagrangian optimization approach:
+                <pre style="background: #f8f9fa; padding: 10px; border-radius: 5px;">
+# Combined objective function:
+# L = accuracy_loss + λ × fairness_violation
+
+# Grid search over λ ∈ [0, 1]
+# λ = 0: Only optimize accuracy (biased)
+# λ = 1: Only optimize fairness (random)
+# λ = 0.3-0.5: Good balance
+
+# Expected results:
+# - 60-80% bias reduction
+# - 3-5% accuracy cost
+# - Achieves legal compliance</pre>
+            </div>
+            
+            <div class="output-console" id="output4">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Task 5: Post-processing Threshold Optimization -->
+        <div class="task" id="task5">
+            <div class="task-header">
+                <span class="task-title">🎚️ Task 5: Post-processing - Optimize Thresholds</span>
+                <span class="task-points">15 points</span>
+            </div>
+            
+            <p>Implement group-specific decision thresholds to achieve equal opportunity. Different thresholds ensure fairness in outcomes.</p>
+            
+            <div class="code-editor">
+                <textarea id="code5" placeholder="def optimize_thresholds(model, X_val, y_val, sensitive_feature):
+    '''
+    Find optimal decision thresholds per group for fairness.
+    
+    Returns:
+    - thresholds: Dict of optimal threshold per group
+    - fairness_achieved: Final fairness metrics
+    '''
+    
+    # Get probability predictions
+    probabilities = model.predict_proba(X_val)[:, 1]
+    groups = sensitive_feature.unique()
+    
+    # TODO: Find target positive rate (for demographic parity)
+    # target_rate = probabilities.mean()  # Overall positive rate
+    
+    thresholds = {}
+    
+    # TODO: Optimize threshold for each group
+    # for group in groups:
+    #     mask = sensitive_feature == group
+    #     group_probs = probabilities[mask]
+    #     group_labels = y_val[mask]
+    #     
+    #     # Grid search for best threshold
+    #     best_threshold = 0.5
+    #     best_score = -np.inf
+    #     
+    #     for thresh in np.linspace(0.1, 0.9, 81):
+    #         # Calculate metrics at this threshold
+    #         predictions = (group_probs >= thresh).astype(int)
+    #         
+    #         # Balance between accuracy and achieving target rate
+    #         accuracy = (predictions == group_labels).mean()
+    #         rate_diff = abs((predictions).mean() - target_rate)
+    #         
+    #         # Combined score
+    #         score = accuracy - rate_diff
+    #         
+    #         if score > best_score:
+    #             best_score = score
+    #             best_threshold = thresh
+    #     
+    #     thresholds[group] = best_threshold
+    
+    # TODO: Apply thresholds and calculate final fairness
+    # final_predictions = np.zeros(len(X_val))
+    # for group, threshold in thresholds.items():
+    #     mask = sensitive_feature == group
+    #     final_predictions[mask] = (probabilities[mask] >= threshold)
+    
+    return thresholds, fairness_achieved
+
+# Optimize thresholds
+thresholds, metrics = optimize_thresholds(model, X_val, y_val, sensitive_val['gender'])
+print(f'Optimized thresholds: {thresholds}')
+print(f'Fairness achieved: {metrics}')"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask5()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(5)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint5">
+                <strong>💡 Hint:</strong> Threshold optimization strategy:
+                <ul>
+                    <li>Different thresholds per group equalize opportunity</li>
+                    <li>If Group A has lower scores, use lower threshold</li>
+                    <li>Target: Same positive rate across all groups</li>
+                    <li>Can achieve 70-90% bias reduction</li>
+                    <li>Trade-off: Individuals with same score may get different outcomes</li>
+                </ul>
+            </div>
+            
+            <div class="output-console" id="output5">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Task 6: Explainability System -->
+        <div class="task" id="task6">
+            <div class="task-header">
+                <span class="task-title">🔍 Task 6: Build Explainability System</span>
+                <span class="task-points">15 points</span>
+            </div>
+            
+            <p>Implement GDPR-compliant explanations for every AI decision. Required by law for automated decision-making.</p>
+            
+            <div class="code-editor">
+                <textarea id="code6" placeholder="class ExplainableAI:
+    '''
+    Generate human-readable explanations for AI decisions.
+    GDPR Article 22 compliant.
+    '''
+    
+    def __init__(self, model, feature_names):
+        self.model = model
+        self.feature_names = feature_names
+        
+    def explain_decision(self, instance):
+        '''
+        Generate explanation for individual prediction.
+        '''
+        # TODO: Get prediction and probability
+        # prediction = self.model.predict([instance])[0]
+        # probability = self.model.predict_proba([instance])[0]
+        
+        # TODO: Calculate feature importance (simplified SHAP)
+        # baseline_pred = model.predict_proba(X_train.mean())[0]
+        # contributions = {}
+        
+        # for i, feature in enumerate(feature_names):
+        #     # Perturb feature and measure impact
+        #     perturbed = instance.copy()
+        #     perturbed[i] = X_train[feature].mean()
+        #     perturbed_pred = model.predict_proba([perturbed])[0]
+        #     contribution = probability[1] - perturbed_pred[1]
+        #     contributions[feature] = contribution
+        
+        # TODO: Generate human-readable explanation
+        # explanation = {
+        #     'decision': 'Approved' if prediction == 1 else 'Rejected',
+        #     'confidence': max(probability) * 100,
+        #     'main_factors': sorted(contributions.items(), key=lambda x: abs(x[1]))[:5],
+        #     'fairness_check': self._check_fairness(instance)
+        # }
+        
+        return explanation
+    
+    def _check_fairness(self, instance):
+        '''
+        Check if decision might be biased.
+        '''
+        # TODO: Flag if protected attributes influenced decision
+        # Check if removing protected attributes changes outcome
+        pass
+    
+    def generate_audit_report(self, decisions):
+        '''
+        Generate report for regulatory audit.
+        '''
+        # TODO: Aggregate explanations for pattern analysis
+        # Identify potential systemic bias
+        pass
+
+# Create explainable system
+explainer = ExplainableAI(model, feature_names)
+
+# Test on sample
+sample = X_test.iloc[0]
+explanation = explainer.explain_decision(sample.values)
+print('Decision Explanation:')
+print(f'Outcome: {explanation['decision']}')
+print(f'Confidence: {explanation['confidence']:.1f}%')
+print('Top factors:')
+for factor, impact in explanation['main_factors']:
+    print(f'  - {factor}: {impact:+.3f}')"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask6()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(6)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint6">
+                <strong>💡 Hint:</strong> GDPR-compliant explanations must include:
+                <ul>
+                    <li>Clear decision outcome and confidence</li>
+                    <li>Main factors influencing the decision</li>
+                    <li>Flag if protected attributes affected outcome</li>
+                    <li>Provide recourse (what to change for different outcome)</li>
+                    <li>Store explanations for audit trail</li>
+                </ul>
+            </div>
+            
+            <div class="output-console" id="output6">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Task 7: Continuous Monitoring -->
+        <div class="task" id="task7">
+            <div class="task-header">
+                <span class="task-title">📊 Task 7: Deploy Continuous Monitoring</span>
+                <span class="task-points">10 points</span>
+            </div>
+            
+            <p>Implement real-time fairness monitoring to detect and prevent future bias before it causes legal issues.</p>
+            
+            <div class="code-editor">
+                <textarea id="code7" placeholder="class FairnessMonitor:
+    '''
+    Real-time monitoring for deployed AI systems.
+    Detects bias drift and triggers alerts.
+    '''
+    
+    def __init__(self, baseline_metrics, alert_thresholds):
+        self.baseline_metrics = baseline_metrics
+        self.alert_thresholds = alert_thresholds
+        self.monitoring_log = []
+        self.alerts = []
+        
+    def monitor_batch(self, predictions, sensitive_features):
+        '''
+        Monitor fairness metrics for new predictions.
+        '''
+        current_metrics = {}
+        
+        # TODO: Calculate current fairness metrics
+        # for feature_name in sensitive_features.columns:
+        #     feature = sensitive_features[feature_name]
+        #     
+        #     # Calculate disparate impact
+        #     rates = [predictions[feature==g].mean() for g in feature.unique()]
+        #     di_ratio = min(rates) / max(rates) if max(rates) > 0 else 1
+        #     
+        #     current_metrics[feature_name] = {
+        #         'disparate_impact': di_ratio,
+        #         'timestamp': pd.Timestamp.now()
+        #     }
+        #     
+        #     # Check for violations
+        #     if di_ratio < self.alert_thresholds['disparate_impact']:
+        #         self._trigger_alert(feature_name, di_ratio)
+        
+        # TODO: Log metrics
+        # self.monitoring_log.append(current_metrics)
+        
+        return current_metrics
+    
+    def _trigger_alert(self, feature, value):
+        '''
+        Trigger alert for fairness violation.
+        '''
+        # TODO: Create alert with severity and recommended action
+        # alert = {
+        #     'severity': 'HIGH' if value < 0.5 else 'MEDIUM',
+        #     'feature': feature,
+        #     'value': value,
+        #     'threshold': self.alert_thresholds['disparate_impact'],
+        #     'timestamp': pd.Timestamp.now(),
+        #     'action': 'Immediate review required',
+        #     'estimated_liability': '$10M per month'
+        # }
+        # self.alerts.append(alert)
+        # print(f'⚠️ FAIRNESS ALERT: {feature} at {value:.2f}')
+        pass
+    
+    def should_retrain(self):
+        '''
+        Determine if model retraining is needed.
+        '''
+        # TODO: Analyze trends and determine if retraining needed
+        # Check if multiple alerts or sustained bias drift
+        pass
+
+# Deploy monitoring
+monitor = FairnessMonitor(
+    baseline_metrics={'disparate_impact': 0.85},
+    alert_thresholds={'disparate_impact': 0.8}
+)
+
+# Simulate monitoring
+# for batch in range(5):
+#     batch_predictions = model.predict(X_test[batch*1000:(batch+1)*1000])
+#     batch_sensitive = sensitive_test[batch*1000:(batch+1)*1000]
+#     metrics = monitor.monitor_batch(batch_predictions, batch_sensitive)
+#     print(f'Batch {batch}: DI ratio = {metrics}')"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask7()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(7)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint7">
+                <strong>💡 Hint:</strong> Monitoring best practices:
+                <ul>
+                    <li>Check fairness metrics every batch/day/week</li>
+                    <li>Set strict thresholds (DI > 0.8)</li>
+                    <li>Escalate alerts based on severity</li>
+                    <li>Auto-trigger retraining if drift detected</li>
+                    <li>Maintain audit log for compliance</li>
+                </ul>
+            </div>
+            
+            <div class="output-console" id="output7">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Task 8: Complete Ethical AI Pipeline -->
+        <div class="task" id="task8">
+            <div class="task-header">
+                <span class="task-title">🚀 Task 8: Deploy Complete Ethical AI System</span>
+                <span class="task-points">15 points</span>
+            </div>
+            
+            <p>Integrate all components into a production-ready ethical AI pipeline that prevents discrimination and ensures compliance.</p>
+            
+            <div class="code-editor">
+                <textarea id="code8" placeholder="class EthicalAIPipeline:
+    '''
+    Complete end-to-end ethical AI system.
+    Prevents $200M in discrimination liability.
+    '''
+    
+    def __init__(self):
+        self.bias_detector = None
+        self.fair_classifier = None
+        self.explainer = None
+        self.monitor = None
+        self.compliance_log = []
+        
+    def train(self, X, y, sensitive_features):
+        '''
+        Train fair model with all mitigation techniques.
+        '''
+        print('Starting Ethical AI Training Pipeline...')
+        
+        # TODO: Step 1 - Detect initial bias
+        # self.bias_detector = BiasDetector(y, baseline_predictions, sensitive_features)
+        # initial_report = self.bias_detector.generate_compliance_report()
+        # print(f'Initial bias detected: {initial_report}')
+        
+        # TODO: Step 2 - Pre-process: Reweight data
+        # weights = reweight_data(X, y, sensitive_features)
+        # print('Data reweighted to reduce historical bias')
+        
+        # TODO: Step 3 - In-process: Train with fairness constraints
+        # self.fair_classifier = FairClassifier()
+        # self.fair_classifier.fit(X, y, sensitive_features, sample_weight=weights)
+        # print('Model trained with fairness constraints')
+        
+        # TODO: Step 4 - Post-process: Optimize thresholds
+        # self.thresholds = optimize_thresholds(self.fair_classifier, X, y, sensitive_features)
+        # print(f'Thresholds optimized: {self.thresholds}')
+        
+        # TODO: Step 5 - Setup explainability
+        # self.explainer = ExplainableAI(self.fair_classifier, feature_names)
+        # print('Explainability system initialized')
+        
+        # TODO: Step 6 - Initialize monitoring
+        # self.monitor = FairnessMonitor(baseline_metrics, thresholds)
+        # print('Continuous monitoring activated')
+        
+        print('✅ Ethical AI Pipeline Ready!')
+        return self
+    
+    def predict(self, X, sensitive_features=None):
+        '''
+        Make fair predictions with explanations.
+        '''
+        # TODO: Apply model with group-specific thresholds
+        # Monitor predictions for bias
+        # Generate explanations
+        pass
+    
+    def get_compliance_report(self):
+        '''
+        Generate comprehensive compliance documentation.
+        '''
+        return {
+            'compliance_achieved': True,
+            'bias_reduction': '95%',
+            'legal_requirements_met': ['EEOC', 'GDPR', 'State Laws'],
+            'financial_impact': 'Saved $200M in liability',
+            'audit_trail': self.compliance_log
+        }
+
+# Deploy complete system
+ethical_ai = EthicalAIPipeline()
+ethical_ai.train(X_train, y_train, sensitive_train)
+
+# Generate final compliance report
+report = ethical_ai.get_compliance_report()
+print('\\n' + '='*50)
+print('FINAL COMPLIANCE REPORT')
+print('='*50)
+for key, value in report.items():
+    print(f'{key}: {value}')
+print('\\n✅ TechGlobal is now COMPLIANT!')
+print('💰 $200M in liability PREVENTED!')"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask8()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(8)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint8">
+                <strong>💡 Hint:</strong> Complete pipeline checklist:
+                <ul>
+                    <li>✓ Pre-processing: Data reweighting</li>
+                    <li>✓ In-processing: Fairness constraints</li>
+                    <li>✓ Post-processing: Threshold optimization</li>
+                    <li>✓ Explainability: GDPR compliance</li>
+                    <li>✓ Monitoring: Real-time bias detection</li>
+                    <li>✓ Documentation: Complete audit trail</li>
+                </ul>
+            </div>
+            
+            <div class="output-console" id="output8">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Checkpoint 2: Final Assessment -->
+        <div class="checkpoint">
+            <div class="checkpoint-title">🏆 Final Compliance Assessment</div>
+            <div class="performance-metrics">
+                <div class="metric-card">
+                    <div class="metric-label">Bias Reduction</div>
+                    <div class="metric-value" id="finalBias">95%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Liability Prevented</div>
+                    <div class="metric-value" id="finalLiability">$200M</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Compliance Score</div>
+                    <div class="metric-value" id="finalCompliance">98%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">DI Ratio</div>
+                    <div class="metric-value" id="finalDI">0.87</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Accuracy Retained</div>
+                    <div class="metric-value" id="finalAccuracy">93%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Lab Score</div>
+                    <div class="metric-value" id="finalScore">--/100</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Submission -->
+        <div class="final-submission" id="finalSubmission">
+            <h2>🎉 Mission Accomplished!</h2>
+            <p style="font-size: 1.2em; margin: 20px 0;">Outstanding ethical leadership! You've saved TechGlobal from catastrophic legal and reputational damage while building a fair AI system that opens new opportunities.</p>
+            
+            <h3>Your Achievements:</h3>
+            <ul style="text-align: left; max-width: 600px; margin: 20px auto;">
+                <li>✅ Detected and quantified discrimination across all systems</li>
+                <li>✅ Implemented comprehensive bias mitigation (pre, in, post)</li>
+                <li>✅ Achieved 95% bias reduction while maintaining 93% accuracy</li>
+                <li>✅ Built GDPR-compliant explainability system</li>
+                <li>✅ Deployed real-time fairness monitoring</li>
+                <li>✅ Prevented $200M in regulatory fines and lawsuits</li>
+            </ul>
+            
+            <h3>Skills Mastered:</h3>
+            <ul style="text-align: left; max-width: 600px; margin: 20px auto;">
+                <li>Fairness metrics (Demographic Parity, Disparate Impact, Equalized Odds)</li>
+                <li>Pre-processing bias mitigation (reweighting)</li>
+                <li>In-processing constraints (Lagrangian optimization)</li>
+                <li>Post-processing calibration (threshold optimization)</li>
+                <li>Explainable AI for regulatory compliance</li>
+                <li>Continuous fairness monitoring and alerting</li>
+            </ul>
+            
+            <h3>Business Impact:</h3>
+            <p>Your ethical AI framework has transformed TechGlobal from facing criminal prosecution to becoming the industry standard for responsible AI. The company now qualifies for government contracts requiring bias-free AI ($500M opportunity) and has attracted top diverse talent who trust the company's commitment to fairness.</p>
+            
+            <button class="run-button" style="background: white; color: #28a745; font-size: 1.2em; padding: 15px 40px; margin-top: 20px;" onclick="downloadCertificate()">
+                🏆 Download Ethics Certification
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let timeRemaining = 90 * 60; // 90 minutes in seconds
+        let timerInterval;
+        let completedTasks = [false, false, false, false, false, false, false, false];
+        let totalScore = 0;
+        
+        // Start timer
+        window.onload = function() {
+            startTimer();
+        };
+        
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color based on time remaining
+            const timerSection = document.querySelector('.timer-section');
+            if (timeRemaining < 600) { // Less than 10 minutes
+                timerSection.style.background = 'linear-gradient(135deg, #f44336 0%, #e91e63 100%)';
+            } else if (timeRemaining < 1800) { // Less than 30 minutes
+                timerSection.style.background = 'linear-gradient(135deg, #ff9800 0%, #ff5722 100%)';
+            }
+        }
+        
+        // Task execution functions
+        function runTask1() {
+            const code = document.getElementById('code1').value;
+            const output = document.getElementById('output1');
+            
+            output.innerHTML = `> Loading TechGlobal hiring data...
+> Dataset shape: (50000, 15)
+> 
+> Protected attribute distributions:
+Gender distribution:
+  Male: 68.2%
+  Female: 31.8%
+
+Race distribution:
+  White: 72.4%
+  Black: 8.3%
+  Hispanic: 11.2%
+  Asian: 8.1%
+
+Age group distribution:
+  18-29: 42.1%
+  30-39: 31.5%
+  40-49: 18.2%
+  50+: 8.2%
+
+> Hiring rates by protected group:
+Gender:
+  Male: 0.734 (73.4%)
+  Female: 0.268 (26.8%)
+  <span style="color: #f44336;">Disparate Impact Ratio: 0.365 ⚠️ VIOLATION</span>
+
+Race:
+  White: 0.682
+  Black: 0.243
+  Hispanic: 0.318
+  Asian: 0.524
+  <span style="color: #f44336;">Disparate Impact Ratio: 0.356 ⚠️ VIOLATION</span>
+
+Age:
+  18-29: 0.621
+  30-39: 0.548
+  40-49: 0.287
+  50+: 0.142
+  <span style="color: #f44336;">Disparate Impact Ratio: 0.229 ⚠️ VIOLATION</span>
+
+<span style="color: #f44336;">⚠️ CRITICAL: All protected classes show illegal discrimination!</span>`;
+            
+            // Check all checkboxes
+            document.getElementById('check1_1').checked = true;
+            document.getElementById('check1_2').checked = true;
+            document.getElementById('check1_3').checked = true;
+            
+            updateTask1();
+        }
+        
+        function updateTask1() {
+            const checks = ['check1_1', 'check1_2', 'check1_3'];
+            const allChecked = checks.every(id => document.getElementById(id).checked);
+            
+            if (allChecked && !completedTasks[0]) {
+                completedTasks[0] = true;
+                completeTask(1, 10);
+            }
+        }
+        
+        function runTask2() {
+            const output = document.getElementById('output2');
+            
+            output.innerHTML = `> Building BiasDetector class...
+> Testing on current model predictions...
+
+> Demographic Parity Analysis:
+  Gender difference: 0.466 (46.6%)
+  <span style="color: #f44336;">Legal threshold: < 0.1 (10%) - FAILED</span>
+
+> Disparate Impact Analysis:
+  Gender ratio: 0.365
+  Race ratio: 0.356
+  Age ratio: 0.229
+  <span style="color: #f44336;">Legal threshold: >= 0.8 - ALL FAILED</span>
+
+> Equalized Odds Analysis:
+  TPR difference (gender): 0.423
+  FPR difference (gender): 0.187
+  <span style="color: #f44336;">Legal threshold: < 0.1 - FAILED</span>
+
+<span style="color: #f44336;">⚠️ Model shows severe discrimination on ALL metrics!</span>
+<span style="color: #4caf50;">✓ Bias detection system operational</span>`;
+            
+            if (!completedTasks[1]) {
+                completedTasks[1] = true;
+                completeTask(2, 15);
+            }
+        }
+        
+        function runTask3() {
+            const output = document.getElementById('output3');
+            
+            output.innerHTML = `> Implementing data reweighting...
+> Calculating weights for fair representation...
+
+> Weight distribution:
+  Male + Not Hired: 0.82
+  Male + Hired: 1.18
+  Female + Not Hired: 1.95
+  Female + Hired: 2.84
+
+> Applying weights to training data...
+> Training model with weighted samples...
+
+> Results after reweighting:
+  Original bias: 46.6%
+  Weighted bias: 18.3%
+  <span style="color: #4caf50;">Bias reduction: 60.7%</span>
+  
+  Accuracy impact: -1.8%
+  <span style="color: #4caf50;">✓ Acceptable accuracy-fairness tradeoff</span>
+
+<span style="color: #4caf50;">✓ Pre-processing mitigation complete!</span>`;
+            
+            if (!completedTasks[2]) {
+                completedTasks[2] = true;
+                completeTask(3, 20);
+                
+                // Update checkpoint metrics
+                document.getElementById('violations1').textContent = '8';
+                document.getElementById('biasReduced1').textContent = '61%';
+                document.getElementById('compliance1').textContent = '45%';
+                document.getElementById('riskMitigated1').textContent = '$60M';
+            }
+        }
+        
+        function runTask4() {
+            const output = document.getElementById('output4');
+            
+            output.innerHTML = `> Training FairClassifier with constraints...
+> Grid search over fairness-accuracy tradeoff...
+
+> Testing λ values:
+  λ=0.0: Accuracy=94.2%, Bias=46.6%
+  λ=0.2: Accuracy=92.8%, Bias=28.4%
+  λ=0.4: Accuracy=91.1%, Bias=15.2%
+  λ=0.5: Accuracy=90.3%, Bias=9.8%
+  λ=0.6: Accuracy=89.2%, Bias=7.3%
+  λ=0.8: Accuracy=86.5%, Bias=4.1%
+  
+> Optimal λ=0.5 selected (best balance)
+
+> Final metrics:
+  Disparate Impact: 0.812 ✓ (> 0.8 threshold)
+  Demographic Parity Diff: 0.098 ✓ (< 0.1 threshold)
+  Accuracy: 90.3%
+  
+<span style="color: #4caf50;">✓ Model achieves legal compliance!</span>`;
+            
+            if (!completedTasks[3]) {
+                completedTasks[3] = true;
+                completeTask(4, 20);
+            }
+        }
+        
+        function runTask5() {
+            const output = document.getElementById('output5');
+            
+            output.innerHTML = `> Optimizing group-specific thresholds...
+
+> Current selection rates:
+  Male: 68.2%
+  Female: 24.8%
+  
+> Target rate (overall): 52.3%
+
+> Optimized thresholds:
+  Male: 0.58 (raised from 0.50)
+  Female: 0.31 (lowered from 0.50)
+  
+> After threshold optimization:
+  Male selection rate: 51.8%
+  Female selection rate: 52.9%
+  <span style="color: #4caf50;">Difference: 1.1% (within 10% threshold)</span>
+  
+> Disparate Impact Ratio: 0.979
+<span style="color: #4caf50;">✓ Near-perfect fairness achieved!</span>
+
+> Trade-off: Using different thresholds per group
+> Legal status: Permitted under affirmative action`;
+            
+            if (!completedTasks[4]) {
+                completedTasks[4] = true;
+                completeTask(5, 15);
+            }
+        }
+        
+        function runTask6() {
+            const output = document.getElementById('output6');
+            
+            output.innerHTML = `> Building ExplainableAI system...
+> Testing on sample application...
+
+> Application #4892 Explanation:
+Decision: REJECTED
+Confidence: 72.3%
+
+Top Contributing Factors:
+  1. Years_Experience: +0.284
+  2. Technical_Skills: +0.217
+  3. Education_Level: +0.193
+  4. Gender_Experience_Interaction: -0.412 ⚠️
+  5. Interview_Score: +0.156
+
+<span style="color: #f44336;">⚠️ BIAS WARNING: Gender negatively interacted with experience</span>
+This violates Equal Employment Opportunity laws.
+
+> Recourse Suggestions:
+  - Removing gender bias would change outcome to APPROVED
+  - Decision should be reviewed by human
+
+> Explanation logged for audit trail
+<span style="color: #4caf50;">✓ GDPR Article 22 compliance achieved!</span>`;
+            
+            if (!completedTasks[5]) {
+                completedTasks[5] = true;
+                completeTask(6, 15);
+            }
+        }
+        
+        function runTask7() {
+            const output = document.getElementById('output7');
+            
+            output.innerHTML = `> Deploying FairnessMonitor...
+> Monitoring 5 batches of predictions...
+
+Batch 0: DI ratio = 0.823 ✓
+Batch 1: DI ratio = 0.798 ⚠️ APPROACHING THRESHOLD
+Batch 2: DI ratio = 0.765 ❌ VIOLATION DETECTED
+
+<span style="color: #f44336;">⚠️ FAIRNESS ALERT: gender showing DI ratio of 0.765
+   Severity: HIGH
+   Estimated liability: $10M per month
+   Action: Immediate review required</span>
+
+Batch 3: DI ratio = 0.812 ✓ (after adjustment)
+Batch 4: DI ratio = 0.834 ✓
+
+> Alert triggered: 1
+> Automatic retraining scheduled
+> Compliance team notified
+> Board report generated
+
+<span style="color: #4caf50;">✓ Continuous monitoring system active!</span>`;
+            
+            if (!completedTasks[6]) {
+                completedTasks[6] = true;
+                completeTask(7, 10);
+            }
+        }
+        
+        function runTask8() {
+            const output = document.getElementById('output8');
+            
+            output.innerHTML = `> Starting Ethical AI Training Pipeline...
+
+Step 1: Detecting initial bias...
+  <span style="color: #f44336;">Initial violations: 12</span>
+
+Step 2: Pre-processing - Reweighting data...
+  Data reweighted to reduce historical bias
+  <span style="color: #4caf50;">Bias reduced by 60%</span>
+
+Step 3: In-processing - Training with constraints...
+  Model trained with fairness constraints
+  <span style="color: #4caf50;">Bias reduced by 80%</span>
+
+Step 4: Post-processing - Optimizing thresholds...
+  Thresholds optimized per group
+  <span style="color: #4caf50;">Bias reduced by 95%</span>
+
+Step 5: Setting up explainability...
+  GDPR-compliant explanations ready
+  <span style="color: #4caf50;">✓ All decisions explainable</span>
+
+Step 6: Initializing monitoring...
+  Real-time fairness tracking active
+  <span style="color: #4caf50;">✓ Drift detection enabled</span>
+
+<span style="color: #4caf50;">✅ Ethical AI Pipeline Ready!</span>
+
+==================================================
+FINAL COMPLIANCE REPORT
+==================================================
+compliance_achieved: True
+bias_reduction: 95%
+legal_requirements_met: ['EEOC', 'GDPR', 'California Laws']
+financial_impact: Saved $200M in liability
+audit_trail: Complete (10,847 decisions logged)
+
+<span style="color: #4caf50; font-size: 1.2em;">✅ TechGlobal is now COMPLIANT!</span>
+<span style="color: #4caf50; font-size: 1.2em;">💰 $200M in liability PREVENTED!</span>`;
+            
+            if (!completedTasks[7]) {
+                completedTasks[7] = true;
+                completeTask(8, 15);
+                
+                // Update final metrics
+                document.getElementById('finalScore').textContent = `${totalScore}/100`;
+                
+                // Show final submission
+                setTimeout(() => {
+                    document.getElementById('finalSubmission').classList.add('visible');
+                    document.getElementById('finalSubmission').scrollIntoView({ behavior: 'smooth' });
+                }, 1500);
+            }
+        }
+        
+        // Complete task and update progress
+        function completeTask(taskNum, points) {
+            // Update task styling
+            document.getElementById(`task${taskNum}`).classList.add('completed');
+            
+            // Update progress tracker
+            document.getElementById(`step${taskNum}`).classList.remove('active');
+            document.getElementById(`step${taskNum}`).classList.add('completed');
+            
+            if (taskNum < 8) {
+                document.getElementById(`step${taskNum + 1}`).classList.add('active');
+            }
+            
+            // Update score
+            totalScore += points;
+            
+            // Celebration effect
+            const task = document.getElementById(`task${taskNum}`);
+            task.style.animation = 'pulse 0.5s';
+        }
+        
+        // Show hints
+        function showHint(taskNum) {
+            document.getElementById(`hint${taskNum}`).classList.add('visible');
+        }
+        
+        // Handle timeout
+        function handleTimeout() {
+            alert('Time\'s up! Your current progress has been saved.\n\nYou achieved ' + totalScore + ' points and prevented $' + (totalScore * 2) + 'M in liability.');
+        }
+        
+        // Download certificate
+        function downloadCertificate() {
+            alert('Downloading Ethical AI Certification...\n\n🏆 Certificate of Achievement\n\nThis certifies that you have successfully:\n- Prevented $200M in discrimination liability\n- Achieved 95% bias reduction\n- Implemented GDPR-compliant explainability\n- Deployed continuous fairness monitoring\n\nYour Score: ' + totalScore + '/100\nCompliance Level: Expert\n\nYou are now certified in Ethical AI Development!');
+        }
+    </script>
+</body>
+</html>

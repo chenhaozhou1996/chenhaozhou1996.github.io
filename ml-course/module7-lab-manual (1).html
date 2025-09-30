@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 7: PCA Implementation Lab - Marketing Analytics Mission</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .lab-container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .lab-header {
+            background: linear-gradient(135deg, #003366 0%, #004080 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .mission-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ffc107;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .mission-brief {
+            font-size: 1.2em;
+            font-style: italic;
+            opacity: 0.95;
+        }
+        
+        .lab-content {
+            padding: 40px;
+        }
+        
+        .progress-tracker {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .progress-title {
+            font-weight: bold;
+            color: #003366;
+        }
+        
+        .progress-percentage {
+            background: #0366d6;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .task-list {
+            list-style: none;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .task-item:hover {
+            background: #e8f4f8;
+        }
+        
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .task-item.completed {
+            background: #d4edda;
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+        
+        .task-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #003366;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .step-number {
+            background: #0366d6;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .code-editor {
+            background: #282c34;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .code-title {
+            color: #61dafb;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .code-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .code-button {
+            background: #0366d6;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+        
+        .code-button:hover {
+            background: #003366;
+        }
+        
+        .code-area {
+            background: #1e1e1e;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            min-height: 200px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            border: 1px solid #444;
+        }
+        
+        .code-area:focus {
+            outline: none;
+            border-color: #0366d6;
+        }
+        
+        .output-panel {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            min-height: 100px;
+            display: none;
+        }
+        
+        .output-panel.show {
+            display: block;
+        }
+        
+        .hint-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .hint-box.show {
+            display: block;
+            animation: slideDown 0.3s;
+        }
+        
+        @keyframes slideDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .metrics-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric-box {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            transition: transform 0.3s;
+        }
+        
+        .metric-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #0366d6;
+        }
+        
+        .metric-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .challenge-alert {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .success-banner {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .success-banner.show {
+            display: block;
+            animation: celebrate 0.5s;
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-weight: bold;
+            color: #003366;
+            z-index: 1000;
+        }
+        
+        .timer.warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .timer.danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .final-submission {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .submit-button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        
+        .submit-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .performance-chart {
+            width: 100%;
+            height: 300px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+        }
+        
+        .instruction-box {
+            background: #e8f4f8;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-message {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer" id="timer">⏱️ Time: 90:00</div>
+    
+    <div class="lab-container">
+        <div class="lab-header">
+            <div class="mission-badge">CRITICAL MISSION</div>
+            <h1>PCA Implementation Lab</h1>
+            <p class="mission-brief">Transform 500D customer data → 50D actionable insights → $52M value</p>
+        </div>
+        
+        <div class="lab-content">
+            <!-- Progress Tracker -->
+            <div class="progress-tracker">
+                <div class="progress-header">
+                    <span class="progress-title">Mission Progress</span>
+                    <span class="progress-percentage" id="progressPercent">0%</span>
+                </div>
+                <ul class="task-list">
+                    <li class="task-item" onclick="toggleTask(this)">
+                        <input type="checkbox" class="task-checkbox">
+                        <span>Load and explore marketing dataset</span>
+                    </li>
+                    <li class="task-item" onclick="toggleTask(this)">
+                        <input type="checkbox" class="task-checkbox">
+                        <span>Standardize features for PCA</span>
+                    </li>
+                    <li class="task-item" onclick="toggleTask(this)">
+                        <input type="checkbox" class="task-checkbox">
+                        <span>Implement PCA transformation</span>
+                    </li>
+                    <li class="task-item" onclick="toggleTask(this)">
+                        <input type="checkbox" class="task-checkbox">
+                        <span>Determine optimal components</span>
+                    </li>
+                    <li class="task-item" onclick="toggleTask(this)">
+                        <input type="checkbox" class="task-checkbox">
+                        <span>Interpret business meaning</span>
+                    </li>
+                    <li class="task-item" onclick="toggleTask(this)">
+                        <input type="checkbox" class="task-checkbox">
+                        <span>Integrate with ML pipeline</span>
+                    </li>
+                    <li class="task-item" onclick="toggleTask(this)">
+                        <input type="checkbox" class="task-checkbox">
+                        <span>Calculate business impact</span>
+                    </li>
+                    <li class="task-item" onclick="toggleTask(this)">
+                        <input type="checkbox" class="task-checkbox">
+                        <span>Deploy to production</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Task 1: Data Loading -->
+            <div class="task-section">
+                <h2><span class="step-number">1</span>Load Marketing Dataset</h2>
+                
+                <div class="instruction-box">
+                    <strong>📋 Context:</strong> MegaRetail's customer database contains 10M records with 500+ attributes ranging from demographics to behavioral patterns. Your first task is to load and understand this complex dataset.
+                </div>
+                
+                <div class="code-editor">
+                    <div class="code-header">
+                        <span class="code-title">data_loading.py</span>
+                        <div class="code-actions">
+                            <button class="code-button" onclick="showHint(1)">💡 Hint</button>
+                            <button class="code-button" onclick="runCode(1)">▶ Run</button>
+                            <button class="code-button" onclick="resetCode(1)">↺ Reset</button>
+                        </div>
+                    </div>
+                    <div class="code-area" contenteditable="true" id="code1">import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
+# TODO: Generate synthetic marketing data
+# Create 10000 customers with 500 features
+n_customers = ____
+n_features = ____
+
+# Generate correlated feature groups (realistic structure)
+np.random.seed(42)
+X = np.random.randn(____, ____)
+
+# Create correlation within feature groups
+for i in range(0, n_features, 10):
+    # TODO: Add correlation structure
+    base = ____
+    X[:, i:i+10] = ____
+
+print(f"Dataset shape: {X.shape}")
+print(f"Memory usage: {X.nbytes / 1e6:.1f} MB")</div>
+                </div>
+                
+                <div class="hint-box" id="hint1">
+                    💡 <strong>Hint:</strong> Fill in n_customers=10000, n_features=500. For correlation structure, create a base random vector and add noise to create correlated features within each group of 10.
+                </div>
+                
+                <div class="output-panel" id="output1">
+                    <strong>Output:</strong>
+                    <pre id="outputText1"></pre>
+                </div>
+                
+                <div class="metrics-panel">
+                    <div class="metric-box">
+                        <div class="metric-value" id="dataSize">0</div>
+                        <div class="metric-label">Data Points</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="dimensions">0</div>
+                        <div class="metric-label">Dimensions</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="memory">0 MB</div>
+                        <div class="metric-label">Memory Usage</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Task 2: Feature Standardization -->
+            <div class="task-section">
+                <h2><span class="step-number">2</span>Standardize Features</h2>
+                
+                <div class="instruction-box">
+                    <strong>📋 Critical Step:</strong> PCA is sensitive to scale. Features must be standardized (mean=0, std=1) before transformation. Failing this step is the #1 cause of PCA failure in production!
+                </div>
+                
+                <div class="challenge-alert">
+                    ⚠️ Challenge: What happens if you forget to standardize? Test both approaches and observe the variance explained!
+                </div>
+                
+                <div class="code-editor">
+                    <div class="code-header">
+                        <span class="code-title">standardization.py</span>
+                        <div class="code-actions">
+                            <button class="code-button" onclick="showHint(2)">💡 Hint</button>
+                            <button class="code-button" onclick="runCode(2)">▶ Run</button>
+                        </div>
+                    </div>
+                    <div class="code-area" contenteditable="true" id="code2"># Test impact of standardization
+from sklearn.preprocessing import StandardScaler
+
+# Without standardization
+pca_raw = PCA(n_components=10)
+X_raw_pca = pca_raw.fit_transform(____)
+variance_raw = pca_raw.explained_variance_ratio_.sum()
+
+# With standardization
+scaler = ____
+X_scaled = ____
+pca_scaled = PCA(n_components=10)
+X_scaled_pca = ____
+variance_scaled = ____
+
+print(f"Variance explained without scaling: {variance_raw:.2%}")
+print(f"Variance explained with scaling: {variance_scaled:.2%}")
+print(f"Improvement: {(variance_scaled - variance_raw):.2%}")</div>
+                </div>
+                
+                <div class="hint-box" id="hint2">
+                    💡 <strong>Hint:</strong> Use StandardScaler() and its fit_transform method on X. Remember to apply PCA to both raw and scaled data for comparison.
+                </div>
+                
+                <div class="output-panel" id="output2"></div>
+            </div>
+            
+            <!-- Task 3: PCA Implementation -->
+            <div class="task-section">
+                <h2><span class="step-number">3</span>Implement PCA Transformation</h2>
+                
+                <div class="instruction-box">
+                    <strong>📋 Core Task:</strong> Implement full PCA pipeline and find the optimal number of components that preserves 95% variance while maximizing compression.
+                </div>
+                
+                <div class="code-editor">
+                    <div class="code-header">
+                        <span class="code-title">pca_implementation.py</span>
+                        <div class="code-actions">
+                            <button class="code-button" onclick="showHint(3)">💡 Hint</button>
+                            <button class="code-button" onclick="runCode(3)">▶ Run</button>
+                        </div>
+                    </div>
+                    <div class="code-area" contenteditable="true" id="code3">class MarketingPCAOptimizer:
+    def __init__(self, variance_threshold=0.95):
+        self.variance_threshold = ____
+        self.scaler = StandardScaler()
+        self.pca = None
+        self.n_components_optimal = None
+        
+    def find_optimal_components(self, X):
+        """Find minimum components for variance threshold"""
+        # Standardize
+        X_scaled = ____
+        
+        # Full PCA to analyze all components
+        pca_full = ____
+        pca_full.fit(____)
+        
+        # Calculate cumulative variance
+        cumulative_var = ____
+        
+        # Find optimal n_components
+        self.n_components_optimal = ____
+        
+        # Calculate compression metrics
+        compression_ratio = ____
+        storage_savings = ____
+        
+        return {
+            'n_components': self.n_components_optimal,
+            'variance_preserved': cumulative_var[self.n_components_optimal-1],
+            'compression_ratio': compression_ratio,
+            'storage_savings_pct': storage_savings
+        }
+    
+    def transform(self, X):
+        """Apply optimized PCA transformation"""
+        # TODO: Implement transformation with optimal components
+        X_scaled = ____
+        self.pca = ____
+        X_transformed = ____
+        return X_transformed
+
+# Test the implementation
+optimizer = MarketingPCAOptimizer(variance_threshold=0.95)
+results = optimizer.find_optimal_components(X)
+print(f"Optimal components: {results['n_components']}")
+print(f"Variance preserved: {results['variance_preserved']:.2%}")
+print(f"Compression ratio: {results['compression_ratio']:.1f}x")
+print(f"Storage savings: {results['storage_savings_pct']:.1%}")</div>
+                </div>
+                
+                <div class="hint-box" id="hint3">
+                    💡 <strong>Hint:</strong> Use np.cumsum() for cumulative variance. Find optimal components with np.argmax(cumulative_var >= threshold) + 1. Compression ratio = original_dims / n_components.
+                </div>
+                
+                <div class="output-panel" id="output3"></div>
+            </div>
+            
+            <!-- Task 4: Component Interpretation -->
+            <div class="task-section">
+                <h2><span class="step-number">4</span>Business Interpretation</h2>
+                
+                <div class="instruction-box">
+                    <strong>📋 Translation Challenge:</strong> Transform abstract mathematical components into actionable business segments. Identify the top contributing features for each principal component.
+                </div>
+                
+                <div class="code-editor">
+                    <div class="code-header">
+                        <span class="code-title">component_interpretation.py</span>
+                        <div class="code-actions">
+                            <button class="code-button" onclick="runCode(4)">▶ Run</button>
+                        </div>
+                    </div>
+                    <div class="code-area" contenteditable="true" id="code4">def interpret_components(pca_model, feature_names, n_components=5):
+    """
+    Interpret principal components in business terms
+    """
+    interpretations = []
+    
+    for i in range(min(n_components, pca_model.n_components_)):
+        # Get component loadings
+        component = pca_model.components_[i]
+        
+        # Find top contributing features (by absolute value)
+        top_indices = np.abs(component).argsort()[-10:][::-1]
+        
+        # Create interpretation
+        interpretation = {
+            'component': f'PC{i+1}',
+            'variance_explained': pca_model.explained_variance_ratio_[i],
+            'top_features': [feature_names[idx] for idx in top_indices[:5]],
+            'loadings': [component[idx] for idx in top_indices[:5]]
+        }
+        
+        # Business naming based on patterns
+        if i == 0:
+            interpretation['business_name'] = 'Affluent Lifestyle'
+        elif i == 1:
+            interpretation['business_name'] = 'Digital Engagement'
+        elif i == 2:
+            interpretation['business_name'] = 'Price Sensitivity'
+        else:
+            interpretation['business_name'] = f'Pattern {i+1}'
+            
+        interpretations.append(interpretation)
+    
+    return interpretations
+
+# Apply interpretation
+feature_names = [f'feature_{i}' for i in range(n_features)]
+X_transformed = optimizer.transform(X)
+interpretations = interpret_components(optimizer.pca, feature_names)
+
+for interp in interpretations:
+    print(f"\n{interp['component']}: {interp['business_name']}")
+    print(f"Variance: {interp['variance_explained']:.2%}")
+    print(f"Top features: {', '.join(interp['top_features'][:3])}")</div>
+                </div>
+                
+                <div class="output-panel" id="output4"></div>
+            </div>
+            
+            <!-- Task 5: ML Pipeline Integration -->
+            <div class="task-section">
+                <h2><span class="step-number">5</span>ML Pipeline Integration</h2>
+                
+                <div class="instruction-box">
+                    <strong>📋 Production Ready:</strong> Integrate PCA into a complete ML pipeline. Measure the performance improvement in both accuracy and speed.
+                </div>
+                
+                <div class="code-editor">
+                    <div class="code-header">
+                        <span class="code-title">ml_pipeline.py</span>
+                        <div class="code-actions">
+                            <button class="code-button" onclick="runCode(5)">▶ Run</button>
+                        </div>
+                    </div>
+                    <div class="code-area" contenteditable="true" id="code5">from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+import time
+
+# Create synthetic target variable (customer segment)
+y = (X[:, 0] + X[:, 50] + np.random.randn(n_customers) * 0.5) > 0
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Pipeline WITHOUT PCA
+pipeline_original = Pipeline([
+    ('scaler', StandardScaler()),
+    ('classifier', RandomForestClassifier(n_estimators=50, random_state=42))
+])
+
+# Pipeline WITH PCA
+pipeline_pca = Pipeline([
+    ('scaler', StandardScaler()),
+    ('pca', PCA(n_components=47)),  # From our optimization
+    ('classifier', RandomForestClassifier(n_estimators=50, random_state=42))
+])
+
+# Benchmark performance
+print("Training Original Pipeline...")
+start = time.time()
+pipeline_original.fit(X_train, y_train)
+time_original = time.time() - start
+score_original = pipeline_original.score(X_test, y_test)
+
+print("Training PCA Pipeline...")
+start = time.time()
+pipeline_pca.fit(X_train, y_train)
+time_pca = time.time() - start
+score_pca = pipeline_pca.score(X_test, y_test)
+
+# Results
+print(f"\n📊 Performance Comparison:")
+print(f"Original: {score_original:.3f} accuracy in {time_original:.2f}s")
+print(f"PCA: {score_pca:.3f} accuracy in {time_pca:.2f}s")
+print(f"Speedup: {time_original/time_pca:.1f}x")
+print(f"Accuracy gain: {(score_pca - score_original)*100:.1f}%")</div>
+                </div>
+                
+                <div class="output-panel" id="output5"></div>
+                
+                <div class="metrics-panel">
+                    <div class="metric-box">
+                        <div class="metric-value" id="speedupMetric">0x</div>
+                        <div class="metric-label">Training Speedup</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="accuracyGain">0%</div>
+                        <div class="metric-label">Accuracy Gain</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="memoryReduction">0%</div>
+                        <div class="metric-label">Memory Reduction</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Task 6: Business Impact Calculation -->
+            <div class="task-section">
+                <h2><span class="step-number">6</span>Calculate Business Impact</h2>
+                
+                <div class="instruction-box">
+                    <strong>📋 Executive Summary:</strong> Translate technical improvements into dollars. Calculate the total annual value created by your PCA implementation.
+                </div>
+                
+                <div class="code-editor">
+                    <div class="code-header">
+                        <span class="code-title">business_impact.py</span>
+                        <div class="code-actions">
+                            <button class="code-button" onclick="runCode(6)">▶ Run</button>
+                        </div>
+                    </div>
+                    <div class="code-area" contenteditable="true" id="code6">def calculate_business_impact():
+    """
+    Calculate comprehensive business value of PCA implementation
+    """
+    # Marketing campaign metrics
+    annual_marketing_spend = 187_500_000  # $187.5M
+    
+    # Performance improvements from PCA
+    roi_improvement = 0.5  # 50% ROI improvement (1.8x → 2.7x)
+    accuracy_improvement = 0.21  # 62% → 83% accuracy
+    
+    # Calculate revenue impact
+    revenue_increase = annual_marketing_spend * roi_improvement
+    
+    # Cost reductions
+    waste_reduction = annual_marketing_spend * 0.2 * accuracy_improvement
+    
+    # Infrastructure savings
+    cloud_compute_annual = 2_400_000  # $2.4M annual
+    compute_reduction = 0.91  # 500 dims → 47 dims
+    infrastructure_savings = cloud_compute_annual * compute_reduction
+    
+    # Speed improvements enable more experiments
+    experiments_increase = 10  # 10x more A/B tests possible
+    value_per_experiment = 500_000  # Each test worth $500K
+    experimentation_value = experiments_increase * value_per_experiment
+    
+    # Total impact
+    total_impact = (revenue_increase + waste_reduction + 
+                   infrastructure_savings + experimentation_value)
+    
+    # ROI calculation
+    implementation_cost = 500_000  # $500K for 3-month project
+    roi_multiplier = total_impact / implementation_cost
+    payback_days = (implementation_cost / total_impact) * 365
+    
+    return {
+        'revenue_increase': revenue_increase,
+        'waste_reduction': waste_reduction,
+        'infrastructure_savings': infrastructure_savings,
+        'experimentation_value': experimentation_value,
+        'total_annual_impact': total_impact,
+        'roi_multiplier': roi_multiplier,
+        'payback_days': payback_days
+    }
+
+# Calculate impact
+impact = calculate_business_impact()
+
+print("💰 BUSINESS IMPACT REPORT")
+print("=" * 50)
+print(f"Revenue Increase: ${impact['revenue_increase']/1e6:.1f}M")
+print(f"Waste Reduction: ${impact['waste_reduction']/1e6:.1f}M")
+print(f"Infrastructure Savings: ${impact['infrastructure_savings']/1e6:.1f}M")
+print(f"Experimentation Value: ${impact['experimentation_value']/1e6:.1f}M")
+print("=" * 50)
+print(f"TOTAL ANNUAL IMPACT: ${impact['total_annual_impact']/1e6:.1f}M")
+print(f"ROI: {impact['roi_multiplier']:.0f}x")
+print(f"Payback Period: {impact['payback_days']:.0f} days")</div>
+                </div>
+                
+                <div class="output-panel" id="output6"></div>
+            </div>
+            
+            <!-- Final Submission -->
+            <div class="final-submission">
+                <h2>🎯 Mission Complete</h2>
+                <p style="font-size: 1.2em; margin: 20px 0;">You've successfully implemented PCA for marketing analytics!</p>
+                
+                <div class="metrics-panel" style="color: white;">
+                    <div class="metric-box" style="background: rgba(255,255,255,0.1);">
+                        <div class="metric-value" style="color: white;">$52.3M</div>
+                        <div class="metric-label" style="color: white;">Annual Value Created</div>
+                    </div>
+                    <div class="metric-box" style="background: rgba(255,255,255,0.1);">
+                        <div class="metric-value" style="color: white;">91%</div>
+                        <div class="metric-label" style="color: white;">Dimension Reduction</div>
+                    </div>
+                    <div class="metric-box" style="background: rgba(255,255,255,0.1);">
+                        <div class="metric-value" style="color: white;">25x</div>
+                        <div class="metric-label" style="color: white;">Speed Improvement</div>
+                    </div>
+                    <div class="metric-box" style="background: rgba(255,255,255,0.1);">
+                        <div class="metric-value" style="color: white;">104x</div>
+                        <div class="metric-label" style="color: white;">ROI Multiple</div>
+                    </div>
+                </div>
+                
+                <button class="submit-button" onclick="submitLab()">Submit Lab Results</button>
+            </div>
+            
+            <div class="success-banner" id="successBanner">
+                <h2>🏆 Excellence Achieved!</h2>
+                <p>Your PCA implementation has been deployed to production. The CEO has approved a bonus equal to 0.1% of savings - congratulations on your $52,300 achievement bonus!</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Timer functionality
+        let timeRemaining = 90 * 60; // 90 minutes in seconds
+        let timerInterval;
+        
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Time\'s up! Submit your work now.');
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const timerElement = document.getElementById('timer');
+            timerElement.textContent = `⏱️ Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeRemaining < 600) { // Less than 10 minutes
+                timerElement.classList.add('danger');
+            } else if (timeRemaining < 1800) { // Less than 30 minutes
+                timerElement.classList.add('warning');
+            }
+        }
+        
+        // Task tracking
+        let completedTasks = 0;
+        const totalTasks = 8;
+        
+        function toggleTask(element) {
+            const checkbox = element.querySelector('.task-checkbox');
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                element.classList.add('completed');
+                completedTasks++;
+            } else {
+                element.classList.remove('completed');
+                completedTasks--;
+            }
+            
+            updateProgress();
+        }
+        
+        function updateProgress() {
+            const percentage = Math.round((completedTasks / totalTasks) * 100);
+            document.getElementById('progressPercent').textContent = `${percentage}%`;
+            
+            // Update metrics based on progress
+            if (completedTasks >= 1) {
+                document.getElementById('dataSize').textContent = '10,000';
+                document.getElementById('dimensions').textContent = '500';
+                document.getElementById('memory').textContent = '40 MB';
+            }
+            
+            if (completedTasks >= 5) {
+                document.getElementById('speedupMetric').textContent = '25x';
+                document.getElementById('accuracyGain').textContent = '+21%';
+                document.getElementById('memoryReduction').textContent = '91%';
+            }
+        }
+        
+        // Code execution simulation
+        function runCode(taskNumber) {
+            const codeArea = document.getElementById(`code${taskNumber}`);
+            const outputPanel = document.getElementById(`output${taskNumber}`);
+            
+            outputPanel.classList.add('show');
+            
+            // Simulate different outputs based on task
+            const outputs = {
+                1: "Dataset shape: (10000, 500)\nMemory usage: 40.0 MB\n✓ Data loaded successfully",
+                2: "Variance explained without scaling: 12.34%\nVariance explained with scaling: 68.92%\nImprovement: 56.58%\n✓ Standardization critical for PCA!",
+                3: "Optimal components: 47\nVariance preserved: 95.2%\nCompression ratio: 10.6x\nStorage savings: 90.6%",
+                4: "\nPC1: Affluent Lifestyle\nVariance: 35.2%\nTop features: income, premium_purchases, loyalty_score\n\nPC2: Digital Engagement\nVariance: 22.1%\nTop features: app_usage, email_opens, social_shares",
+                5: "\n📊 Performance Comparison:\nOriginal: 0.624 accuracy in 12.35s\nPCA: 0.831 accuracy in 0.49s\nSpeedup: 25.2x\nAccuracy gain: 20.7%",
+                6: "💰 BUSINESS IMPACT REPORT\n" + "=".repeat(50) + "\nRevenue Increase: $93.8M\nWaste Reduction: $7.9M\nInfrastructure Savings: $2.2M\nExperimentation Value: $5.0M\n" + "=".repeat(50) + "\nTOTAL ANNUAL IMPACT: $108.8M\nROI: 218x\nPayback Period: 2 days"
+            };
+            
+            outputPanel.innerHTML = `<strong>Output:</strong><pre>${outputs[taskNumber]}</pre>`;
+            
+            // Mark task as completed
+            const taskItems = document.querySelectorAll('.task-item');
+            if (taskNumber <= taskItems.length) {
+                const checkbox = taskItems[taskNumber - 1].querySelector('.task-checkbox');
+                if (!checkbox.checked) {
+                    toggleTask(taskItems[taskNumber - 1]);
+                }
+            }
+        }
+        
+        function showHint(hintNumber) {
+            const hintBox = document.getElementById(`hint${hintNumber}`);
+            hintBox.classList.toggle('show');
+        }
+        
+        function resetCode(taskNumber) {
+            const codeArea = document.getElementById(`code${taskNumber}`);
+            // Reset to original template
+            if (taskNumber === 1) {
+                codeArea.textContent = `import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
+# TODO: Generate synthetic marketing data
+# Create 10000 customers with 500 features
+n_customers = ____
+n_features = ____
+
+# Generate correlated feature groups (realistic structure)
+np.random.seed(42)
+X = np.random.randn(____, ____)
+
+# Create correlation within feature groups
+for i in range(0, n_features, 10):
+    # TODO: Add correlation structure
+    base = ____
+    X[:, i:i+10] = ____
+
+print(f"Dataset shape: {X.shape}")
+print(f"Memory usage: {X.nbytes / 1e6:.1f} MB")`;
+            }
+        }
+        
+        function submitLab() {
+            if (completedTasks < totalTasks) {
+                alert(`Please complete all tasks (${completedTasks}/${totalTasks} done)`);
+                return;
+            }
+            
+            document.getElementById('successBanner').classList.add('show');
+            clearInterval(timerInterval);
+            
+            // Scroll to success message
+            document.getElementById('successBanner').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Initialize timer when page loads
+        window.addEventListener('load', () => {
+            startTimer();
+        });
+    </script>
+</body>
+</html>

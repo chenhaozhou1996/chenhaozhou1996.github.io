@@ -1,0 +1,627 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Module 1: Interactive Class - Linear Regression | Chenhao Zhou</title>
+<style>
+body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 950px; margin: auto; padding: 2rem; line-height: 1.6; }
+nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; }
+nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; }
+h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+.card { background: #fff; padding: 1.2em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+
+/* Interactive Elements */
+.interactive-section { background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); padding: 2em; margin: 2em 0; border-radius: 12px; border: 1px solid #e1e4e8; }
+.button { display: inline-block; padding: 0.8em 1.5em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; transition: all 0.3s ease; margin: 0.5em 0.5em 0.5em 0; font-weight: bold; }
+.button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
+.button.secondary { background: #6c757d; }
+.button.success { background: #28a745; }
+.button.warning { background: #ffc107; color: #212529; }
+.button.danger { background: #dc3545; }
+
+/* Input Areas */
+.input-group { margin: 1.5em 0; padding: 1.5em; background: #f8f9fa; border-radius: 8px; }
+.input-field { width: 100%; padding: 0.8em; margin: 0.5em 0; border: 2px solid #e1e4e8; border-radius: 6px; font-size: 1em; transition: border-color 0.3s ease; }
+.input-field:focus { outline: none; border-color: #0366d6; box-shadow: 0 0 0 3px rgba(3,102,214,0.1); }
+.slider-container { margin: 1.5em 0; }
+.slider { width: 100%; height: 8px; border-radius: 4px; background: #e1e4e8; outline: none; -webkit-appearance: none; transition: background 0.3s ease; }
+.slider:hover { background: #d1d5da; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #0366d6; cursor: pointer; transition: all 0.3s ease; }
+.slider::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 0 10px rgba(3,102,214,0.5); }
+
+/* Visualization Areas */
+.viz-container { background: white; border: 2px solid #e1e4e8; border-radius: 10px; padding: 2em; margin: 2em 0; min-height: 400px; position: relative; }
+.viz-controls { background: #f8f9fa; padding: 1em; border-radius: 8px; margin-bottom: 1em; display: flex; gap: 1em; flex-wrap: wrap; }
+#main-visualization { width: 100%; height: 400px; background: white; border: 1px solid #e1e4e8; border-radius: 8px; }
+
+/* Quick Questions */
+.quick-question { background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%); border: 2px solid #0366d6; border-radius: 10px; padding: 1.5em; margin: 2em 0; position: relative; overflow: hidden; }
+.quick-question::before { content: "?"; position: absolute; top: -20px; right: -20px; font-size: 120px; color: rgba(3,102,214,0.05); font-weight: bold; }
+.question-timer { position: absolute; top: 1em; right: 1em; background: #ff6b6b; color: white; padding: 0.3em 0.8em; border-radius: 20px; font-weight: bold; font-size: 0.9em; }
+.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin: 1em 0; }
+.answer-option { padding: 1em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: center; }
+.answer-option:hover { border-color: #0366d6; transform: scale(1.02); }
+.answer-option.selected { background: #e7f3ff; border-color: #0366d6; }
+.answer-option.correct { background: #d4edda; border-color: #28a745; }
+.answer-option.incorrect { background: #f8d7da; border-color: #dc3545; }
+
+/* Real-time Feedback */
+.feedback-panel { background: white; border-left: 5px solid #0366d6; padding: 1.5em; margin: 1.5em 0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: none; }
+.feedback-panel.show { display: block; animation: slideIn 0.5s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+
+/* Progress Tracking */
+.progress-bar { height: 30px; background: #e9ecef; border-radius: 15px; margin: 2em 0; overflow: hidden; position: relative; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #0366d6 0%, #667eea 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; transition: width 1s ease; position: relative; overflow: hidden; }
+.progress-fill::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: shimmer 2s infinite; }
+@keyframes shimmer { to { left: 100%; } }
+
+/* Business Impact Display */
+.impact-display { background: linear-gradient(135deg, #28a74510 0%, #20c99710 100%); border: 2px solid #28a745; border-radius: 12px; padding: 2em; margin: 2em 0; text-align: center; }
+.impact-number { font-size: 3em; font-weight: bold; color: #28a745; margin: 0.2em 0; }
+.impact-description { color: #666; font-size: 1.1em; }
+
+/* Interactive Code Editor */
+.code-editor { background: #282c34; border-radius: 10px; padding: 1em; margin: 1.5em 0; position: relative; }
+.code-input { width: 100%; min-height: 150px; background: transparent; color: #abb2bf; border: none; font-family: 'Consolas', monospace; font-size: 0.95em; resize: vertical; }
+.run-code-btn { position: absolute; top: 1em; right: 1em; background: #61dafb; color: #282c34; padding: 0.5em 1em; border-radius: 5px; font-weight: bold; cursor: pointer; }
+.code-output { background: #1e1e1e; color: #d4d4d4; padding: 1em; border-radius: 8px; margin-top: 1em; min-height: 100px; font-family: monospace; display: none; }
+.code-output.show { display: block; }
+
+/* Guided Examples */
+.example-carousel { display: flex; gap: 1em; overflow-x: auto; padding: 1em 0; }
+.example-card { min-width: 250px; background: white; border: 2px solid #e1e4e8; border-radius: 10px; padding: 1.5em; cursor: pointer; transition: all 0.3s ease; }
+.example-card:hover { border-color: #0366d6; transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+.example-card.active { background: #e7f3ff; border-color: #0366d6; }
+
+/* Story Progress */
+.story-progress { display: flex; justify-content: space-between; margin: 2em 0; position: relative; }
+.story-progress::before { content: ""; position: absolute; top: 20px; left: 0; right: 0; height: 2px; background: #e1e4e8; z-index: 0; }
+.story-step { background: white; border: 3px solid #e1e4e8; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; z-index: 1; cursor: pointer; transition: all 0.3s ease; }
+.story-step.completed { background: #28a745; color: white; border-color: #28a745; }
+.story-step.active { background: #0366d6; color: white; border-color: #0366d6; transform: scale(1.2); }
+
+/* Experiment Sandbox */
+.sandbox { background: #f8f9fa; border: 2px dashed #6c757d; border-radius: 10px; padding: 2em; margin: 2em 0; }
+.sandbox-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1em; margin-bottom: 1.5em; }
+</style>
+</head><body>
+
+<h1>🚀 Module 1: The $10 Million Prediction Problem</h1>
+<nav><a href="class-notes.html">📚 Notes</a><a href="lab-manual.html">🔬 Lab</a><a href="../index.html">🏠 Home</a></nav>
+
+<!-- Opening Hook -->
+<div class="card">
+<h2>Today's Mission: Save RetailCo $10 Million</h2>
+<p>You've just been hired as a data scientist at RetailCo, a company losing $10 million annually due to poor inventory predictions. By the end of this session, you'll build a machine learning model that could reduce these losses by 40% - that's $4 million in recovered revenue. Ready to prove your worth?</p>
+<button class="button success" onclick="startJourney()">Accept the Challenge</button>
+<button class="button secondary" onclick="showContext()">Learn More About RetailCo</button>
+</div>
+
+<!-- Story Progress Tracker -->
+<div class="story-progress">
+<div class="story-step active" id="step1" onclick="goToStep(1)">1</div>
+<div class="story-step" id="step2" onclick="goToStep(2)">2</div>
+<div class="story-step" id="step3" onclick="goToStep(3)">3</div>
+<div class="story-step" id="step4" onclick="goToStep(4)">4</div>
+<div class="story-step" id="step5" onclick="goToStep(5)">5</div>
+</div>
+
+<!-- STEP 1: Problem Discovery -->
+<div id="content-step1" class="interactive-section">
+<h2>Step 1: Discovering the Problem</h2>
+<p>RetailCo's CEO shows you last quarter's data: "We're either overstocking (tying up capital) or understocking (losing sales). Can machine learning help?"</p>
+
+<div class="quick-question">
+<div class="question-timer" id="timer1">30 sec</div>
+<h4>Quick Decision: What's the Real Problem Here?</h4>
+<div class="answer-options">
+<div class="answer-option" onclick="checkAnswer(this, 'A1', false)">Understanding why sales vary</div>
+<div class="answer-option" onclick="checkAnswer(this, 'A1', true)">Predicting future sales accurately</div>
+<div class="answer-option" onclick="checkAnswer(this, 'A1', false)">Finding statistical relationships</div>
+<div class="answer-option" onclick="checkAnswer(this, 'A1', false)">Testing sales hypotheses</div>
+</div>
+</div>
+
+<div class="feedback-panel" id="feedback-A1">
+<h4>💡 Insight</h4>
+<p>Correct! RetailCo doesn't need to understand WHY sales happen - they need to PREDICT what will happen. This is the fundamental shift from statistics to machine learning. Let's explore their data...</p>
+</div>
+
+<div class="example-carousel">
+<div class="example-card" onclick="loadExample('overstocking')">
+<h4>📦 Overstocking Case</h4>
+<p>Store #42: Ordered 10,000 units, sold 3,000</p>
+<p class="impact">Loss: $70,000</p>
+</div>
+<div class="example-card" onclick="loadExample('understocking')">
+<h4>📉 Understocking Case</h4>
+<p>Store #18: Ordered 2,000 units, could have sold 8,000</p>
+<p class="impact">Lost Revenue: $120,000</p>
+</div>
+<div class="example-card" onclick="loadExample('perfect')">
+<h4>✨ Perfect Prediction</h4>
+<p>Store #7: Ordered 5,500 units, sold 5,483</p>
+<p class="impact">Efficiency: 99.7%</p>
+</div>
+</div>
+
+<button class="button" onclick="generateData()">Generate RetailCo's Data</button>
+<button class="button success" onclick="proceedToStep(2)">I Understand the Problem →</button>
+</div>
+
+<!-- STEP 2: Traditional vs ML Approach -->
+<div id="content-step2" class="interactive-section" style="display: none;">
+<h2>Step 2: Choosing Your Weapon</h2>
+<p>The board wants answers. You have two approaches available. Try both and see which helps RetailCo more:</p>
+
+<div class="viz-container">
+<div class="viz-controls">
+<button class="button" onclick="runStatistical()">Run Statistical Analysis</button>
+<button class="button warning" onclick="runML()">Run Machine Learning</button>
+<button class="button secondary" onclick="compareBoth()">Compare Results</button>
+</div>
+<canvas id="main-visualization"></canvas>
+<div id="approach-results" style="margin-top: 1em;"></div>
+</div>
+
+<div class="sandbox">
+<h4>🧪 Experiment: Adjust the Scenario</h4>
+<div class="sandbox-controls">
+<div>
+<label>Data Complexity</label>
+<input type="range" class="slider" id="complexity-slider" min="1" max="10" value="5" oninput="updateComplexity(this.value)">
+<span id="complexity-value">5</span>
+</div>
+<div>
+<label>Noise Level</label>
+<input type="range" class="slider" id="noise-slider" min="0" max="100" value="30" oninput="updateNoise(this.value)">
+<span id="noise-value">30%</span>
+</div>
+<div>
+<label>Sample Size</label>
+<input type="range" class="slider" id="samples-slider" min="50" max="500" value="200" oninput="updateSamples(this.value)">
+<span id="samples-value">200</span>
+</div>
+</div>
+<button class="button warning" onclick="runExperiment()">Run Experiment</button>
+</div>
+
+<button class="button success" onclick="proceedToStep(3)">ML Wins! Let's Build →</button>
+</div>
+
+<!-- STEP 3: Building the Model -->
+<div id="content-step3" class="interactive-section" style="display: none;">
+<h2>Step 3: Building Your Prediction Engine</h2>
+<p>Time to build the actual model. But remember - RetailCo needs this to work on NEW stores, not just explain past performance.</p>
+
+<div class="quick-question">
+<h4>Critical Decision: How Should We Validate?</h4>
+<div class="answer-options">
+<div class="answer-option" onclick="checkAnswer(this, 'A2', false)">Use all data for training</div>
+<div class="answer-option" onclick="checkAnswer(this, 'A2', true)">Split: 80% train, 20% test</div>
+<div class="answer-option" onclick="checkAnswer(this, 'A2', false)">Test on training data</div>
+<div class="answer-option" onclick="checkAnswer(this, 'A2', false)">Use last year's data</div>
+</div>
+</div>
+
+<div class="code-editor">
+<textarea class="code-input" id="model-code">
+# Build your model here
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+
+# Your code:
+X = retail_data[['store_size', 'population', 'competition', 'marketing']]
+y = retail_data['sales']
+
+# Split the data (fill in the blanks)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=___, random_state=42
+)
+
+# Train the model
+model = LinearRegression()
+model.fit(___, ___)
+
+# Make predictions
+predictions = model.predict(___)
+</textarea>
+<button class="run-code-btn" onclick="runCode()">▶ Run Code</button>
+<div class="code-output" id="code-output"></div>
+</div>
+
+<div class="input-group">
+<h4>🎯 Make a Prediction for a New Store</h4>
+<input type="number" class="input-field" placeholder="Store Size (sq ft)" id="store-size" value="15000">
+<input type="number" class="input-field" placeholder="Population (000s)" id="population" value="50">
+<input type="number" class="input-field" placeholder="Competitors" id="competitors" value="3">
+<input type="number" class="input-field" placeholder="Marketing Budget ($000s)" id="marketing" value="25">
+<button class="button warning" onclick="predictSales()">Predict Sales</button>
+<div id="prediction-result" style="margin-top: 1em;"></div>
+</div>
+
+<button class="button success" onclick="proceedToStep(4)">Model Ready! Check Performance →</button>
+</div>
+
+<!-- STEP 4: Preventing Overfitting -->
+<div id="content-step4" class="interactive-section" style="display: none;">
+<h2>Step 4: The Overfitting Trap</h2>
+<p>Your model looks perfect on training data (R² = 0.95), but the CFO asks: "What about new stores?" Let's test it...</p>
+
+<div class="viz-container">
+<h4>⚠️ Overfitting Demonstration</h4>
+<div class="viz-controls">
+<button class="button" onclick="showSimpleModel()">Simple Model</button>
+<button class="button warning" onclick="showComplexModel()">Complex Model</button>
+<button class="button danger" onclick="showOverfitModel()">Overfit Model</button>
+</div>
+<canvas id="overfit-viz"></canvas>
+<div id="model-metrics" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 1em;">
+<div style="background: #e7f3ff; padding: 1em; border-radius: 8px;">
+<h5>Training Performance</h5>
+<p id="train-performance">R² = 0.00</p>
+</div>
+<div style="background: #fff3cd; padding: 1em; border-radius: 8px;">
+<h5>Test Performance</h5>
+<p id="test-performance">R² = 0.00</p>
+</div>
+</div>
+</div>
+
+<div class="sandbox">
+<h4>🛡️ Apply Regularization</h4>
+<p>Regularization prevents overfitting by penalizing complexity. Adjust the strength:</p>
+<input type="range" class="slider" id="regularization-slider" min="0" max="100" value="0" oninput="updateRegularization(this.value)">
+<div style="display: flex; justify-content: space-between; margin-top: 0.5em;">
+<span>No Regularization</span>
+<span id="reg-value">λ = 0</span>
+<span>Strong Regularization</span>
+</div>
+<button class="button warning" onclick="applyRegularization()">Apply & Test</button>
+<div id="regularization-result" style="margin-top: 1em;"></div>
+</div>
+
+<button class="button success" onclick="proceedToStep(5)">Optimization Complete →</button>
+</div>
+
+<!-- STEP 5: Business Impact -->
+<div id="content-step5" class="interactive-section" style="display: none;">
+<h2>Step 5: Quantifying Your Impact</h2>
+<p>Time to present to the board. Let's calculate the real business value of your model:</p>
+
+<div class="impact-display">
+<h3>Your Model's Performance</h3>
+<div class="impact-number" id="accuracy-display">92%</div>
+<div class="impact-description">Prediction Accuracy</div>
+</div>
+
+<div class="input-group">
+<h4>💰 Calculate Financial Impact</h4>
+<p>Enter RetailCo's parameters to see your model's value:</p>
+<input type="number" class="input-field" placeholder="Number of stores" id="num-stores" value="500">
+<input type="number" class="input-field" placeholder="Average inventory value ($000s)" id="inv-value" value="200">
+<input type="number" class="input-field" placeholder="Current waste %" id="waste-percent" value="15">
+<input type="number" class="input-field" placeholder="Your model's improvement %" id="improvement" value="40">
+<button class="button success" onclick="calculateImpact()">Calculate Savings</button>
+</div>
+
+<div id="final-impact" style="display: none;">
+<div class="impact-display" style="background: linear-gradient(135deg, #28a74520 0%, #20c99720 100%);">
+<h3>🎉 Annual Savings from Your Model</h3>
+<div class="impact-number" id="savings-display">$0</div>
+<div class="impact-description" id="savings-description"></div>
+</div>
+
+<div class="card" style="background: #f0f8ff;">
+<h4>Executive Summary for the Board</h4>
+<ul id="executive-summary"></ul>
+</div>
+</div>
+
+<button class="button success" onclick="generateCertificate()">Generate Completion Certificate</button>
+</div>
+
+<!-- Progress Overview -->
+<div class="progress-bar">
+<div class="progress-fill" id="overall-progress" style="width: 20%;">20% Complete</div>
+</div>
+
+<!-- Final Reflection -->
+<div id="final-reflection" class="card" style="display: none;">
+<h2>🏆 Mission Accomplished!</h2>
+<p>You've successfully transformed RetailCo's inventory management using machine learning. Here's what you achieved:</p>
+<div id="achievement-list"></div>
+<h4>Key Learnings Applied</h4>
+<ol>
+<li><strong>Paradigm Shift:</strong> Moved from explaining relationships to predicting outcomes</li>
+<li><strong>Proper Validation:</strong> Used train-test split to ensure real-world performance</li>
+<li><strong>Overfitting Prevention:</strong> Applied regularization for robust predictions</li>
+<li><strong>Business Impact:</strong> Quantified value in dollars, not just accuracy metrics</li>
+</ol>
+<button class="button" onclick="downloadSummary()">Download Session Summary</button>
+<button class="button success" onclick="proceedToNextModule()">Continue to Module 2 →</button>
+</div>
+
+<script>
+// Global state management
+let currentStep = 1;
+let modelPerformance = { train: 0, test: 0 };
+let businessMetrics = { accuracy: 0, savings: 0 };
+let completedSteps = new Set();
+
+// Initialize the journey
+function startJourney() {
+    document.getElementById('content-step1').scrollIntoView({ behavior: 'smooth' });
+    startTimer('timer1', 30);
+    updateProgress(20);
+}
+
+// Show additional context
+function showContext() {
+    alert('RetailCo: 500 stores, $2B annual revenue, 15% inventory waste rate. Your mission: reduce waste through better predictions.');
+}
+
+// Timer functionality
+function startTimer(timerId, seconds) {
+    let remaining = seconds;
+    const timerElement = document.getElementById(timerId);
+    const interval = setInterval(() => {
+        remaining--;
+        timerElement.textContent = remaining + ' sec';
+        if (remaining <= 0) {
+            clearInterval(interval);
+            timerElement.style.background = '#28a745';
+            timerElement.textContent = 'Complete!';
+        }
+    }, 1000);
+}
+
+// Answer checking with immediate feedback
+function checkAnswer(element, questionId, isCorrect) {
+    const options = element.parentElement.querySelectorAll('.answer-option');
+    options.forEach(opt => opt.classList.remove('selected'));
+    element.classList.add('selected');
+    
+    setTimeout(() => {
+        if (isCorrect) {
+            element.classList.add('correct');
+            document.getElementById('feedback-' + questionId).classList.add('show');
+        } else {
+            element.classList.add('incorrect');
+        }
+    }, 500);
+}
+
+// Progress management
+function updateProgress(percentage) {
+    const progressFill = document.getElementById('overall-progress');
+    progressFill.style.width = percentage + '%';
+    progressFill.textContent = percentage + '% Complete';
+}
+
+function proceedToStep(stepNum) {
+    // Mark current step as completed
+    document.getElementById('step' + (stepNum - 1)).classList.add('completed');
+    completedSteps.add(stepNum - 1);
+    
+    // Hide all content sections
+    for (let i = 1; i <= 5; i++) {
+        const content = document.getElementById('content-step' + i);
+        if (content) content.style.display = 'none';
+    }
+    
+    // Show new step
+    document.getElementById('content-step' + stepNum).style.display = 'block';
+    document.getElementById('step' + stepNum).classList.add('active');
+    
+    // Update progress
+    updateProgress(stepNum * 20);
+    currentStep = stepNum;
+    
+    // Scroll to top of new section
+    document.getElementById('content-step' + stepNum).scrollIntoView({ behavior: 'smooth' });
+}
+
+function goToStep(stepNum) {
+    if (stepNum <= currentStep || completedSteps.has(stepNum - 1)) {
+        proceedToStep(stepNum);
+    }
+}
+
+// Data generation
+function generateData() {
+    const output = `
+Generated RetailCo Dataset:
+- 500 stores across 50 states
+- Features: store_size, population_density, competitor_count, marketing_spend
+- Target: monthly_sales (ranging from $50K to $500K)
+- Pattern detected: Sales = f(size, population, marketing) + noise
+- Challenge: 30% variance unexplained (real-world messiness)
+    `;
+    alert(output);
+}
+
+// Approach comparison
+function runStatistical() {
+    const results = document.getElementById('approach-results');
+    results.innerHTML = `
+        <div style="background: #f8f9fa; padding: 1em; border-radius: 8px; margin-top: 1em;">
+            <h5>Statistical Analysis Results</h5>
+            <p>✓ Marketing spend significantly affects sales (p < 0.001)</p>
+            <p>✓ Store size coefficient: 2.34 (95% CI: [2.1, 2.6])</p>
+            <p>✓ R² = 0.67</p>
+            <p style="color: red;">✗ But can it predict next month's sales for Store #501?</p>
+        </div>
+    `;
+}
+
+function runML() {
+    const results = document.getElementById('approach-results');
+    results.innerHTML = `
+        <div style="background: #e7f3ff; padding: 1em; border-radius: 8px; margin-top: 1em;">
+            <h5>Machine Learning Results</h5>
+            <p>✓ Training accuracy: 89%</p>
+            <p>✓ Test accuracy: 87%</p>
+            <p>✓ Prediction for Store #501: $234,500 ± $12,000</p>
+            <p style="color: green;">✓ Ready for production deployment!</p>
+        </div>
+    `;
+}
+
+// Code execution simulation
+function runCode() {
+    const codeOutput = document.getElementById('code-output');
+    codeOutput.classList.add('show');
+    codeOutput.innerHTML = `
+Model Training Results:
+------------------------
+Training set size: 400 stores
+Test set size: 100 stores
+
+Model Coefficients:
+- Store Size: 2.34
+- Population: 1.56
+- Competition: -0.89
+- Marketing: 3.21
+
+Training R²: 0.89
+Test R²: 0.87
+
+✅ Model successfully trained and validated!
+    `;
+}
+
+// Sales prediction
+function predictSales() {
+    const size = document.getElementById('store-size').value;
+    const pop = document.getElementById('population').value;
+    const comp = document.getElementById('competitors').value;
+    const marketing = document.getElementById('marketing').value;
+    
+    // Simple prediction formula
+    const prediction = (size * 0.01) + (pop * 2) + (comp * -10) + (marketing * 3) + 100;
+    
+    document.getElementById('prediction-result').innerHTML = `
+        <div style="background: #d4edda; padding: 1em; border-radius: 8px;">
+            <h5>Predicted Monthly Sales: $${prediction.toFixed(0)}K</h5>
+            <p>Confidence Interval: $${(prediction * 0.9).toFixed(0)}K - $${(prediction * 1.1).toFixed(0)}K</p>
+            <p>Recommendation: Stock for ${(prediction * 30).toFixed(0)} units</p>
+        </div>
+    `;
+}
+
+// Regularization demonstration
+function applyRegularization() {
+    const regValue = document.getElementById('regularization-slider').value;
+    const result = document.getElementById('regularization-result');
+    
+    // Simulate performance based on regularization
+    const trainPerf = Math.max(0.7, 0.95 - regValue * 0.003);
+    const testPerf = Math.min(0.92, 0.75 + regValue * 0.002);
+    
+    result.innerHTML = `
+        <div style="background: ${testPerf > 0.85 ? '#d4edda' : '#fff3cd'}; padding: 1em; border-radius: 8px;">
+            <h5>Regularization Applied (λ = ${(regValue/10).toFixed(1)})</h5>
+            <p>Training R²: ${trainPerf.toFixed(3)}</p>
+            <p>Test R²: ${testPerf.toFixed(3)}</p>
+            <p>Gap: ${Math.abs(trainPerf - testPerf).toFixed(3)}</p>
+            <p>${testPerf > 0.85 ? '✅ Optimal regularization achieved!' : '⚠️ Adjust regularization strength'}</p>
+        </div>
+    `;
+}
+
+// Impact calculation
+function calculateImpact() {
+    const stores = parseInt(document.getElementById('num-stores').value);
+    const invValue = parseInt(document.getElementById('inv-value').value) * 1000;
+    const wastePercent = parseInt(document.getElementById('waste-percent').value) / 100;
+    const improvement = parseInt(document.getElementById('improvement').value) / 100;
+    
+    const currentWaste = stores * invValue * wastePercent;
+    const savings = currentWaste * improvement;
+    
+    document.getElementById('final-impact').style.display = 'block';
+    document.getElementById('savings-display').textContent = '$' + (savings/1000000).toFixed(1) + 'M';
+    document.getElementById('savings-description').textContent = 
+        `${stores} stores × $${invValue/1000}K inventory × ${(wastePercent*100).toFixed(0)}% waste × ${(improvement*100).toFixed(0)}% improvement`;
+    
+    // Generate executive summary
+    const summary = document.getElementById('executive-summary');
+    summary.innerHTML = `
+        <li>Implemented machine learning model with 87% accuracy</li>
+        <li>Reduced inventory waste from ${(wastePercent*100).toFixed(0)}% to ${((wastePercent*(1-improvement))*100).toFixed(0)}%</li>
+        <li>Annual savings: $${(savings/1000000).toFixed(1)} million</li>
+        <li>ROI: ${((savings / 50000) * 100).toFixed(0)}% (assuming $50K implementation cost)</li>
+        <li>Payback period: ${(50000 / (savings/12)).toFixed(1)} months</li>
+    `;
+    
+    // Show completion
+    setTimeout(() => {
+        document.getElementById('final-reflection').style.display = 'block';
+        document.getElementById('final-reflection').scrollIntoView({ behavior: 'smooth' });
+        updateProgress(100);
+    }, 2000);
+}
+
+// Initialize visualizations
+window.onload = function() {
+    // Set up canvas contexts
+    const mainCanvas = document.getElementById('main-visualization');
+    if (mainCanvas) {
+        const ctx = mainCanvas.getContext('2d');
+        // Draw initial visualization
+        drawComparison(ctx);
+    }
+};
+
+// Visualization functions
+function drawComparison(ctx) {
+    const canvas = ctx.canvas;
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 400;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw axes
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(50, canvas.height - 50);
+    ctx.lineTo(canvas.width - 30, canvas.height - 50);
+    ctx.moveTo(50, 30);
+    ctx.lineTo(50, canvas.height - 50);
+    ctx.stroke();
+    
+    // Add labels
+    ctx.fillStyle = '#333';
+    ctx.font = '14px Helvetica Neue';
+    ctx.fillText('Actual Sales', canvas.width/2 - 40, canvas.height - 20);
+    ctx.save();
+    ctx.translate(20, canvas.height/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillText('Predicted Sales', 0, 0);
+    ctx.restore();
+}
+
+// Generate completion certificate
+function generateCertificate() {
+    const achievement = document.getElementById('achievement-list');
+    achievement.innerHTML = `
+        <div style="background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%); padding: 2em; border-radius: 10px; text-align: center;">
+            <h3>🏆 Certificate of Completion</h3>
+            <p style="font-size: 1.2em; margin: 1em 0;">This certifies that you have successfully completed</p>
+            <h2 style="color: #0366d6;">Module 1: Linear Regression</h2>
+            <p>Machine Learning for Business Applications</p>
+            <div style="margin: 2em 0;">
+                <p><strong>Skills Demonstrated:</strong></p>
+                <p>✓ Statistical vs ML Paradigm</p>
+                <p>✓ Train-Test Validation</p>
+                <p>✓ Regularization Techniques</p>
+                <p>✓ Business Value Quantification</p>
+            </div>
+            <p><strong>Business Impact:</strong> $4M Annual Savings</p>
+            <p style="margin-top: 2em; color: #666;">Date: ${new Date().toLocaleDateString()}</p>
+        </div>
+    `;
+}
+</script>
+
+</body></html>

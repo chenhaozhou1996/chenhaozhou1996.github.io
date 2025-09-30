@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 2: Customer Churn Crisis - Interactive Class | Chenhao Zhou</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Georgia, serif; 
+            background: #1a1a2e; 
+            color: #fff; 
+            overflow-x: hidden;
+        }
+        
+        .hero-section {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+        }
+        
+        .hero-title {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+        
+        .crisis-value {
+            font-size: 3rem;
+            color: #ffd700;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .dark-section {
+            background: #0f0f1e;
+        }
+        
+        .light-section {
+            background: #1a1a2e;
+        }
+        
+        .story-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .interactive-panel {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+            display: inline-block;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 1rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .metric-label {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .slider-container {
+            margin: 2rem 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        
+        .quiz-option {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .quiz-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+        
+        .quiz-option.correct {
+            background: rgba(40, 167, 69, 0.3);
+            border-color: #28a745;
+        }
+        
+        .quiz-option.incorrect {
+            background: rgba(220, 53, 69, 0.3);
+            border-color: #dc3545;
+        }
+        
+        #confusionMatrix {
+            margin: 2rem auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1rem;
+        }
+        
+        .matrix-cell {
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .threshold-display {
+            font-size: 2rem;
+            color: #ffd700;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .nav-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .nav-button {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            border-radius: 20px;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+        }
+        
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #667eea;
+        }
+        
+        .alert-box {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid #ffc107;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+        
+        .success-box {
+            background: rgba(40, 167, 69, 0.2);
+            border: 2px solid #28a745;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            display: none;
+        }
+        
+        .decision-point {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 87, 34, 0.1) 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        #rocCurve {
+            width: 100%;
+            height: 400px;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-buttons">
+        <a href="class-notes.html" class="nav-button">📚 Notes</a>
+        <a href="lab-manual.html" class="nav-button">🔬 Lab</a>
+        <a href="../module-03-regularization/class-material.html" class="nav-button">Next →</a>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <h1 class="hero-title">📊 The Churn Prediction Crisis</h1>
+        <p class="hero-subtitle">TelecomGiant is losing customers at an alarming rate</p>
+        <div class="crisis-value">$45 Million at Risk</div>
+        <button class="button" onclick="startJourney()">Begin Your Mission</button>
+    </div>
+
+    <!-- Story Introduction -->
+    <div class="section dark-section" id="storySection" style="display: none;">
+        <div class="story-card">
+            <h2>📱 Emergency Board Meeting</h2>
+            <p style="font-size: 1.2rem; line-height: 1.8;">
+                It's 6:00 AM on a Tuesday. You're the newly hired Head of Data Science at TelecomGiant, 
+                one of the largest telecom providers in North America with 12 million subscribers.
+            </p>
+            <br>
+            <p style="font-size: 1.2rem; line-height: 1.8;">
+                The CEO bursts into your office: "We're hemorrhaging customers! Last quarter alone, 
+                we lost 850,000 subscribers. That's $45 million in annual recurring revenue - GONE!"
+            </p>
+            <br>
+            <div class="alert-box">
+                <strong>⚠️ The Challenge:</strong> Your predecessor's linear regression model for predicting 
+                customer lifetime value completely missed the churn crisis. The board wants answers - and 
+                a solution - by end of day.
+            </div>
+            <button class="button" onclick="showProblemAnalysis()">Analyze the Problem</button>
+        </div>
+    </div>
+
+    <!-- Problem Analysis -->
+    <div class="section light-section" id="problemSection" style="display: none;">
+        <h2>🔍 Understanding the Binary Problem</h2>
+        
+        <div class="interactive-panel">
+            <h3>Why Linear Regression Failed</h3>
+            <p>Your predecessor tried to predict a continuous value (customer lifetime value), 
+            but what we really need to know is binary: Will they churn? Yes or No.</p>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">0 or 1</div>
+                    <div class="metric-label">Binary Outcome</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">23%</div>
+                    <div class="metric-label">Current Churn Rate</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">$450</div>
+                    <div class="metric-label">Avg Annual Value</div>
+                </div>
+            </div>
+            
+            <div class="quiz-container">
+                <h3>Quick Decision Point:</h3>
+                <p>What type of problem are we solving?</p>
+                <div class="quiz-option" onclick="checkAnswer(this, false)">
+                    A) Regression - Predicting exact revenue amounts
+                </div>
+                <div class="quiz-option" onclick="checkAnswer(this, true)">
+                    B) Classification - Predicting churn/no-churn
+                </div>
+                <div class="quiz-option" onclick="checkAnswer(this, false)">
+                    C) Clustering - Grouping similar customers
+                </div>
+            </div>
+        </div>
+        
+        <button class="button" onclick="showLogisticSolution()" id="continueBtn" style="display: none;">
+            Discover Logistic Regression
+        </button>
+    </div>
+
+    <!-- Logistic Regression Solution -->
+    <div class="section dark-section" id="solutionSection" style="display: none;">
+        <h2>💡 The Sigmoid Solution</h2>
+        
+        <div class="interactive-panel">
+            <h3>From Lines to Probabilities</h3>
+            <p>Logistic regression transforms linear combinations into probabilities using the sigmoid function:</p>
+            
+            <div class="slider-container">
+                <label>Adjust Linear Input (z = wx + b): <span id="zValue">0</span></label>
+                <input type="range" class="slider" id="zSlider" min="-10" max="10" step="0.1" value="0" 
+                       oninput="updateSigmoid(this.value)">
+            </div>
+            
+            <div class="threshold-display">
+                Probability = <span id="probValue">0.50</span>
+            </div>
+            
+            <canvas id="sigmoidCanvas" width="600" height="300" style="width: 100%; max-width: 600px; margin: 0 auto; display: block;"></canvas>
+            
+            <p style="margin-top: 2rem;">The sigmoid function ensures our predictions stay between 0 and 1 - perfect for probabilities!</p>
+        </div>
+        
+        <button class="button" onclick="showThresholdExperiment()">Experiment with Thresholds</button>
+    </div>
+
+    <!-- Threshold Optimization -->
+    <div class="section light-section" id="thresholdSection" style="display: none;">
+        <h2>⚖️ Finding the Perfect Balance</h2>
+        
+        <div class="interactive-panel">
+            <h3>Threshold Decision Impact</h3>
+            <p>Adjust the classification threshold and see how it affects our business metrics:</p>
+            
+            <div class="slider-container">
+                <label>Classification Threshold: <span id="thresholdValue">0.50</span></label>
+                <input type="range" class="slider" id="thresholdSlider" min="0.1" max="0.9" step="0.01" value="0.5" 
+                       oninput="updateMetrics(this.value)">
+            </div>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="precisionValue">75%</div>
+                    <div class="metric-label">Precision</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="recallValue">65%</div>
+                    <div class="metric-label">Recall</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="revenueImpact">$28.5M</div>
+                    <div class="metric-label">Revenue Saved</div>
+                </div>
+            </div>
+            
+            <div id="confusionMatrix"></div>
+            
+            <div class="alert-box">
+                <strong>💰 Business Trade-off:</strong>
+                <ul style="text-align: left; margin: 1rem 0;">
+                    <li>False Positive: We offer retention incentive ($50) to customer who wouldn't churn</li>
+                    <li>False Negative: We lose a customer (worth $450/year)</li>
+                </ul>
+                <p>The cost of missing a churner is 9x higher than unnecessary retention!</p>
+            </div>
+        </div>
+        
+        <button class="button" onclick="showRealTimeDemo()">See Real-Time Predictions</button>
+    </div>
+
+    <!-- Real-Time Demo -->
+    <div class="section dark-section" id="demoSection" style="display: none;">
+        <h2>🚀 Live Customer Scoring</h2>
+        
+        <div class="interactive-panel">
+            <h3>Test Your Model on Real Customers</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div>
+                    <h4>Customer Profile</h4>
+                    <div class="slider-container">
+                        <label>Monthly Charges: $<span id="chargesValue">70</span></label>
+                        <input type="range" class="slider" min="20" max="150" value="70" 
+                               oninput="updateCustomerScore()">
+                    </div>
+                    <div class="slider-container">
+                        <label>Tenure (months): <span id="tenureValue">12</span></label>
+                        <input type="range" class="slider" min="1" max="72" value="12" 
+                               oninput="updateCustomerScore()">
+                    </div>
+                    <div class="slider-container">
+                        <label>Support Tickets: <span id="ticketsValue">3</span></label>
+                        <input type="range" class="slider" min="0" max="10" value="3" 
+                               oninput="updateCustomerScore()">
+                    </div>
+                </div>
+                
+                <div>
+                    <h4>Churn Probability</h4>
+                    <div class="threshold-display" id="customerChurnProb">32%</div>
+                    <div id="recommendationBox" class="alert-box">
+                        <strong>Recommendation:</strong> <span id="recommendation">Monitor closely</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="button" onclick="runBatchPrediction()">Run Batch Prediction (10,000 customers)</button>
+            <div id="batchResults" style="display: none; margin-top: 2rem;"></div>
+        </div>
+        
+        <button class="button" onclick="showFinalResults()">Calculate Business Impact</button>
+    </div>
+
+    <!-- Final Results -->
+    <div class="section light-section" id="resultsSection" style="display: none;">
+        <h2>🏆 Mission Accomplished!</h2>
+        
+        <div class="success-box" id="successBox">
+            <h3>Your Logistic Regression Model Results:</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">89%</div>
+                    <div class="metric-label">Accuracy</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">76%</div>
+                    <div class="metric-label">Churners Caught</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">$34.2M</div>
+                    <div class="metric-label">Revenue Saved</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="decision-point">
+            <h3>📊 Executive Summary for the Board</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="savingsProgress" style="width: 0%;">
+                    $0M Saved
+                </div>
+            </div>
+            
+            <div style="text-align: left; margin: 2rem 0;">
+                <h4>Implementation Strategy:</h4>
+                <ul style="line-height: 2;">
+                    <li>✅ Deploy logistic regression model in production</li>
+                    <li>✅ Score all 12 million customers daily</li>
+                    <li>✅ Trigger retention campaigns for high-risk segments</li>
+                    <li>✅ A/B test intervention strategies</li>
+                    <li>✅ Monitor model performance weekly</li>
+                </ul>
+            </div>
+            
+            <div class="alert-box">
+                <strong>💡 Key Insight:</strong> By switching from regression to classification, 
+                we can now identify at-risk customers with 89% accuracy and save $34.2M annually 
+                through targeted retention efforts.
+            </div>
+        </div>
+        
+        <button class="button" onclick="downloadReport()">Download Executive Report</button>
+        <button class="button" onclick="location.href='lab-manual.html'">Proceed to Lab →</button>
+    </div>
+
+    <script>
+        let progress = 0;
+        let correctAnswers = 0;
+        
+        function startJourney() {
+            document.querySelector('.hero-section').style.display = 'none';
+            document.getElementById('storySection').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+        
+        function showProblemAnalysis() {
+            document.getElementById('problemSection').style.display = 'block';
+            document.getElementById('problemSection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function checkAnswer(element, isCorrect) {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+                opt.onclick = null;
+            });
+            
+            if (isCorrect) {
+                element.classList.add('correct');
+                correctAnswers++;
+                document.getElementById('continueBtn').style.display = 'inline-block';
+            } else {
+                element.classList.add('incorrect');
+                setTimeout(() => {
+                    alert('Think about what we need to predict: a yes/no decision about customer churn');
+                }, 500);
+            }
+        }
+        
+        function showLogisticSolution() {
+            document.getElementById('solutionSection').style.display = 'block';
+            document.getElementById('solutionSection').scrollIntoView({ behavior: 'smooth' });
+            drawSigmoid(0);
+        }
+        
+        function updateSigmoid(z) {
+            document.getElementById('zValue').textContent = parseFloat(z).toFixed(1);
+            const prob = 1 / (1 + Math.exp(-z));
+            document.getElementById('probValue').textContent = prob.toFixed(3);
+            drawSigmoid(z);
+        }
+        
+        function drawSigmoid(currentZ) {
+            const canvas = document.getElementById('sigmoidCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw axes
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(50, 250);
+            ctx.lineTo(550, 250);
+            ctx.moveTo(300, 50);
+            ctx.lineTo(300, 250);
+            ctx.stroke();
+            
+            // Draw sigmoid curve
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let x = -10; x <= 10; x += 0.1) {
+                const y = 1 / (1 + Math.exp(-x));
+                const canvasX = 300 + x * 25;
+                const canvasY = 250 - y * 200;
+                
+                if (x === -10) {
+                    ctx.moveTo(canvasX, canvasY);
+                } else {
+                    ctx.lineTo(canvasX, canvasY);
+                }
+            }
+            ctx.stroke();
+            
+            // Draw current point
+            const currentProb = 1 / (1 + Math.exp(-currentZ));
+            const pointX = 300 + currentZ * 25;
+            const pointY = 250 - currentProb * 200;
+            
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(pointX, pointY, 8, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Labels
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Arial';
+            ctx.fillText('z (linear combination)', 450, 270);
+            ctx.fillText('P(churn)', 310, 65);
+        }
+        
+        function showThresholdExperiment() {
+            document.getElementById('thresholdSection').style.display = 'block';
+            document.getElementById('thresholdSection').scrollIntoView({ behavior: 'smooth' });
+            updateMetrics(0.5);
+        }
+        
+        function updateMetrics(threshold) {
+            document.getElementById('thresholdValue').textContent = parseFloat(threshold).toFixed(2);
+            
+            // Simulate different metrics based on threshold
+            const precision = 60 + (threshold * 30);
+            const recall = 90 - (threshold * 50);
+            const revenue = (recall / 100) * 45;
+            
+            document.getElementById('precisionValue').textContent = precision.toFixed(0) + '%';
+            document.getElementById('recallValue').textContent = recall.toFixed(0) + '%';
+            document.getElementById('revenueImpact').textContent = '$' + revenue.toFixed(1) + 'M';
+            
+            updateConfusionMatrix(threshold);
+        }
+        
+        function updateConfusionMatrix(threshold) {
+            const tp = Math.floor(2000 * (0.9 - threshold * 0.5));
+            const fp = Math.floor(500 * (1 - threshold));
+            const fn = Math.floor(300 * threshold * 2);
+            const tn = 7200 - fp;
+            
+            document.getElementById('confusionMatrix').innerHTML = `
+                <h4>Confusion Matrix (10,000 customers)</h4>
+                <table style="width: 100%; color: white;">
+                    <tr>
+                        <td class="matrix-cell" style="background: rgba(40, 167, 69, 0.5);">TP: ${tp}</td>
+                        <td class="matrix-cell" style="background: rgba(220, 53, 69, 0.3);">FP: ${fp}</td>
+                    </tr>
+                    <tr>
+                        <td class="matrix-cell" style="background: rgba(220, 53, 69, 0.5);">FN: ${fn}</td>
+                        <td class="matrix-cell" style="background: rgba(40, 167, 69, 0.3);">TN: ${tn}</td>
+                    </tr>
+                </table>
+            `;
+        }
+        
+        function showRealTimeDemo() {
+            document.getElementById('demoSection').style.display = 'block';
+            document.getElementById('demoSection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function updateCustomerScore() {
+            const charges = document.querySelector('#demoSection input:nth-of-type(1)').value;
+            const tenure = document.querySelector('#demoSection input:nth-of-type(2)').value;
+            const tickets = document.querySelector('#demoSection input:nth-of-type(3)').value;
+            
+            document.getElementById('chargesValue').textContent = charges;
+            document.getElementById('tenureValue').textContent = tenure;
+            document.getElementById('ticketsValue').textContent = tickets;
+            
+            // Simple scoring logic
+            const score = (parseInt(charges) * 0.3 + parseInt(tickets) * 10 - parseInt(tenure) * 2) / 100;
+            const prob = Math.max(0, Math.min(100, score * 100));
+            
+            document.getElementById('customerChurnProb').textContent = prob.toFixed(0) + '%';
+            
+            let recommendation = '';
+            if (prob > 70) {
+                recommendation = 'Immediate retention offer required!';
+                document.getElementById('recommendationBox').style.borderColor = '#dc3545';
+            } else if (prob > 40) {
+                recommendation = 'Schedule follow-up call';
+                document.getElementById('recommendationBox').style.borderColor = '#ffc107';
+            } else {
+                recommendation = 'No action needed';
+                document.getElementById('recommendationBox').style.borderColor = '#28a745';
+            }
+            document.getElementById('recommendation').textContent = recommendation;
+        }
+        
+        function runBatchPrediction() {
+            const resultsDiv = document.getElementById('batchResults');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <div class="alert-box">
+                    <h4>⚡ Batch Prediction Complete!</h4>
+                    <p>Processed: 10,000 customers in 0.47 seconds</p>
+                    <p>Identified: 2,147 high-risk customers</p>
+                    <p>Retention cost: $107,350</p>
+                    <p>Expected save: $4.2M</p>
+                </div>
+            `;
+        }
+        
+        function showFinalResults() {
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('successBox').style.display = 'block';
+            
+            // Animate progress bar
+            let currentSavings = 0;
+            const targetSavings = 34.2;
+            const interval = setInterval(() => {
+                currentSavings += 0.5;
+                if (currentSavings >= targetSavings) {
+                    currentSavings = targetSavings;
+                    clearInterval(interval);
+                }
+                const percentage = (currentSavings / 45) * 100;
+                document.getElementById('savingsProgress').style.width = percentage + '%';
+                document.getElementById('savingsProgress').textContent = `$${currentSavings.toFixed(1)}M Saved`;
+            }, 50);
+        }
+        
+        function downloadReport() {
+            alert('Executive report generated! In a real implementation, this would download a PDF with full model details, ROI calculations, and implementation roadmap.');
+        }
+    </script>
+</body>
+</html>

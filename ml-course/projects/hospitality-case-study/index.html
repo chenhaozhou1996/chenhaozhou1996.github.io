@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospitality Revenue Optimization: A Comprehensive ML/RL/AI Case Study</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+            line-height: 1.8;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-brand {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+        
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
+            color: white;
+            padding: 5rem 2rem;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+        
+        .hero-meta {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .hero-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        
+        .content-section {
+            background: white;
+            border-radius: 12px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            border-left: 5px solid #667eea;
+            padding-left: 1rem;
+        }
+        
+        .section-subtitle {
+            font-size: 1.5rem;
+            color: #4a5568;
+            margin: 2rem 0 1rem;
+            font-weight: 600;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 2rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            background: #fef3c7;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        
+        .metric-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .methodology-card {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+        
+        .alert-box {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+        
+        .alert-box-warning {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+        }
+        
+        .alert-box-success {
+            background: #f0fff4;
+            border-left: 4px solid #48bb78;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+        
+        .data-table th {
+            background: #667eea;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .data-table tr:hover {
+            background: #f7fafc;
+        }
+        
+        .interactive-demo {
+            background: linear-gradient(135deg, #ebf4ff 0%, #f3e7ff 100%);
+            padding: 3rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+        
+        .demo-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .control-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+        
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .results-panel {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+            border: 2px solid #667eea;
+        }
+        
+        .formula-box {
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-family: 'Georgia', serif;
+            font-size: 1.1rem;
+        }
+        
+        .process-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .process-step {
+            background: #ebf8ff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            border: 2px solid #4299e1;
+        }
+        
+        .process-arrow {
+            font-size: 2rem;
+            color: #667eea;
+            font-weight: 700;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .process-arrow {
+                display: none;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-brand">🏨 Hospitality ML Case Study</div>
+            <div class="nav-links">
+                <a href="../../index.html">Course Home</a>
+                <a href="#business-context">Context</a>
+                <a href="#methodology">Methodology</a>
+                <a href="#implementation">Implementation</a>
+                <a href="#results">Results</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Hospitality Revenue Optimization</h1>
+        <div class="hero-subtitle">
+            A Comprehensive ML/RL/AI Case Study for Hotel Operations Management
+        </div>
+        <div class="hero-meta">
+            <div class="hero-meta-item">
+                <span>📊</span>
+                <span>Supervised Learning</span>
+            </div>
+            <div class="hero-meta-item">
+                <span>🤖</span>
+                <span>Reinforcement Learning</span>
+            </div>
+            <div class="hero-meta-item">
+                <span>💰</span>
+                <span>Dynamic Pricing</span>
+            </div>
+            <div class="hero-meta-item">
+                <span>🎯</span>
+                <span>Revenue Management</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <section class="content-section" id="business-context">
+            <h2 class="section-title">Business Context and Challenges</h2>
+            
+            <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                The Grand Horizon Hotel Group operates a portfolio of 50 properties across major metropolitan areas. As the newly appointed Chief Revenue Officer, you face a critical challenge that affects every property in the portfolio. Traditional revenue management approaches based on historical averages and manual adjustments have proven insufficient in the volatile post-pandemic environment.
+            </p>
+
+            <h3 class="section-subtitle">Strategic Business Problem</h3>
+            <p>
+                The hotel group experiences significant revenue volatility due to the complex interplay of seasonal patterns, local events, competitor pricing strategies, and rapidly shifting customer preferences. Current forecasting models yield a Mean Absolute Percentage Error of 22 percent, leading to systematic underpricing during high-demand periods and overpricing when demand softens. This forecasting inaccuracy cascades through the entire revenue management system, resulting in suboptimal pricing decisions that leave an estimated $18 million in potential revenue unrealized annually across the portfolio.
+            </p>
+
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Current Forecast MAPE</div>
+                    <div class="metric-value">22%</div>
+                    <div class="metric-label">Industry Target: 8-12%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Annual Revenue Gap</div>
+                    <div class="metric-value">$18M</div>
+                    <div class="metric-label">Unrealized potential</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Average ADR Variance</div>
+                    <div class="metric-value">±15%</div>
+                    <div class="metric-label">From optimal pricing</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Manual Price Changes</div>
+                    <div class="metric-value">250/day</div>
+                    <div class="metric-label">Across all properties</div>
+                </div>
+            </div>
+
+            <h3 class="section-subtitle">Market Dynamics and Constraints</h3>
+            <p>
+                The competitive landscape presents additional complexity. Major online travel agencies and booking platforms employ sophisticated algorithmic pricing that responds to market conditions in near real-time. Competitor hotels have begun deploying machine learning systems that dynamically adjust rates multiple times daily based on booking pace, remaining inventory, and demand signals. This technological arms race means that standing still effectively moves the hotel group backward in competitive positioning.
+            </p>
+
+            <div class="alert-box">
+                <strong>Key Business Constraint:</strong> The hotel group operates under franchise agreements that mandate rate parity across distribution channels and impose minimum acceptable occupancy thresholds. Any pricing strategy must respect these contractual obligations while maximizing revenue per available room.
+            </div>
+
+            <h3 class="section-subtitle">Data Architecture and Infrastructure</h3>
+            <p>
+                The organization possesses substantial data assets that remain underutilized in current decision-making processes. The property management system captures detailed transaction records including booking timestamp, length of stay, room type, rate paid, booking channel, and cancellation behavior. Point-of-sale systems track ancillary revenue from restaurants, spa services, and other amenities. Customer relationship management systems maintain profiles on loyalty program members including stay history, preferences, and lifetime value metrics.
+            </p>
+
+            <p>
+                External data sources provide additional context. Local event calendars identify concerts, conventions, and sporting events that drive demand spikes. Weather forecasts enable anticipation of seasonal patterns. Competitor pricing intelligence from rate shopping tools tracks market positioning in real-time. Economic indicators at the metropolitan statistical area level reflect broader demand conditions.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Data Category</th>
+                        <th>Granularity</th>
+                        <th>Historical Depth</th>
+                        <th>Update Frequency</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Transaction Records</td>
+                        <td>Individual booking</td>
+                        <td>5 years</td>
+                        <td>Real-time</td>
+                    </tr>
+                    <tr>
+                        <td>Ancillary Revenue</td>
+                        <td>Guest-level</td>
+                        <td>3 years</td>
+                        <td>Daily batch</td>
+                    </tr>
+                    <tr>
+                        <td>Competitor Pricing</td>
+                        <td>Property-level</td>
+                        <td>2 years</td>
+                        <td>Hourly</td>
+                    </tr>
+                    <tr>
+                        <td>Event Calendar</td>
+                        <td>Metropolitan area</td>
+                        <td>1 year</td>
+                        <td>Weekly</td>
+                    </tr>
+                    <tr>
+                        <td>Economic Indicators</td>
+                        <td>Regional</td>
+                        <td>10 years</td>
+                        <td>Monthly</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 class="section-subtitle">Success Metrics and Business Impact</h3>
+            <p>
+                The leadership team has defined clear success criteria for any advanced analytics initiative. The primary metric is Revenue Per Available Room, which must increase by at least 12 percent year-over-year to justify the technology investment and organizational change required. Forecast accuracy must improve to achieve MAPE below 10 percent for rolling 90-day predictions. Price optimization algorithms must demonstrate consistent improvement over manual pricing decisions across diverse demand scenarios.
+            </p>
+
+            <p>
+                Secondary metrics address operational efficiency and market positioning. The system must reduce manual pricing interventions by 70 percent, freeing revenue managers to focus on strategic initiatives and exception handling. Customer satisfaction scores must remain stable or improve, ensuring that algorithmic pricing does not sacrifice service quality for revenue gains. Market share relative to the competitive set should expand by 3 percentage points as improved pricing strategy attracts price-sensitive customers during soft demand periods while capturing premium rates during peak periods.
+            </p>
+        </section>
+
+        <section class="content-section" id="methodology">
+            <h2 class="section-title">Comprehensive Methodology Framework</h2>
+            
+            <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                The solution architecture integrates multiple analytical approaches in a unified framework. Supervised learning models provide demand forecasting capabilities. Reinforcement learning agents learn optimal pricing policies through simulation and real-world interaction. Causal inference methods quantify the incremental impact of pricing decisions on booking behavior. This multi-method approach addresses different aspects of the revenue optimization challenge while maintaining internal consistency across components.
+            </p>
+
+            <h3 class="section-subtitle">Phase 1: Demand Forecasting with Supervised Learning</h3>
+            
+            <p>
+                Accurate demand forecasting forms the foundation of effective revenue management. The forecasting system must predict room night demand at multiple time horizons ranging from same-day to 365 days in advance. Different booking windows exhibit distinct patterns requiring specialized modeling approaches. Business travelers typically book within a seven-day window and show high price sensitivity. Leisure travelers book further in advance and demonstrate greater flexibility in travel dates. Group bookings follow structured negotiation processes with lead times of 60 to 180 days.
+            </p>
+
+            <div class="methodology-card">
+                <h4 style="margin-bottom: 1rem; color: #667eea;">Feature Engineering Strategy</h4>
+                <p>
+                    The feature engineering process transforms raw transactional data into predictive signals. Temporal features capture seasonality at multiple scales including day of week, month, quarter, and holiday proximity. Booking pace features measure reservation velocity at various time horizons, providing early warning of demand surges or softness. Competitive positioning features quantify price differentials relative to the competitive set, enabling the model to learn price elasticity patterns. Event impact features encode major demand drivers including conventions, concerts, and sporting events with attendance estimates and event type classifications.
+                </p>
+            </div>
+
+            <div class="code-block">class DemandForecaster:
+    """
+    Advanced demand forecasting system using gradient boosting
+    
+    This implementation uses XGBoost with custom loss functions to handle
+    the heterogeneous nature of hotel demand patterns across segments,
+    seasons, and booking windows.
+    """
+    
+    def __init__(self, forecast_horizon='multi'):
+        """
+        Initialize forecasting model with configurable parameters
+        
+        Args:
+            forecast_horizon: 'same_day', 'short' (7d), 'medium' (30d), 
+                            'long' (90d), or 'multi' for all horizons
+        """
+        self.horizon = forecast_horizon
+        self.models = {}  # Separate models per horizon if multi
+        
+        # XGBoost parameters optimized for hotel demand forecasting
+        self.config = {
+            'objective': 'reg:squarederror',
+            'max_depth': 8,
+            'learning_rate': 0.05,
+            'n_estimators': 500,
+            'subsample': 0.8,
+            'colsample_bytree': 0.8,
+            'gamma': 1,  # Minimum loss reduction for split
+            'min_child_weight': 5,  # Prevents overfitting to outliers
+            'reg_alpha': 0.1,  # L1 regularization
+            'reg_lambda': 1.0,  # L2 regularization
+        }
+    
+    def engineer_features(self, data):
+        """
+        Transform raw booking data into predictive features
+        
+        Args:
+            data: DataFrame with booking records and contextual data
+            
+        Returns:
+            DataFrame with engineered features ready for modeling
+        """
+        features = pd.DataFrame()
+        
+        # Temporal features at multiple scales
+        features['dow'] = data['date'].dt.dayofweek
+        features['dom'] = data['date'].dt.day
+        features['month'] = data['date'].dt.month
+        features['quarter'] = data['date'].dt.quarter
+        features['week_of_year'] = data['date'].dt.isocalendar().week
+        
+        # Holiday proximity (days to nearest major holiday)
+        features['days_to_holiday'] = self._calculate_holiday_distance(data['date'])
+        features['is_holiday_week'] = (features['days_to_holiday'].abs() <= 7).astype(int)
+        
+        # Booking pace features (looking backward from date)
+        for window in [1, 3, 7, 14, 30]:
+            features[f'bookings_last_{window}d'] = self._rolling_bookings(
+                data, window
+            )
+            features[f'revenue_last_{window}d'] = self._rolling_revenue(
+                data, window
+            )
+        
+        # Booking window features (days between booking and arrival)
+        features['booking_window'] = (
+            data['arrival_date'] - data['booking_date']
+        ).dt.days
+        features['booking_window_category'] = pd.cut(
+            features['booking_window'],
+            bins=[0, 3, 7, 14, 30, 60, 180, 365],
+            labels=['same_day', 'short', 'medium', 'long', 
+                   'very_long', 'group', 'far_advance']
+        )
+        
+        # Competitive positioning
+        features['price_index'] = data['our_price'] / data['comp_set_avg_price']
+        features['price_rank'] = self._calculate_price_rank(data)
+        features['comp_set_occupancy'] = data['comp_set_avg_occupancy']
+        
+        # Room inventory features
+        features['rooms_available'] = data['total_rooms'] - data['rooms_occupied']
+        features['occupancy_rate'] = data['rooms_occupied'] / data['total_rooms']
+        features['days_until_arrival'] = (
+            data['arrival_date'] - data['current_date']
+        ).dt.days
+        
+        # Event impact features
+        features['major_event_flag'] = self._identify_major_events(data)
+        features['event_attendance'] = data['event_size'].fillna(0)
+        features['event_type'] = pd.Categorical(data['event_type'])
+        
+        # Segment mix features
+        features['segment_transient'] = data['transient_bookings_pct']
+        features['segment_group'] = data['group_bookings_pct']
+        features['segment_corporate'] = data['corporate_bookings_pct']
+        
+        # Economic indicators
+        features['local_employment_rate'] = data['msa_employment_rate']
+        features['consumer_confidence'] = data['consumer_confidence_index']
+        features['airline_capacity'] = data['airline_seats_available']
+        
+        # Historical demand patterns
+        features['demand_same_dow_last_year'] = self._lookup_historical_demand(
+            data, periods_back=52
+        )
+        features['demand_same_week_last_year'] = self._lookup_historical_demand(
+            data, periods_back=52, aggregation='week'
+        )
+        
+        return features
+    
+    def fit(self, X_train, y_train, validation_data=None):
+        """
+        Train demand forecasting model with optional validation monitoring
+        
+        Args:
+            X_train: Training features
+            y_train: Training targets (room night demand)
+            validation_data: Optional (X_val, y_val) tuple for early stopping
+        """
+        if self.horizon == 'multi':
+            # Train separate models for different forecast horizons
+            for horizon_name, horizon_days in [
+                ('same_day', 0), ('short', 7), ('medium', 30), ('long', 90)
+            ]:
+                mask = X_train['days_until_arrival'] <= horizon_days
+                self.models[horizon_name] = xgb.XGBRegressor(**self.config)
+                
+                if validation_data:
+                    X_val, y_val = validation_data
+                    val_mask = X_val['days_until_arrival'] <= horizon_days
+                    eval_set = [(X_val[val_mask], y_val[val_mask])]
+                    self.models[horizon_name].fit(
+                        X_train[mask], y_train[mask],
+                        eval_set=eval_set,
+                        early_stopping_rounds=50,
+                        verbose=False
+                    )
+                else:
+                    self.models[horizon_name].fit(
+                        X_train[mask], y_train[mask]
+                    )
+        else:
+            # Single model for specified horizon
+            self.model = xgb.XGBRegressor(**self.config)
+            if validation_data:
+                X_val, y_val = validation_data
+                eval_set = [(X_val, y_val)]
+                self.model.fit(
+                    X_train, y_train,
+                    eval_set=eval_set,
+                    early_stopping_rounds=50,
+                    verbose=False
+                )
+            else:
+                self.model.fit(X_train, y_train)
+        
+        # Store feature importance for interpretation
+        self.feature_importance = pd.DataFrame({
+            'feature': X_train.columns,
+            'importance': self.model.feature_importances_
+        }).sort_values('importance', ascending=False)
+    
+    def predict(self, X, return_intervals=False, confidence_level=0.95):
+        """
+        Generate demand predictions with optional prediction intervals
+        
+        Args:
+            X: Features for prediction
+            return_intervals: Whether to return prediction intervals
+            confidence_level: Confidence level for intervals (if requested)
+            
+        Returns:
+            Predictions or (predictions, lower_bound, upper_bound) if intervals requested
+        """
+        if self.horizon == 'multi':
+            # Route to appropriate model based on forecast horizon
+            predictions = np.zeros(len(X))
+            for horizon_name, model in self.models.items():
+                mask = self._get_horizon_mask(X, horizon_name)
+                predictions[mask] = model.predict(X[mask])
+        else:
+            predictions = self.model.predict(X)
+        
+        if return_intervals:
+            # Use quantile regression for prediction intervals
+            lower_bound, upper_bound = self._calculate_prediction_intervals(
+                X, predictions, confidence_level
+            )
+            return predictions, lower_bound, upper_bound
+        
+        return predictions
+            <h3 class="section-subtitle">Phase 2: Dynamic Pricing with Reinforcement Learning</h3>
+            
+            <p>
+                While supervised learning models excel at predicting demand given fixed conditions, revenue optimization requires determining optimal prices that maximize total revenue. Reinforcement learning provides a framework for learning pricing policies through interaction with the market environment. The RL agent observes the current state including forecasted demand, remaining inventory, competitive positioning, and time until arrival. It selects a pricing action from a discrete set of rate options. The environment responds with booking outcomes and associated revenue. Over many episodes, the agent learns which pricing strategies yield superior long-term revenue performance.
+            </p>
+
+            <div class="methodology-card">
+                <h4 style="margin-bottom: 1rem; color: #667eea;">Markov Decision Process Formulation</h4>
+                <p>
+                    The revenue management problem maps naturally to a Markov Decision Process framework. The state space encompasses all relevant information for pricing decisions including days until arrival, rooms remaining, booking pace relative to forecast, competitive price positioning, and segment-specific demand indicators. The action space consists of discrete price points typically ranging from 70 percent to 150 percent of the base rate in increments of 5 percent. The reward function captures immediate booking revenue while penalizing excessive inventory at arrival date, creating tension between immediate revenue capture and future booking opportunities.
+                </p>
+            </div>
+
+            <div class="formula-box">
+                <strong>Bellman Optimality Equation:</strong><br>
+                V*(s) = max<sub>a</sub> [ R(s,a) + γ · E[V*(s')] ]<br><br>
+                Where V*(s) represents the optimal value function at state s, R(s,a) is the immediate reward from action a, γ is the discount factor emphasizing near-term revenue, and E[V*(s')] is the expected future value of the resulting state.
+            </div>
+
+            <div class="code-block">class DynamicPricingAgent:
+    """
+    Deep Q-Network agent for dynamic hotel pricing
+    
+    Learns optimal pricing policies through interaction with simulated
+    and real market environments. Uses experience replay and target
+    networks for stable learning.
+    """
+    
+    def __init__(self, state_dim, action_space, config=None):
+        """
+        Initialize RL pricing agent
+        
+        Args:
+            state_dim: Dimensionality of state representation
+            action_space: List of available price points
+            config: Dictionary with hyperparameters
+        """
+        self.state_dim = state_dim
+        self.actions = action_space  # e.g., [0.7, 0.75, 0.8, ..., 1.5]
+        self.n_actions = len(action_space)
+        
+        # Hyperparameters with defaults
+        config = config or {}
+        self.gamma = config.get('discount_factor', 0.95)
+        self.epsilon = config.get('epsilon_start', 1.0)
+        self.epsilon_min = config.get('epsilon_min', 0.01)
+        self.epsilon_decay = config.get('epsilon_decay', 0.995)
+        self.learning_rate = config.get('learning_rate', 0.001)
+        self.batch_size = config.get('batch_size', 64)
+        self.memory_size = config.get('memory_size', 10000)
+        
+        # Neural network architecture
+        self.q_network = self._build_network()
+        self.target_network = self._build_network()
+        self.update_target_network()
+        
+        # Experience replay buffer
+        self.memory = deque(maxlen=self.memory_size)
+        
+        # Training metrics
+        self.episode_rewards = []
+        self.episode_revenues = []
+        self.training_losses = []
+    
+    def _build_network(self):
+        """
+        Construct neural network for Q-value approximation
+        
+        Architecture uses dense layers with ReLU activation and
+        batch normalization for training stability
+        """
+        model = Sequential([
+            Dense(256, activation='relu', input_dim=self.state_dim),
+            BatchNormalization(),
+            Dropout(0.2),
+            Dense(256, activation='relu'),
+            BatchNormalization(),
+            Dropout(0.2),
+            Dense(128, activation='relu'),
+            Dense(self.n_actions, activation='linear')
+        ])
+        model.compile(
+            optimizer=Adam(learning_rate=self.learning_rate),
+            loss='huber'  # Robust to outliers
+        )
+        return model
+    
+    def get_state_representation(self, observation):
+        """
+        Transform market observation into network input
+        
+        Args:
+            observation: Dictionary with current market state
+            
+        Returns:
+            Normalized state vector
+        """
+        state = np.array([
+            # Temporal features
+            observation['days_until_arrival'] / 365,
+            observation['day_of_week'] / 7,
+            observation['is_weekend'],
+            observation['is_holiday_period'],
+            
+            # Inventory features
+            observation['rooms_remaining'] / observation['total_rooms'],
+            observation['occupancy_rate'],
+            
+            # Demand signals
+            observation['forecast_demand'] / observation['total_rooms'],
+            observation['booking_pace_ratio'],  # actual/forecast
+            observation['pickups_last_7d'] / observation['total_rooms'],
+            
+            # Competitive positioning
+            observation['price_index'],  # our_price / market_avg
+            observation['price_rank'] / 10,  # ranking in competitive set
+            observation['compset_avg_occupancy'],
+            
+            # Segment mix
+            observation['transient_ratio'],
+            observation['corporate_ratio'],
+            observation['group_ratio'],
+            
+            # Event impact
+            observation['major_event_indicator'],
+            observation['event_attendance'] / 10000,  # normalized
+            
+            # Historical context
+            observation['demand_same_dow_last_year'] / observation['total_rooms'],
+            observation['price_same_period_last_year'] / 200,  # normalized
+        ])
+        
+        return state
+    
+    def select_action(self, state, training=True):
+        """
+        Choose pricing action using epsilon-greedy policy
+        
+        Args:
+            state: Current state representation
+            training: Whether in training mode (enables exploration)
+            
+        Returns:
+            Selected action index and corresponding price multiplier
+        """
+        if training and np.random.random() < self.epsilon:
+            # Explore: random action
+            action_idx = np.random.randint(self.n_actions)
+        else:
+            # Exploit: best known action
+            q_values = self.q_network.predict(
+                state.reshape(1, -1), 
+                verbose=0
+            )
+            action_idx = np.argmax(q_values[0])
+        
+        price_multiplier = self.actions[action_idx]
+        return action_idx, price_multiplier
+    
+    def store_experience(self, state, action, reward, next_state, done):
+        """Add experience tuple to replay buffer"""
+        self.memory.append((state, action, reward, next_state, done))
+    
+    def train_step(self):
+        """
+        Perform one training iteration using experience replay
+        
+        Returns:
+            Training loss for monitoring convergence
+        """
+        if len(self.memory) < self.batch_size:
+            return None
+        
+        # Sample random minibatch from memory
+        batch = random.sample(self.memory, self.batch_size)
+        states = np.array([exp[0] for exp in batch])
+        actions = np.array([exp[1] for exp in batch])
+        rewards = np.array([exp[2] for exp in batch])
+        next_states = np.array([exp[3] for exp in batch])
+        dones = np.array([exp[4] for exp in batch])
+        
+        # Compute target Q-values using target network
+        current_q = self.q_network.predict(states, verbose=0)
+        next_q = self.target_network.predict(next_states, verbose=0)
+        
+        # Update Q-values with Bellman equation
+        target_q = current_q.copy()
+        for i in range(self.batch_size):
+            if dones[i]:
+                target_q[i][actions[i]] = rewards[i]
+            else:
+                target_q[i][actions[i]] = (
+                    rewards[i] + self.gamma * np.max(next_q[i])
+                )
+        
+        # Train network
+        loss = self.q_network.fit(
+            states, target_q,
+            batch_size=self.batch_size,
+            epochs=1,
+            verbose=0
+        )
+        
+        # Decay exploration rate
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
+        
+        return loss.history['loss'][0]
+    
+    def update_target_network(self):
+        """Copy weights from Q-network to target network"""
+        self.target_network.set_weights(self.q_network.get_weights())
+    
+    def train_episode(self, env, max_steps=100):
+        """
+        Execute one complete training episode
+        
+        Args:
+            env: Market environment (simulation or real)
+            max_steps: Maximum steps per episode
+            
+        Returns:
+            Episode metrics
+        """
+        state = env.reset()
+        state_vector = self.get_state_representation(state)
+        
+        episode_reward = 0
+        episode_revenue = 0
+        
+        for step in range(max_steps):
+            # Select and execute action
+            action_idx, price_multiplier = self.select_action(
+                state_vector, training=True
+            )
+            next_state, reward, done, info = env.step(price_multiplier)
+            next_state_vector = self.get_state_representation(next_state)
+            
+            # Store experience
+            self.store_experience(
+                state_vector, action_idx, reward, next_state_vector, done
+            )
+            
+            # Train on experience
+            loss = self.train_step()
+            if loss is not None:
+                self.training_losses.append(loss)
+            
+            # Accumulate metrics
+            episode_reward += reward
+            episode_revenue += info.get('booking_revenue', 0)
+            
+            if done:
+                break
+            
+            state_vector = next_state_vector
+        
+        # Periodic target network update
+        if len(self.episode_rewards) % 10 == 0:
+            self.update_target_network()
+        
+        self.episode_rewards.append(episode_reward)
+        self.episode_revenues.append(episode_revenue)
+        
+        return {
+            'reward': episode_reward,
+            'revenue': episode_revenue,
+            'steps': step + 1,
+            'epsilon': self.epsilon
+        }
+            <h3 class="section-subtitle">Phase 3: Price Elasticity Estimation and Causal Inference</h3>
+            
+            <p>
+                Understanding the causal relationship between price changes and booking behavior is essential for effective revenue optimization. Simple correlation between prices and bookings can be misleading because prices respond to demand signals. High prices during peak periods correlate with high bookings, but this does not imply that raising prices causes increased bookings. Causal inference methods disentangle these relationships by leveraging natural experiments and econometric techniques.
+            </p>
+
+            <p>
+                The hotel group conducts controlled pricing experiments across comparable properties. Within a matched set of similar hotels in different markets, some properties receive algorithmic price recommendations while control properties continue manual pricing. This quasi-experimental design enables estimation of the treatment effect attributable to algorithmic pricing. Additionally, historical pricing variations due to human error or system maintenance provide natural experiments where price changes occur independently of demand conditions.
+            </p>
+
+            <div class="alert-box-success">
+                <strong>Methodological Insight:</strong> Instrumental variable regression addresses the endogeneity problem in price elasticity estimation. Weather forecasts serve as instruments because they affect demand but do not directly influence pricing decisions made days in advance. This identification strategy produces unbiased elasticity estimates across different customer segments and booking windows.
+            </div>
+
+            <div class="code-block">class ElasticityEstimator:
+    """
+    Causal estimation of price elasticity using econometric methods
+    
+    Combines instrumental variables, difference-in-differences, and
+    regression discontinuity designs to identify causal effects of
+    pricing on booking behavior
+    """
+    
+    def __init__(self, method='2sls'):
+        """
+        Args:
+            method: Estimation method ('2sls', 'did', 'rd')
+        """
+        self.method = method
+        self.elasticities = {}
+        self.confidence_intervals = {}
+    
+    def estimate_elasticity(self, data, segments=None):
+        """
+        Estimate price elasticity by customer segment
+        
+        Args:
+            data: DataFrame with pricing experiments
+            segments: List of segments to analyze separately
+            
+        Returns:
+            Dictionary of elasticity estimates with standard errors
+        """
+        if segments is None:
+            segments = ['transient', 'corporate', 'group']
+        
+        for segment in segments:
+            segment_data = data[data['segment'] == segment]
+            
+            if self.method == '2sls':
+                elasticity, std_error = self._two_stage_least_squares(
+                    segment_data
+                )
+            elif self.method == 'did':
+                elasticity, std_error = self._difference_in_differences(
+                    segment_data
+                )
+            else:
+                elasticity, std_error = self._regression_discontinuity(
+                    segment_data
+                )
+            
+            self.elasticities[segment] = elasticity
+            self.confidence_intervals[segment] = (
+                elasticity - 1.96 * std_error,
+                elasticity + 1.96 * std_error
+            )
+        
+        return self.elasticities
+    
+    def _two_stage_least_squares(self, data):
+        """
+        IV estimation using weather forecast as instrument
+        
+        First stage: Regress demand on weather forecast
+        Second stage: Regress bookings on predicted demand and price
+        """
+        # First stage: demand ~ weather + controls
+        X1 = sm.add_constant(data[[
+            'temperature_forecast', 'precipitation_prob',
+            'day_of_week', 'seasonality'
+        ]])
+        y1 = data['demand_forecast']
+        first_stage = sm.OLS(y1, X1).fit()
+        demand_fitted = first_stage.predict(X1)
+        
+        # Second stage: bookings ~ price + demand_fitted + controls
+        X2 = sm.add_constant(pd.DataFrame({
+            'price': np.log(data['price']),
+            'demand_fitted': demand_fitted,
+            'competitor_price': np.log(data['comp_avg_price']),
+            'rooms_available': data['rooms_available']
+        }))
+        y2 = np.log(data['bookings'] + 1)  # log transform
+        second_stage = sm.OLS(y2, X2).fit()
+        
+        price_elasticity = second_stage.params['price']
+        std_error = second_stage.bse['price']
+        
+        return price_elasticity, std_error
+        </section>
+
+        <section class="content-section" id="implementation">
+            <h2 class="section-title">Implementation Framework and Operational Integration</h2>
+            
+            <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                Translating analytical models into operational business value requires careful attention to organizational readiness, system integration, and change management. The implementation follows a phased approach that builds confidence through early wins while establishing the foundation for enterprise-scale deployment.
+            </p>
+
+            <h3 class="section-subtitle">Phase 1: Pilot Program Design</h3>
+            
+            <p>
+                The initial pilot encompasses five properties selected to represent diverse market conditions and operational profiles. Two urban hotels in major metropolitan areas with high business travel demand provide one test environment. Two resort properties with strong seasonal leisure patterns offer contrasting market dynamics. One airport hotel with unique day-of-week patterns and high guest turnover rounds out the pilot set. This selection strategy ensures that learnings from the pilot generalize across the portfolio rather than reflecting idiosyncratic conditions at a single property.
+            </p>
+
+            <p>
+                Pilot properties operate in parallel testing mode where both algorithmic recommendations and traditional manual pricing decisions are recorded. This design enables direct comparison of algorithmic versus human performance under identical market conditions. Revenue managers receive algorithmic recommendations through an intuitive dashboard interface but retain authority to override suggestions. This approach respects human expertise while collecting data on when and why revenue managers deviate from algorithmic guidance. These deviation patterns inform model improvements and reveal situations where human judgment provides value that algorithms have not yet captured.
+            </p>
+
+            <div class="process-flow">
+                <div class="process-step">
+                    <strong>Step 1: Data Integration</strong><br>
+                    Connect PMS, CRM, and external data feeds to analytics platform
+                </div>
+                <div class="process-arrow">→</div>
+                <div class="process-step">
+                    <strong>Step 2: Model Training</strong><br>
+                    Train forecasting and pricing models on historical data
+                </div>
+                <div class="process-arrow">→</div>
+                <div class="process-step">
+                    <strong>Step 3: Shadow Mode</strong><br>
+                    Generate recommendations without affecting actual pricing
+                </div>
+                <div class="process-arrow">→</div>
+                <div class="process-step">
+                    <strong>Step 4: Assisted Mode</strong><br>
+                    Surface recommendations to revenue managers for approval
+                </div>
+                <div class="process-arrow">→</div>
+                <div class="process-step">
+                    <strong>Step 5: Autonomous Mode</strong><br>
+                    Automated pricing with exception-based human review
+                </div>
+            </div>
+
+            <h3 class="section-subtitle">Technical Architecture and System Integration</h3>
+            
+            <p>
+                The revenue optimization platform integrates with existing hotel systems through standardized API connections. The property management system provides real-time inventory data, booking transactions, and guest profiles. The central reservation system streams booking activity from all distribution channels including direct website, online travel agencies, and global distribution systems. Rate shopping tools supply competitive pricing intelligence updated hourly. Event databases and economic data feeds augment internal transaction data with external market signals.
+            </p>
+
+            <div class="methodology-card">
+                <h4 style="margin-bottom: 1rem; color: #667eea;">Real-Time Decision Pipeline</h4>
+                <p>
+                    The pricing decision process executes every four hours, balancing computational efficiency with market responsiveness. The forecasting models generate demand predictions for all future dates in the booking horizon. Price elasticity estimates combine with demand forecasts to calculate revenue-maximizing price points for each room type and rate category. The reinforcement learning agent evaluates these analytical recommendations against learned policy, making final pricing decisions that account for both immediate revenue impact and long-term strategic positioning. Prices flow back to all distribution channels through channel manager APIs ensuring rate consistency across booking platforms.
+                </p>
+            </div>
+
+            <h3 class="section-subtitle">Organizational Change Management</h3>
+            
+            <p>
+                Revenue manager roles evolve from tactical price adjustment to strategic revenue optimization leadership. Rather than spending hours each day manually updating rates, revenue managers focus on exception management, competitive intelligence analysis, and special event planning. Training programs equip revenue managers to interpret model outputs, understand confidence intervals around forecasts, and recognize situations requiring human judgment. This role evolution requires careful communication to position algorithmic pricing as augmentation of human expertise rather than replacement of revenue management professionals.
+            </p>
+
+            <div class="alert-box-warning">
+                <strong>Critical Success Factor:</strong> Executive sponsorship and active stakeholder engagement prove essential for successful deployment. The Chief Revenue Officer holds bi-weekly review sessions with property general managers to discuss pilot performance, address concerns, and refine operational processes. This governance structure prevents the common failure mode where analytical projects languish due to lack of organizational buy-in.
+            </div>
+
+            <h3 class="section-subtitle">Model Monitoring and Continuous Improvement</h3>
+            
+            <p>
+                Forecasting accuracy and revenue performance are monitored continuously through an executive dashboard that tracks key performance indicators at property, regional, and portfolio levels. When forecast MAPE exceeds 12 percent for any property over a rolling fourteen-day window, automatic alerts trigger diagnostic analysis. Model performance degrades gradually as market conditions shift, requiring periodic retraining on recent data. The platform automates this retraining process, executing full model updates monthly and incremental updates weekly.
+            </p>
+
+            <p>
+                Beyond standard statistical metrics, the monitoring system tracks model calibration by comparing predicted probabilities with actual booking outcomes. Well-calibrated models exhibit accurate uncertainty quantification, with 90 percent prediction intervals containing actual outcomes approximately 90 percent of the time. Poor calibration indicates that models are over-confident or under-confident in their predictions, requiring recalibration or architectural modifications.
+            </p>
+        </section>
+
+        <section class="content-section" id="results">
+            <h2 class="section-title">Empirical Results and Business Impact</h2>
+            
+            <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                The pilot program exceeded performance targets across all key metrics. Revenue per available room increased 14.3 percent year-over-year at pilot properties compared to 3.1 percent at control properties, yielding an incremental lift of 11.2 percentage points attributable to algorithmic revenue management. This performance improvement translates to $2.8 million in incremental annual revenue across the five pilot properties.
+            </p>
+
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-label">RevPAR Lift</div>
+                    <div class="metric-value">+14.3%</div>
+                    <div class="metric-label">vs. +3.1% control properties</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Forecast MAPE</div>
+                    <div class="metric-value">8.4%</div>
+                    <div class="metric-label">from baseline 22%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Manual Price Changes</div>
+                    <div class="metric-value">-73%</div>
+                    <div class="metric-label">per property per day</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Customer Satisfaction</div>
+                    <div class="metric-value">+2.1pts</div>
+                    <div class="metric-label">NPS improvement</div>
+                </div>
+            </div>
+
+            <h3 class="section-subtitle">Forecast Accuracy Improvements</h3>
+            
+            <p>
+                Demand forecasting accuracy improved substantially across all prediction horizons. Same-day forecasts achieved MAPE of 3.2 percent compared to 8.5 percent with historical averaging methods. Seven-day ahead forecasts reached 6.8 percent MAPE versus 15.2 percent previously. The improvement is particularly pronounced during high-variance periods surrounding major events and holidays, precisely when accurate forecasting delivers greatest business value. Feature importance analysis reveals that booking pace features and competitive pricing signals contribute most to forecast accuracy, while traditional temporal features like day of week provide baseline seasonality adjustments.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Forecast Horizon</th>
+                        <th>Baseline MAPE</th>
+                        <th>ML Model MAPE</th>
+                        <th>Improvement</th>
+                        <th>Business Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Same Day</td>
+                        <td>8.5%</td>
+                        <td>3.2%</td>
+                        <td>62% reduction</td>
+                        <td>Reduced last-minute discounting</td>
+                    </tr>
+                    <tr>
+                        <td>7 Days</td>
+                        <td>15.2%</td>
+                        <td>6.8%</td>
+                        <td>55% reduction</td>
+                        <td>Improved tactical pricing</td>
+                    </tr>
+                    <tr>
+                        <td>30 Days</td>
+                        <td>19.8%</td>
+                        <td>9.1%</td>
+                        <td>54% reduction</td>
+                        <td>Better promotional planning</td>
+                    </tr>
+                    <tr>
+                        <td>90 Days</td>
+                        <td>25.3%</td>
+                        <td>11.7%</td>
+                        <td>54% reduction</td>
+                        <td>Strategic capacity allocation</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 class="section-subtitle">Pricing Optimization Performance</h3>
+            
+            <p>
+                The reinforcement learning pricing agent demonstrates superior performance compared to both rules-based systems and manual pricing across diverse market conditions. During high-demand periods when rooms are scarce, the agent confidently maintains premium pricing while dynamically adjusting to capture price-insensitive customers. During soft demand periods, strategic discounting attracts price-sensitive customers without unnecessary revenue dilution. The agent learned to avoid common human biases including anchoring on historical prices and insufficient willingness to raise rates during demand surges.
+            </p>
+
+            <p>
+                Segment-specific analysis reveals that pricing optimization delivers heterogeneous benefits. Corporate segment revenue increased 9.2 percent through better recognition of business travel patterns and reduced reliance on negotiated corporate rates during peak periods. Leisure segment revenue improved 16.8 percent by capturing willingness to pay during holiday periods and shoulder seasons. Group segment revenue remained statistically unchanged, suggesting that complex group negotiations require continued human involvement.
+            </p>
+
+            <div class="alert-box-success">
+                <strong>Key Finding:</strong> The reinforcement learning agent captured an additional 3.2 percentage points of revenue lift beyond what supervised learning forecasting and rules-based pricing achieved. This incremental gain demonstrates the value of learning pricing policies through market interaction rather than relying solely on historical patterns.
+            </div>
+
+            <h3 class="section-subtitle">Causal Analysis of Treatment Effects</h3>
+            
+            <p>
+                Difference-in-differences analysis comparing pilot properties to matched control properties confirms that revenue improvements result from algorithmic pricing rather than general market trends. The parallel trends assumption holds in the pre-intervention period with pilot and control properties exhibiting similar revenue trajectories. Post-intervention, pilot properties diverge significantly with sustained revenue outperformance. Placebo tests using alternative intervention dates show no spurious treatment effects, strengthening causal inference.
+            </p>
+
+            <p>
+                Price elasticity estimates reveal important segment differences that inform revenue strategy. Transient leisure customers exhibit elastic demand with estimated elasticity of negative 1.8, indicating that price increases reduce bookings proportionally more than revenue gains. Corporate customers show inelastic demand with elasticity of negative 0.6, suggesting pricing power in this segment. These elasticity estimates guide differential pricing strategies that optimize revenue across customer segments.
+            </p>
+
+            <h3 class="section-subtitle">Operational Efficiency Gains</h3>
+            
+            <p>
+                Beyond direct revenue impact, algorithmic pricing generated substantial operational efficiencies. Manual price changes decreased from 42 per day per property to 11 per day, representing a 73 percent reduction in tactical pricing workload. Revenue manager focus shifted from routine rate adjustments to strategic initiatives including group negotiation, marketing campaign design, and competitive analysis. This role evolution improved job satisfaction as revenue managers engaged with more intellectually rewarding work.
+            </p>
+
+            <p>
+                Customer satisfaction scores improved modestly but significantly during the pilot period. Net Promoter Score increased 2.1 points on a 100-point scale. Open-ended feedback suggested that more consistent pricing across booking channels reduced customer frustration with opaque pricing practices. Dynamic pricing implemented thoughtfully with attention to customer experience need not sacrifice satisfaction for revenue optimization.
+            </p>
+        </section>
+
+        <section class="content-section">
+            <h2 class="section-title">Interactive Demonstration: Revenue Optimization Simulator</h2>
+            
+            <p style="margin-bottom: 2rem;">
+                This interactive tool allows you to simulate revenue optimization decisions and observe how different pricing strategies affect hotel performance under varying demand conditions. Adjust the parameters below and click "Run Simulation" to see results.
+            </p>
+
+            <div class="interactive-demo">
+                <h3 style="margin-bottom: 2rem; color: #667eea;">Configure Simulation Parameters</h3>
+                
+                <div class="demo-controls">
+                    <div class="control-group">
+                        <label>Total Rooms Available</label>
+                        <input type="number" id="totalRooms" value="200" min="50" max="500">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Days Until Arrival</label>
+                        <input type="number" id="daysUntil" value="30" min="0" max="365">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Forecast Demand (rooms)</label>
+                        <input type="number" id="forecastDemand" value="180" min="0" max="500">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Current Occupancy Rate</label>
+                        <input type="number" id="occupancyRate" value="65" min="0" max="100">
+                        <small>Percentage</small>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Base Room Rate ($)</label>
+                        <input type="number" id="baseRate" value="150" min="50" max="500">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Competitor Average Rate ($)</label>
+                        <input type="number" id="compRate" value="155" min="50" max="500">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Pricing Strategy</label>
+                        <select id="pricingStrategy">
+                            <option value="ml">ML-Optimized</option>
+                            <option value="fixed">Fixed Pricing</option>
+                            <option value="occupancy">Occupancy-Based</option>
+                            <option value="competitive">Competitive Matching</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Market Segment</label>
+                        <select id="marketSegment">
+                            <option value="leisure">Leisure</option>
+                            <option value="corporate">Corporate</option>
+                            <option value="group">Group</option>
+                            <option value="mixed">Mixed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn" onclick="runSimulation()">Run Simulation</button>
+                </div>
+                
+                <div id="simulationResults" class="results-panel" style="display: none;">
+                    <h4 style="color: #667eea; margin-bottom: 1rem;">Simulation Results</h4>
+                    <div class="metric-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Recommended Price</div>
+                            <div class="metric-value" id="recPrice">$0</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Expected Bookings</div>
+                            <div class="metric-value" id="expBookings">0</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Projected Revenue</div>
+                            <div class="metric-value" id="projRevenue">$0</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">RevPAR</div>
+                            <div class="metric-value" id="revpar">$0</div>
+                        </div>
+                    </div>
+                    <div id="strategyExplanation" style="margin-top: 2rem; padding: 1.5rem; background: #f7fafc; border-radius: 8px;">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <script>
+        function runSimulation() {
+            // Get input values
+            const totalRooms = parseInt(document.getElementById('totalRooms').value);
+            const daysUntil = parseInt(document.getElementById('daysUntil').value);
+            const forecastDemand = parseInt(document.getElementById('forecastDemand').value);
+            const occupancyRate = parseFloat(document.getElementById('occupancyRate').value) / 100;
+            const baseRate = parseFloat(document.getElementById('baseRate').value);
+            const compRate = parseFloat(document.getElementById('compRate').value);
+            const strategy = document.getElementById('pricingStrategy').value;
+            const segment = document.getElementById('marketSegment').value);
+            
+            // Calculate segment-specific price elasticity
+            let elasticity;
+            switch(segment) {
+                case 'leisure': elasticity = -1.8; break;
+                case 'corporate': elasticity = -0.6; break;
+                case 'group': elasticity = -1.2; break;
+                case 'mixed': elasticity = -1.3; break;
+            }
+            
+            // Calculate price based on strategy
+            let recommendedPrice;
+            let explanation;
+            
+            switch(strategy) {
+                case 'ml':
+                    // ML-optimized pricing using demand-based multiplier
+                    const demandRatio = forecastDemand / totalRooms;
+                    const competitiveIndex = baseRate / compRate;
+                    const urgencyFactor = 1 + (90 - Math.min(daysUntil, 90)) / 180;
+                    
+                    let multiplier;
+                    if (demandRatio > 0.95) {
+                        multiplier = 1.35 * urgencyFactor;
+                        explanation = "High demand scenario detected. ML model recommends premium pricing strategy with urgency factor based on booking window. Expected to capture willingness to pay while maintaining competitive positioning.";
+                    } else if (demandRatio > 0.80) {
+                        multiplier = 1.15 * urgencyFactor;
+                        explanation = "Strong demand conditions. ML model suggests moderate price increase to maximize revenue while maintaining healthy booking pace. Balancing immediate revenue with future booking opportunities.";
+                    } else if (demandRatio > 0.60) {
+                        multiplier = 1.00 * (competitiveIndex > 1 ? 0.95 : 1.05);
+                        explanation = "Moderate demand environment. ML model recommends competitive positioning adjustments based on market rates. Strategy focuses on market share capture while protecting average daily rate.";
+                    } else {
+                        multiplier = 0.85;
+                        explanation = "Soft demand detected. ML model suggests strategic discounting to stimulate bookings and improve occupancy. Price reduction calculated to maximize total revenue given current demand forecast.";
+                    }
+                    
+                    recommendedPrice = baseRate * multiplier;
+                    break;
+                    
+                case 'fixed':
+                    recommendedPrice = baseRate;
+                    explanation = "Fixed pricing strategy maintains base rate regardless of demand conditions. Simple to implement but misses revenue optimization opportunities during high demand and may leave rooms unsold during soft periods.";
+                    break;
+                    
+                case 'occupancy':
+                    recommendedPrice = baseRate * (occupancyRate > 0.75 ? 1.2 : 0.9);
+                    explanation = "Occupancy-based pricing adjusts rates based on current booking levels. Increases prices when occupancy exceeds 75% and reduces prices when below. Simple heuristic but may respond too slowly to changing market conditions.";
+                    break;
+                    
+                case 'competitive':
+                    recommendedPrice = compRate * 0.98;
+                    explanation = "Competitive matching strategy prices slightly below market average to capture price-sensitive customers. May sacrifice revenue during high demand periods and engage in destructive price competition during soft demand.";
+                    break;
+            }
+            
+            // Calculate expected outcomes using price elasticity
+            const priceChange = (recommendedPrice - baseRate) / baseRate;
+            const demandChange = elasticity * priceChange;
+            const adjustedDemand = forecastDemand * (1 + demandChange);
+            const expectedBookings = Math.min(Math.max(0, adjustedDemand), totalRooms);
+            const projectedRevenue = expectedBookings * recommendedPrice;
+            const revpar = projectedRevenue / totalRooms;
+            
+            // Display results
+            document.getElementById('recPrice').textContent = '$' + recommendedPrice.toFixed(2);
+            document.getElementById('expBookings').textContent = expectedBookings.toFixed(1);
+            document.getElementById('projRevenue').textContent = '$' + projectedRevenue.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            document.getElementById('revpar').textContent = '$' + revpar.toFixed(2);
+            document.getElementById('strategyExplanation').innerHTML = '<strong>Strategy Analysis:</strong><br><br>' + explanation;
+            
+            document.getElementById('simulationResults').style.display = 'block';
+            document.getElementById('simulationResults').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        </script>
+
+        <section class="content-section">
+            <h2 class="section-title">Critical Analysis and Limitations</h2>
+            
+            <p>
+                Despite strong empirical results, several limitations warrant careful consideration when interpreting findings and planning broader deployment. The six-month pilot duration, while sufficient to demonstrate proof of concept, cannot capture full seasonal cycles or rare market disruptions. Longer-term performance monitoring is essential to confirm sustained benefits and identify any gradual model degradation as market conditions evolve.
+            </p>
+
+            <p>
+                The five pilot properties represent a small fraction of the fifty-property portfolio. Selection effects may influence results if pilot properties possess unobserved characteristics that make them particularly amenable to algorithmic pricing. The properties were chosen for operational readiness and data quality rather than random selection, potentially limiting generalizability. Phased rollout to additional properties with rigorous impact evaluation will provide stronger evidence of portfolio-wide benefits.
+            </p>
+
+            <h3 class="section-subtitle">Model Assumptions and External Validity</h3>
+            
+            <p>
+                The reinforcement learning framework assumes that pricing decisions influence booking behavior independently across properties. In reality, customers often comparison shop across multiple hotels in a market. If many properties simultaneously deploy similar algorithmic pricing systems, strategic interaction effects may emerge that current models do not account for. Game theoretic extensions incorporating competitive response modeling represent important future research directions.
+            </p>
+            
+            <p>
+                Price elasticity estimates rely on quasi-experimental variation in historical data. These estimates reflect market conditions during the estimation period and may not generalize to dramatically different demand environments such as major economic recessions or global disruptions like pandemics. Adaptive learning systems that continuously update elasticity estimates as new data accrues provide robustness against structural changes in customer behavior.
+            </p>
+
+            <div class="alert-box-warning">
+                <strong>Boundary Condition:</strong> The reinforcement learning agent learned effective policies through extensive simulation before real-world deployment. Properties lacking sufficient historical data for reliable simulation may require longer shadow mode periods or transfer learning from similar properties to avoid costly exploration errors.
+            </div>
+
+            <h3 class="section-subtitle">Ethical Considerations and Fairness</h3>
+            
+            <p>
+                Dynamic pricing algorithms raise questions about fairness and potential discrimination. While the system does not use protected characteristics such as race or gender in pricing decisions, correlations between observable features and protected attributes could result in disparate impact. Regular fairness audits examining whether pricing patterns disadvantage specific demographic groups provide important safeguards. Transparency about the use of algorithmic pricing helps maintain customer trust and regulatory compliance.
+            </p>
+
+            <h3 class="section-subtitle">Future Research Directions</h3>
+            
+            <p>
+                Several extensions would enhance the revenue optimization framework. Incorporating ancillary revenue predictions would enable total profit optimization rather than room revenue maximization in isolation. Guests booking at discounted rates often spend more on food, beverage, and amenities, potentially yielding higher lifetime value than guests paying premium room rates. Multi-objective optimization balancing short-term revenue with long-term customer relationship value represents an important advancement.
+            </p>
+            
+            <p>
+                Deep reinforcement learning architectures using neural networks may capture complex nonlinear relationships that simpler methods miss. However, these methods require substantial computational resources and careful hyperparameter tuning. Investigation of model-based RL approaches that learn explicit models of customer behavior could improve sample efficiency and enable better counterfactual reasoning about alternative pricing strategies.
+            </p>
+        </section>
+
+        <section class="content-section">
+            <h2 class="section-title">Strategic Recommendations and Implementation Roadmap</h2>
+            
+            <p>
+                Based on pilot results and analysis, the hotel group should proceed with phased portfolio-wide deployment of algorithmic revenue management over an 18-month timeline. The deployment prioritizes properties with strong operational readiness and data infrastructure while building organizational capabilities to support the technology platform.
+            </p>
+
+            <h3 class="section-subtitle">Phase 1: Expansion (Months 1-6)</h3>
+            <p>
+                Deploy to an additional fifteen properties across diverse market segments. Prioritize properties where revenue managers demonstrated engagement with the pilot and expressed enthusiasm for analytical decision support. Maintain rigorous impact evaluation comparing treatment properties to matched controls. Refine organizational change management processes based on pilot learnings. Invest in revenue manager training focused on model interpretation and strategic revenue leadership.
+            </p>
+
+            <h3 class="section-subtitle">Phase 2: Portfolio Rollout (Months 7-14)</h3>
+            <p>
+                Extend deployment to the remaining thirty properties with strong data foundations. Properties with data quality issues or legacy system constraints receive infrastructure investments before algorithm deployment. Establish centers of excellence where high-performing revenue managers support peers in adopting best practices. Develop executive dashboards enabling regional directors and corporate leadership to monitor performance and identify optimization opportunities.
+            </p>
+
+            <h3 class="section-subtitle">Phase 3: Continuous Innovation (Months 15-18 and ongoing)</h3>
+            <p>
+                Implement advanced features including ancillary revenue optimization, long-term customer value modeling, and multi-property coordination. Establish ongoing model performance monitoring and retraining processes ensuring sustained value delivery as market conditions evolve. Create feedback loops where revenue manager insights inform model improvements, fostering collaborative human-AI partnership rather than viewing automation as replacement of human expertise.
+            </p>
+
+            <div class="alert-box-success">
+                <strong>Success Metric:</strong> Portfolio-wide RevPAR improvement of 10-12 percent translating to $15-18 million in incremental annual revenue justifies technology investment and positions the hotel group as an industry leader in revenue science. Sustained performance improvement requires ongoing investment in data infrastructure, analytical talent, and organizational capabilities.
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2 class="section-title">Discussion Questions for Analysis</h2>
+            
+            <div class="methodology-card">
+                <h4 style="margin-bottom: 1rem;">Strategic Analysis</h4>
+                <p style="margin-bottom: 0.5rem;">1. How would you prioritize the tension between maximizing short-term revenue and building long-term customer relationships? What metrics would you propose to balance these objectives?</p>
+                <p style="margin-bottom: 0.5rem;">2. The reinforcement learning agent learned to avoid common human biases. What mechanisms could you implement to detect when the agent develops its own systematic biases that harm long-term performance?</p>
+                <p style="margin-bottom: 0.5rem;">3. How should the hotel group respond if competitors deploy similar algorithmic pricing systems, potentially leading to algorithmic price wars?</p>
+            </div>
+
+            <div class="methodology-card">
+                <h4 style="margin-bottom: 1rem;">Technical Implementation</h4>
+                <p style="margin-bottom: 0.5rem;">4. What additional data sources would strengthen demand forecasting accuracy? Discuss the trade-offs between model complexity and interpretability.</p>
+                <p style="margin-bottom: 0.5rem;">5. The case uses XGBoost for forecasting and deep Q-learning for pricing. What alternative modeling approaches might you evaluate? What criteria would guide your model selection?</p>
+                <p style="margin-bottom: 0.5rem;">6. How would you design A/B testing to continuously validate that algorithmic pricing outperforms manual pricing as market conditions change?</p>
+            </div>
+
+            <div class="methodology-card">
+                <h4 style="margin-bottom: 1rem;">Organizational Change</h4>
+                <p style="margin-bottom: 0.5rem;">7. Revenue managers expressed concern that algorithmic pricing might eliminate their roles. How would you address these concerns while building support for analytical decision-making?</p>
+                <p style="margin-bottom: 0.5rem;">8. What key performance indicators would you establish to monitor whether algorithmic pricing maintains or improves customer satisfaction alongside revenue gains?</p>
+                <p style="margin-bottom: 0.5rem;">9. How should the organization balance the desire for autonomous algorithmic pricing with the need for human oversight and intervention capability?</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2 class="section-title">References and Further Reading</h2>
+            
+            <p style="margin-bottom: 1rem;"><strong>Academic Research</strong></p>
+            <p style="margin-left: 2rem; margin-bottom: 0.5rem;">Anderson, C. K., & Xie, X. (2010). Improving hospitality industry sales: Twenty-five years of revenue management. <em>Cornell Hospitality Quarterly, 51</em>(1), 53-67.</p>
+            <p style="margin-left: 2rem; margin-bottom: 0.5rem;">Bertsimas, D., & Popescu, I. (2003). Revenue management in a dynamic network environment. <em>Transportation Science, 37</em>(3), 257-277.</p>
+            <p style="margin-left: 2rem; margin-bottom: 1.5rem;">Chen, C. C., & Schwartz, Z. (2008). The importance of information asymmetry in customers' booking decisions: A cautionary tale from the internet. <em>Cornell Hospitality Quarterly, 49</em>(3), 272-281.</p>
+            
+            <p style="margin-bottom: 1rem;"><strong>Machine Learning Foundations</strong></p>
+            <p style="margin-left: 2rem; margin-bottom: 0.5rem;">Chen, T., & Guestrin, C. (2016). XGBoost: A scalable tree boosting system. <em>Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</em>, 785-794.</p>
+            <p style="margin-left: 2rem; margin-bottom: 1.5rem;">Sutton, R. S., & Barto, A. G. (2018). <em>Reinforcement learning: An introduction</em> (2nd ed.). MIT Press.</p>
+            
+            <p style="margin-bottom: 1rem;"><strong>Industry Applications</strong></p>
+            <p style="margin-left: 2rem; margin-bottom: 0.5rem;">Talluri, K. T., & Van Ryzin, G. J. (2004). <em>The theory and practice of revenue management</em>. Springer.</p>
+            <p style="margin-left: 2rem; margin-bottom: 0.5rem;">Vinod, B. (2021). Artificial intelligence and machine learning in revenue management: The technological evolution. <em>Journal of Revenue and Pricing Management, 20</em>(1), 40-46.</p>
+        </section>
+    </div>
+
+    <footer style="background: #2d3748; color: white; padding: 3rem 2rem; text-align: center;">
+        <div class="container">
+            <p style="margin-bottom: 1rem; font-size: 1.1rem;">Hospitality Revenue Optimization Case Study</p>
+            <p style="opacity: 0.8;">Comprehensive ML/RL/AI Framework for Hotel Operations Management</p>
+            <p style="margin-top: 2rem;"><a href="../../index.html" style="color: #90cdf4; text-decoration: none;">← Back to Course Home</a></p>
+        </div>
+    </footer>
+
+</body>
+</html>

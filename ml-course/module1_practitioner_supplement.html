@@ -1,0 +1,473 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Module 1 Supplement: The Practitioner's Journey - Critical Decisions in ML | Chenhao Zhou</title>
+<style>
+body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 950px; margin: auto; padding: 2rem; line-height: 1.6; }
+nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; }
+nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; }
+h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+.card { background: #fff; padding: 1.2em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+
+/* Practitioner Framework */
+.practitioner-insight { background: linear-gradient(135deg, #f0f8ff 0%, #fff 100%); border-left: 5px solid #0366d6; padding: 1.5em; margin: 2em 0; border-radius: 8px; position: relative; }
+.practitioner-insight::before { content: "🎯 Practitioner Insight"; position: absolute; top: -10px; left: 20px; background: white; padding: 0 10px; color: #0366d6; font-weight: bold; font-size: 0.9em; }
+.decision-tree { background: white; border: 2px solid #e1e4e8; border-radius: 10px; padding: 2em; margin: 2em 0; }
+.decision-node { background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 1em; margin: 1em 0; cursor: pointer; transition: all 0.3s ease; }
+.decision-node:hover { border-color: #0366d6; transform: translateX(5px); }
+.decision-consequence { display: none; background: #fff3cd; border-left: 4px solid #ffc107; padding: 1em; margin: 1em 0 1em 2em; border-radius: 5px; }
+.decision-consequence.show { display: block; animation: slideIn 0.5s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+
+/* Butterfly Effect Visualization */
+.butterfly-container { position: relative; padding: 2em; margin: 2em 0; background: linear-gradient(135deg, #f8f9fa 0%, white 100%); border-radius: 12px; }
+.initial-choice { display: inline-block; padding: 0.5em 1em; margin: 0.5em; background: white; border: 2px solid #e1e4e8; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; }
+.initial-choice:hover { border-color: #0366d6; }
+.initial-choice.selected { background: #e7f3ff; border-color: #0366d6; font-weight: bold; }
+.cascade-effect { margin-top: 2em; padding: 1em; background: white; border-radius: 8px; display: none; }
+.cascade-effect.show { display: block; }
+.cascade-level { padding: 0.8em; margin: 0.5em 0; border-left: 3px solid #e1e4e8; background: #f8f9fa; border-radius: 5px; }
+.cascade-level-1 { border-color: #28a745; margin-left: 1em; }
+.cascade-level-2 { border-color: #ffc107; margin-left: 2em; }
+.cascade-level-3 { border-color: #dc3545; margin-left: 3em; }
+
+/* Real-World Checkpoints */
+.checkpoint { background: linear-gradient(135deg, #28a74510 0%, #20c99710 100%); border: 2px solid #28a745; border-radius: 10px; padding: 1.5em; margin: 2em 0; }
+.checkpoint-question { font-weight: bold; color: #003366; margin-bottom: 1em; }
+.checkpoint-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }
+.checkpoint-option { padding: 1em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+.checkpoint-option:hover { border-color: #0366d6; }
+.reality-feedback { display: none; margin-top: 1em; padding: 1em; background: white; border-radius: 8px; }
+.reality-feedback.show { display: block; }
+
+/* Critical Thinking Framework */
+.thinking-pattern { background: #fff; border: 2px solid #0366d6; border-radius: 10px; padding: 1.5em; margin: 2em 0; position: relative; }
+.thinking-pattern::before { content: "💭 Critical Thinking Pattern"; position: absolute; top: -12px; left: 20px; background: white; padding: 0 10px; color: #0366d6; font-weight: bold; }
+.thought-process { display: flex; align-items: center; margin: 1em 0; }
+.thought-step { flex: 1; padding: 1em; background: #f8f9fa; border-radius: 8px; margin: 0 0.5em; text-align: center; }
+.thought-arrow { color: #0366d6; font-size: 1.5em; }
+
+/* Overfitting Journey */
+.overfitting-timeline { position: relative; padding: 2em 0; margin: 2em 0; }
+.timeline-track { position: absolute; top: 50%; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #28a745 0%, #ffc107 40%, #dc3545 100%); }
+.timeline-marker { position: absolute; width: 30px; height: 30px; background: white; border: 3px solid #e1e4e8; border-radius: 50%; top: 50%; transform: translate(-50%, -50%); cursor: pointer; transition: all 0.3s ease; }
+.timeline-marker:hover { transform: translate(-50%, -50%) scale(1.2); }
+.timeline-marker.active { background: #0366d6; border-color: #0366d6; }
+.marker-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 0.5em 1em; border-radius: 5px; white-space: nowrap; display: none; }
+.timeline-marker:hover .marker-tooltip { display: block; }
+</style>
+</head><body>
+
+<h1>🔬 Module 1 Supplement: The Practitioner's Journey</h1>
+<h2 style="color: #666; font-size: 1.2em;">Understanding How Small Decisions Cascade into Major Consequences</h2>
+<nav><a href="class-material.html">← Original Class</a><a href="lab-manual.html">Lab Manual</a><a href="class-notes.html">Theory</a></nav>
+
+<div class="card">
+<h2>The Butterfly Effect in Machine Learning</h2>
+<p>As practitioners, we face countless small decisions that seem insignificant in isolation but cascade into major consequences. This supplement demonstrates how early choices in your ML pipeline can fundamentally alter your model's success or failure, particularly regarding overfitting. We will trace the journey of two data scientists working on the same problem, making slightly different initial choices that lead to vastly different outcomes.</p>
+</div>
+
+<!-- SECTION 1: Initial Decision Point -->
+<div class="practitioner-insight">
+<h3>The First Critical Decision: How You Split Your Data</h3>
+<p>You receive a dataset with 1000 customer records. This is your first decision point, and it will affect everything that follows.</p>
+
+<div class="butterfly-container">
+<h4>Choose Your Initial Approach:</h4>
+<div style="display: flex; gap: 1em; flex-wrap: wrap;">
+<div class="initial-choice" onclick="selectChoice('standard', this)">
+<strong>Standard Split</strong><br>
+80/20 random split
+</div>
+<div class="initial-choice" onclick="selectChoice('timebased', this)">
+<strong>Time-Based Split</strong><br>
+Last 20% by date
+</div>
+<div class="initial-choice" onclick="selectChoice('novice', this)">
+<strong>Novice Mistake</strong><br>
+90/10 split (more training!)
+</div>
+<div class="initial-choice" onclick="selectChoice('stratified', this)">
+<strong>Stratified Split</strong><br>
+Maintain class balance
+</div>
+</div>
+
+<div id="cascade-standard" class="cascade-effect">
+<h4>Cascade Effects of Standard Random Split:</h4>
+<div class="cascade-level cascade-level-1">
+<strong>Immediate (Day 1):</strong> Model trains well, test performance looks good. R² = 0.85
+</div>
+<div class="cascade-level cascade-level-2">
+<strong>Downstream (Week 1):</strong> Realize customer segments aren't equally represented in test set. High-value customers underrepresented.
+</div>
+<div class="cascade-level cascade-level-3">
+<strong>Production (Month 1):</strong> Model fails on high-value customers. Loss: $2.3M in misallocated inventory.
+</div>
+<p style="margin-top: 1em;"><strong>Lesson:</strong> Random splitting assumes your data is uniformly distributed - rarely true in business contexts.</p>
+</div>
+
+<div id="cascade-timebased" class="cascade-effect">
+<h4>Cascade Effects of Time-Based Split:</h4>
+<div class="cascade-level cascade-level-1">
+<strong>Immediate (Day 1):</strong> Test performance slightly lower. R² = 0.78 (concerning but realistic)
+</div>
+<div class="cascade-level cascade-level-2">
+<strong>Downstream (Week 1):</strong> Discover temporal patterns - customer behavior evolving. Model adapts well to trends.
+</div>
+<div class="cascade-level cascade-level-3">
+<strong>Production (Month 1):</strong> Model performs exactly as tested. Saves $1.8M through accurate forward-looking predictions.
+</div>
+<p style="margin-top: 1em;"><strong>Lesson:</strong> Time-based splits reveal whether your model can predict the future, not just interpolate the past.</p>
+</div>
+
+<div id="cascade-novice" class="cascade-effect">
+<h4>Cascade Effects of 90/10 Split:</h4>
+<div class="cascade-level cascade-level-1">
+<strong>Immediate (Day 1):</strong> Training performance excellent! R² = 0.92 (suspiciously high)
+</div>
+<div class="cascade-level cascade-level-2">
+<strong>Downstream (Week 1):</strong> Test set too small for reliable validation. Confidence intervals massive. Can't detect overfitting.
+</div>
+<div class="cascade-level cascade-level-3">
+<strong>Production (Month 1):</strong> Catastrophic overfitting revealed. Model memorized training data. Loss: $4.1M
+</div>
+<p style="margin-top: 1em;"><strong>Lesson:</strong> More training data isn't always better. You need sufficient test data to detect problems.</p>
+</div>
+
+<div id="cascade-stratified" class="cascade-effect">
+<h4>Cascade Effects of Stratified Split:</h4>
+<div class="cascade-level cascade-level-1">
+<strong>Immediate (Day 1):</strong> Consistent performance across segments. R² = 0.82
+</div>
+<div class="cascade-level cascade-level-2">
+<strong>Downstream (Week 1):</strong> All customer segments well-represented. Edge cases properly validated.
+</div>
+<div class="cascade-level cascade-level-3">
+<strong>Production (Month 1):</strong> Uniform performance across all customer types. Optimal inventory allocation. Saves $2.5M
+</div>
+<p style="margin-top: 1em;"><strong>Lesson:</strong> Stratification ensures your model works for all important subgroups, not just the majority.</p>
+</div>
+</div>
+</div>
+
+<!-- SECTION 2: Feature Scaling Decision -->
+<div class="decision-tree">
+<h3>Decision Point 2: Feature Scaling Strategy</h3>
+<p>Your features have different scales: income ($0-$500,000), age (18-80), purchase_count (0-50). How do you handle this?</p>
+
+<div class="thinking-pattern">
+<div class="thought-process">
+<div class="thought-step">Question:<br>"Do scales matter?"</div>
+<div class="thought-arrow">→</div>
+<div class="thought-step">Consider:<br>"Using regularization?"</div>
+<div class="thought-arrow">→</div>
+<div class="thought-step">Realize:<br>"Coefficients affected!"</div>
+<div class="thought-arrow">→</div>
+<div class="thought-step">Decision:<br>"Must standardize"</div>
+</div>
+</div>
+
+<div class="decision-node" onclick="showConsequence('no-scale')">
+<strong>Option A:</strong> Don't scale (features are meaningful as-is)
+</div>
+<div id="no-scale" class="decision-consequence">
+<strong>6 Hours Later:</strong> Ridge regression penalizes income coefficient 6,250x more than age. Model ignores income completely.<br>
+<strong>2 Days Later:</strong> Discover model only uses small-scale features. Complete feature imbalance.<br>
+<strong>Cost:</strong> Rebuild entire pipeline. 3 days lost. Model performance degraded by 23%.
+</div>
+
+<div class="decision-node" onclick="showConsequence('standard-scale')">
+<strong>Option B:</strong> StandardScaler (z-score normalization)
+</div>
+<div id="standard-scale" class="decision-consequence">
+<strong>6 Hours Later:</strong> All features contribute equally to regularization. Model stable.<br>
+<strong>2 Days Later:</strong> Consistent performance. Regularization works as intended.<br>
+<strong>Benefit:</strong> Saved 3 days. Model performs optimally. Can tune regularization effectively.
+</div>
+
+<div class="decision-node" onclick="showConsequence('wrong-scale')">
+<strong>Option C:</strong> MinMaxScaler (0-1 normalization)
+</div>
+<div id="wrong-scale" class="decision-consequence">
+<strong>6 Hours Later:</strong> Works initially, but outliers compress most data to narrow range.<br>
+<strong>2 Days Later:</strong> New customer with income=$600K breaks scaler. Predictions nonsensical.<br>
+<strong>Cost:</strong> Production failure. Emergency fix required. Customer trust damaged.
+</div>
+</div>
+
+<!-- SECTION 3: The Overfitting Journey -->
+<div class="checkpoint">
+<h3>Critical Checkpoint: Detecting Overfitting Early</h3>
+<p class="checkpoint-question">Your model shows Training R² = 0.95, Test R² = 0.75. What's your immediate response?</p>
+
+<div class="checkpoint-options">
+<div class="checkpoint-option" onclick="checkResponse('celebrate', this)">
+<strong>Celebrate!</strong><br>
+"0.95 training score is fantastic! Ship it!"
+</div>
+<div class="checkpoint-option" onclick="checkResponse('investigate', this)">
+<strong>Investigate</strong><br>
+"20% gap is concerning. Let me diagnose."
+</div>
+<div class="checkpoint-option" onclick="checkResponse('more-data', this)">
+<strong>Get More Data</strong><br>
+"Need more training samples!"
+</div>
+<div class="checkpoint-option" onclick="checkResponse('regularize', this)">
+<strong>Add Regularization</strong><br>
+"Model is too complex. Constrain it."
+</div>
+</div>
+
+<div id="feedback-celebrate" class="reality-feedback">
+<strong style="color: #dc3545;">❌ Dangerous Thinking!</strong><br>
+You're celebrating overfitting! This 20% gap means your model memorized training data rather than learning patterns. In production, expect Test R² performance or worse. You'll lose credibility when the model fails to deliver promised results.<br>
+<strong>What you missed:</strong> Training performance is meaningless without validation. Always focus on test metrics.
+</div>
+
+<div id="feedback-investigate" class="reality-feedback">
+<strong style="color: #28a745;">✅ Correct Practitioner Response!</strong><br>
+Excellent instinct. A 20% performance gap signals overfitting. Your next steps: (1) Plot learning curves, (2) Check feature importance for suspicious patterns, (3) Examine residuals for systematic errors, (4) Consider regularization or simpler models.<br>
+<strong>Why this works:</strong> Diagnosis before treatment. Understanding the problem guides the solution.
+</div>
+
+<div id="feedback-more-data" class="reality-feedback">
+<strong style="color: #ffc107;">⚠️ Partially Correct</strong><br>
+More data can help, but it's not always the solution. If your model is too complex, more data might just allow it to memorize more examples. First, try regularization or feature selection. Only pursue more data if learning curves show high bias.<br>
+<strong>Key insight:</strong> More data helps with high bias, not high variance (overfitting).
+</div>
+
+<div id="feedback-regularize" class="reality-feedback">
+<strong style="color: #28a745;">✅ Good Instinct!</strong><br>
+Regularization directly addresses overfitting by constraining model complexity. Start with Ridge (L2) for stability, try Lasso (L1) for feature selection. Use cross-validation to find optimal alpha. This is often the fastest fix for overfitting.<br>
+<strong>Pro tip:</strong> Start with strong regularization and gradually reduce until test performance peaks.
+</div>
+</div>
+
+<!-- SECTION 4: The Overfitting Timeline -->
+<div class="card">
+<h3>The Overfitting Timeline: How It Develops</h3>
+<div class="overfitting-timeline">
+<div class="timeline-track"></div>
+<div class="timeline-marker" style="left: 10%;" onclick="showTimelinePoint(1, this)">
+<div class="marker-tooltip">Initial Model: R² = 0.70</div>
+</div>
+<div class="timeline-marker" style="left: 30%;" onclick="showTimelinePoint(2, this)">
+<div class="marker-tooltip">Add Features: R² = 0.85</div>
+</div>
+<div class="timeline-marker" style="left: 50%;" onclick="showTimelinePoint(3, this)">
+<div class="marker-tooltip">Polynomial Features: R² = 0.92</div>
+</div>
+<div class="timeline-marker" style="left: 70%;" onclick="showTimelinePoint(4, this)">
+<div class="marker-tooltip">Complex Interactions: R² = 0.97</div>
+</div>
+<div class="timeline-marker" style="left: 90%;" onclick="showTimelinePoint(5, this)">
+<div class="marker-tooltip">Production Failure: R² = 0.45</div>
+</div>
+</div>
+
+<div id="timeline-details" style="margin-top: 4em; padding: 1.5em; background: #f8f9fa; border-radius: 8px; min-height: 150px;">
+<p style="color: #666;">Click on timeline points to see how overfitting develops...</p>
+</div>
+</div>
+
+<!-- SECTION 5: Practitioner's Decision Framework -->
+<div class="practitioner-insight">
+<h3>The Practitioner's Decision Framework</h3>
+<p>After years of experience, successful ML practitioners develop a systematic approach to avoid cascading failures:</p>
+
+<div class="thinking-pattern">
+<h4>For Every Decision, Ask These Questions:</h4>
+<ol style="line-height: 2;">
+<li><strong>Reversibility:</strong> Can I easily undo this decision if it's wrong?</li>
+<li><strong>Cascade Potential:</strong> What downstream decisions does this lock in?</li>
+<li><strong>Validation Method:</strong> How will I know if this decision was correct?</li>
+<li><strong>Production Reality:</strong> Will this assumption hold when deployed?</li>
+<li><strong>Failure Mode:</strong> What's the worst-case scenario if I'm wrong?</li>
+</ol>
+</div>
+
+<h4>Applied Example: Choosing Model Complexity</h4>
+<div style="background: white; padding: 1.5em; border-radius: 8px; margin-top: 1em;">
+<p><strong>Decision:</strong> Linear regression vs polynomial features vs neural network</p>
+<ol style="margin-top: 1em; line-height: 1.8;">
+<li><strong>Reversibility:</strong> ✅ High - can always simplify model</li>
+<li><strong>Cascade:</strong> ⚠️ Medium - affects feature engineering, regularization needs</li>
+<li><strong>Validation:</strong> ✅ Clear - compare test performance across complexities</li>
+<li><strong>Production:</strong> ❌ Risk - complex models harder to maintain and explain</li>
+<li><strong>Failure Mode:</strong> ⚠️ Overfitting leads to poor predictions, lost revenue</li>
+</ol>
+<p style="margin-top: 1em; padding: 1em; background: #e7f3ff; border-radius: 5px;">
+<strong>Framework Result:</strong> Start with linear regression. Only add complexity if validation metrics improve significantly (>5%) and you can explain why additional complexity is needed.
+</p>
+</div>
+</div>
+
+<!-- SECTION 6: Real Production Stories -->
+<div class="card" style="background: linear-gradient(135deg, #fff3cd 0%, #fff 100%);">
+<h3>🚨 Real Production Failures From Small Decisions</h3>
+
+<h4>Case 1: The $8M Feature Scaling Disaster</h4>
+<p>A financial services company built a credit scoring model. A junior data scientist forgot to scale features before applying Lasso regularization. Income (range: $0-500k) dominated; all other features were zeroed out. The model essentially became: "High income = Good credit."</p>
+<p><strong>Discovery:</strong> Only found when low-income customers with perfect payment histories were denied credit.</p>
+<p><strong>Impact:</strong> $8M in regulatory fines, 6-month audit, reputation damage.</p>
+<p><strong>Lesson:</strong> Always visualize feature importance. If one feature dominates, investigate why.</p>
+
+<h4>Case 2: The Time-Based Split That Saved $3M</h4>
+<p>An e-commerce company initially used random train-test split for demand forecasting. A senior practitioner insisted on time-based splitting. The random split showed 92% accuracy; time-based showed 73%.</p>
+<p><strong>Investigation:</strong> Model was learning customer IDs, not patterns. Random split had same customers in train/test.</p>
+<p><strong>Impact:</strong> Avoided $3M in excess inventory by discovering issue before production.</p>
+<p><strong>Lesson:</strong> Test splits should mirror production reality. Future is unknown; test accordingly.</p>
+
+<h4>Case 3: The Overfitting That Looked Like Success</h4>
+<p>A retail chain achieved 96% accuracy predicting store sales using 200 features. Everyone celebrated. In production: 61% accuracy.</p>
+<p><strong>Root Cause:</strong> With only 150 stores and 200 features, model memorized store-specific patterns.</p>
+<p><strong>Impact:</strong> $5M in misallocated inventory, 3 stores closed due to stockouts.</p>
+<p><strong>Lesson:</strong> When features > samples/10, expect overfitting. Regularize aggressively.</p>
+</div>
+
+<!-- SECTION 7: End-of-Module Synthesis -->
+<div class="checkpoint" style="background: linear-gradient(135deg, #28a74520 0%, #20c99720 100%); border-color: #28a745;">
+<h3>🎓 Module 1 Synthesis: Your Practitioner's Checklist</h3>
+<p>Before moving to Module 2, ensure you internalize these critical patterns that will guide your entire ML journey:</p>
+
+<h4>The 10 Commandments of ML Practitioners</h4>
+<ol style="line-height: 2; margin: 1em 0;">
+<li><strong>Split Thoughtfully:</strong> Your train-test split strategy affects everything downstream</li>
+<li><strong>Scale Religiously:</strong> Unscaled features with regularization is a recipe for disaster</li>
+<li><strong>Validate Obsessively:</strong> Training metrics lie; only test metrics reveal truth</li>
+<li><strong>Start Simple:</strong> Linear regression isn't sexy but it's interpretable and robust</li>
+<li><strong>Complexity Costs:</strong> Every parameter added is a potential overfitting opportunity</li>
+<li><strong>Regularize Proactively:</strong> Better to underfit slightly than overfit severely</li>
+<li><strong>Question Assumptions:</strong> "Is my test set really representative of production?"</li>
+<li><strong>Document Decisions:</strong> Future you will thank current you for explaining choices</li>
+<li><strong>Monitor Degradation:</strong> Models decay; performance in production always degrades</li>
+<li><strong>Think Business Impact:</strong> A 1% improvement saving $1M beats 10% on irrelevant metrics</li>
+</ol>
+
+<h4>Your Overfitting Prevention Toolkit</h4>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin: 1.5em 0;">
+<div style="background: white; padding: 1em; border-radius: 8px;">
+<strong>Early Detection:</strong>
+<ul style="margin-top: 0.5em;">
+<li>Learning curves diverging</li>
+<li>Train-test gap > 10%</li>
+<li>Coefficients unusually large</li>
+<li>Perfect training performance</li>
+</ul>
+</div>
+<div style="background: white; padding: 1em; border-radius: 8px;">
+<strong>Immediate Actions:</strong>
+<ul style="margin-top: 0.5em;">
+<li>Add regularization (start α=1)</li>
+<li>Reduce feature count</li>
+<li>Increase training data</li>
+<li>Simplify model architecture</li>
+</ul>
+</div>
+</div>
+
+<h4>Critical Thinking Exercise</h4>
+<div style="background: white; padding: 1.5em; border-radius: 8px; margin-top: 1.5em;">
+<p><strong>Scenario:</strong> You've built a model with 87% test accuracy. Your manager wants 95%. What's your response?</p>
+<details style="margin-top: 1em;">
+<summary style="cursor: pointer; color: #0366d6; font-weight: bold;">Click for Practitioner's Answer</summary>
+<p style="margin-top: 1em; padding: 1em; background: #f8f9fa; border-radius: 5px;">
+"Let me investigate what 87% means for our business. Questions to explore: (1) What's the baseline accuracy without ML? If it's 60%, we've already achieved a 45% improvement. (2) What's the cost of errors? Sometimes 87% accuracy with well-understood failure modes beats 95% black-box accuracy. (3) What would it take to reach 95%? Often this requires 10x more data or complexity, introducing maintenance costs and fragility. (4) Can we achieve 95% business value without 95% accuracy through smart error handling?"<br><br>
+<strong>Key Insight:</strong> Business value != Model accuracy. Focus on impact, not metrics.
+</p>
+</details>
+</div>
+</div>
+
+<script>
+// Interactive functionality
+function selectChoice(choice, element) {
+    // Clear previous selections
+    document.querySelectorAll('.initial-choice').forEach(el => {
+        el.classList.remove('selected');
+    });
+    document.querySelectorAll('.cascade-effect').forEach(el => {
+        el.classList.remove('show');
+    });
+    
+    // Show selected choice and its cascade
+    element.classList.add('selected');
+    const cascade = document.getElementById('cascade-' + choice);
+    if (cascade) {
+        setTimeout(() => cascade.classList.add('show'), 300);
+    }
+}
+
+function showConsequence(id) {
+    const element = document.getElementById(id);
+    element.classList.toggle('show');
+}
+
+function checkResponse(response, element) {
+    // Clear previous selections
+    document.querySelectorAll('.checkpoint-option').forEach(el => {
+        el.style.background = 'white';
+    });
+    document.querySelectorAll('.reality-feedback').forEach(el => {
+        el.classList.remove('show');
+    });
+    
+    // Highlight selected option
+    element.style.background = '#e7f3ff';
+    
+    // Show corresponding feedback
+    const feedback = document.getElementById('feedback-' + response);
+    if (feedback) {
+        setTimeout(() => feedback.classList.add('show'), 300);
+    }
+}
+
+function showTimelinePoint(point, marker) {
+    // Clear active markers
+    document.querySelectorAll('.timeline-marker').forEach(el => {
+        el.classList.remove('active');
+    });
+    marker.classList.add('active');
+    
+    // Timeline point details
+    const details = {
+        1: `<strong>Starting Point: Simple Linear Model</strong><br>
+            Training R² = 0.70, Test R² = 0.69<br>
+            <span style="color: #28a745;">✓ Healthy model, slight underfitting</span><br>
+            Features: 5 basic customer attributes<br>
+            <em>Practitioner Note: This is often good enough! Don't add complexity without clear business need.</em>`,
+        
+        2: `<strong>Feature Engineering Phase</strong><br>
+            Training R² = 0.85, Test R² = 0.82<br>
+            <span style="color: #28a745;">✓ Good improvement, still generalizing well</span><br>
+            Features: 15 (added interactions, ratios)<br>
+            <em>Practitioner Note: 3% gap is acceptable. Monitor if gap increases with more features.</em>`,
+        
+        3: `<strong>Polynomial Features Added</strong><br>
+            Training R² = 0.92, Test R² = 0.83<br>
+            <span style="color: #ffc107;">⚠️ Warning: 9% gap emerging</span><br>
+            Features: 45 (polynomial degree=2)<br>
+            <em>Practitioner Note: Test performance barely improved (+1%), but complexity tripled. Red flag!</em>`,
+        
+        4: `<strong>Complex Interaction Terms</strong><br>
+            Training R² = 0.97, Test R² = 0.81<br>
+            <span style="color: #dc3545;">❌ Severe overfitting: 16% gap</span><br>
+            Features: 120 (all interactions)<br>
+            <em>Practitioner Note: Test performance DECREASED. Model is memorizing noise. Abort!</em>`,
+        
+        5: `<strong>Production Deployment</strong><br>
+            Production R² = 0.45<br>
+            <span style="color: #dc3545;">❌ Catastrophic failure</span><br>
+            Why: Test set wasn't representative. Model learned spurious patterns.<br>
+            <em>Practitioner Note: Production is always worse than test. If test is bad, production is disaster.</em>`
+    };
+    
+    document.getElementById('timeline-details').innerHTML = details[point] || '';
+}
+
+// Initialize with first choice selected
+window.onload = function() {
+    document.querySelector('.initial-choice').click();
+};
+</script>
+
+</body></html>

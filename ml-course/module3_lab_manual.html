@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3 Lab: Healthcare Feature Selection | Chenhao Zhou</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Monaco', 'Menlo', monospace; 
+            background: #0a1929; 
+            color: #fff; 
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .timer {
+            font-size: 1.5rem;
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .mission-brief {
+            background: rgba(67, 206, 162, 0.1);
+            border: 2px solid #43cea2;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+        
+        .task-tracker {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .task-item:hover {
+            background: rgba(67, 206, 162, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .task-item.completed {
+            background: rgba(40, 167, 69, 0.1);
+            border-left: 4px solid #28a745;
+        }
+        
+        .task-checkbox {
+            width: 25px;
+            height: 25px;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        
+        .task-points {
+            margin-left: auto;
+            background: rgba(67, 206, 162, 0.3);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .code-section {
+            background: #1e1e2e;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            border: 1px solid rgba(67, 206, 162, 0.3);
+        }
+        
+        .code-editor {
+            background: #0d0d0d;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #61dafb;
+            margin: 1rem 0;
+            min-height: 250px;
+            overflow-x: auto;
+        }
+        
+        .run-button {
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 1rem 0;
+        }
+        
+        .run-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(67, 206, 162, 0.5);
+        }
+        
+        .output-panel {
+            background: #0d0d0d;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: monospace;
+            color: #4fc08d;
+            min-height: 150px;
+        }
+        
+        .hint-box {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .hint-box.show {
+            display: block;
+        }
+        
+        .hint-button {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+            color: #ffc107;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #43cea2 0%, #28a745 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .metric-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .metric {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            color: #43cea2;
+            font-weight: bold;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .success-banner {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 2rem 0;
+            display: none;
+        }
+        
+        .success-banner.show {
+            display: block;
+            animation: celebration 0.5s ease;
+        }
+        
+        @keyframes celebration {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .code-comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+        
+        .code-keyword {
+            color: #f97583;
+        }
+        
+        .code-function {
+            color: #b392f0;
+        }
+        
+        .code-string {
+            color: #9ecbff;
+        }
+        
+        .code-number {
+            color: #79b8ff;
+        }
+        
+        .warning-box {
+            background: rgba(220, 53, 69, 0.1);
+            border: 2px solid #dc3545;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .feature-importance-chart {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+        
+        .feature-bar {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 0;
+        }
+        
+        .feature-name {
+            width: 150px;
+            font-size: 0.85rem;
+        }
+        
+        .feature-importance {
+            flex: 1;
+            height: 20px;
+            background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧬 MedTech Feature Selection Lab</h1>
+        <div class="timer">Time Remaining: <span id="timer">90:00</span></div>
+        <p style="margin-top: 1rem;">Identify the 47 Critical Features from 2,000 Variables</p>
+    </div>
+
+    <div class="container">
+        <!-- Mission Brief -->
+        <div class="mission-brief">
+            <h2>🎯 Critical Mission: Save the $30M Contract</h2>
+            <p style="font-size: 1.1rem; margin: 1rem 0;">
+                MedTech Analytics' flagship model is overfitting catastrophically. With 2,000 features 
+                and only 5,000 patient records, you must use advanced regularization techniques to 
+                identify the truly important predictors and restore model generalization.
+            </p>
+            <p style="font-size: 1.1rem;">
+                <strong>Success Criteria:</strong> Reduce features to under 50, achieve 85%+ cross-validated 
+                accuracy, and prove the model generalizes to new hospitals.
+            </p>
+        </div>
+
+        <!-- Task Tracker -->
+        <div class="task-tracker">
+            <h3>📊 Mission Progress Tracker</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar">0%</div>
+            </div>
+            <div id="taskList">
+                <div class="task-item" onclick="toggleTask(this)">
+                    <input type="checkbox" class="task-checkbox">
+                    <span>Task 1: Load High-Dimensional Data</span>
+                    <span class="task-points">10 pts</span>
+                </div>
+                <div class="task-item" onclick="toggleTask(this)">
+                    <input type="checkbox" class="task-checkbox">
+                    <span>Task 2: Baseline Model (Overfitting)</span>
+                    <span class="task-points">15 pts</span>
+                </div>
+                <div class="task-item" onclick="toggleTask(this)">
+                    <input type="checkbox" class="task-checkbox">
+                    <span>Task 3: Apply L1 Regularization (Lasso)</span>
+                    <span class="task-points">20 pts</span>
+                </div>
+                <div class="task-item" onclick="toggleTask(this)">
+                    <input type="checkbox" class="task-checkbox">
+                    <span>Task 4: Optimize with Elastic Net</span>
+                    <span class="task-points">20 pts</span>
+                </div>
+                <div class="task-item" onclick="toggleTask(this)">
+                    <input type="checkbox" class="task-checkbox">
+                    <span>Task 5: Cross-Validation & Selection</span>
+                    <span class="task-points">20 pts</span>
+                </div>
+                <div class="task-item" onclick="toggleTask(this)">
+                    <input type="checkbox" class="task-checkbox">
+                    <span>Task 6: Generate Feature Report</span>
+                    <span class="task-points">15 pts</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 1: Data Loading -->
+        <div class="code-section">
+            <h2>🔍 Task 1: Load High-Dimensional Medical Data</h2>
+            <p>Load the patient dataset with 2,000 features and explore the dimensionality problem.</p>
+            
+            <div class="code-editor" contenteditable="true" id="code1">
+<span class="code-comment"># Import required libraries</span>
+<span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+<span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+<span class="code-keyword">from</span> sklearn.model_selection <span class="code-keyword">import</span> train_test_split, cross_val_score
+<span class="code-keyword">from</span> sklearn.linear_model <span class="code-keyword">import</span> LogisticRegression, Lasso, Ridge, ElasticNet
+<span class="code-keyword">from</span> sklearn.preprocessing <span class="code-keyword">import</span> StandardScaler
+<span class="code-keyword">import</span> warnings
+warnings.<span class="code-function">filterwarnings</span>(<span class="code-string">'ignore'</span>)
+
+<span class="code-comment"># Simulate high-dimensional medical data</span>
+np.random.<span class="code-function">seed</span>(<span class="code-number">42</span>)
+n_samples = <span class="code-number">5000</span>
+n_features = <span class="code-number">2000</span>
+
+<span class="code-comment"># Generate feature names</span>
+feature_names = [<span class="code-string">f"biomarker_{i}"</span> <span class="code-keyword">for</span> i <span class="code-keyword">in</span> <span class="code-function">range</span>(n_features)]
+important_features = [<span class="code-string">'glucose'</span>, <span class="code-string">'blood_pressure'</span>, <span class="code-string">'age'</span>, <span class="code-string">'bmi'</span>, <span class="code-string">'cholesterol'</span>]
+feature_names[:5] = important_features
+
+<span class="code-comment"># Create dataset with only ~50 truly relevant features</span>
+X = np.random.<span class="code-function">randn</span>(n_samples, n_features)
+<span class="code-comment"># Make first 50 features informative</span>
+y = (X[:, :50] @ np.random.<span class="code-function">randn</span>(50) + np.random.<span class="code-function">randn</span>(n_samples) * <span class="code-number">0.1</span>) > <span class="code-number">0</span>
+y = y.<span class="code-function">astype</span>(int)
+
+<span class="code-comment"># TODO: Print data dimensions and class balance</span>
+<span class="code-function">print</span>(<span class="code-string">f"Data shape: _______"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Features per sample ratio: _______"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Class distribution: {np.<span class="code-function">bincount</span>(y)}"</span>)
+</div>
+            
+            <button class="hint-button" onclick="showHint(1)">💡 Need a hint?</button>
+            <div class="hint-box" id="hint1">
+                Use <code>X.shape</code> and calculate <code>n_samples / n_features</code>
+            </div>
+            
+            <button class="run-button" onclick="runCode(1)">▶️ Run Code</button>
+            
+            <div class="output-panel" id="output1">
+                <strong>Output:</strong>
+                <pre>Ready to execute...</pre>
+            </div>
+        </div>
+
+        <!-- Task 2: Baseline Model -->
+        <div class="code-section">
+            <h2>⚠️ Task 2: Demonstrate Overfitting Problem</h2>
+            <p>Train an unregularized model to see the overfitting disaster.</p>
+            
+            <div class="code-editor" contenteditable="true" id="code2">
+<span class="code-comment"># Split data</span>
+X_train, X_test, y_train, y_test = <span class="code-function">train_test_split</span>(
+    X, y, test_size=<span class="code-number">0.3</span>, random_state=<span class="code-number">42</span>
+)
+
+<span class="code-comment"># Standardize features (important for regularization)</span>
+scaler = <span class="code-function">StandardScaler</span>()
+X_train_scaled = scaler.<span class="code-function">fit_transform</span>(X_train)
+X_test_scaled = scaler.<span class="code-function">transform</span>(X_test)
+
+<span class="code-comment"># Train unregularized logistic regression</span>
+baseline_model = <span class="code-function">LogisticRegression</span>(penalty=<span class="code-string">'none'</span>, max_iter=<span class="code-number">1000</span>)
+baseline_model.<span class="code-function">fit</span>(X_train_scaled, y_train)
+
+<span class="code-comment"># Evaluate on train and test</span>
+train_score = baseline_model.<span class="code-function">score</span>(X_train_scaled, y_train)
+test_score = baseline_model.<span class="code-function">score</span>(X_test_scaled, y_test)
+
+<span class="code-function">print</span>(<span class="code-string">"="</span> * <span class="code-number">50</span>)
+<span class="code-function">print</span>(<span class="code-string">"BASELINE MODEL (No Regularization)"</span>)
+<span class="code-function">print</span>(<span class="code-string">"="</span> * <span class="code-number">50</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Training Accuracy: {train_score:.1%}"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Test Accuracy: {test_score:.1%}"</span>)
+
+<span class="code-comment"># TODO: Calculate the overfitting gap</span>
+overfitting_gap = _______
+<span class="code-function">print</span>(<span class="code-string">f"Overfitting Gap: {overfitting_gap:.1%}"</span>)
+
+<span class="code-keyword">if</span> overfitting_gap > <span class="code-number">0.4</span>:
+    <span class="code-function">print</span>(<span class="code-string">"\n🚨 SEVERE OVERFITTING DETECTED!"</span>)
+    <span class="code-function">print</span>(<span class="code-string">"Model memorizing training data, not learning patterns!"</span>)
+</div>
+            
+            <button class="hint-button" onclick="showHint(2)">💡 Need a hint?</button>
+            <div class="hint-box" id="hint2">
+                Overfitting gap = <code>train_score - test_score</code>
+            </div>
+            
+            <button class="run-button" onclick="runCode(2)">▶️ Run Code</button>
+            
+            <div class="output-panel" id="output2">
+                <strong>Output:</strong>
+                <pre>Ready to execute...</pre>
+            </div>
+        </div>
+
+        <!-- Task 3: L1 Regularization -->
+        <div class="code-section">
+            <h2>🎯 Task 3: Apply L1 Regularization (Lasso)</h2>
+            <p>Use Lasso to automatically select important features.</p>
+            
+            <div class="code-editor" contenteditable="true" id="code3">
+<span class="code-comment"># Test different L1 regularization strengths</span>
+alphas = [<span class="code-number">0.001</span>, <span class="code-number">0.01</span>, <span class="code-number">0.1</span>, <span class="code-number">0.5</span>, <span class="code-number">1.0</span>]
+lasso_results = []
+
+<span class="code-keyword">for</span> alpha <span class="code-keyword">in</span> alphas:
+    <span class="code-comment"># Train Lasso model</span>
+    lasso = <span class="code-function">LogisticRegression</span>(
+        penalty=<span class="code-string">'l1'</span>, 
+        C=<span class="code-number">1</span>/alpha,  <span class="code-comment"># C is inverse of regularization strength</span>
+        solver=<span class="code-string">'saga'</span>,
+        max_iter=<span class="code-number">2000</span>
+    )
+    lasso.<span class="code-function">fit</span>(X_train_scaled, y_train)
+    
+    <span class="code-comment"># Count non-zero coefficients (selected features)</span>
+    n_selected = np.<span class="code-function">sum</span>(lasso.coef_[0] != <span class="code-number">0</span>)
+    test_accuracy = lasso.<span class="code-function">score</span>(X_test_scaled, y_test)
+    
+    lasso_results.<span class="code-function">append</span>({
+        <span class="code-string">'alpha'</span>: alpha,
+        <span class="code-string">'features_selected'</span>: n_selected,
+        <span class="code-string">'test_accuracy'</span>: test_accuracy
+    })
+    
+    <span class="code-function">print</span>(<span class="code-string">f"Alpha: {alpha:6.3f} | Features: {n_selected:4d} | Test Acc: {test_accuracy:.1%}"</span>)
+
+<span class="code-comment"># TODO: Find the best alpha (best test accuracy)</span>
+best_result = _______
+<span class="code-function">print</span>(<span class="code-string">f"\n✅ Best L1: Alpha={best_result['alpha']}, Features={best_result['features_selected']}"</span>)
+</div>
+            
+            <button class="hint-button" onclick="showHint(3)">💡 Need a hint?</button>
+            <div class="hint-box" id="hint3">
+                Use <code>max(lasso_results, key=lambda x: x['test_accuracy'])</code>
+            </div>
+            
+            <button class="run-button" onclick="runCode(3)">▶️ Run Code</button>
+            
+            <div class="output-panel" id="output3">
+                <strong>Output:</strong>
+                <pre>Ready to execute...</pre>
+            </div>
+            
+            <div class="metric-display">
+                <div class="metric">
+                    <div class="metric-value" id="l1Features">--</div>
+                    <div class="metric-label">L1 Features</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="l1Accuracy">--</div>
+                    <div class="metric-label">L1 Accuracy</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 4: Elastic Net -->
+        <div class="code-section">
+            <h2>🔮 Task 4: Optimize with Elastic Net</h2>
+            <p>Combine L1 and L2 regularization for better stability.</p>
+            
+            <div class="code-editor" contenteditable="true" id="code4">
+<span class="code-comment"># Grid search for Elastic Net parameters</span>
+<span class="code-keyword">from</span> sklearn.linear_model <span class="code-keyword">import</span> ElasticNetCV
+
+<span class="code-comment"># Test different L1 ratios</span>
+l1_ratios = [<span class="code-number">0.1</span>, <span class="code-number">0.3</span>, <span class="code-number">0.5</span>, <span class="code-number">0.7</span>, <span class="code-number">0.9</span>]
+elastic_results = []
+
+<span class="code-keyword">for</span> l1_ratio <span class="code-keyword">in</span> l1_ratios:
+    <span class="code-comment"># Train Elastic Net</span>
+    elastic = <span class="code-function">LogisticRegression</span>(
+        penalty=<span class="code-string">'elasticnet'</span>,
+        solver=<span class="code-string">'saga'</span>,
+        l1_ratio=l1_ratio,
+        C=<span class="code-number">0.1</span>,  <span class="code-comment"># Best C from previous task</span>
+        max_iter=<span class="code-number">2000</span>
+    )
+    
+    elastic.<span class="code-function">fit</span>(X_train_scaled, y_train)
+    
+    <span class="code-comment"># Evaluate</span>
+    n_selected = np.<span class="code-function">sum</span>(elastic.coef_[0] != <span class="code-number">0</span>)
+    test_acc = elastic.<span class="code-function">score</span>(X_test_scaled, y_test)
+    train_acc = elastic.<span class="code-function">score</span>(X_train_scaled, y_train)
+    
+    <span class="code-comment"># TODO: Calculate overfitting gap for Elastic Net</span>
+    gap = _______
+    
+    elastic_results.<span class="code-function">append</span>({
+        <span class="code-string">'l1_ratio'</span>: l1_ratio,
+        <span class="code-string">'features'</span>: n_selected,
+        <span class="code-string">'test_acc'</span>: test_acc,
+        <span class="code-string">'gap'</span>: gap
+    })
+    
+    <span class="code-function">print</span>(<span class="code-string">f"L1 Ratio: {l1_ratio:.1f} | Features: {n_selected:3d} | "</span>
+          <span class="code-string">f"Test: {test_acc:.1%} | Gap: {gap:.1%}"</span>)
+
+<span class="code-comment"># Find optimal configuration</span>
+optimal = <span class="code-function">min</span>(elastic_results, key=<span class="code-keyword">lambda</span> x: x[<span class="code-string">'gap'</span>])
+<span class="code-function">print</span>(<span class="code-string">f"\n✅ Optimal Elastic Net: L1={optimal['l1_ratio']}, "</span>
+      <span class="code-string">f"Features={optimal['features']}, Gap={optimal['gap']:.1%}"</span>)
+</div>
+            
+            <button class="hint-button" onclick="showHint(4)">💡 Need a hint?</button>
+            <div class="hint-box" id="hint4">
+                Gap = <code>train_acc - test_acc</code>
+            </div>
+            
+            <button class="run-button" onclick="runCode(4)">▶️ Run Code</button>
+            
+            <div class="output-panel" id="output4">
+                <strong>Output:</strong>
+                <pre>Ready to execute...</pre>
+            </div>
+        </div>
+
+        <!-- Task 5: Cross-Validation -->
+        <div class="code-section">
+            <h2>🔄 Task 5: Rigorous Cross-Validation</h2>
+            <p>Use K-fold CV to find the truly optimal regularization.</p>
+            
+            <div class="code-editor" contenteditable="true" id="code5">
+<span class="code-comment"># Comprehensive cross-validation</span>
+<span class="code-keyword">from</span> sklearn.model_selection <span class="code-keyword">import</span> GridSearchCV
+
+<span class="code-comment"># Define parameter grid</span>
+param_grid = {
+    <span class="code-string">'C'</span>: [<span class="code-number">0.001</span>, <span class="code-number">0.01</span>, <span class="code-number">0.1</span>, <span class="code-number">1.0</span>, <span class="code-number">10.0</span>],
+    <span class="code-string">'l1_ratio'</span>: [<span class="code-number">0.3</span>, <span class="code-number">0.5</span>, <span class="code-number">0.7</span>, <span class="code-number">0.9</span>]
+}
+
+<span class="code-comment"># Grid search with cross-validation</span>
+model = <span class="code-function">LogisticRegression</span>(
+    penalty=<span class="code-string">'elasticnet'</span>,
+    solver=<span class="code-string">'saga'</span>,
+    max_iter=<span class="code-number">2000</span>,
+    random_state=<span class="code-number">42</span>
+)
+
+<span class="code-comment"># TODO: Set up GridSearchCV with 5-fold CV</span>
+grid_search = <span class="code-function">GridSearchCV</span>(
+    model,
+    param_grid,
+    cv=_______,  <span class="code-comment"># Number of folds</span>
+    scoring=<span class="code-string">'accuracy'</span>,
+    n_jobs=-<span class="code-number">1</span>,
+    verbose=<span class="code-number">1</span>
+)
+
+<span class="code-function">print</span>(<span class="code-string">"Running cross-validation (this may take a moment)..."</span>)
+grid_search.<span class="code-function">fit</span>(X_train_scaled, y_train)
+
+<span class="code-comment"># Best parameters and score</span>
+<span class="code-function">print</span>(<span class="code-string">f"\n✅ Best Parameters: {grid_search.best_params_}"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Best CV Score: {grid_search.best_score_:.3f}"</span>)
+
+<span class="code-comment"># Final evaluation on test set</span>
+best_model = grid_search.best_estimator_
+final_test_score = best_model.<span class="code-function">score</span>(X_test_scaled, y_test)
+n_features_final = np.<span class="code-function">sum</span>(best_model.coef_[0] != <span class="code-number">0</span>)
+
+<span class="code-function">print</span>(<span class="code-string">f"Final Test Accuracy: {final_test_score:.1%}"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Features Selected: {n_features_final} / {n_features}"</span>)
+</div>
+            
+            <button class="hint-button" onclick="showHint(5)">💡 Need a hint?</button>
+            <div class="hint-box" id="hint5">
+                Use <code>cv=5</code> for 5-fold cross-validation
+            </div>
+            
+            <button class="run-button" onclick="runCode(5)">▶️ Run Code</button>
+            
+            <div class="output-panel" id="output5">
+                <strong>Output:</strong>
+                <pre>Ready to execute...</pre>
+            </div>
+        </div>
+
+        <!-- Task 6: Feature Report -->
+        <div class="code-section">
+            <h2>📊 Task 6: Generate Feature Importance Report</h2>
+            <p>Identify and report the most critical features for medical predictions.</p>
+            
+            <div class="code-editor" contenteditable="true" id="code6">
+<span class="code-comment"># Extract feature importance from best model</span>
+coefficients = best_model.coef_[0]
+feature_importance = np.<span class="code-function">abs</span>(coefficients)
+
+<span class="code-comment"># Get top features</span>
+top_indices = np.<span class="code-function">argsort</span>(feature_importance)[::-<span class="code-number">1</span>][:<span class="code-number">20</span>]
+top_features = [(feature_names[i], feature_importance[i]) 
+                 <span class="code-keyword">for</span> i <span class="code-keyword">in</span> top_indices 
+                 <span class="code-keyword">if</span> feature_importance[i] > <span class="code-number">0</span>]
+
+<span class="code-function">print</span>(<span class="code-string">"="</span> * <span class="code-number">60</span>)
+<span class="code-function">print</span>(<span class="code-string">"FEATURE SELECTION REPORT - MEDTECH ANALYTICS"</span>)
+<span class="code-function">print</span>(<span class="code-string">"="</span> * <span class="code-number">60</span>)
+
+<span class="code-comment"># Problem summary</span>
+<span class="code-function">print</span>(<span class="code-string">"\n📋 PROBLEM SUMMARY:"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Original Features: {n_features}"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Training Samples: {len(X_train)}"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Features/Sample Ratio: {n_features/len(X_train):.2f}"</span>)
+
+<span class="code-comment"># Solution implemented</span>
+<span class="code-function">print</span>(<span class="code-string">"\n🔧 SOLUTION:"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Regularization Method: Elastic Net"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Optimal C: {best_model.C}"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Optimal L1 Ratio: {best_model.l1_ratio}"</span>)
+
+<span class="code-comment"># Results</span>
+<span class="code-function">print</span>(<span class="code-string">"\n📊 RESULTS:"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Features Selected: {n_features_final}"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Dimension Reduction: {(1 - n_features_final/n_features)*100:.1f}%"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Test Accuracy: {final_test_score:.1%}"</span>)
+
+<span class="code-comment"># Top features</span>
+<span class="code-function">print</span>(<span class="code-string">"\n🎯 TOP 10 CRITICAL FEATURES:"</span>)
+<span class="code-keyword">for</span> i, (name, importance) <span class="code-keyword">in</span> <span class="code-function">enumerate</span>(top_features[:10]):
+    <span class="code-function">print</span>(<span class="code-string">f"{i+1:2d}. {name:20s} | Importance: {importance:.3f}"</span>)
+
+<span class="code-comment"># TODO: Calculate cost savings</span>
+<span class="code-comment"># Each unnecessary feature costs $1000/year in data collection</span>
+features_eliminated = n_features - n_features_final
+annual_savings = _______
+
+<span class="code-function">print</span>(<span class="code-string">"\n💰 BUSINESS IMPACT:"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Features Eliminated: {features_eliminated}"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Annual Data Collection Savings: ${annual_savings:,.0f}"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Contract Value Retained: $30,000,000"</span>)
+<span class="code-function">print</span>(<span class="code-string">f"Model Inference Speed Improvement: {n_features/n_features_final:.0f}x faster"</span>)
+
+<span class="code-function">print</span>(<span class="code-string">"="</span> * <span class="code-number">60</span>)
+<span class="code-function">print</span>(<span class="code-string">"✅ MODEL READY FOR PRODUCTION DEPLOYMENT"</span>)
+</div>
+            
+            <button class="hint-button" onclick="showHint(6)">💡 Need a hint?</button>
+            <div class="hint-box" id="hint6">
+                Annual savings = <code>features_eliminated * 1000</code>
+            </div>
+            
+            <button class="run-button" onclick="runCode(6)">▶️ Run Code</button>
+            
+            <div class="output-panel" id="output6">
+                <strong>Output:</strong>
+                <pre>Ready to execute...</pre>
+            </div>
+        </div>
+
+        <!-- Success Banner -->
+        <div class="success-banner" id="successBanner">
+            <h2>🎉 Mission Accomplished!</h2>
+            <p style="font-size: 1.3rem; margin: 1rem 0;">
+                You've successfully tamed the 2,000-feature beast and saved MedTech Analytics!
+            </p>
+            <div class="metric-display">
+                <div class="metric">
+                    <div class="metric-value">47</div>
+                    <div class="metric-label">Features Selected</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">88%</div>
+                    <div class="metric-label">Test Accuracy</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">$30M</div>
+                    <div class="metric-label">Contract Saved</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">43x</div>
+                    <div class="metric-label">Speed Increase</div>
+                </div>
+            </div>
+            <p style="margin-top: 2rem;">
+                The CEO is ecstatic! Your regularized model is being deployed across all 500 hospitals.
+            </p>
+        </div>
+
+        <div style="text-align: center; margin: 3rem 0;">
+            <button class="run-button" onclick="submitLab()" style="font-size: 1.2rem; padding: 1.2rem 3rem;">
+                📤 Submit Lab Results
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let timerInterval;
+        let timeRemaining = 5400; // 90 minutes
+        let completedTasks = 0;
+        const totalTasks = 6;
+        
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Time\'s up! Submitting your work...');
+                    submitLab();
+                }
+            }, 1000);
+        }
+        
+        function toggleTask(element) {
+            const checkbox = element.querySelector('.task-checkbox');
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                element.classList.add('completed');
+                completedTasks++;
+            } else {
+                element.classList.remove('completed');
+                completedTasks--;
+            }
+            
+            updateProgress();
+        }
+        
+        function updateProgress() {
+            const percentage = (completedTasks / totalTasks) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressBar').textContent = percentage.toFixed(0) + '%';
+        }
+        
+        function runCode(taskNumber) {
+            const outputPanel = document.getElementById(`output${taskNumber}`);
+            
+            // Simulate realistic outputs for each task
+            const outputs = {
+                1: `Data shape: (5000, 2000)
+Features per sample ratio: 0.4
+Class distribution: [2487 2513]
+
+⚠️ WARNING: More features than recommended!
+Rule of thumb: Need 10-20 samples per feature
+Current: Only 2.5 samples per feature
+High risk of overfitting!`,
+                
+                2: `==================================================
+BASELINE MODEL (No Regularization)
+==================================================
+Training Accuracy: 99.7%
+Test Accuracy: 51.3%
+Overfitting Gap: 48.4%
+
+🚨 SEVERE OVERFITTING DETECTED!
+Model memorizing training data, not learning patterns!
+
+This is exactly what the hospitals complained about!`,
+                
+                3: `Alpha:  0.001 | Features: 1847 | Test Acc: 54.2%
+Alpha:  0.010 | Features:  523 | Test Acc: 71.8%
+Alpha:  0.100 | Features:   47 | Test Acc: 85.3%
+Alpha:  0.500 | Features:   12 | Test Acc: 78.6%
+Alpha:  1.000 | Features:    5 | Test Acc: 68.2%
+
+✅ Best L1: Alpha=0.1, Features=47
+
+Observation: L1 successfully eliminated 97.7% of features!`,
+                
+                4: `L1 Ratio: 0.1 | Features: 156 | Test: 82.4% | Gap: 5.2%
+L1 Ratio: 0.3 | Features:  98 | Test: 84.7% | Gap: 3.8%
+L1 Ratio: 0.5 | Features:  72 | Test: 86.1% | Gap: 2.9%
+L1 Ratio: 0.7 | Features:  47 | Test: 87.2% | Gap: 2.1%
+L1 Ratio: 0.9 | Features:  31 | Test: 85.8% | Gap: 2.5%
+
+✅ Optimal Elastic Net: L1=0.7, Features=47, Gap=2.1%
+
+Perfect balance: Good sparsity with minimal overfitting!`,
+                
+                5: `Running cross-validation (this may take a moment)...
+Fitting 5 folds for each of 20 candidates, totalling 100 fits
+
+✅ Best Parameters: {'C': 0.1, 'l1_ratio': 0.7}
+Best CV Score: 0.882
+Final Test Accuracy: 88.3%
+Features Selected: 47 / 2000
+
+🎯 Excellent generalization achieved!
+Model performs consistently across all folds.`,
+                
+                6: `============================================================
+FEATURE SELECTION REPORT - MEDTECH ANALYTICS
+============================================================
+
+📋 PROBLEM SUMMARY:
+Original Features: 2000
+Training Samples: 3500
+Features/Sample Ratio: 0.57
+
+🔧 SOLUTION:
+Regularization Method: Elastic Net
+Optimal C: 0.1
+Optimal L1 Ratio: 0.7
+
+📊 RESULTS:
+Features Selected: 47
+Dimension Reduction: 97.7%
+Test Accuracy: 88.3%
+
+🎯 TOP 10 CRITICAL FEATURES:
+ 1. glucose              | Importance: 2.341
+ 2. blood_pressure       | Importance: 1.982
+ 3. age                  | Importance: 1.756
+ 4. bmi                  | Importance: 1.523
+ 5. cholesterol          | Importance: 1.412
+ 6. biomarker_12         | Importance: 0.987
+ 7. biomarker_28         | Importance: 0.876
+ 8. biomarker_7          | Importance: 0.765
+ 9. biomarker_35         | Importance: 0.654
+10. biomarker_19         | Importance: 0.543
+
+💰 BUSINESS IMPACT:
+Features Eliminated: 1953
+Annual Data Collection Savings: $1,953,000
+Contract Value Retained: $30,000,000
+Model Inference Speed Improvement: 43x faster
+============================================================
+✅ MODEL READY FOR PRODUCTION DEPLOYMENT`
+            };
+            
+            outputPanel.innerHTML = `<strong>Output:</strong><pre>${outputs[taskNumber]}</pre>`;
+            
+            // Update metrics for specific tasks
+            if (taskNumber === 3) {
+                document.getElementById('l1Features').textContent = '47';
+                document.getElementById('l1Accuracy').textContent = '85.3%';
+            }
+            
+            // Mark task as completed
+            const taskItems = document.querySelectorAll('.task-item');
+            if (taskNumber <= taskItems.length) {
+                const checkbox = taskItems[taskNumber - 1].querySelector('.task-checkbox');
+                if (!checkbox.checked) {
+                    toggleTask(taskItems[taskNumber - 1]);
+                }
+            }
+        }
+        
+        function showHint(hintNumber) {
+            const hintBox = document.getElementById(`hint${hintNumber}`);
+            hintBox.classList.toggle('show');
+        }
+        
+        function submitLab() {
+            if (completedTasks < totalTasks) {
+                alert(`Complete all tasks first! (${completedTasks}/${totalTasks} done)`);
+                return;
+            }
+            
+            document.getElementById('successBanner').classList.add('show');
+            clearInterval(timerInterval);
+            
+            // Scroll to success
+            document.getElementById('successBanner').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Start timer on load
+        window.addEventListener('load', () => {
+            startTimer();
+        });
+    </script>
+</body>
+</html>
