@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4: Decision Trees - Save the Bank $85 Million</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            border-radius: 10px;
+        }
+        
+        h1 {
+            color: #003366;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .mission-brief {
+            background: linear-gradient(135deg, #f093fb10 0%, #f5576c10 100%);
+            border-left: 4px solid #f5576c;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .progress-container {
+            margin: 30px 0;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .financial-dashboard {
+            background: linear-gradient(135deg, #a8e6cf20 0%, #dcedc120 100%);
+            border: 2px solid #81c784;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .metric {
+            display: inline-block;
+            margin: 10px 20px;
+            padding: 15px 25px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .metric-label {
+            font-size: 0.9em;
+            color: #666;
+            display: block;
+        }
+        
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #003366;
+        }
+        
+        .positive { color: #4caf50; }
+        .negative { color: #f44336; }
+        
+        .interactive-section {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 10px;
+            border: 2px solid #667eea30;
+        }
+        
+        .control-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .slider-container {
+            margin: 20px 0;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e9ecef;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0366d6;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0366d6;
+            cursor: pointer;
+        }
+        
+        .tree-visualization {
+            width: 100%;
+            height: 400px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #treeCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .button {
+            background: #0366d6;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+        
+        .button:hover {
+            background: #0256c7;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(3,102,214,0.3);
+        }
+        
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .decision-point {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 10px;
+        }
+        
+        .decision-options {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        
+        .decision-button {
+            padding: 15px 25px;
+            background: white;
+            border: 2px solid #0366d6;
+            color: #0366d6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            margin: 0 10px;
+        }
+        
+        .decision-button:hover {
+            background: #0366d6;
+            color: white;
+        }
+        
+        .hint-box {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .hint-box.visible {
+            display: block;
+        }
+        
+        .loan-simulator {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+        
+        .applicant-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .confusion-matrix {
+            display: grid;
+            grid-template-columns: 100px 150px 150px;
+            gap: 5px;
+            margin: 20px auto;
+            max-width: 450px;
+        }
+        
+        .matrix-cell {
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        
+        .matrix-header {
+            background: #495057;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .matrix-label {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .matrix-value {
+            background: #f8f9fa;
+            font-size: 1.2em;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .true-positive { background: #c3e6cb; }
+        .true-negative { background: #c3e6cb; }
+        .false-positive { background: #f8d7da; }
+        .false-negative { background: #f8d7da; }
+        
+        .achievement {
+            background: linear-gradient(135deg, #ffd93d 0%, #ffc107 100%);
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            text-align: center;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .achievement.unlocked {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .final-report {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 40px 0;
+            display: none;
+        }
+        
+        .final-report.visible {
+            display: block;
+        }
+        
+        .challenge-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏦 Operation: Loan Intelligence</h1>
+            <p style="font-size: 1.2em; color: #666;">Transform Regional Bank's $85 Million Loss into Profit</p>
+        </div>
+
+        <div class="mission-brief">
+            <h2>📋 Mission Briefing</h2>
+            <p><strong>Situation Critical:</strong> Regional Bank Corporation is hemorrhaging money. Their loan approval system - based on simple credit score cutoffs - approved thousands of loans that defaulted (costing $50M) while rejecting profitable customers (losing $35M in potential revenue).</p>
+            <p><strong>Your Mission:</strong> Build an intelligent decision tree system that learns from 5 years of loan data to make smarter approval decisions. Save the bank from collapse while maintaining regulatory compliance.</p>
+            <p><strong>Success Criteria:</strong> Reduce losses by at least $40M annually while maintaining 60%+ approval rate.</p>
+        </div>
+
+        <div class="progress-container">
+            <h3>Mission Progress</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%">
+                    <span id="progressText">0%</span>
+                </div>
+            </div>
+            <p id="progressDescription" style="margin-top: 10px; text-align: center;">Ready to begin your mission...</p>
+        </div>
+
+        <div class="financial-dashboard">
+            <h3>💰 Financial Impact Dashboard</h3>
+            <div class="metric">
+                <span class="metric-label">Current Annual Loss</span>
+                <span class="metric-value negative" id="currentLoss">-$85M</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Potential Savings</span>
+                <span class="metric-value" id="potentialSavings">$0</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Approval Rate</span>
+                <span class="metric-value" id="approvalRate">72%</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Default Rate</span>
+                <span class="metric-value" id="defaultRate">18%</span>
+            </div>
+        </div>
+
+        <!-- Challenge 1: Understanding the Problem -->
+        <div class="challenge-section" id="challenge1">
+            <h2>🎯 Challenge 1: Analyze the Current Crisis</h2>
+            <p>First, let's understand why the current system is failing. The bank uses a simple rule: approve if credit score > 650.</p>
+            
+            <div class="interactive-section">
+                <h3>Current System Performance</h3>
+                <canvas id="currentSystemChart" width="900" height="300"></canvas>
+                
+                <div class="decision-point">
+                    <p>📊 Looking at the data above, what's the main problem with using only credit score?</p>
+                    <div class="decision-options">
+                        <button class="decision-button" onclick="checkAnswer1('linear')">It creates a linear boundary</button>
+                        <button class="decision-button" onclick="checkAnswer1('complex')">It ignores other important factors</button>
+                        <button class="decision-button" onclick="checkAnswer1('simple')">It's too simple</button>
+                    </div>
+                </div>
+                
+                <div class="hint-box" id="hint1">
+                    <strong>💡 Insight:</strong> Credit score alone misses crucial patterns! Notice how many high-income, low-debt customers with scores of 640-650 successfully repay loans, while some with 700+ scores but high debt ratios default. We need to consider multiple factors simultaneously!
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenge 2: Building Your First Tree -->
+        <div class="challenge-section" id="challenge2" style="display: none;">
+            <h2>🌳 Challenge 2: Build Your Decision Tree</h2>
+            <p>Now it's time to build a smarter system. Adjust the tree parameters to find the optimal configuration.</p>
+            
+            <div class="interactive-section">
+                <div class="control-panel">
+                    <h3>Tree Configuration</h3>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Tree Depth:</span>
+                            <span id="depthValue">3</span>
+                        </div>
+                        <input type="range" id="depthSlider" min="1" max="10" value="3" oninput="updateTree()">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Min Samples per Split:</span>
+                            <span id="minSamplesValue">20</span>
+                        </div>
+                        <input type="range" id="minSamplesSlider" min="5" max="100" step="5" value="20" oninput="updateTree()">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Feature Importance Threshold:</span>
+                            <span id="thresholdValue">0.05</span>
+                        </div>
+                        <input type="range" id="thresholdSlider" min="0" max="0.2" step="0.01" value="0.05" oninput="updateTree()">
+                    </div>
+                </div>
+                
+                <div class="tree-visualization">
+                    <canvas id="treeCanvas"></canvas>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="button" onclick="trainTree()">🚀 Train Decision Tree</button>
+                    <button class="button" onclick="showHint2()">💡 Need a Hint?</button>
+                </div>
+                
+                <div class="hint-box" id="hint2">
+                    <strong>💡 Pro Tip:</strong> Start with depth 4-5 for good balance. Too shallow = underfitting (misses patterns). Too deep = overfitting (memorizes training data). Watch how financial impact changes with depth!
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenge 3: Testing Your Model -->
+        <div class="challenge-section" id="challenge3" style="display: none;">
+            <h2>🔬 Challenge 3: Test on Real Applications</h2>
+            <p>Your tree is trained! Now test it on actual loan applications to see how it performs.</p>
+            
+            <div class="loan-simulator">
+                <h3>Live Loan Decision Simulator</h3>
+                
+                <div class="applicant-card" id="applicant1">
+                    <h4>📋 Application #2847</h4>
+                    <p><strong>Credit Score:</strong> 645 | <strong>Income:</strong> $85,000 | <strong>DTI:</strong> 28%</p>
+                    <p><strong>Employment:</strong> 8 years | <strong>Loan Amount:</strong> $45,000</p>
+                    <p><strong>Purpose:</strong> Home improvement | <strong>Ownership:</strong> Mortgage</p>
+                    
+                    <div style="margin-top: 15px;">
+                        <button class="button" onclick="processApplication(1)">Process Application</button>
+                    </div>
+                    
+                    <div id="decision1" style="margin-top: 15px; display: none;">
+                        <p style="padding: 15px; background: #e8f5e9; border-radius: 8px;">
+                            <strong>Decision Path:</strong><br>
+                            ✓ DTI < 30% → Low risk branch<br>
+                            ✓ Employment > 5 years → Stable income<br>
+                            ✓ Income > $75,000 → Strong repayment capacity<br>
+                            <strong style="color: #4caf50;">Result: APPROVED (Default probability: 8%)</strong>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="applicant-card" id="applicant2" style="display: none;">
+                    <h4>📋 Application #2848</h4>
+                    <p><strong>Credit Score:</strong> 720 | <strong>Income:</strong> $55,000 | <strong>DTI:</strong> 45%</p>
+                    <p><strong>Employment:</strong> 2 years | <strong>Loan Amount:</strong> $65,000</p>
+                    <p><strong>Purpose:</strong> Debt consolidation | <strong>Ownership:</strong> Rent</p>
+                    
+                    <div style="margin-top: 15px;">
+                        <button class="button" onclick="processApplication(2)">Process Application</button>
+                    </div>
+                    
+                    <div id="decision2" style="margin-top: 15px; display: none;">
+                        <p style="padding: 15px; background: #ffebee; border-radius: 8px;">
+                            <strong>Decision Path:</strong><br>
+                            ✗ DTI > 40% → High risk branch<br>
+                            ✗ Loan amount > Annual income → Overextended<br>
+                            ✗ Employment < 3 years → Unstable<br>
+                            <strong style="color: #f44336;">Result: REJECTED (Default probability: 42%)</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenge 4: Optimize for Business Value -->
+        <div class="challenge-section" id="challenge4" style="display: none;">
+            <h2>💼 Challenge 4: Maximize Business Impact</h2>
+            <p>Now optimize your model for maximum financial benefit. Remember: not all errors cost the same!</p>
+            
+            <div class="interactive-section">
+                <h3>Cost-Benefit Analysis</h3>
+                
+                <div class="control-panel">
+                    <p><strong>Error Costs:</strong></p>
+                    <ul>
+                        <li>False Negative (approving bad loan): -$25,000 average loss</li>
+                        <li>False Positive (rejecting good loan): -$3,500 lost profit</li>
+                    </ul>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Decision Threshold:</span>
+                            <span id="thresholdValueBiz">0.30</span>
+                        </div>
+                        <input type="range" id="thresholdSliderBiz" min="0.1" max="0.5" step="0.01" value="0.30" oninput="updateBusinessMetrics()">
+                    </div>
+                </div>
+                
+                <div class="confusion-matrix">
+                    <div class="matrix-cell matrix-header">Confusion Matrix</div>
+                    <div class="matrix-cell matrix-header">Predicted Good</div>
+                    <div class="matrix-cell matrix-header">Predicted Bad</div>
+                    
+                    <div class="matrix-cell matrix-label">Actual Good</div>
+                    <div class="matrix-cell matrix-value true-negative" id="tn">8,420</div>
+                    <div class="matrix-cell matrix-value false-positive" id="fp">1,580</div>
+                    
+                    <div class="matrix-cell matrix-label">Actual Bad</div>
+                    <div class="matrix-cell matrix-value false-negative" id="fn">320</div>
+                    <div class="matrix-cell matrix-value true-positive" id="tp">1,680</div>
+                </div>
+                
+                <div class="financial-dashboard" style="margin-top: 30px;">
+                    <h4>Optimized Financial Impact</h4>
+                    <div class="metric">
+                        <span class="metric-label">Saved from Defaults</span>
+                        <span class="metric-value positive" id="savedDefaults">+$42M</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Lost Opportunities</span>
+                        <span class="metric-value negative" id="lostOpp">-$5.5M</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Net Annual Impact</span>
+                        <span class="metric-value positive" id="netImpact">+$52M</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenge 5: Production Deployment -->
+        <div class="challenge-section" id="challenge5" style="display: none;">
+            <h2>🚀 Challenge 5: Deploy to Production</h2>
+            <p>Your model is performing excellently! Now prepare it for production deployment.</p>
+            
+            <div class="interactive-section">
+                <h3>Production Readiness Checklist</h3>
+                
+                <div style="background: white; padding: 20px; border-radius: 8px;">
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="check1" onchange="updateDeployment()"> 
+                        Model accuracy > 85% on test set
+                    </label>
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="check2" onchange="updateDeployment()"> 
+                        Decision explanations available for all predictions
+                    </label>
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="check3" onchange="updateDeployment()"> 
+                        API response time < 100ms
+                    </label>
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="check4" onchange="updateDeployment()"> 
+                        Monitoring dashboard configured
+                    </label>
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="check5" onchange="updateDeployment()"> 
+                        Regulatory compliance documentation complete
+                    </label>
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="button" id="deployButton" disabled onclick="deployModel()">
+                            Deploy to Production
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="deploymentStatus" style="margin-top: 20px; display: none;">
+                    <div style="background: #e8f5e9; padding: 20px; border-radius: 8px;">
+                        <h4>✅ Deployment Successful!</h4>
+                        <p>Your decision tree model is now live and processing loan applications.</p>
+                        <ul>
+                            <li>Processing 1,000+ applications per minute</li>
+                            <li>Average decision time: 47ms</li>
+                            <li>All decisions include regulatory-compliant explanations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievement Unlocked -->
+        <div class="achievement" id="achievement1">
+            <h3>🏆 Achievement Unlocked: Tree Builder</h3>
+            <p>You've successfully built your first production decision tree!</p>
+        </div>
+        
+        <div class="achievement" id="achievement2">
+            <h3>🏆 Achievement Unlocked: Risk Master</h3>
+            <p>Achieved optimal balance between risk and opportunity!</p>
+        </div>
+        
+        <div class="achievement" id="achievement3">
+            <h3>🏆 Achievement Unlocked: Bank Savior</h3>
+            <p>Saved Regional Bank $52 million annually!</p>
+        </div>
+
+        <!-- Final Report -->
+        <div class="final-report" id="finalReport">
+            <h2>📊 Mission Complete: Executive Summary</h2>
+            <p style="font-size: 1.2em; margin: 20px 0;">Congratulations! You've successfully transformed Regional Bank's loan approval system.</p>
+            
+            <h3>Key Achievements:</h3>
+            <ul style="font-size: 1.1em; line-height: 1.8;">
+                <li>✅ Reduced annual losses from $85M to $33M (61% improvement)</li>
+                <li>✅ Increased profitable loan approvals by 15%</li>
+                <li>✅ Reduced default rate from 18% to 11%</li>
+                <li>✅ Maintained 65% approval rate (above 60% target)</li>
+                <li>✅ Achieved 87% model accuracy</li>
+                <li>✅ 100% decisions are explainable for regulatory compliance</li>
+            </ul>
+            
+            <h3>Business Impact:</h3>
+            <p style="font-size: 1.1em; margin: 20px 0;">Your decision tree system will save Regional Bank <strong>$52 million annually</strong> while improving customer satisfaction through faster, more consistent decisions. The model processes applications in under 50ms, replacing the previous 3-day manual review process.</p>
+            
+            <h3>Technical Innovation:</h3>
+            <p>You've demonstrated mastery of:</p>
+            <ul>
+                <li>Information gain and entropy calculations</li>
+                <li>Optimal tree depth selection</li>
+                <li>Cost-sensitive threshold optimization</li>
+                <li>Model interpretability for regulatory compliance</li>
+                <li>Production deployment best practices</li>
+            </ul>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="button" style="background: white; color: #28a745; border: 2px solid white;" onclick="downloadReport()">
+                    📥 Download Full Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentChallenge = 1;
+        let progress = 0;
+        let treeModel = null;
+        let financialImpact = -85000000;
+        let modelAccuracy = 0;
+        let applicationsProcessed = 0;
+        
+        // Initialize the experience
+        window.onload = function() {
+            drawCurrentSystem();
+            updateProgress(10);
+        };
+        
+        // Draw current system performance
+        function drawCurrentSystem() {
+            const canvas = document.getElementById('currentSystemChart');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(50, 250);
+            ctx.lineTo(850, 250);
+            ctx.moveTo(50, 250);
+            ctx.lineTo(50, 50);
+            ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Georgia';
+            ctx.fillText('Credit Score', 420, 290);
+            ctx.save();
+            ctx.translate(20, 150);
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText('Default Rate', 0, 0);
+            ctx.restore();
+            
+            // Draw data points
+            const data = generateLoanData(200);
+            data.forEach(point => {
+                ctx.beginPath();
+                const x = 50 + (point.creditScore - 550) * 2;
+                const y = 250 - (point.defaulted ? 150 : 50) + (Math.random() - 0.5) * 40;
+                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.fillStyle = point.defaulted ? '#f44336' : '#4caf50';
+                ctx.fill();
+            });
+            
+            // Draw decision boundary (credit score = 650)
+            ctx.strokeStyle = '#0366d6';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(250, 50);
+            ctx.lineTo(250, 250);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Add boundary label
+            ctx.fillStyle = '#0366d6';
+            ctx.font = 'bold 12px Georgia';
+            ctx.fillText('Current Cutoff: 650', 255, 70);
+        }
+        
+        // Generate synthetic loan data
+        function generateLoanData(n) {
+            const data = [];
+            for (let i = 0; i < n; i++) {
+                const creditScore = 550 + Math.random() * 300;
+                const income = 30000 + Math.random() * 120000;
+                const dti = 10 + Math.random() * 50;
+                
+                // Complex relationship for defaults
+                const defaultProb = 0.5 - (creditScore - 550) / 600 + 
+                                   (dti - 30) / 100 - 
+                                   (income - 30000) / 300000;
+                
+                data.push({
+                    creditScore: creditScore,
+                    income: income,
+                    dti: dti,
+                    defaulted: Math.random() < Math.max(0, Math.min(1, defaultProb))
+                });
+            }
+            return data;
+        }
+        
+        // Check answer for Challenge 1
+        function checkAnswer1(answer) {
+            const hint = document.getElementById('hint1');
+            hint.classList.add('visible');
+            
+            if (answer === 'complex') {
+                updateProgress(25);
+                setTimeout(() => {
+                    document.getElementById('challenge2').style.display = 'block';
+                    document.getElementById('challenge1').scrollIntoView({ behavior: 'smooth' });
+                }, 1500);
+            }
+        }
+        
+        // Update tree visualization
+        function updateTree() {
+            const depth = document.getElementById('depthSlider').value;
+            const minSamples = document.getElementById('minSamplesSlider').value;
+            const threshold = document.getElementById('thresholdSlider').value;
+            
+            document.getElementById('depthValue').textContent = depth;
+            document.getElementById('minSamplesValue').textContent = minSamples;
+            document.getElementById('thresholdValue').textContent = threshold;
+            
+            // Draw tree structure
+            drawTree(depth);
+        }
+        
+        // Draw decision tree
+        function drawTree(depth) {
+            const canvas = document.getElementById('treeCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw tree recursively
+            function drawNode(x, y, level, maxLevel, width) {
+                if (level > maxLevel) return;
+                
+                // Draw node
+                ctx.fillStyle = level === maxLevel ? '#4caf50' : '#0366d6';
+                ctx.beginPath();
+                ctx.arc(x, y, 15, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Draw edges to children
+                if (level < maxLevel) {
+                    ctx.strokeStyle = '#333';
+                    ctx.lineWidth = 2;
+                    
+                    const childY = y + 60;
+                    const leftChildX = x - width / 2;
+                    const rightChildX = x + width / 2;
+                    
+                    // Left edge
+                    ctx.beginPath();
+                    ctx.moveTo(x, y + 15);
+                    ctx.lineTo(leftChildX, childY - 15);
+                    ctx.stroke();
+                    
+                    // Right edge
+                    ctx.beginPath();
+                    ctx.moveTo(x, y + 15);
+                    ctx.lineTo(rightChildX, childY - 15);
+                    ctx.stroke();
+                    
+                    // Recursively draw children
+                    drawNode(leftChildX, childY, level + 1, maxLevel, width / 2);
+                    drawNode(rightChildX, childY, level + 1, maxLevel, width / 2);
+                }
+                
+                // Add feature labels
+                if (level === 1) {
+                    ctx.fillStyle = '#333';
+                    ctx.font = '12px Georgia';
+                    ctx.fillText('DTI < 30%', x - 30, y - 20);
+                } else if (level === 2 && x < canvas.width / 2) {
+                    ctx.fillText('Income > 75K', x - 35, y - 20);
+                } else if (level === 2) {
+                    ctx.fillText('Credit > 700', x - 35, y - 20);
+                }
+            }
+            
+            // Start drawing from root
+            drawNode(canvas.width / 2, 40, 1, parseInt(depth), canvas.width / 3);
+        }
+        
+        // Train the decision tree
+        function trainTree() {
+            const depth = parseInt(document.getElementById('depthSlider').value);
+            
+            // Simulate training
+            setTimeout(() => {
+                // Calculate impact based on depth
+                let impact = -85000000;
+                if (depth >= 3 && depth <= 6) {
+                    impact = -85000000 + (52000000 * (1 - Math.abs(depth - 4.5) / 2));
+                } else {
+                    impact = -85000000 + (30000000 * Math.max(0, 1 - Math.abs(depth - 5) / 5));
+                }
+                
+                financialImpact = impact;
+                updateFinancialDashboard();
+                
+                // Unlock achievement
+                if (!document.getElementById('achievement1').classList.contains('unlocked')) {
+                    document.getElementById('achievement1').classList.add('unlocked');
+                }
+                
+                updateProgress(40);
+                
+                // Show next challenge
+                setTimeout(() => {
+                    document.getElementById('challenge3').style.display = 'block';
+                    document.getElementById('challenge3').scrollIntoView({ behavior: 'smooth' });
+                }, 1500);
+            }, 1500);
+        }
+        
+        // Show hint for challenge 2
+        function showHint2() {
+            document.getElementById('hint2').classList.add('visible');
+        }
+        
+        // Process loan application
+        function processApplication(appNum) {
+            const decisionDiv = document.getElementById(`decision${appNum}`);
+            decisionDiv.style.display = 'block';
+            
+            applicationsProcessed++;
+            
+            if (appNum === 1) {
+                updateProgress(50);
+                setTimeout(() => {
+                    document.getElementById('applicant2').style.display = 'block';
+                }, 1000);
+            } else if (appNum === 2) {
+                updateProgress(60);
+                setTimeout(() => {
+                    document.getElementById('challenge4').style.display = 'block';
+                    document.getElementById('challenge4').scrollIntoView({ behavior: 'smooth' });
+                }, 1500);
+            }
+        }
+        
+        // Update business metrics based on threshold
+        function updateBusinessMetrics() {
+            const threshold = parseFloat(document.getElementById('thresholdSliderBiz').value);
+            document.getElementById('thresholdValueBiz').textContent = threshold.toFixed(2);
+            
+            // Update confusion matrix based on threshold
+            const tn = Math.floor(8420 + (0.3 - threshold) * 1000);
+            const fp = Math.floor(1580 - (0.3 - threshold) * 1000);
+            const fn = Math.floor(320 + (0.3 - threshold) * 200);
+            const tp = Math.floor(1680 - (0.3 - threshold) * 200);
+            
+            document.getElementById('tn').textContent = tn.toLocaleString();
+            document.getElementById('fp').textContent = fp.toLocaleString();
+            document.getElementById('fn').textContent = fn.toLocaleString();
+            document.getElementById('tp').textContent = tp.toLocaleString();
+            
+            // Calculate financial impact
+            const savedDefaults = tp * 25000;
+            const lostOpp = fp * 3500;
+            const earnedGood = tn * 3500;
+            const lossesDefaults = fn * 25000;
+            
+            const netImpact = savedDefaults + earnedGood - lostOpp - lossesDefaults;
+            
+            document.getElementById('savedDefaults').textContent = `+$${(savedDefaults/1000000).toFixed(1)}M`;
+            document.getElementById('lostOpp').textContent = `-$${(lostOpp/1000000).toFixed(1)}M`;
+            document.getElementById('netImpact').textContent = `+$${(netImpact/1000000).toFixed(1)}M`;
+            
+            // Update main financial dashboard
+            financialImpact = -85000000 + netImpact;
+            updateFinancialDashboard();
+            
+            // Unlock achievement if optimal
+            if (threshold >= 0.28 && threshold <= 0.32) {
+                if (!document.getElementById('achievement2').classList.contains('unlocked')) {
+                    document.getElementById('achievement2').classList.add('unlocked');
+                    updateProgress(75);
+                    
+                    setTimeout(() => {
+                        document.getElementById('challenge5').style.display = 'block';
+                        document.getElementById('challenge5').scrollIntoView({ behavior: 'smooth' });
+                    }, 2000);
+                }
+            }
+        }
+        
+        // Update deployment checklist
+        function updateDeployment() {
+            const checks = ['check1', 'check2', 'check3', 'check4', 'check5'];
+            const allChecked = checks.every(id => document.getElementById(id).checked);
+            
+            document.getElementById('deployButton').disabled = !allChecked;
+            
+            if (allChecked) {
+                updateProgress(90);
+            }
+        }
+        
+        // Deploy model to production
+        function deployModel() {
+            document.getElementById('deploymentStatus').style.display = 'block';
+            
+            setTimeout(() => {
+                if (!document.getElementById('achievement3').classList.contains('unlocked')) {
+                    document.getElementById('achievement3').classList.add('unlocked');
+                }
+                
+                updateProgress(100);
+                
+                setTimeout(() => {
+                    document.getElementById('finalReport').classList.add('visible');
+                    document.getElementById('finalReport').scrollIntoView({ behavior: 'smooth' });
+                }, 1500);
+            }, 1000);
+        }
+        
+        // Update financial dashboard
+        function updateFinancialDashboard() {
+            const currentLoss = financialImpact < 0 ? 
+                `-$${Math.abs(financialImpact/1000000).toFixed(0)}M` : 
+                `+$${(financialImpact/1000000).toFixed(0)}M`;
+            
+            document.getElementById('currentLoss').textContent = currentLoss;
+            document.getElementById('currentLoss').className = 
+                financialImpact < -50000000 ? 'metric-value negative' : 'metric-value positive';
+            
+            const savings = Math.max(0, 85000000 + financialImpact);
+            document.getElementById('potentialSavings').textContent = 
+                `$${(savings/1000000).toFixed(0)}M`;
+            document.getElementById('potentialSavings').className = 
+                savings > 40000000 ? 'metric-value positive' : 'metric-value';
+        }
+        
+        // Update progress bar
+        function updateProgress(value) {
+            progress = value;
+            const bar = document.getElementById('progressBar');
+            const text = document.getElementById('progressText');
+            const desc = document.getElementById('progressDescription');
+            
+            bar.style.width = value + '%';
+            text.textContent = value + '%';
+            
+            if (value === 10) {
+                desc.textContent = 'Analyzing current system performance...';
+            } else if (value === 25) {
+                desc.textContent = 'Problem identified! Building decision tree...';
+            } else if (value === 40) {
+                desc.textContent = 'Tree trained! Testing on real applications...';
+            } else if (value === 60) {
+                desc.textContent = 'Testing complete! Optimizing for business value...';
+            } else if (value === 75) {
+                desc.textContent = 'Optimization successful! Preparing for deployment...';
+            } else if (value === 90) {
+                desc.textContent = 'Almost ready for production...';
+            } else if (value === 100) {
+                desc.textContent = 'Mission Complete! You saved the bank!';
+            }
+        }
+        
+        // Download report
+        function downloadReport() {
+            alert('Downloading comprehensive report...\n\nReport includes:\n- Model performance metrics\n- Financial impact analysis\n- Implementation recommendations\n- Monitoring guidelines');
+        }
+        
+        // Initialize tree on load
+        updateTree();
+    </script>
+</body>
+</html>

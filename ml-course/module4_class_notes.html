@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4: Decision Trees - Class Notes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            padding: 60px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #003366;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #0366d6;
+            padding-bottom: 15px;
+        }
+        
+        h2 {
+            color: #003366;
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-left: 10px;
+            border-left: 4px solid #0366d6;
+        }
+        
+        h3 {
+            color: #0366d6;
+            font-size: 1.3em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .paradigm-shift {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .paradigm-shift h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        
+        .business-context {
+            background: linear-gradient(135deg, #f093fb10 0%, #f5576c10 100%);
+            border-left: 4px solid #f5576c;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .mathematical-foundation {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
+        .code-comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+        
+        .code-keyword {
+            color: #c678dd;
+        }
+        
+        .code-string {
+            color: #98c379;
+        }
+        
+        .code-function {
+            color: #61afef;
+        }
+        
+        .key-insight {
+            background: linear-gradient(135deg, #ffeaa710 0%, #fdcb6e10 100%);
+            border-left: 4px solid #fdcb6e;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .formula {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1em;
+        }
+        
+        .visualization-placeholder {
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            border: 2px dashed #667eea;
+            padding: 40px;
+            text-align: center;
+            margin: 30px 0;
+            border-radius: 8px;
+            color: #667eea;
+            font-style: italic;
+        }
+        
+        ul {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+        
+        li {
+            margin: 10px 0;
+        }
+        
+        .summary-box {
+            background: linear-gradient(135deg, #a8e6cf20 0%, #dcedc120 100%);
+            border: 2px solid #81c784;
+            padding: 25px;
+            margin: 40px 0;
+            border-radius: 8px;
+        }
+        
+        .summary-box h3 {
+            color: #4caf50;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Module 4: Decision Trees for Intelligent Loan Approval</h1>
+        
+        <div class="business-context">
+            <h3>The $85 Million Problem</h3>
+            <p>Regional Bank Corporation faces a crisis: their traditional loan approval process, based on rigid credit score cutoffs and manual review, is hemorrhaging money. Last year alone, they lost $50 million to defaults on approved loans and $35 million in missed revenue from rejected creditworthy applicants. You've been hired to build an interpretable, data-driven decision system that can revolutionize their lending operations.</p>
+        </div>
+
+        <h2>Part I: The Paradigm Shift - From Rules to Learning</h2>
+        
+        <div class="paradigm-shift">
+            <h3>Traditional Approach: Fixed Rules</h3>
+            <ul>
+                <li>Hard-coded thresholds (e.g., "Reject if credit score < 650")</li>
+                <li>Linear decision boundaries that miss complex patterns</li>
+                <li>No ability to discover interaction effects</li>
+                <li>Manual feature engineering based on intuition</li>
+            </ul>
+            
+            <h3>Machine Learning Approach: Adaptive Trees</h3>
+            <ul>
+                <li>Data-driven splitting points optimized for actual outcomes</li>
+                <li>Automatic discovery of non-linear patterns</li>
+                <li>Natural handling of feature interactions</li>
+                <li>Interpretable decision paths for regulatory compliance</li>
+            </ul>
+        </div>
+
+        <h2>Part II: Mathematical Foundations</h2>
+        
+        <div class="mathematical-foundation">
+            <h3>Information Theory: The Heart of Decision Trees</h3>
+            
+            <p>Decision trees make splits by maximizing information gain - the reduction in uncertainty about loan outcomes:</p>
+            
+            <div class="formula">
+                H(S) = -Σ p(c) × log₂(p(c))
+            </div>
+            
+            <p>Where H(S) is the entropy of the dataset S, and p(c) is the proportion of samples belonging to class c (default/no-default).</p>
+            
+            <h3>Information Gain</h3>
+            <p>The effectiveness of a split is measured by how much it reduces entropy:</p>
+            
+            <div class="formula">
+                IG(S, A) = H(S) - Σ (|Sᵥ|/|S|) × H(Sᵥ)
+            </div>
+            
+            <p>Where A is the attribute we're splitting on, and Sᵥ represents the subset of S for each value v of attribute A.</p>
+            
+            <h3>Gini Impurity: An Alternative Metric</h3>
+            <p>Many implementations use Gini impurity for computational efficiency:</p>
+            
+            <div class="formula">
+                Gini(S) = 1 - Σ p(c)²
+            </div>
+            
+            <p>Lower Gini values indicate purer nodes (more homogeneous loan outcomes).</p>
+        </div>
+
+        <h2>Part III: Building the Tree - A Step-by-Step Journey</h2>
+        
+        <div class="code-block">
+<span class="code-comment"># Step 1: Understanding our loan data structure</span>
+<span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+<span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+<span class="code-keyword">from</span> sklearn.tree <span class="code-keyword">import</span> DecisionTreeClassifier
+<span class="code-keyword">from</span> sklearn.model_selection <span class="code-keyword">import</span> train_test_split
+
+<span class="code-comment"># Load historical loan data (5 years, 50,000 applications)</span>
+loan_data = pd.read_csv(<span class="code-string">'loan_applications.csv'</span>)
+
+<span class="code-comment"># Key features that determine loan risk</span>
+features = [
+    <span class="code-string">'credit_score'</span>,        <span class="code-comment"># FICO score (300-850)</span>
+    <span class="code-string">'annual_income'</span>,       <span class="code-comment"># Annual income in USD</span>
+    <span class="code-string">'debt_to_income'</span>,      <span class="code-comment"># DTI ratio (%)</span>
+    <span class="code-string">'employment_years'</span>,    <span class="code-comment"># Years at current job</span>
+    <span class="code-string">'loan_amount'</span>,         <span class="code-comment"># Requested loan amount</span>
+    <span class="code-string">'loan_purpose'</span>,        <span class="code-comment"># Encoded: home, auto, personal, etc.</span>
+    <span class="code-string">'home_ownership'</span>,      <span class="code-comment"># Encoded: rent, own, mortgage</span>
+    <span class="code-string">'previous_defaults'</span>,   <span class="code-comment"># Number of past defaults</span>
+]
+
+<span class="code-comment"># Target: 1 if loan defaulted, 0 if repaid successfully</span>
+X = loan_data[features]
+y = loan_data[<span class="code-string">'defaulted'</span>]
+
+<span class="code-comment"># Split data: 70% training, 30% testing</span>
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y
+)
+        </div>
+
+        <div class="code-block">
+<span class="code-comment"># Step 2: Building our first decision tree</span>
+<span class="code-keyword">def</span> <span class="code-function">build_loan_decision_tree</span>(max_depth=None, min_samples_split=20):
+    <span class="code-string">"""
+    Build a decision tree optimized for loan approval.
+    
+    Business constraints:
+    - Must be interpretable (max_depth limits complexity)
+    - Must handle at least 20 samples per decision (regulatory requirement)
+    - Must provide probability estimates for risk scoring
+    """</span>
+    
+    <span class="code-comment"># Initialize tree with business-driven parameters</span>
+    tree_model = DecisionTreeClassifier(
+        criterion=<span class="code-string">'gini'</span>,              <span class="code-comment"># Use Gini for speed</span>
+        max_depth=max_depth,             <span class="code-comment"># Control interpretability</span>
+        min_samples_split=min_samples_split,  <span class="code-comment"># Regulatory compliance</span>
+        min_samples_leaf=10,             <span class="code-comment"># Avoid overfitting</span>
+        class_weight=<span class="code-string">'balanced'</span>,       <span class="code-comment"># Handle imbalanced defaults</span>
+        random_state=42
+    )
+    
+    <span class="code-comment"># Train the model</span>
+    tree_model.fit(X_train, y_train)
+    
+    <span class="code-comment"># Calculate feature importance for business insights</span>
+    feature_importance = pd.DataFrame({
+        <span class="code-string">'feature'</span>: features,
+        <span class="code-string">'importance'</span>: tree_model.feature_importances_
+    }).sort_values(<span class="code-string">'importance'</span>, ascending=False)
+    
+    <span class="code-keyword">return</span> tree_model, feature_importance
+
+<span class="code-comment"># Build our model</span>
+model, importance = build_loan_decision_tree(max_depth=5)
+<span class="code-keyword">print</span>(<span class="code-string">"Top Risk Factors:"</span>)
+<span class="code-keyword">print</span>(importance.head())
+        </div>
+
+        <h2>Part IV: The Business Impact - Beyond Accuracy</h2>
+        
+        <div class="key-insight">
+            <h3>The Cost-Sensitive Nature of Loan Decisions</h3>
+            <p>Not all errors are equal in lending:</p>
+            <ul>
+                <li><strong>False Negative (Approving a bad loan):</strong> Average loss of $25,000 per default</li>
+                <li><strong>False Positive (Rejecting a good loan):</strong> Lost profit of $3,500 per loan</li>
+            </ul>
+            <p>Our decision tree must optimize for business value, not just accuracy!</p>
+        </div>
+
+        <div class="code-block">
+<span class="code-comment"># Step 3: Implementing cost-sensitive decision making</span>
+<span class="code-keyword">def</span> <span class="code-function">calculate_business_impact</span>(y_true, y_pred, y_prob):
+    <span class="code-string">"""
+    Calculate the actual dollar impact of our loan decisions.
+    
+    Business model:
+    - Average loan amount: $50,000
+    - Default rate in approved loans affects profitability
+    - Each default costs: principal loss + collection costs
+    - Each successful loan generates: interest income over loan term
+    """</span>
+    
+    <span class="code-comment"># Business parameters</span>
+    avg_loan_amount = 50000
+    default_loss = 25000      <span class="code-comment"># Average loss per defaulted loan</span>
+    good_loan_profit = 3500    <span class="code-comment"># Average profit per successful loan</span>
+    
+    <span class="code-comment"># Calculate confusion matrix components</span>
+    true_positives = np.sum((y_true == 1) & (y_pred == 1))   <span class="code-comment"># Correctly rejected bad loans</span>
+    false_positives = np.sum((y_true == 0) & (y_pred == 1))  <span class="code-comment"># Incorrectly rejected good loans</span>
+    true_negatives = np.sum((y_true == 0) & (y_pred == 0))   <span class="code-comment"># Correctly approved good loans</span>
+    false_negatives = np.sum((y_true == 1) & (y_pred == 0))  <span class="code-comment"># Incorrectly approved bad loans</span>
+    
+    <span class="code-comment"># Calculate financial impact</span>
+    saved_from_defaults = true_positives * default_loss
+    lost_opportunity = false_positives * good_loan_profit
+    earned_from_good_loans = true_negatives * good_loan_profit
+    losses_from_defaults = false_negatives * default_loss
+    
+    total_impact = saved_from_defaults + earned_from_good_loans - lost_opportunity - losses_from_defaults
+    
+    <span class="code-keyword">return</span> {
+        <span class="code-string">'total_impact'</span>: total_impact,
+        <span class="code-string">'saved_from_defaults'</span>: saved_from_defaults,
+        <span class="code-string">'lost_opportunities'</span>: lost_opportunity,
+        <span class="code-string">'earned_from_good_loans'</span>: earned_from_good_loans,
+        <span class="code-string">'losses_from_defaults'</span>: losses_from_defaults,
+        <span class="code-string">'approval_rate'</span>: (true_negatives + false_negatives) / len(y_true)
+    }
+
+<span class="code-comment"># Evaluate our model's business impact</span>
+y_pred = model.predict(X_test)
+y_prob = model.predict_proba(X_test)[:, 1]
+impact = calculate_business_impact(y_test, y_pred, y_prob)
+
+<span class="code-keyword">print</span>(f<span class="code-string">"Annual Financial Impact: ${impact['total_impact']:,.0f}"</span>)
+<span class="code-keyword">print</span>(f<span class="code-string">"Loan Approval Rate: {impact['approval_rate']:.1%}"</span>)
+        </div>
+
+        <h2>Part V: Advanced Techniques - Pruning and Optimization</h2>
+        
+        <div class="code-block">
+<span class="code-comment"># Step 4: Optimizing tree complexity for production</span>
+<span class="code-keyword">def</span> <span class="code-function">optimize_tree_depth</span>(X_train, y_train, X_val, y_val):
+    <span class="code-string">"""
+    Find the optimal tree depth that maximizes business value.
+    
+    Strategy: Balance model complexity with financial performance
+    """</span>
+    
+    depth_analysis = []
+    
+    <span class="code-keyword">for</span> depth <span class="code-keyword">in</span> range(2, 15):
+        <span class="code-comment"># Train tree with specific depth</span>
+        tree = DecisionTreeClassifier(
+            max_depth=depth,
+            min_samples_split=20,
+            class_weight=<span class="code-string">'balanced'</span>,
+            random_state=42
+        )
+        tree.fit(X_train, y_train)
+        
+        <span class="code-comment"># Evaluate on validation set</span>
+        y_pred = tree.predict(X_val)
+        y_prob = tree.predict_proba(X_val)[:, 1]
+        
+        <span class="code-comment"># Calculate business metrics</span>
+        impact = calculate_business_impact(y_val, y_pred, y_prob)
+        
+        <span class="code-comment"># Store results</span>
+        depth_analysis.append({
+            <span class="code-string">'depth'</span>: depth,
+            <span class="code-string">'n_leaves'</span>: tree.get_n_leaves(),
+            <span class="code-string">'financial_impact'</span>: impact[<span class="code-string">'total_impact'</span>],
+            <span class="code-string">'approval_rate'</span>: impact[<span class="code-string">'approval_rate'</span>]
+        })
+    
+    <span class="code-keyword">return</span> pd.DataFrame(depth_analysis)
+
+<span class="code-comment"># Find optimal complexity</span>
+optimization_results = optimize_tree_depth(X_train, y_train, X_test, y_test)
+optimal_depth = optimization_results.loc[
+    optimization_results[<span class="code-string">'financial_impact'</span>].idxmax(), <span class="code-string">'depth'</span>
+]
+
+<span class="code-keyword">print</span>(f<span class="code-string">"Optimal tree depth: {optimal_depth}"</span>)
+<span class="code-keyword">print</span>(f<span class="code-string">"Expected annual impact: ${optimization_results['financial_impact'].max():,.0f}"</span>)
+        </div>
+
+        <h2>Part VI: Interpretability - The Regulatory Requirement</h2>
+        
+        <div class="code-block">
+<span class="code-comment"># Step 5: Extracting human-readable decision rules</span>
+<span class="code-keyword">def</span> <span class="code-function">extract_decision_path</span>(tree_model, sample_features):
+    <span class="code-string">"""
+    Extract the decision path for a loan application.
+    Required for regulatory compliance and customer communication.
+    """</span>
+    
+    <span class="code-comment"># Get the decision path</span>
+    feature_names = sample_features.index
+    decision_path = tree_model.decision_path([sample_features.values])
+    leaf_id = tree_model.apply([sample_features.values])[0]
+    
+    <span class="code-comment"># Extract rules from root to leaf</span>
+    node_indicator = decision_path.toarray()[0]
+    rules = []
+    
+    <span class="code-keyword">for</span> node_id <span class="code-keyword">in</span> range(len(node_indicator)):
+        <span class="code-keyword">if</span> node_indicator[node_id] == 1:
+            <span class="code-keyword">if</span> tree_model.tree_.children_left[node_id] != -1:  <span class="code-comment"># Not a leaf</span>
+                feature_id = tree_model.tree_.feature[node_id]
+                threshold = tree_model.tree_.threshold[node_id]
+                feature_name = feature_names[feature_id]
+                
+                <span class="code-comment"># Determine which branch was taken</span>
+                <span class="code-keyword">if</span> sample_features.values[feature_id] <= threshold:
+                    rules.append(f<span class="code-string">"{feature_name} <= {threshold:.2f}"</span>)
+                <span class="code-keyword">else</span>:
+                    rules.append(f<span class="code-string">"{feature_name} > {threshold:.2f}"</span>)
+    
+    <span class="code-comment"># Get the prediction probability</span>
+    proba = tree_model.predict_proba([sample_features.values])[0]
+    
+    <span class="code-keyword">return</span> {
+        <span class="code-string">'rules'</span>: rules,
+        <span class="code-string">'default_probability'</span>: proba[1],
+        <span class="code-string">'decision'</span>: <span class="code-string">'Approve'</span> <span class="code-keyword">if</span> proba[1] < 0.3 <span class="code-keyword">else</span> <span class="code-string">'Reject'</span>
+    }
+
+<span class="code-comment"># Example: Explain a specific loan decision</span>
+sample_application = X_test.iloc[0]
+explanation = extract_decision_path(model, sample_application)
+
+<span class="code-keyword">print</span>(<span class="code-string">"Loan Decision Explanation:"</span>)
+<span class="code-keyword">for</span> i, rule <span class="code-keyword">in</span> enumerate(explanation[<span class="code-string">'rules'</span>], 1):
+    <span class="code-keyword">print</span>(f<span class="code-string">"  Step {i}: {rule}"</span>)
+<span class="code-keyword">print</span>(f<span class="code-string">"Default Risk: {explanation['default_probability']:.1%}"</span>)
+<span class="code-keyword">print</span>(f<span class="code-string">"Decision: {explanation['decision']}"</span>)
+        </div>
+
+        <h2>Part VII: Ensemble Enhancement - Random Forests</h2>
+        
+        <div class="paradigm-shift">
+            <h3>From Single Tree to Forest</h3>
+            <p>While a single decision tree provides interpretability, combining multiple trees through Random Forests can dramatically improve performance while maintaining reasonable interpretability through feature importance analysis.</p>
+        </div>
+
+        <div class="code-block">
+<span class="code-comment"># Step 6: Building a Random Forest for comparison</span>
+<span class="code-keyword">from</span> sklearn.ensemble <span class="code-keyword">import</span> RandomForestClassifier
+
+<span class="code-keyword">def</span> <span class="code-function">build_loan_forest</span>(n_trees=100):
+    <span class="code-string">"""
+    Build a Random Forest model for loan approval.
+    Trades some interpretability for significantly better performance.
+    """</span>
+    
+    forest = RandomForestClassifier(
+        n_estimators=n_trees,
+        max_depth=7,
+        min_samples_split=20,
+        class_weight=<span class="code-string">'balanced'</span>,
+        n_jobs=-1,  <span class="code-comment"># Use all CPU cores</span>
+        random_state=42
+    )
+    
+    forest.fit(X_train, y_train)
+    
+    <span class="code-comment"># Compare single tree vs forest performance</span>
+    tree_pred = model.predict(X_test)
+    forest_pred = forest.predict(X_test)
+    
+    tree_impact = calculate_business_impact(y_test, tree_pred, model.predict_proba(X_test)[:, 1])
+    forest_impact = calculate_business_impact(y_test, forest_pred, forest.predict_proba(X_test)[:, 1])
+    
+    improvement = forest_impact[<span class="code-string">'total_impact'</span>] - tree_impact[<span class="code-string">'total_impact'</span>]
+    
+    <span class="code-keyword">print</span>(f<span class="code-string">"Single Tree Annual Impact: ${tree_impact['total_impact']:,.0f}"</span>)
+    <span class="code-keyword">print</span>(f<span class="code-string">"Random Forest Annual Impact: ${forest_impact['total_impact']:,.0f}"</span>)
+    <span class="code-keyword">print</span>(f<span class="code-string">"Additional Value from Forest: ${improvement:,.0f}"</span>)
+    
+    <span class="code-keyword">return</span> forest
+
+forest_model = build_loan_forest()
+        </div>
+
+        <div class="summary-box">
+            <h3>Module Summary: Decision Trees in Production</h3>
+            <p><strong>Key Achievements:</strong></p>
+            <ul>
+                <li>Built an interpretable loan approval system reducing losses by $52 million annually</li>
+                <li>Achieved 87% accuracy while maintaining regulatory compliance</li>
+                <li>Reduced loan processing time from 3 days to 30 seconds</li>
+                <li>Provided clear explanations for every loan decision</li>
+            </ul>
+            
+            <p><strong>Critical Insights:</strong></p>
+            <ul>
+                <li>Decision trees naturally handle non-linear patterns and feature interactions</li>
+                <li>Information gain and Gini impurity guide optimal splitting decisions</li>
+                <li>Tree depth controls the bias-variance tradeoff</li>
+                <li>Cost-sensitive evaluation is crucial for business applications</li>
+                <li>Random Forests can improve performance while sacrificing some interpretability</li>
+            </ul>
+            
+            <p><strong>Production Considerations:</strong></p>
+            <ul>
+                <li>Monitor for data drift - retrain quarterly with new loan data</li>
+                <li>Maintain interpretability for regulatory audits</li>
+                <li>Set appropriate thresholds based on business risk tolerance</li>
+                <li>Consider ensemble methods for maximum performance</li>
+            </ul>
+        </div>
+
+        <div class="business-context">
+            <h3>The Bottom Line</h3>
+            <p>Your decision tree system has transformed Regional Bank's lending operations. By replacing rigid rules with adaptive, data-driven decisions, you've not only saved $52 million annually but also increased loan approval rates by 15% while reducing default rates by 40%. The bank can now make instant, explainable loan decisions that satisfy both customers and regulators. This is the power of decision trees - turning complex patterns into clear, actionable business rules.</p>
+        </div>
+    </div>
+</body>
+</html>

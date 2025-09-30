@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4 Lab: Build a $52M Decision Tree System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f093fb10 0%, #f5576c10 100%);
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #003366;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .timer-section {
+            position: sticky;
+            top: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            z-index: 100;
+        }
+        
+        #timer {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .task {
+            background: #f8f9fa;
+            border-left: 4px solid #0366d6;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .task.completed {
+            border-left-color: #4caf50;
+            background: #e8f5e9;
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .task-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #003366;
+        }
+        
+        .task-points {
+            background: #0366d6;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .task.completed .task-points {
+            background: #4caf50;
+        }
+        
+        .code-editor {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            min-height: 200px;
+            position: relative;
+        }
+        
+        .code-editor textarea {
+            width: 100%;
+            background: transparent;
+            color: #abb2bf;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: 1.5;
+            resize: vertical;
+            min-height: 150px;
+        }
+        
+        .run-button {
+            background: #4caf50;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+        
+        .run-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76,175,80,0.3);
+        }
+        
+        .hint-button {
+            background: #ffc107;
+            color: #333;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+        
+        .hint-button:hover {
+            background: #ffb300;
+            transform: translateY(-2px);
+        }
+        
+        .hint-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .hint-box.visible {
+            display: block;
+        }
+        
+        .output-console {
+            background: #1e1e1e;
+            color: #4caf50;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .checkpoint {
+            background: linear-gradient(135deg, #a8e6cf20 0%, #dcedc120 100%);
+            border: 2px solid #81c784;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 10px;
+        }
+        
+        .checkpoint-title {
+            color: #4caf50;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .progress-tracker {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .progress-tracker::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e9ecef;
+            z-index: 0;
+        }
+        
+        .progress-step {
+            background: white;
+            border: 3px solid #e9ecef;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .progress-step.completed {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: white;
+        }
+        
+        .progress-step.active {
+            background: #0366d6;
+            border-color: #0366d6;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(3,102,214,0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(3,102,214,0); }
+            100% { box-shadow: 0 0 0 0 rgba(3,102,214,0); }
+        }
+        
+        .performance-metrics {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .metric-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #003366;
+            margin-top: 5px;
+        }
+        
+        .final-submission {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 40px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .final-submission.visible {
+            display: block;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .checklist-item input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .code-comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+        
+        .code-keyword {
+            color: #c678dd;
+        }
+        
+        .code-string {
+            color: #98c379;
+        }
+        
+        .code-function {
+            color: #61afef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Lab Mission: Build Your $52M Decision Tree</h1>
+            <p style="font-size: 1.2em; color: #666;">Code a production-ready loan approval system in 90 minutes</p>
+        </div>
+
+        <div class="timer-section">
+            <div>⏱️ Time Remaining: <span id="timer">90:00</span></div>
+            <div style="font-size: 0.9em; margin-top: 5px;">Complete all tasks to save Regional Bank!</div>
+        </div>
+
+        <div class="progress-tracker">
+            <div class="progress-step active" id="step1">1</div>
+            <div class="progress-step" id="step2">2</div>
+            <div class="progress-step" id="step3">3</div>
+            <div class="progress-step" id="step4">4</div>
+            <div class="progress-step" id="step5">5</div>
+            <div class="progress-step" id="step6">6</div>
+            <div class="progress-step" id="step7">7</div>
+        </div>
+
+        <!-- Task 1: Setup and Data Loading -->
+        <div class="task" id="task1">
+            <div class="task-header">
+                <span class="task-title">📊 Task 1: Load and Explore Loan Data</span>
+                <span class="task-points">10 points</span>
+            </div>
+            
+            <p>Begin by loading the bank's historical loan data and understanding its structure. This dataset contains 50,000 loan applications from the past 5 years.</p>
+            
+            <div class="code-editor">
+                <textarea id="code1" placeholder="# Import required libraries and load data
+import pandas as pd
+import numpy as np
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, classification_report
+
+# TODO: Load the loan data
+# loan_data = pd.read_csv('regional_bank_loans.csv')
+
+# TODO: Display basic statistics
+# print(f'Dataset shape: {loan_data.shape}')
+# print(f'Default rate: {loan_data.defaulted.mean():.2%}')
+
+# TODO: Identify key features
+# features = [...]
+# X = loan_data[features]
+# y = loan_data['defaulted']"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask1()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(1)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint1">
+                <strong>💡 Hint:</strong> Key features to consider:
+                <ul>
+                    <li>credit_score (300-850 range)</li>
+                    <li>annual_income (in USD)</li>
+                    <li>debt_to_income (percentage)</li>
+                    <li>employment_years</li>
+                    <li>loan_amount</li>
+                    <li>previous_defaults (count)</li>
+                </ul>
+                Remember to handle missing values and encode categorical variables!
+            </div>
+            
+            <div class="output-console" id="output1">
+                > Ready to execute your code...
+            </div>
+            
+            <div class="checklist-item">
+                <input type="checkbox" id="check1_1" onchange="updateTask1()">
+                <label for="check1_1">Data loaded successfully (50,000 records)</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check1_2" onchange="updateTask1()">
+                <label for="check1_2">Identified 8 key features</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check1_3" onchange="updateTask1()">
+                <label for="check1_3">Default rate calculated (18.2%)</label>
+            </div>
+        </div>
+
+        <!-- Task 2: Data Preparation -->
+        <div class="task" id="task2">
+            <div class="task-header">
+                <span class="task-title">🔧 Task 2: Prepare Data for Training</span>
+                <span class="task-points">15 points</span>
+            </div>
+            
+            <p>Split the data strategically and handle class imbalance. Remember: defaults are rare but costly!</p>
+            
+            <div class="code-editor">
+                <textarea id="code2" placeholder="# TODO: Split data into training and testing sets
+# Use stratified sampling to maintain default rate in both sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=?
+)
+
+# TODO: Check class distribution
+# print(f'Training set default rate: {y_train.mean():.2%}')
+# print(f'Test set default rate: {y_test.mean():.2%}')
+
+# TODO: Calculate class weights for cost-sensitive learning
+# Remember: False negatives cost $25,000, false positives cost $3,500
+# class_weight = {...}"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask2()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(2)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint2">
+                <strong>💡 Hint:</strong> For cost-sensitive learning:
+                <pre style="background: #f8f9fa; padding: 10px; border-radius: 5px;">
+# Calculate the cost ratio
+cost_ratio = 25000 / 3500  # ≈ 7.14
+# This means false negatives are 7x more expensive!
+
+# Use 'balanced' or custom weights
+class_weight = {0: 1, 1: cost_ratio}</pre>
+            </div>
+            
+            <div class="output-console" id="output2">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Task 3: Build Initial Tree -->
+        <div class="task" id="task3">
+            <div class="task-header">
+                <span class="task-title">🌳 Task 3: Build Your First Decision Tree</span>
+                <span class="task-points">20 points</span>
+            </div>
+            
+            <p>Create a decision tree that balances accuracy with interpretability. Remember: regulators require explanations!</p>
+            
+            <div class="code-editor">
+                <textarea id="code3" placeholder="# TODO: Initialize and train your decision tree
+def build_loan_tree(max_depth=5, min_samples_split=20):
+    '''
+    Build a decision tree for loan approval.
+    
+    Parameters:
+    - max_depth: Maximum tree depth (interpretability)
+    - min_samples_split: Minimum samples for splitting (stability)
+    
+    Returns:
+    - trained model
+    - feature importance scores
+    '''
+    
+    # TODO: Initialize DecisionTreeClassifier
+    # Consider: criterion, max_depth, min_samples_split, class_weight
+    
+    # TODO: Train the model
+    
+    # TODO: Calculate and return feature importance
+    
+    return model, importance
+
+# Build and evaluate your tree
+model, importance = build_loan_tree()
+
+# TODO: Display top 3 most important features"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask3()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(3)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint3">
+                <strong>💡 Hint:</strong> Key parameters for business constraints:
+                <ul>
+                    <li><code>max_depth=5</code> - Deep enough to capture patterns but still interpretable</li>
+                    <li><code>min_samples_split=20</code> - Regulatory requirement for statistical significance</li>
+                    <li><code>class_weight='balanced'</code> - Automatically adjusts for imbalanced classes</li>
+                    <li><code>criterion='gini'</code> - Faster than entropy for large datasets</li>
+                </ul>
+            </div>
+            
+            <div class="output-console" id="output3">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Checkpoint 1 -->
+        <div class="checkpoint">
+            <div class="checkpoint-title">🏁 Checkpoint 1: Basic Model Complete</div>
+            <p>Great work! You've built a basic decision tree. Current performance:</p>
+            <div class="performance-metrics">
+                <div class="metric-card">
+                    <div class="metric-label">Accuracy</div>
+                    <div class="metric-value" id="accuracy1">--</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Precision</div>
+                    <div class="metric-value" id="precision1">--</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Recall</div>
+                    <div class="metric-value" id="recall1">--</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">F1 Score</div>
+                    <div class="metric-value" id="f1score1">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 4: Business Impact Calculation -->
+        <div class="task" id="task4">
+            <div class="task-header">
+                <span class="task-title">💰 Task 4: Calculate Financial Impact</span>
+                <span class="task-points">25 points</span>
+            </div>
+            
+            <p>The moment of truth! Calculate the actual dollar impact of your model's decisions.</p>
+            
+            <div class="code-editor">
+                <textarea id="code4" placeholder="def calculate_business_impact(y_true, y_pred):
+    '''
+    Calculate the financial impact of loan decisions.
+    
+    Business Model:
+    - Average loan: $50,000
+    - Cost of default: $25,000 (principal loss + collection)
+    - Profit per good loan: $3,500 (interest over term)
+    
+    Returns:
+    - Dictionary with financial metrics
+    '''
+    
+    # TODO: Calculate confusion matrix
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    
+    # TODO: Calculate financial components
+    # saved_from_defaults = tp * ?  # Correctly rejected bad loans
+    # lost_opportunities = fp * ?   # Incorrectly rejected good loans
+    # earned_from_loans = tn * ?    # Correctly approved good loans
+    # losses_from_defaults = fn * ? # Incorrectly approved bad loans
+    
+    # TODO: Calculate total impact
+    
+    # TODO: Calculate approval rate
+    
+    return {
+        'total_impact': total_impact,
+        'approval_rate': approval_rate,
+        'confusion_matrix': (tn, fp, fn, tp)
+    }
+
+# Evaluate your model's business impact
+y_pred = model.predict(X_test)
+impact = calculate_business_impact(y_test, y_pred)
+print(f'Annual Impact: ${impact[\"total_impact\"]:,.0f}')"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask4()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(4)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint4">
+                <strong>💡 Hint:</strong> Financial calculation breakdown:
+                <pre style="background: #f8f9fa; padding: 10px; border-radius: 5px;">
+# Each correct rejection saves a potential $25,000 loss
+saved_from_defaults = tp * 25000
+
+# Each incorrect rejection loses $3,500 in profit
+lost_opportunities = fp * 3500  
+
+# Each correct approval earns $3,500
+earned_from_loans = tn * 3500
+
+# Each incorrect approval costs $25,000
+losses_from_defaults = fn * 25000
+
+# Net impact (want this positive and large!)
+total_impact = (saved_from_defaults + earned_from_loans - 
+                lost_opportunities - losses_from_defaults)</pre>
+            </div>
+            
+            <div class="output-console" id="output4">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Task 5: Optimize Tree Depth -->
+        <div class="task" id="task5">
+            <div class="task-header">
+                <span class="task-title">📈 Task 5: Optimize for Maximum Value</span>
+                <span class="task-points">20 points</span>
+            </div>
+            
+            <p>Find the optimal tree depth that maximizes financial impact while maintaining interpretability.</p>
+            
+            <div class="code-editor">
+                <textarea id="code5" placeholder="# TODO: Grid search for optimal depth
+def optimize_tree_depth(X_train, y_train, X_val, y_val):
+    '''
+    Find the tree depth that maximizes business value.
+    
+    Returns:
+    - Optimal depth
+    - Performance metrics for each depth
+    '''
+    
+    results = []
+    
+    for depth in range(2, 11):
+        # TODO: Train tree with specific depth
+        tree = DecisionTreeClassifier(
+            max_depth=depth,
+            # Add other parameters
+        )
+        
+        # TODO: Train and predict
+        
+        # TODO: Calculate business impact
+        
+        # TODO: Store results
+        results.append({
+            'depth': depth,
+            'financial_impact': impact['total_impact'],
+            'accuracy': accuracy,
+            'n_leaves': tree.get_n_leaves()
+        })
+    
+    # TODO: Find optimal depth
+    optimal = max(results, key=lambda x: x['financial_impact'])
+    
+    return optimal['depth'], pd.DataFrame(results)
+
+# Find your optimal configuration
+optimal_depth, analysis = optimize_tree_depth(X_train, y_train, X_test, y_test)
+print(f'Optimal depth: {optimal_depth}')
+print(f'Expected annual savings: ${analysis.loc[optimal_depth-2, \"financial_impact\"]:,.0f}')"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask5()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(5)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint5">
+                <strong>💡 Hint:</strong> Look for the sweet spot where:
+                <ul>
+                    <li>Financial impact plateaus (more depth doesn't help)</li>
+                    <li>Tree remains interpretable (< 100 leaves)</li>
+                    <li>Validation performance doesn't drop (no overfitting)</li>
+                </ul>
+                Typically optimal depth is between 4-6 for loan data.
+            </div>
+            
+            <div class="output-console" id="output5">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Task 6: Generate Explanations -->
+        <div class="task" id="task6">
+            <div class="task-header">
+                <span class="task-title">📝 Task 6: Create Decision Explanations</span>
+                <span class="task-points">15 points</span>
+            </div>
+            
+            <p>Regulatory compliance requires explaining every loan decision. Build a system to extract human-readable rules.</p>
+            
+            <div class="code-editor">
+                <textarea id="code6" placeholder="def explain_decision(model, sample, feature_names):
+    '''
+    Generate human-readable explanation for a loan decision.
+    
+    Returns:
+    - Decision path as list of rules
+    - Final prediction and probability
+    '''
+    
+    # TODO: Get the decision path
+    decision_path = model.decision_path([sample])
+    leaf = model.apply([sample])[0]
+    
+    # TODO: Extract rules from root to leaf
+    feature = model.tree_.feature
+    threshold = model.tree_.threshold
+    
+    rules = []
+    # TODO: Build list of rules
+    
+    # TODO: Get prediction probability
+    probability = model.predict_proba([sample])[0]
+    
+    return {
+        'rules': rules,
+        'decision': 'Approve' if probability[1] < 0.3 else 'Reject',
+        'default_risk': probability[1]
+    }
+
+# Test explanation on a sample application
+sample_app = X_test.iloc[0].values
+explanation = explain_decision(model, sample_app, features)
+
+print('Loan Decision Explanation:')
+for rule in explanation['rules']:
+    print(f'  ✓ {rule}')
+print(f'Decision: {explanation[\"decision\"]}')
+print(f'Default Risk: {explanation[\"default_risk\"]:.1%}')"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask6()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(6)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint6">
+                <strong>💡 Hint:</strong> To traverse the decision path:
+                <pre style="background: #f8f9fa; padding: 10px; border-radius: 5px;">
+# Get indices of nodes in path
+node_indicator = decision_path.toarray()[0]
+
+# For each node in the path
+for node_id in range(len(node_indicator)):
+    if node_indicator[node_id] == 1:
+        # This node is in the path
+        if model.tree_.children_left[node_id] != -1:
+            # Not a leaf - add the rule
+            feature_id = model.tree_.feature[node_id]
+            threshold_value = model.tree_.threshold[node_id]
+            # Determine direction based on sample value</pre>
+            </div>
+            
+            <div class="output-console" id="output6">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Task 7: Production Deployment -->
+        <div class="task" id="task7">
+            <div class="task-header">
+                <span class="task-title">🚀 Task 7: Deploy to Production</span>
+                <span class="task-points">15 points</span>
+            </div>
+            
+            <p>Final step! Package your model for production deployment with monitoring and safeguards.</p>
+            
+            <div class="code-editor">
+                <textarea id="code7" placeholder="class LoanApprovalSystem:
+    '''
+    Production-ready loan approval system with decision trees.
+    '''
+    
+    def __init__(self, model, feature_names, threshold=0.3):
+        self.model = model
+        self.feature_names = feature_names
+        self.threshold = threshold
+        self.decisions_made = 0
+        self.total_approved = 0
+        
+    def process_application(self, application):
+        '''
+        Process a loan application and return decision with explanation.
+        '''
+        
+        # TODO: Make prediction
+        probability = self.model.predict_proba([application])[0]
+        
+        # TODO: Generate decision based on threshold
+        approved = probability[1] < self.threshold
+        
+        # TODO: Generate explanation
+        explanation = self.explain_decision(application)
+        
+        # TODO: Update statistics
+        self.decisions_made += 1
+        if approved:
+            self.total_approved += 1
+        
+        return {
+            'approved': approved,
+            'default_risk': probability[1],
+            'explanation': explanation,
+            'confidence': max(probability)
+        }
+    
+    def get_statistics(self):
+        '''Return system performance statistics.'''
+        # TODO: Calculate and return key metrics
+        pass
+
+# Deploy your system
+loan_system = LoanApprovalSystem(model, features)
+
+# Test with a batch of applications
+test_batch = X_test.iloc[:10]
+for i, app in test_batch.iterrows():
+    result = loan_system.process_application(app.values)
+    print(f'Application {i}: {\"APPROVED\" if result[\"approved\"] else \"REJECTED\"} (Risk: {result[\"default_risk\"]:.1%})')"></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="run-button" onclick="runTask7()">▶️ Run Code</button>
+                <button class="hint-button" onclick="showHint(7)">💡 Need Help?</button>
+            </div>
+            
+            <div class="hint-box" id="hint7">
+                <strong>💡 Hint:</strong> Production considerations:
+                <ul>
+                    <li>Add input validation for all features</li>
+                    <li>Log all decisions for audit trail</li>
+                    <li>Monitor drift in feature distributions</li>
+                    <li>Set up alerts for unusual patterns</li>
+                    <li>Include model versioning</li>
+                </ul>
+            </div>
+            
+            <div class="output-console" id="output7">
+                > Ready to execute your code...
+            </div>
+        </div>
+
+        <!-- Checkpoint 2: Final Assessment -->
+        <div class="checkpoint">
+            <div class="checkpoint-title">🏆 Final Performance Assessment</div>
+            <div class="performance-metrics">
+                <div class="metric-card">
+                    <div class="metric-label">Model Accuracy</div>
+                    <div class="metric-value" id="finalAccuracy">87%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Annual Savings</div>
+                    <div class="metric-value" id="finalSavings">$52M</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Approval Rate</div>
+                    <div class="metric-value" id="finalApproval">65%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Processing Time</div>
+                    <div class="metric-value" id="finalSpeed">47ms</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Explainability</div>
+                    <div class="metric-value" id="finalExplain">100%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Lab Score</div>
+                    <div class="metric-value" id="finalScore">--/100</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Submission -->
+        <div class="final-submission" id="finalSubmission">
+            <h2>🎉 Mission Accomplished!</h2>
+            <p style="font-size: 1.2em; margin: 20px 0;">Outstanding work! You've built a production-ready decision tree system that will save Regional Bank $52 million annually.</p>
+            
+            <h3>Your Achievements:</h3>
+            <ul style="text-align: left; max-width: 600px; margin: 20px auto;">
+                <li>✅ Built an interpretable decision tree from scratch</li>
+                <li>✅ Optimized for business value, not just accuracy</li>
+                <li>✅ Achieved 87% accuracy with full explainability</li>
+                <li>✅ Reduced loan processing time from 3 days to 47ms</li>
+                <li>✅ Created a production-ready deployment system</li>
+            </ul>
+            
+            <h3>Skills Mastered:</h3>
+            <ul style="text-align: left; max-width: 600px; margin: 20px auto;">
+                <li>Information gain and entropy calculations</li>
+                <li>Cost-sensitive learning for imbalanced data</li>
+                <li>Tree pruning and depth optimization</li>
+                <li>Model interpretability and explanation generation</li>
+                <li>Production deployment best practices</li>
+            </ul>
+            
+            <button class="run-button" style="background: white; color: #28a745; font-size: 1.2em; padding: 15px 40px; margin-top: 20px;" onclick="downloadCertificate()">
+                🏆 Download Completion Certificate
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let timeRemaining = 90 * 60; // 90 minutes in seconds
+        let timerInterval;
+        let completedTasks = [false, false, false, false, false, false, false];
+        let totalScore = 0;
+        
+        // Start timer
+        window.onload = function() {
+            startTimer();
+        };
+        
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color based on time remaining
+            const timerSection = document.querySelector('.timer-section');
+            if (timeRemaining < 600) { // Less than 10 minutes
+                timerSection.style.background = 'linear-gradient(135deg, #f44336 0%, #e91e63 100%)';
+            } else if (timeRemaining < 1800) { // Less than 30 minutes
+                timerSection.style.background = 'linear-gradient(135deg, #ff9800 0%, #ff5722 100%)';
+            }
+        }
+        
+        // Task execution functions
+        function runTask1() {
+            const code = document.getElementById('code1').value;
+            const output = document.getElementById('output1');
+            
+            // Simulate code execution
+            output.innerHTML = `> Executing data loading...
+> Reading regional_bank_loans.csv...
+> Dataset shape: (50000, 12)
+> Features identified: 8 numerical, 4 categorical
+> Default rate: 18.2%
+> Missing values: None detected
+> Class distribution: 
+  - Good loans: 40,900 (81.8%)
+  - Defaulted: 9,100 (18.2%)
+<span style="color: #4caf50;">✓ Data loaded successfully!</span>`;
+            
+            // Check all checkboxes
+            document.getElementById('check1_1').checked = true;
+            document.getElementById('check1_2').checked = true;
+            document.getElementById('check1_3').checked = true;
+            
+            updateTask1();
+        }
+        
+        function updateTask1() {
+            const checks = ['check1_1', 'check1_2', 'check1_3'];
+            const allChecked = checks.every(id => document.getElementById(id).checked);
+            
+            if (allChecked && !completedTasks[0]) {
+                completedTasks[0] = true;
+                completeTask(1, 10);
+            }
+        }
+        
+        function runTask2() {
+            const output = document.getElementById('output2');
+            
+            output.innerHTML = `> Splitting data with stratification...
+> Training set: 35,000 samples
+> Test set: 15,000 samples
+> Training default rate: 18.2%
+> Test default rate: 18.2%
+> Class weights calculated:
+  - Class 0 (Good): 1.0
+  - Class 1 (Default): 7.14
+<span style="color: #4caf50;">✓ Data prepared for training!</span>`;
+            
+            if (!completedTasks[1]) {
+                completedTasks[1] = true;
+                completeTask(2, 15);
+            }
+        }
+        
+        function runTask3() {
+            const output = document.getElementById('output3');
+            
+            output.innerHTML = `> Building decision tree...
+> Training with max_depth=5, min_samples_split=20
+> Tree structure:
+  - Depth: 5
+  - Leaves: 24
+  - Features used: 7 of 8
+> Feature importance:
+  1. debt_to_income: 0.342
+  2. credit_score: 0.281
+  3. annual_income: 0.198
+  4. employment_years: 0.089
+  5. loan_amount: 0.067
+<span style="color: #4caf50;">✓ Decision tree trained successfully!</span>`;
+            
+            // Update checkpoint metrics
+            document.getElementById('accuracy1').textContent = '85.2%';
+            document.getElementById('precision1').textContent = '78.4%';
+            document.getElementById('recall1').textContent = '71.2%';
+            document.getElementById('f1score1').textContent = '74.6%';
+            
+            if (!completedTasks[2]) {
+                completedTasks[2] = true;
+                completeTask(3, 20);
+            }
+        }
+        
+        function runTask4() {
+            const output = document.getElementById('output4');
+            
+            output.innerHTML = `> Calculating business impact...
+> Confusion Matrix:
+  - True Negatives: 11,234 (good loans approved)
+  - False Positives: 986 (good loans rejected)
+  - True Positives: 2,156 (bad loans rejected)
+  - False Negatives: 624 (bad loans approved)
+> Financial Impact:
+  - Saved from defaults: $53,900,000
+  - Lost opportunities: $3,451,000
+  - Earned from loans: $39,319,000
+  - Losses from defaults: $15,600,000
+<span style="color: #4caf50;">✓ Annual Impact: +$52,168,000</span>
+<span style="color: #4caf50;">✓ Approval Rate: 62.3%</span>`;
+            
+            if (!completedTasks[3]) {
+                completedTasks[3] = true;
+                completeTask(4, 25);
+            }
+        }
+        
+        function runTask5() {
+            const output = document.getElementById('output5');
+            
+            output.innerHTML = `> Optimizing tree depth...
+> Testing depths 2-10...
+> Results:
+  Depth 2: Impact $28.4M (55 leaves)
+  Depth 3: Impact $38.7M (112 leaves)
+  Depth 4: Impact $48.2M (187 leaves)
+  Depth 5: Impact $52.1M (234 leaves)
+  Depth 6: Impact $51.8M (298 leaves)
+  Depth 7: Impact $50.9M (367 leaves)
+  Depth 8: Impact $49.2M (425 leaves)
+  Depth 9: Impact $47.8M (489 leaves)
+  Depth 10: Impact $45.3M (542 leaves)
+<span style="color: #4caf50;">✓ Optimal depth: 5</span>
+<span style="color: #4caf50;">✓ Expected annual savings: $52,100,000</span>`;
+            
+            if (!completedTasks[4]) {
+                completedTasks[4] = true;
+                completeTask(5, 20);
+            }
+        }
+        
+        function runTask6() {
+            const output = document.getElementById('output6');
+            
+            output.innerHTML = `> Generating decision explanation...
+> Application #4892 Decision Path:
+  ✓ debt_to_income <= 32.5%
+  ✓ credit_score > 625
+  ✓ annual_income > $72,000
+  ✓ employment_years > 3.5
+  ✓ previous_defaults == 0
+> Decision: APPROVE
+> Default Risk: 8.3%
+> Confidence: 91.7%
+<span style="color: #4caf50;">✓ Explanation system operational!</span>`;
+            
+            if (!completedTasks[5]) {
+                completedTasks[5] = true;
+                completeTask(6, 15);
+            }
+        }
+        
+        function runTask7() {
+            const output = document.getElementById('output7');
+            
+            output.innerHTML = `> Deploying loan approval system...
+> System initialized with optimal model
+> Processing test batch (10 applications):
+  Application 0: APPROVED (Risk: 7.2%)
+  Application 1: REJECTED (Risk: 45.8%)
+  Application 2: APPROVED (Risk: 12.1%)
+  Application 3: APPROVED (Risk: 9.5%)
+  Application 4: REJECTED (Risk: 38.2%)
+  Application 5: APPROVED (Risk: 15.3%)
+  Application 6: REJECTED (Risk: 52.1%)
+  Application 7: APPROVED (Risk: 6.8%)
+  Application 8: APPROVED (Risk: 11.4%)
+  Application 9: REJECTED (Risk: 41.7%)
+> Statistics:
+  - Decisions made: 10
+  - Approval rate: 60%
+  - Average processing time: 47ms
+<span style="color: #4caf50;">✓ System deployed successfully!</span>`;
+            
+            if (!completedTasks[6]) {
+                completedTasks[6] = true;
+                completeTask(7, 15);
+                
+                // Show final submission
+                setTimeout(() => {
+                    document.getElementById('finalScore').textContent = `${totalScore}/100`;
+                    document.getElementById('finalSubmission').classList.add('visible');
+                    document.getElementById('finalSubmission').scrollIntoView({ behavior: 'smooth' });
+                }, 1500);
+            }
+        }
+        
+        // Complete task and update progress
+        function completeTask(taskNum, points) {
+            // Update task styling
+            document.getElementById(`task${taskNum}`).classList.add('completed');
+            
+            // Update progress tracker
+            document.getElementById(`step${taskNum}`).classList.remove('active');
+            document.getElementById(`step${taskNum}`).classList.add('completed');
+            
+            if (taskNum < 7) {
+                document.getElementById(`step${taskNum + 1}`).classList.add('active');
+            }
+            
+            // Update score
+            totalScore += points;
+            
+            // Celebration effect
+            const task = document.getElementById(`task${taskNum}`);
+            task.style.animation = 'pulse 0.5s';
+        }
+        
+        // Show hints
+        function showHint(taskNum) {
+            document.getElementById(`hint${taskNum}`).classList.add('visible');
+        }
+        
+        // Handle timeout
+        function handleTimeout() {
+            alert('Time\'s up! Your current progress has been saved. You achieved ' + totalScore + ' points.');
+        }
+        
+        // Download certificate
+        function downloadCertificate() {
+            alert('Downloading your certificate of completion...\n\nCongratulations on mastering Decision Trees for Loan Approval!\n\nYour Score: ' + totalScore + '/100\nTime Taken: ' + (90 - Math.floor(timeRemaining / 60)) + ' minutes');
+        }
+    </script>
+</body>
+</html>
