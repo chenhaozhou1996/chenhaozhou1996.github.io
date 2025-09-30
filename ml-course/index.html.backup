@@ -790,10 +790,10 @@
                         <div class="module-header">
                             <div class="module-number">MODULE 2</div>
                             <h3 class="module-title">Linear Regression</h3>
-                            <p class="module-subtitle">Predicting Continuous Outcomes</p>
+                            <p class="module-subtitle">Customer Churn Crisis Analysis</p>
                         </div>
                         <div class="module-body">
-                            <p class="module-description">Master linear regression methodology for predicting continuous outcomes. Develop proficiency in understanding ordinary least squares optimization, feature engineering, model diagnostics, and business forecasting applications.</p>
+                            <p class="module-description">Master linear regression methodology through a compelling customer retention scenario. Develop proficiency in predicting continuous outcomes, understanding ordinary least squares optimization, feature engineering, and model diagnostics for business forecasting applications.</p>
                             <div class="badges">
                                 <span class="badge badge-interactive">Interactive</span>
                                 <span class="badge badge-theory">Theory</span>
@@ -801,9 +801,15 @@
                             </div>
                             <ul class="material-list">
                                 <li class="material-item">
+                                    <a href="module2_class_material.html" class="material-link">
+                                        <span class="material-icon">📖</span>
+                                        <span>Class Material</span>
+                                    </a>
+                                </li>
+                                <li class="material-item">
                                     <a href="module2-linear-regression/" class="material-link">
                                         <span class="material-icon">📁</span>
-                                        <span>Module Resources (Content in Development)</span>
+                                        <span>Module Resources</span>
                                     </a>
                                 </li>
                             </ul>
@@ -814,11 +820,11 @@
                     <div class="module-card" id="module-3">
                         <div class="module-header">
                             <div class="module-number">MODULE 3</div>
-                            <h3 class="module-title">Logistic Regression & Regularization</h3>
-                            <p class="module-subtitle">Binary Classification & Feature Selection</p>
+                            <h3 class="module-title">Logistic Regression</h3>
+                            <p class="module-subtitle">Binary Classification & Probability Estimation</p>
                         </div>
                         <div class="module-body">
-                            <p class="module-description">Transition from continuous to categorical prediction through logistic regression. Master regularization techniques including L1 (Lasso), L2 (Ridge), and Elastic Net for feature selection and overfitting prevention in high-dimensional datasets.</p>
+                            <p class="module-description">Transition from continuous to categorical prediction through logistic regression. Understand maximum likelihood estimation, odds ratios, probability interpretation, and classification thresholds for risk assessment and decision-making applications.</p>
                             <div class="badges">
                                 <span class="badge badge-interactive">Interactive</span>
                                 <span class="badge badge-theory">Theory</span>
@@ -826,15 +832,9 @@
                             </div>
                             <ul class="material-list">
                                 <li class="material-item">
-                                    <a href="module3_logistic_class.html" class="material-link">
+                                    <a href="module3_class_material.html" class="material-link">
                                         <span class="material-icon">📖</span>
-                                        <span>Logistic Regression - Customer Churn</span>
-                                    </a>
-                                </li>
-                                <li class="material-item">
-                                    <a href="module3_regularization_class.html" class="material-link">
-                                        <span class="material-icon">📖</span>
-                                        <span>Regularization Techniques</span>
+                                        <span>Class Material</span>
                                     </a>
                                 </li>
                                 <li class="material-item">
@@ -900,7 +900,7 @@
                                     </a>
                                 </li>
                                 <li class="material-item">
-                                    <a href="module5_timeseries_interactive.html" class="material-link">
+                                    <a href="module5_timeseries_interactive (2).html" class="material-link">
                                         <span class="material-icon">📊</span>
                                         <span>Time Series Application</span>
                                     </a>
@@ -1036,13 +1036,13 @@
                                     </a>
                                 </li>
                                 <li class="material-item">
-                                    <a href="module9_clustering_kmeans_interactive.html" class="material-link">
+                                    <a href="module4_clustering_interactive (1).html" class="material-link">
                                         <span class="material-icon">🎮</span>
                                         <span>Interactive Demo (Version 1)</span>
                                     </a>
                                 </li>
                                 <li class="material-item">
-                                    <a href="module9_clustering_hierarchical_interactive.html" class="material-link">
+                                    <a href="module4_clustering_interactive (2).html" class="material-link">
                                         <span class="material-icon">🎮</span>
                                         <span>Interactive Demo (Version 2)</span>
                                     </a>
