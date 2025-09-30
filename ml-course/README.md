@@ -1,102 +1,73 @@
-# Machine Learning Course: From Theory to Practice
+# Module 2: Linear Regression
 
-## Course Overview
-This comprehensive machine learning course bridges traditional wisdom with modern AI techniques, providing a three-dimensional learning approach: theoretical foundations, visual understanding, and practical implementation.
+## Overview
+This module introduces linear regression, one of the fundamental algorithms in machine learning. Students will learn how to model relationships between variables, understand the mathematics behind ordinary least squares, and implement regression models from scratch and using scikit-learn.
 
-## Course Structure
+## Learning Objectives
+By the end of this module, students will be able to:
+- Understand the mathematical foundations of linear regression
+- Implement gradient descent from scratch
+- Apply linear regression to real-world datasets
+- Evaluate model performance using appropriate metrics
+- Handle multiple features and polynomial regression
 
-### Learning Philosophy
-Each module follows a three-way learning approach:
-1. **Theory (What it is)** - Conceptual understanding with traditional analogies
-2. **Visualization (How to see it)** - Interactive visual demonstrations
-3. **Code (How to implement it)** - Hands-on programming exercises
+## Module Structure
+1. **Theory**: Mathematical foundations and intuition
+2. **Visualization**: Interactive demonstrations of regression concepts
+3. **Code Lab**: Hands-on implementation
+4. **Case Study**: Boston Housing Price Prediction
 
-## Module Overview
+## Traditional Wisdom Connection
+Linear regression mirrors the ancient principle of "finding the middle way" (中庸之道). Just as traditional wisdom seeks balance and optimal paths, linear regression finds the best-fitting line that minimizes overall error, achieving mathematical harmony in data relationships.
 
-| Module | Topic | Status | Key Concepts |
-|--------|-------|--------|--------------|
-| 1 | Introduction to Machine Learning | ✅ Complete | ML fundamentals, supervised vs unsupervised |
-| 2 | Linear Regression | 🔧 In Progress | OLS, gradient descent, MSE |
-| 3 | Logistic Regression | 🔧 In Progress | Classification, sigmoid, cross-entropy |
-| 4 | Decision Trees | 📝 Planned | Entropy, information gain, pruning |
-| 5 | Random Forest | 📝 Planned | Bagging, ensemble methods |
-| 6 | Gradient Boosting | 📝 Planned | Boosting, XGBoost, sequential learning |
-| 7 | Support Vector Machines | 📝 Planned | Kernels, margin maximization |
-| 8 | Neural Networks | 📝 Planned | Backpropagation, deep learning basics |
-| 9 | Clustering | 📝 Planned | K-means, hierarchical clustering |
-| 10 | Ensemble Learning | 📝 Planned | Voting, stacking, blending |
-
-## Projects
-
-### Project 1: Regression Challenge
-**Boston Housing Price Prediction**
-- Real estate valuation using multiple features
-- Feature engineering and selection
-- Model comparison and ensemble methods
-
-### Project 2: Classification Challenge
-**Credit Risk Assessment**
-- Binary classification for loan approval
-- Handling imbalanced datasets
-- Feature importance analysis
-
-## Directory Structure
-```
-ml-course/
-├── README.md
-├── index.html (Course Homepage)
-├── assets/
-│   ├── css/
-│   ├── js/
-│   └── data/
-├── module1-intro/
-│   ├── README.md
-│   ├── theory.html
-│   ├── visualization.html
-│   ├── code/
-│   │   ├── lab.ipynb
-│   │   └── solutions/
-│   └── case-study/
-├── module2-linear-regression/
-│   └── ...
-├── projects/
-│   ├── regression-challenge/
-│   └── classification-challenge/
-└── resources/
-    ├── datasets/
-    └── references/
-```
+## Files in This Module
+- `README.md` - This file
+- `theory.html` - Interactive theory explanation
+- `visualization.html` - Visual demonstrations
+- `code/` - Implementation notebooks
+  - `01_from_scratch.ipynb` - Build linear regression from scratch
+  - `02_sklearn_implementation.ipynb` - Using scikit-learn
+  - `03_advanced_techniques.ipynb` - Regularization and feature engineering
+- `case_study/` - Practical application
+  - `boston_housing.ipynb` - Complete case study
+  - `data/` - Dataset files
+- `exercises/` - Practice problems
+- `solutions/` - Exercise solutions
 
 ## Prerequisites
-- Basic Python programming
-- Elementary statistics
-- Linear algebra fundamentals
+- Basic calculus (derivatives)
+- Matrix operations
+- Python fundamentals
+- NumPy basics
 
-## Technology Stack
-- Python 3.8+
-- NumPy, Pandas, Scikit-learn
-- Matplotlib, Seaborn, Plotly
-- Jupyter Notebooks
+## Key Concepts
+- Ordinary Least Squares (OLS)
+- Gradient Descent
+- Cost Function (MSE)
+- Normal Equation
+- R-squared and evaluation metrics
+- Regularization (Ridge, Lasso)
 
-## Getting Started
-1. Clone this repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Start with Module 1
-4. Complete case studies for hands-on practice
-5. Choose one final project for assessment
+## Quick Start
+```python
+# Simple linear regression example
+from sklearn.linear_model import LinearRegression
+import numpy as np
 
-## Learning Outcomes
-Upon completion, students will be able to:
-- Understand fundamental ML algorithms
-- Implement models from scratch
-- Apply ML to real-world problems
-- Evaluate and optimize model performance
-- Present findings effectively
+# Generate sample data
+X = np.array([[1], [2], [3], [4], [5]])
+y = np.array([2, 4, 6, 8, 10])
 
-## Author
-Prof. Chenhao Zhou
-Machine Learning & Operations Research
-Email: [your-email]
+# Train model
+model = LinearRegression()
+model.fit(X, y)
 
-## License
-This course material is provided for educational purposes.
+# Make predictions
+predictions = model.predict([[6]])
+print(f"Prediction for x=6: {predictions[0]}")
+```
+
+## Resources
+- [Andrew Ng's Linear Regression Notes](https://cs229.stanford.edu/lectures-spring2022/main_notes.pdf)
+- [ESL Chapter 3](https://hastie.su.domains/Papers/ESLII.pdf)
+- [Visual Introduction to ML](http://www.r2d3.us/)

@@ -3,207 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 1: Business Analytics Foundations - Complete Business & Data Fundamentals</title>
+    <title>Module 2: Linear Regression - Interactive Class Material</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
         }
         
-        /* Navigation */
-        .navbar {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            padding: 1rem 2rem;
-        }
-        
-        .nav-content {
+        .container {
             max-width: 1200px;
             margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        /* Section Navigation */
-        .section-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 2rem 0;
-            padding: 1rem;
             background: white;
-            border-radius: 10px;
-        }
-        
-        .nav-button {
-            padding: 0.8rem 2rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .nav-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
-        }
-        
-        .nav-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        .section-indicator {
-            font-weight: bold;
-            color: #667eea;
-        }
-        
-        /* Progress Bar */
-        .progress-container {
-            position: fixed;
-            top: 60px;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: #e0e0e0;
-            z-index: 999;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
-            color: white;
-            padding: 4rem 2rem;
-            text-align: center;
-        }
-        
-        /* Content Sections */
-        .content-section {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
-        }
-        
-        .section-card {
-            background: white;
-            border-radius: 15px;
-            padding: 2.5rem;
-            margin-bottom: 2.5rem;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            position: relative;
-        }
-        
-        .section-number {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 0.5rem 1.5rem;
             border-radius: 20px;
-            font-weight: bold;
-            margin-bottom: 1.5rem;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         
-        /* Business Fundamentals Styling */
-        .fundamental-box {
-            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-            border: 2px solid #ffc107;
+        h1 {
+            color: #003366;
+            font-family: Georgia, serif;
+            margin-bottom: 20px;
+        }
+        
+        .interactive-demo {
+            background: #f8f9fa;
+            padding: 30px;
             border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem 0;
+            margin: 30px 0;
         }
         
-        .fundamental-title {
-            color: #856404;
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
+        .slider-container {
+            margin: 20px 0;
         }
         
-        .equation-box {
-            background: white;
-            border: 2px dashed #667eea;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            text-align: center;
-            font-size: 1.2rem;
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 500;
         }
         
-        .law-card {
-            background: #f8f9fa;
-            border-left: 5px solid #667eea;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 8px;
-        }
-        
-        .law-title {
-            color: #667eea;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
-        }
-        
-        /* Supply & Demand Interactive */
-        .supply-demand-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin: 2rem 0;
-        }
-        
-        .market-simulator {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 10px;
-        }
-        
-        .slider-group {
-            margin: 1.5rem 0;
-        }
-        
-        .slider-group label {
-            display: block;
-            color: #667eea;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .slider {
+        input[type="range"] {
             width: 100%;
-            -webkit-appearance: none;
             height: 8px;
             border-radius: 5px;
-            background: #ddd;
+            background: #e0e0e0;
             outline: none;
         }
         
-        .slider::-webkit-slider-thumb {
+        input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
             width: 20px;
             height: 20px;
             border-radius: 50%;
@@ -211,1191 +63,144 @@
             cursor: pointer;
         }
         
-        .market-output {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 10px;
-            border: 2px solid #48bb78;
-        }
-        
-        .output-metric {
-            display: flex;
-            justify-content: space-between;
-            margin: 1rem 0;
-            padding: 0.5rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .output-value {
-            font-weight: bold;
-            color: #48bb78;
-            font-size: 1.2rem;
-        }
-        
-        /* Revenue Models Grid */
-        .revenue-models-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-        
-        .model-card {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 1.5rem;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-        
-        .model-card:hover {
-            border-color: #667eea;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
-        }
-        
-        .model-card.selected {
-            background: linear-gradient(135deg, #667eea10, #764ba210);
-            border-color: #667eea;
-        }
-        
-        .model-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-        
-        .model-name {
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 0.5rem;
-        }
-        
-        .model-example {
-            font-size: 0.9rem;
-            color: #666;
-            font-style: italic;
-        }
-        
-        /* Forecasting Methods */
-        .forecast-comparison {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-        
-        .forecast-method {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 1.5rem;
-        }
-        
-        .forecast-method.best {
-            border-color: #48bb78;
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-        }
-        
-        .accuracy-badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            font-weight: bold;
-        }
-        
-        .accuracy-high {
-            background: #48bb78;
-            color: white;
-        }
-        
-        .accuracy-medium {
-            background: #ffc107;
-            color: white;
-        }
-        
-        .accuracy-low {
-            background: #dc3545;
-            color: white;
-        }
-        
-        /* Interactive Calculator */
-        .profit-calculator {
-            background: linear-gradient(135deg, #f6f8fb, #ffffff);
-            border: 2px solid #667eea30;
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem 0;
-        }
-        
-        .calc-inputs {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .calc-input {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .calc-input label {
-            color: #667eea;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .calc-input input {
-            padding: 0.8rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-        
-        .calc-input input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .calc-button {
+        .button {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 1rem 2rem;
+            padding: 12px 30px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
+            font-size: 1em;
             cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 600;
             transition: all 0.3s;
+            margin: 10px 5px;
         }
         
-        .calc-button:hover {
+        .button:hover {
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
         
-        .calc-results {
-            background: white;
-            border: 2px solid #48bb78;
-            border-radius: 10px;
-            padding: 2rem;
-            margin-top: 2rem;
-            display: none;
-        }
-        
-        .calc-results.show {
-            display: block;
-            animation: slideIn 0.5s ease;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Decision Tree */
-        .decision-tree {
-            background: white;
-            border: 2px solid #667eea;
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem 0;
-        }
-        
-        .decision-node {
-            background: #f8f9fa;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .decision-node:hover {
-            border-color: #667eea;
-            transform: translateX(10px);
-        }
-        
-        .decision-result {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            border: 2px solid #48bb78;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-            display: none;
-        }
-        
-        .decision-result.show {
-            display: block;
-        }
-        
-        /* Canvas for graphs */
-        canvas {
+        #visualization {
             width: 100%;
             height: 400px;
-            border: 1px solid #e0e0e0;
-            border-radius: 5px;
-            margin: 1rem 0;
+            margin: 20px 0;
         }
         
-        /* Important Note Box */
-        .important-note {
-            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-            border: 2px solid #dc3545;
+        .metrics-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 20px;
             border-radius: 10px;
-            padding: 1.5rem;
-            margin: 2rem 0;
+            border-left: 4px solid #667eea;
         }
         
-        .important-note strong {
-            color: #721c24;
-        }
-        
-        /* Quiz Section */
-        .quiz-container {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 2rem;
-            margin: 2rem 0;
-        }
-        
-        .quiz-question {
+        .metric-value {
+            font-size: 2em;
             font-weight: bold;
-            margin-bottom: 1rem;
             color: #667eea;
         }
         
-        .quiz-options {
-            display: grid;
-            gap: 1rem;
-        }
-        
-        .quiz-option {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .quiz-option:hover {
-            border-color: #667eea;
-        }
-        
-        .quiz-option.correct {
-            background: #d4edda;
-            border-color: #48bb78;
-        }
-        
-        .quiz-option.wrong {
-            background: #f8d7da;
-            border-color: #dc3545;
-        }
-        
-        .quiz-feedback {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 8px;
-            display: none;
-        }
-        
-        .quiz-feedback.show {
-            display: block;
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
-    <!-- Progress Bar -->
-    <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
+    <div class="container">
+        <h1>Module 2: Linear Regression - Predicting Business Outcomes</h1>
+        
+        <p><strong>Learning Objective:</strong> Understand how linear regression models relationships between variables to predict future outcomes in business contexts.</p>
+        
+        <div class="interactive-demo">
+            <h2>Interactive Regression Explorer</h2>
+            <p>Adjust the parameters below to see how they affect the model's predictions:</p>
+            
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>Model Complexity</span>
+                    <span id="complexity-value">3</span>
+                </div>
+                <input type="range" min="1" max="10" value="3" id="complexity-slider">
+            </div>
+            
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>Noise Level</span>
+                    <span id="noise-value">0.3</span>
+                </div>
+                <input type="range" min="0" max="100" value="30" id="noise-slider">
+            </div>
+            
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>Training Samples</span>
+                    <span id="samples-value">50</span>
+                </div>
+                <input type="range" min="10" max="200" value="50" id="samples-slider">
+            </div>
+            
+            <button class="button" onclick="updateVisualization()">Update Visualization</button>
+            <button class="button" onclick="resetParameters()">Reset Parameters</button>
+            
+            <canvas id="visualization"></canvas>
+            
+            <div class="metrics-display">
+                <div class="metric-card">
+                    <div class="metric-value" id="train-rmse">0.00</div>
+                    <div class="metric-label">Training RMSE</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="test-rmse">0.00</div>
+                    <div class="metric-label">Test RMSE</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="r-squared">0.00</div>
+                    <div class="metric-label">R² Score</div>
+                </div>
+            </div>
+        </div>
     </div>
     
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-content">
-            <div class="nav-brand">Module 1: Complete Business & Analytics Foundations</div>
-            <div class="nav-links">
-                <a href="lab.html">Lab</a>
-                <a href="notes.html">Notes</a>
-                <a href="../index.html">Home</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Master Business Fundamentals Before Analytics</h1>
-            <p style="font-size: 1.3rem; opacity: 0.95; margin-bottom: 2rem;">
-                Understanding WHY businesses exist and HOW they make money is essential before learning data analytics
-            </p>
-            
-            <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 2rem; margin: 2rem auto; max-width: 900px;">
-                <h2 style="margin-bottom: 1.5rem;">🎯 Your Complete Learning Path</h2>
-                <ol style="text-align: left; max-width: 700px; margin: 0 auto; font-size: 1.1rem;">
-                    <li>Core Business Laws & Profit Principles</li>
-                    <li>Supply, Demand & Market Equilibrium</li>
-                    <li>Revenue Models & Distribution</li>
-                    <li>Forecasting & Demand Planning</li>
-                    <li>Cost Structures & Break-Even Analysis</li>
-                    <li>Business Metrics & KPIs</li>
-                    <li>Data Types & Quality</li>
-                    <li>Analytics ROI & Business Cases</li>
-                </ol>
-            </div>
-        </div>
-    </section>
-
-    <!-- Content Sections -->
-    <div class="content-section">
-        <!-- Section 1: The Fundamental Business Law -->
-        <div class="section-card" id="section1">
-            <span class="section-number">FOUNDATION 1 of 8</span>
-            <h2>The Universal Law of Business: Profit Maximization</h2>
-            
-            <div class="fundamental-box">
-                <div class="fundamental-title">⚖️ The Only Rule That Matters</div>
-                <p style="font-size: 1.1rem; margin-bottom: 1rem;">
-                    Every for-profit organization follows ONE fundamental law that drives ALL decisions:
-                </p>
-                <div class="equation-box">
-                    <strong>PROFIT = REVENUE - COSTS</strong><br>
-                    <span style="font-size: 0.9rem; color: #666;">Maximize this or cease to exist</span>
-                </div>
-                <p>This simple equation explains:</p>
-                <ul style="margin-top: 1rem;">
-                    <li>Why companies lay off employees (reduce costs)</li>
-                    <li>Why prices increase (maximize revenue)</li>
-                    <li>Why businesses expand (scale revenue faster than costs)</li>
-                    <li>Why automation replaces humans (lower long-term costs)</li>
-                </ul>
-            </div>
-            
-            <div class="law-card">
-                <div class="law-title">📊 The 80/20 Rule (Pareto Principle)</div>
-                <p>80% of your profits come from 20% of your customers. This is why data analytics is critical - to identify and focus on that profitable 20%.</p>
-                <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 5px;">
-                    <strong>Real Example:</strong> Starbucks discovered 20% of customers (daily visitors) generate 75% of revenue. They created a loyalty program specifically for this segment, increasing profits by 25%.
-                </div>
-            </div>
-            
-            <div class="law-card">
-                <div class="law-title">📈 The Law of Diminishing Returns</div>
-                <p>After a certain point, each additional unit of input yields less additional output.</p>
-                <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 5px;">
-                    <strong>Why This Matters:</strong> Adding the 10th salesperson might increase sales by $100K, but the 50th only adds $10K. Data helps find the optimal point.
-                </div>
-            </div>
-            
-            <div class="quiz-container">
-                <div class="quiz-question">Test Your Understanding: A company has $10M revenue and $12M costs. What must they do?</div>
-                <div class="quiz-options">
-                    <div class="quiz-option" onclick="checkAnswer(1, 'wrong')">Increase marketing spend to grow revenue</div>
-                    <div class="quiz-option" onclick="checkAnswer(1, 'wrong')">Hire more salespeople</div>
-                    <div class="quiz-option" onclick="checkAnswer(1, 'correct')">Cut costs by at least $2M immediately</div>
-                    <div class="quiz-option" onclick="checkAnswer(1, 'wrong')">Maintain current strategy</div>
-                </div>
-                <div class="quiz-feedback" id="quiz1-feedback"></div>
-            </div>
-            
-            <div class="section-nav">
-                <button class="nav-button" disabled>Previous</button>
-                <span class="section-indicator">Section 1 of 8</span>
-                <button class="nav-button" onclick="navigateToSection(2)">Next: Supply & Demand →</button>
-            </div>
-        </div>
-
-        <!-- Section 2: Supply, Demand, and Market Equilibrium -->
-        <div class="section-card" id="section2" style="display: none;">
-            <span class="section-number">FOUNDATION 2 of 8</span>
-            <h2>Supply, Demand & Market Forces</h2>
-            
-            <div class="fundamental-box">
-                <div class="fundamental-title">📉📈 The Market Equilibrium</div>
-                <p>Every price is determined by the intersection of supply and demand. Understanding this helps predict revenue and optimize pricing.</p>
-                
-                <div class="equation-box">
-                    <strong>Market Price = Where Supply Meets Demand</strong><br>
-                    <span style="font-size: 0.9rem;">Too high → excess inventory → losses</span><br>
-                    <span style="font-size: 0.9rem;">Too low → stockouts → missed revenue</span>
-                </div>
-            </div>
-            
-            <div class="supply-demand-container">
-                <div class="market-simulator">
-                    <h3 style="color: #667eea; margin-bottom: 1rem;">Adjust Market Conditions</h3>
-                    
-                    <div class="slider-group">
-                        <label>Supply Level: <span id="supplyValue">50</span> units</label>
-                        <input type="range" class="slider" id="supplySlider" min="10" max="100" value="50" oninput="updateMarket()">
-                    </div>
-                    
-                    <div class="slider-group">
-                        <label>Demand Level: <span id="demandValue">50</span> units</label>
-                        <input type="range" class="slider" id="demandSlider" min="10" max="100" value="50" oninput="updateMarket()">
-                    </div>
-                    
-                    <div class="slider-group">
-                        <label>Production Cost: $<span id="costValue">10</span>/unit</label>
-                        <input type="range" class="slider" id="costSlider" min="5" max="50" value="10" oninput="updateMarket()">
-                    </div>
-                </div>
-                
-                <div class="market-output">
-                    <h3 style="color: #48bb78; margin-bottom: 1rem;">Market Results</h3>
-                    <div class="output-metric">
-                        <span>Equilibrium Price:</span>
-                        <span class="output-value" id="eqPrice">$25.00</span>
-                    </div>
-                    <div class="output-metric">
-                        <span>Quantity Sold:</span>
-                        <span class="output-value" id="qtySold">50 units</span>
-                    </div>
-                    <div class="output-metric">
-                        <span>Total Revenue:</span>
-                        <span class="output-value" id="totalRevenue">$1,250</span>
-                    </div>
-                    <div class="output-metric">
-                        <span>Total Profit:</span>
-                        <span class="output-value" id="totalProfit">$750</span>
-                    </div>
-                    <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
-                        <strong>Insight:</strong> <span id="marketInsight">Market is in equilibrium</span>
-                    </div>
-                </div>
-            </div>
-            
-            <canvas id="supplyDemandChart"></canvas>
-            
-            <div class="important-note">
-                <strong>Critical Learning:</strong> Most business failures happen because companies ignore market signals. Blockbuster had the supply (stores) but ignored declining demand for physical rentals. Data analytics helps detect these shifts early!
-            </div>
-            
-            <div class="section-nav">
-                <button class="nav-button" onclick="navigateToSection(1)">← Previous: Business Laws</button>
-                <span class="section-indicator">Section 2 of 8</span>
-                <button class="nav-button" onclick="navigateToSection(3)">Next: Revenue Models →</button>
-            </div>
-        </div>
-
-        <!-- Section 3: Revenue Models and Distribution -->
-        <div class="section-card" id="section3" style="display: none;">
-            <span class="section-number">FOUNDATION 3 of 8</span>
-            <h2>Revenue Models & Distribution Patterns</h2>
-            
-            <div class="fundamental-box">
-                <div class="fundamental-title">💰 How Businesses Make Money</div>
-                <p>There are only 7 fundamental revenue models. Every business uses one or a combination:</p>
-            </div>
-            
-            <div class="revenue-models-grid">
-                <div class="model-card" onclick="explainModel('transaction')">
-                    <div class="model-icon">🛒</div>
-                    <div class="model-name">Transaction</div>
-                    <p>One-time purchases</p>
-                    <div class="model-example">Amazon, Walmart</div>
-                </div>
-                
-                <div class="model-card" onclick="explainModel('subscription')">
-                    <div class="model-icon">🔄</div>
-                    <div class="model-name">Subscription</div>
-                    <p>Recurring payments</p>
-                    <div class="model-example">Netflix, Spotify</div>
-                </div>
-                
-                <div class="model-card" onclick="explainModel('freemium')">
-                    <div class="model-icon">🆓</div>
-                    <div class="model-name">Freemium</div>
-                    <p>Free base, paid premium</p>
-                    <div class="model-example">LinkedIn, Dropbox</div>
-                </div>
-                
-                <div class="model-card" onclick="explainModel('advertising')">
-                    <div class="model-icon">📺</div>
-                    <div class="model-name">Advertising</div>
-                    <p>Third-party payments</p>
-                    <div class="model-example">Google, Facebook</div>
-                </div>
-                
-                <div class="model-card" onclick="explainModel('marketplace')">
-                    <div class="model-icon">🏪</div>
-                    <div class="model-name">Marketplace</div>
-                    <p>Transaction fees</p>
-                    <div class="model-example">eBay, Airbnb</div>
-                </div>
-                
-                <div class="model-card" onclick="explainModel('razor')">
-                    <div class="model-icon">🪒</div>
-                    <div class="model-name">Razor & Blade</div>
-                    <p>Cheap base, expensive refills</p>
-                    <div class="model-example">Printers, Razors</div>
-                </div>
-            </div>
-            
-            <div id="model-explanation" style="display: none; margin-top: 2rem; padding: 2rem; background: #f8f9fa; border-radius: 10px;">
-                <!-- Model details will appear here -->
-            </div>
-            
-            <div class="law-card">
-                <div class="law-title">📊 Revenue Distribution: The Power Law</div>
-                <p>Revenue is NEVER evenly distributed. It follows a power law (also called Zipf's law):</p>
-                <ul style="margin-top: 1rem;">
-                    <li>Product #1 generates 2x the revenue of Product #2</li>
-                    <li>Product #2 generates 2x the revenue of Product #3</li>
-                    <li>Top 10% of products generate 90% of revenue</li>
-                </ul>
-                <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 5px;">
-                    <strong>Amazon Example:</strong> 10% of products (bestsellers) generate 85% of revenue. That's why they show "Customers also bought" - to push you toward high-revenue items!
-                </div>
-            </div>
-            
-            <canvas id="revenueDistributionChart"></canvas>
-            
-            <div class="section-nav">
-                <button class="nav-button" onclick="navigateToSection(2)">← Previous: Supply & Demand</button>
-                <span class="section-indicator">Section 3 of 8</span>
-                <button class="nav-button" onclick="navigateToSection(4)">Next: Forecasting →</button>
-            </div>
-        </div>
-
-        <!-- Section 4: Forecasting and Demand Planning -->
-        <div class="section-card" id="section4" style="display: none;">
-            <span class="section-number">FOUNDATION 4 of 8</span>
-            <h2>Forecasting: Predicting the Future of Business</h2>
-            
-            <div class="fundamental-box">
-                <div class="fundamental-title">🔮 Why Every Business Must Forecast</div>
-                <p>Forecasting isn't optional - it's survival. Every business decision requires predicting the future:</p>
-                <ul>
-                    <li><strong>Inventory:</strong> How much to stock?</li>
-                    <li><strong>Staffing:</strong> How many people to hire?</li>
-                    <li><strong>Cash Flow:</strong> When will money come in?</li>
-                    <li><strong>Capacity:</strong> How much can we produce?</li>
-                </ul>
-            </div>
-            
-            <div class="forecast-comparison">
-                <div class="forecast-method">
-                    <h3 style="color: #dc3545;">Naive Forecasting</h3>
-                    <span class="accuracy-badge accuracy-low">30-40% Accurate</span>
-                    <p style="margin-top: 1rem;"><strong>Method:</strong> "Next month = This month"</p>
-                    <p><strong>Problem:</strong> Ignores trends, seasonality</p>
-                    <p><strong>Cost of Error:</strong> $2-5M annually</p>
-                </div>
-                
-                <div class="forecast-method">
-                    <h3 style="color: #ffc107;">Moving Average</h3>
-                    <span class="accuracy-badge accuracy-medium">50-60% Accurate</span>
-                    <p style="margin-top: 1rem;"><strong>Method:</strong> Average of last 3-12 periods</p>
-                    <p><strong>Problem:</strong> Slow to react to changes</p>
-                    <p><strong>Cost of Error:</strong> $1-2M annually</p>
-                </div>
-                
-                <div class="forecast-method best">
-                    <h3 style="color: #48bb78;">Machine Learning</h3>
-                    <span class="accuracy-badge accuracy-high">85-95% Accurate</span>
-                    <p style="margin-top: 1rem;"><strong>Method:</strong> Patterns + external factors</p>
-                    <p><strong>Advantage:</strong> Adapts to changes quickly</p>
-                    <p><strong>Savings:</strong> $3-10M annually</p>
-                </div>
-            </div>
-            
-            <div class="profit-calculator">
-                <h3 style="color: #667eea; margin-bottom: 1.5rem;">Forecast Accuracy Impact Calculator</h3>
-                
-                <div class="calc-inputs">
-                    <div class="calc-input">
-                        <label>Annual Revenue ($M)</label>
-                        <input type="number" id="revInput" value="50" min="1" max="1000">
-                    </div>
-                    <div class="calc-input">
-                        <label>Current Forecast Accuracy (%)</label>
-                        <input type="number" id="currentAccuracy" value="60" min="30" max="95">
-                    </div>
-                    <div class="calc-input">
-                        <label>Inventory Holding Cost (%)</label>
-                        <input type="number" id="holdingCost" value="25" min="10" max="50">
-                    </div>
-                    <div class="calc-input">
-                        <label>Stockout Penalty (%)</label>
-                        <input type="number" id="stockoutCost" value="35" min="20" max="60">
-                    </div>
-                </div>
-                
-                <button class="calc-button" onclick="calculateForecastImpact()">
-                    Calculate Financial Impact
-                </button>
-                
-                <div id="forecastResults" class="calc-results">
-                    <!-- Results will appear here -->
-                </div>
-            </div>
-            
-            <div class="section-nav">
-                <button class="nav-button" onclick="navigateToSection(3)">← Previous: Revenue Models</button>
-                <span class="section-indicator">Section 4 of 8</span>
-                <button class="nav-button" onclick="navigateToSection(5)">Next: Cost Analysis →</button>
-            </div>
-        </div>
-
-        <!-- Section 5: Cost Structure and Break-Even -->
-        <div class="section-card" id="section5" style="display: none;">
-            <span class="section-number">FOUNDATION 5 of 8</span>
-            <h2>Understanding Costs: The Path to Profitability</h2>
-            
-            <div class="fundamental-box">
-                <div class="fundamental-title">💸 The Two Types of Costs</div>
-                <div class="equation-box">
-                    <strong>Total Cost = Fixed Costs + (Variable Cost × Quantity)</strong>
-                </div>
-                <p style="margin-top: 1rem;">Understanding this determines:</p>
-                <ul>
-                    <li>When you become profitable (break-even point)</li>
-                    <li>How to price products (markup calculation)</li>
-                    <li>Whether to scale up or down (economies of scale)</li>
-                </ul>
-            </div>
-            
-            <div class="supply-demand-container">
-                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
-                    <h3 style="color: #667eea;">Fixed Costs</h3>
-                    <p>Costs that don't change with volume</p>
-                    <ul style="margin-top: 1rem;">
-                        <li>Rent: $10,000/month</li>
-                        <li>Salaries: $50,000/month</li>
-                        <li>Insurance: $2,000/month</li>
-                        <li>Software: $3,000/month</li>
-                    </ul>
-                    <p style="margin-top: 1rem; font-weight: bold;">Total Fixed: $65,000/month</p>
-                </div>
-                
-                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
-                    <h3 style="color: #667eea;">Variable Costs</h3>
-                    <p>Costs that scale with volume</p>
-                    <ul style="margin-top: 1rem;">
-                        <li>Materials: $10/unit</li>
-                        <li>Packaging: $2/unit</li>
-                        <li>Shipping: $5/unit</li>
-                        <li>Commission: $3/unit</li>
-                    </ul>
-                    <p style="margin-top: 1rem; font-weight: bold;">Total Variable: $20/unit</p>
-                </div>
-            </div>
-            
-            <div class="profit-calculator">
-                <h3 style="color: #667eea;">Break-Even Analysis</h3>
-                <p>Find out how many units you need to sell to start making profit</p>
-                
-                <div class="calc-inputs">
-                    <div class="calc-input">
-                        <label>Fixed Costs ($/month)</label>
-                        <input type="number" id="fixedCosts" value="65000" onchange="updateBreakEven()">
-                    </div>
-                    <div class="calc-input">
-                        <label>Variable Cost ($/unit)</label>
-                        <input type="number" id="varCost" value="20" onchange="updateBreakEven()">
-                    </div>
-                    <div class="calc-input">
-                        <label>Selling Price ($/unit)</label>
-                        <input type="number" id="sellPrice" value="50" onchange="updateBreakEven()">
-                    </div>
-                </div>
-                
-                <div style="background: white; padding: 2rem; border-radius: 10px; margin-top: 2rem;">
-                    <h4>Break-Even Analysis Results</h4>
-                    <p style="font-size: 1.5rem; color: #667eea; margin: 1rem 0;">
-                        Break-Even Point: <strong id="breakEvenUnits">2,167</strong> units/month
-                    </p>
-                    <p>Contribution Margin: <strong id="contribMargin">$30</strong> per unit (60%)</p>
-                    <p>At break-even revenue: <strong id="breakEvenRevenue">$108,350</strong></p>
-                    
-                    <div style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
-                        <strong>What This Means:</strong>
-                        <ul style="margin-top: 0.5rem;">
-                            <li>Below <span id="beUnits">2,167</span> units = Loss</li>
-                            <li>Exactly <span id="beUnits2">2,167</span> units = Zero profit</li>
-                            <li>Above <span id="beUnits3">2,167</span> units = Profit!</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <canvas id="breakEvenChart"></canvas>
-            
-            <div class="section-nav">
-                <button class="nav-button" onclick="navigateToSection(4)">← Previous: Forecasting</button>
-                <span class="section-indicator">Section 5 of 8</span>
-                <button class="nav-button" onclick="navigateToSection(6)">Next: Key Metrics →</button>
-            </div>
-        </div>
-
-        <!-- Section 6: Business Metrics and KPIs -->
-        <div class="section-card" id="section6" style="display: none;">
-            <span class="section-number">FOUNDATION 6 of 8</span>
-            <h2>The 20 Metrics That Actually Matter</h2>
-            
-            <div class="fundamental-box">
-                <div class="fundamental-title">📊 Metrics Drive Decisions</div>
-                <p>You can't improve what you don't measure. Here are the metrics every business must track:</p>
-            </div>
-            
-            <!-- Customer Metrics -->
-            <div style="margin-bottom: 2rem;">
-                <h3 style="color: #667eea; margin-bottom: 1rem;">Customer Metrics</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-                    <div class="law-card">
-                        <div class="law-title">CAC (Customer Acquisition Cost)</div>
-                        <p>Total sales & marketing cost ÷ New customers</p>
-                        <p style="margin-top: 0.5rem;"><strong>Good:</strong> < $100 B2C, < $1000 B2B</p>
-                    </div>
-                    <div class="law-card">
-                        <div class="law-title">LTV (Lifetime Value)</div>
-                        <p>Average order × Frequency × Lifespan</p>
-                        <p style="margin-top: 0.5rem;"><strong>Rule:</strong> LTV should be 3x CAC</p>
-                    </div>
-                    <div class="law-card">
-                        <div class="law-title">Churn Rate</div>
-                        <p>Lost customers ÷ Total customers</p>
-                        <p style="margin-top: 0.5rem;"><strong>Good:</strong> < 5% monthly B2C, < 2% B2B</p>
-                    </div>
-                    <div class="law-card">
-                        <div class="law-title">NPS (Net Promoter Score)</div>
-                        <p>% Promoters - % Detractors</p>
-                        <p style="margin-top: 0.5rem;"><strong>Good:</strong> > 50, Excellent: > 70</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Financial Metrics -->
-            <div style="margin-bottom: 2rem;">
-                <h3 style="color: #667eea; margin-bottom: 1rem;">Financial Metrics</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-                    <div class="law-card">
-                        <div class="law-title">Gross Margin</div>
-                        <p>(Revenue - COGS) ÷ Revenue</p>
-                        <p style="margin-top: 0.5rem;"><strong>Target:</strong> > 50% SaaS, > 30% Retail</p>
-                    </div>
-                    <div class="law-card">
-                        <div class="law-title">Burn Rate</div>
-                        <p>Monthly cash spent</p>
-                        <p style="margin-top: 0.5rem;"><strong>Runway:</strong> Cash ÷ Burn rate</p>
-                    </div>
-                    <div class="law-card">
-                        <div class="law-title">MRR/ARR</div>
-                        <p>Monthly/Annual Recurring Revenue</p>
-                        <p style="margin-top: 0.5rem;"><strong>Growth:</strong> > 20% monthly</p>
-                    </div>
-                    <div class="law-card">
-                        <div class="law-title">Unit Economics</div>
-                        <p>Revenue per unit - Cost per unit</p>
-                        <p style="margin-top: 0.5rem;"><strong>Must be:</strong> Positive!</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="decision-tree">
-                <h3 style="color: #667eea; margin-bottom: 1rem;">Which Metric Should You Optimize?</h3>
-                <div class="decision-node" onclick="showMetricPriority('startup')">
-                    <strong>Startup (< 1 year)</strong>
-                    <p>Focus: Product-Market Fit</p>
-                </div>
-                <div class="decision-node" onclick="showMetricPriority('growth')">
-                    <strong>Growth Stage (1-5 years)</strong>
-                    <p>Focus: Scalability</p>
-                </div>
-                <div class="decision-node" onclick="showMetricPriority('mature')">
-                    <strong>Mature (> 5 years)</strong>
-                    <p>Focus: Efficiency</p>
-                </div>
-                
-                <div id="metricPriority" class="decision-result">
-                    <!-- Priority will appear here -->
-                </div>
-            </div>
-            
-            <div class="section-nav">
-                <button class="nav-button" onclick="navigateToSection(5)">← Previous: Cost Analysis</button>
-                <span class="section-indicator">Section 6 of 8</span>
-                <button class="nav-button" onclick="navigateToSection(7)">Next: Data Quality →</button>
-            </div>
-        </div>
-
-        <!-- Section 7: Data Types and Quality -->
-        <div class="section-card" id="section7" style="display: none;">
-            <span class="section-number">FOUNDATION 7 of 8</span>
-            <h2>Data: The New Oil of Business</h2>
-            
-            <div class="fundamental-box">
-                <div class="fundamental-title">📊 Why Data Quality = Business Quality</div>
-                <p>Bad data costs businesses $3.1 trillion annually (IBM). Here's what you must understand:</p>
-            </div>
-            
-            <!-- Content from previous implementation about data types, quality, etc. -->
-            <!-- [Previous data quality content goes here] -->
-            
-            <div class="section-nav">
-                <button class="nav-button" onclick="navigateToSection(6)">← Previous: Key Metrics</button>
-                <span class="section-indicator">Section 7 of 8</span>
-                <button class="nav-button" onclick="navigateToSection(8)">Next: ROI Analysis →</button>
-            </div>
-        </div>
-
-        <!-- Section 8: Analytics ROI and Business Case -->
-        <div class="section-card" id="section8" style="display: none;">
-            <span class="section-number">FOUNDATION 8 of 8</span>
-            <h2>Building Your Analytics Business Case</h2>
-            
-            <div class="fundamental-box">
-                <div class="fundamental-title">💰 Proving Analytics Value</div>
-                <p>Analytics isn't a cost center - it's a profit multiplier. Here's how to prove it:</p>
-            </div>
-            
-            <!-- Final comprehensive calculator and summary -->
-            <!-- [Previous ROI content enhanced] -->
-            
-            <div class="section-nav">
-                <button class="nav-button" onclick="navigateToSection(7)">← Previous: Data Quality</button>
-                <span class="section-indicator">Section 8 of 8</span>
-                <button class="nav-button" onclick="completModule()">Complete Module →</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Navigation between sections
-        let currentSection = 1;
-        const totalSections = 8;
-        
-        function navigateToSection(section) {
-            // Hide all sections
-            for (let i = 1; i <= totalSections; i++) {
-                const sectionEl = document.getElementById(`section${i}`);
-                if (sectionEl) sectionEl.style.display = 'none';
-            }
+        // Interactive visualization code
+        function updateVisualization() {
+            const complexity = document.getElementById('complexity-slider').value;
+            const noise = document.getElementById('noise-slider').value / 100;
+            const samples = document.getElementById('samples-slider').value;
             
-            // Show target section
-            const targetSection = document.getElementById(`section${section}`);
-            if (targetSection) {
-                targetSection.style.display = 'block';
-                currentSection = section;
-                
-                // Update progress bar
-                updateProgress();
-                
-                // Scroll to top
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+            document.getElementById('complexity-value').textContent = complexity;
+            document.getElementById('noise-value').textContent = noise.toFixed(2);
+            document.getElementById('samples-value').textContent = samples;
+            
+            // Simulate model metrics
+            const trainRMSE = (0.1 + noise * 0.5 - complexity * 0.02).toFixed(3);
+            const testRMSE = (0.15 + noise * 0.6 - complexity * 0.015 + (100 - samples) * 0.001).toFixed(3);
+            const rSquared = (0.95 - noise * 0.3 - Math.abs(complexity - 5) * 0.02).toFixed(3);
+            
+            document.getElementById('train-rmse').textContent = trainRMSE;
+            document.getElementById('test-rmse').textContent = testRMSE;
+            document.getElementById('r-squared').textContent = rSquared;
+            
+            // Draw visualization
+            drawRegression(complexity, noise, samples);
         }
         
-        function updateProgress() {
-            const progress = (currentSection / totalSections) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
+        function resetParameters() {
+            document.getElementById('complexity-slider').value = 3;
+            document.getElementById('noise-slider').value = 30;
+            document.getElementById('samples-slider').value = 50;
+            updateVisualization();
         }
         
-        // Quiz functionality
-        function checkAnswer(quizNum, result) {
-            const options = event.target.parentElement.querySelectorAll('.quiz-option');
-            const feedback = document.getElementById(`quiz${quizNum}-feedback`);
-            
-            options.forEach(opt => {
-                opt.classList.remove('correct', 'wrong');
-                opt.onclick = null;
-            });
-            
-            if (result === 'correct') {
-                event.target.classList.add('correct');
-                feedback.innerHTML = '<strong style="color: #48bb78;">✓ Correct!</strong> When costs exceed revenue, immediate cost reduction is the only path to survival. Growing revenue takes time, but costs can be cut immediately.';
-                feedback.style.background = '#d4edda';
-            } else {
-                event.target.classList.add('wrong');
-                feedback.innerHTML = '<strong style="color: #dc3545;">✗ Think again!</strong> The company is losing $2M. More spending will increase losses. They must cut costs immediately or shut down.';
-                feedback.style.background = '#f8d7da';
-            }
-            
-            feedback.classList.add('show');
-        }
-        
-        // Market equilibrium calculator
-        function updateMarket() {
-            const supply = parseInt(document.getElementById('supplySlider').value);
-            const demand = parseInt(document.getElementById('demandSlider').value);
-            const cost = parseInt(document.getElementById('costSlider').value);
-            
-            document.getElementById('supplyValue').textContent = supply;
-            document.getElementById('demandValue').textContent = demand;
-            document.getElementById('costValue').textContent = cost;
-            
-            // Calculate equilibrium
-            const equilibriumQty = Math.min(supply, demand);
-            const priceMultiplier = demand / supply;
-            const equilibriumPrice = cost * (1 + priceMultiplier);
-            const revenue = equilibriumQty * equilibriumPrice;
-            const totalCost = equilibriumQty * cost;
-            const profit = revenue - totalCost;
-            
-            document.getElementById('eqPrice').textContent = `$${equilibriumPrice.toFixed(2)}`;
-            document.getElementById('qtySold').textContent = `${equilibriumQty} units`;
-            document.getElementById('totalRevenue').textContent = `$${revenue.toFixed(0)}`;
-            document.getElementById('totalProfit').textContent = `$${profit.toFixed(0)}`;
-            
-            // Update insight
-            let insight = '';
-            if (supply > demand) {
-                insight = 'Oversupply! Reduce production or lower prices to clear inventory.';
-            } else if (demand > supply) {
-                insight = 'Shortage! Increase production or raise prices to maximize profit.';
-            } else {
-                insight = 'Perfect equilibrium! Market is efficiently balanced.';
-            }
-            document.getElementById('marketInsight').textContent = insight;
-            
-            // Draw supply-demand curves
-            drawSupplyDemandCurves();
-        }
-        
-        // Draw supply and demand curves
-        function drawSupplyDemandCurves() {
-            const canvas = document.getElementById('supplyDemandChart');
-            if (!canvas) return;
-            
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth;
-            canvas.height = 400;
-            
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw axes
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(50, canvas.height - 50);
-            ctx.lineTo(canvas.width - 30, canvas.height - 50);
-            ctx.moveTo(50, 30);
-            ctx.lineTo(50, canvas.height - 50);
-            ctx.stroke();
-            
-            // Labels
-            ctx.fillStyle = '#333';
-            ctx.font = '12px sans-serif';
-            ctx.fillText('Quantity', canvas.width / 2, canvas.height - 10);
-            ctx.save();
-            ctx.translate(15, canvas.height / 2);
-            ctx.rotate(-Math.PI / 2);
-            ctx.fillText('Price', 0, 0);
-            ctx.restore();
-            
-            // Get values
-            const supply = parseInt(document.getElementById('supplySlider').value);
-            const demand = parseInt(document.getElementById('demandSlider').value);
-            const cost = parseInt(document.getElementById('costSlider').value);
-            
-            // Draw supply curve (upward sloping)
-            ctx.strokeStyle = '#667eea';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            for (let q = 0; q <= 100; q += 5) {
-                const x = 50 + (q / 100) * (canvas.width - 80);
-                const p = cost + (q / supply) * 50;
-                const y = canvas.height - 50 - (p / 100) * (canvas.height - 80);
-                
-                if (q === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            ctx.fillText('Supply', canvas.width - 100, 100);
-            
-            // Draw demand curve (downward sloping)
-            ctx.strokeStyle = '#dc3545';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            for (let q = 0; q <= 100; q += 5) {
-                const x = 50 + (q / 100) * (canvas.width - 80);
-                const p = 80 - (q / demand) * 60;
-                const y = canvas.height - 50 - (p / 100) * (canvas.height - 80);
-                
-                if (q === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            ctx.fillText('Demand', canvas.width - 100, canvas.height - 100);
-            
-            // Mark equilibrium point
-            const eqQty = Math.min(supply, demand);
-            const eqX = 50 + (eqQty / 100) * (canvas.width - 80);
-            const eqPrice = cost * (1 + demand / supply);
-            const eqY = canvas.height - 50 - (eqPrice / 100) * (canvas.height - 80);
-            
-            ctx.fillStyle = '#48bb78';
-            ctx.beginPath();
-            ctx.arc(eqX, eqY, 8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillText('Equilibrium', eqX + 10, eqY - 10);
-        }
-        
-        // Revenue model explanations
-        function explainModel(model) {
-            const explanations = {
-                'transaction': {
-                    title: 'Transaction Model',
-                    description: 'Customers pay once for each product/service',
-                    pros: 'Simple, immediate revenue, no commitment required',
-                    cons: 'Must constantly acquire new customers, unpredictable revenue',
-                    metrics: 'Average order value, conversion rate, repeat purchase rate',
-                    example: 'Amazon made $469B in 2021 from transactions'
-                },
-                'subscription': {
-                    title: 'Subscription Model',
-                    description: 'Customers pay recurring fees for continued access',
-                    pros: 'Predictable revenue, high LTV, builds loyalty',
-                    cons: 'Harder initial sale, must prevent churn',
-                    metrics: 'MRR, churn rate, LTV:CAC ratio',
-                    example: 'Netflix has 220M subscribers paying $15/month = $3.3B monthly'
-                },
-                'freemium': {
-                    title: 'Freemium Model',
-                    description: 'Basic features free, advanced features paid',
-                    pros: 'Large user base, low barrier to entry, viral growth',
-                    cons: 'Low conversion rates (2-5%), support costs for free users',
-                    metrics: 'Conversion rate, ARPU, viral coefficient',
-                    example: 'Spotify: 180M free users, 40M paid = 22% conversion'
-                },
-                'advertising': {
-                    title: 'Advertising Model',
-                    description: 'Free to users, advertisers pay for attention',
-                    pros: 'Users get free service, scales with traffic',
-                    cons: 'Need massive scale, privacy concerns',
-                    metrics: 'CPM, CTR, fill rate, eCPM',
-                    example: 'Google: $209B from ads (81% of total revenue)'
-                },
-                'marketplace': {
-                    title: 'Marketplace Model',
-                    description: 'Connect buyers and sellers, take commission',
-                    pros: 'No inventory, network effects, scalable',
-                    cons: 'Chicken-egg problem, quality control',
-                    metrics: 'GMV, take rate, liquidity, seller/buyer ratio',
-                    example: 'eBay takes 10% of each transaction, processes $87B annually'
-                },
-                'razor': {
-                    title: 'Razor & Blade Model',
-                    description: 'Sell base product cheap, make money on consumables',
-                    pros: 'Lock-in effect, predictable repeat purchases',
-                    cons: 'Initial loss on base product, can be disrupted',
-                    metrics: 'Attach rate, refill frequency, CLV',
-                    example: 'HP sells printers at loss, ink has 60%+ margin'
-                }
-            };
-            
-            const exp = explanations[model];
-            document.getElementById('model-explanation').innerHTML = `
-                <h3 style="color: #667eea;">${exp.title}</h3>
-                <p><strong>How it works:</strong> ${exp.description}</p>
-                <p><strong>Advantages:</strong> ${exp.pros}</p>
-                <p><strong>Challenges:</strong> ${exp.cons}</p>
-                <p><strong>Key Metrics:</strong> ${exp.metrics}</p>
-                <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 5px;">
-                    <strong>Real Example:</strong> ${exp.example}
-                </div>
-            `;
-            document.getElementById('model-explanation').style.display = 'block';
-            
-            // Highlight selected model
-            document.querySelectorAll('.model-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            event.target.closest('.model-card').classList.add('selected');
-        }
-        
-        // Calculate forecast impact
-        function calculateForecastImpact() {
-            const revenue = parseFloat(document.getElementById('revInput').value) * 1000000;
-            const currentAcc = parseFloat(document.getElementById('currentAccuracy').value) / 100;
-            const holding = parseFloat(document.getElementById('holdingCost').value) / 100;
-            const stockout = parseFloat(document.getElementById('stockoutCost').value) / 100;
-            
-            // Calculate costs of poor forecasting
-            const forecastError = 1 - currentAcc;
-            const overstock = revenue * forecastError * 0.6 * holding; // 60% of errors are overstock
-            const understock = revenue * forecastError * 0.4 * stockout; // 40% are understock
-            const totalCost = overstock + understock;
-            
-            // Calculate improvement with better forecasting
-            const improvedAcc = Math.min(0.90, currentAcc + 0.25); // 25% improvement
-            const improvedError = 1 - improvedAcc;
-            const newOverstock = revenue * improvedError * 0.6 * holding;
-            const newUnderstock = revenue * improvedError * 0.4 * stockout;
-            const newCost = newOverstock + newUnderstock;
-            
-            const savings = totalCost - newCost;
-            const roi = (savings / 100000) * 100; // Assume $100k investment
-            
-            document.getElementById('forecastResults').innerHTML = `
-                <h4 style="color: #48bb78;">Forecast Improvement Analysis</h4>
-                <div class="output-metric">
-                    <span>Current Annual Cost of Errors:</span>
-                    <span class="output-value" style="color: #dc3545;">$${(totalCost/1000000).toFixed(2)}M</span>
-                </div>
-                <div class="output-metric">
-                    <span>Cost with ML Forecasting:</span>
-                    <span class="output-value">$${(newCost/1000000).toFixed(2)}M</span>
-                </div>
-                <div class="output-metric">
-                    <span>Annual Savings:</span>
-                    <span class="output-value" style="color: #48bb78;">$${(savings/1000000).toFixed(2)}M</span>
-                </div>
-                <div class="output-metric">
-                    <span>ROI on $100k Investment:</span>
-                    <span class="output-value" style="color: #48bb78;">${roi.toFixed(0)}%</span>
-                </div>
-                <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
-                    <strong>Recommendation:</strong> Improving forecast accuracy from ${(currentAcc*100).toFixed(0)}% to ${(improvedAcc*100).toFixed(0)}% 
-                    will save $${(savings/1000000).toFixed(2)}M annually. This pays for itself in ${(100000/savings*12).toFixed(1)} months.
-                </div>
-            `;
-            document.getElementById('forecastResults').classList.add('show');
-        }
-        
-        // Update break-even analysis
-        function updateBreakEven() {
-            const fixed = parseFloat(document.getElementById('fixedCosts').value) || 0;
-            const variable = parseFloat(document.getElementById('varCost').value) || 0;
-            const price = parseFloat(document.getElementById('sellPrice').value) || 0;
-            
-            if (price > variable) {
-                const contribution = price - variable;
-                const breakEven = Math.ceil(fixed / contribution);
-                const breakEvenRev = breakEven * price;
-                const marginPercent = (contribution / price * 100).toFixed(0);
-                
-                document.getElementById('breakEvenUnits').textContent = breakEven.toLocaleString();
-                document.getElementById('contribMargin').textContent = `$${contribution.toFixed(0)}`;
-                document.getElementById('breakEvenRevenue').textContent = `$${breakEvenRev.toLocaleString()}`;
-                document.getElementById('beUnits').textContent = breakEven.toLocaleString();
-                document.getElementById('beUnits2').textContent = breakEven.toLocaleString();
-                document.getElementById('beUnits3').textContent = breakEven.toLocaleString();
-                
-                drawBreakEvenChart(fixed, variable, price);
-            } else {
-                document.getElementById('breakEvenUnits').textContent = 'Never!';
-                document.getElementById('contribMargin').textContent = 'Negative!';
-            }
-        }
-        
-        // Draw break-even chart
-        function drawBreakEvenChart(fixed, variable, price) {
-            const canvas = document.getElementById('breakEvenChart');
-            if (!canvas) return;
-            
+        function drawRegression(complexity, noise, samples) {
+            const canvas = document.getElementById('visualization');
             const ctx = canvas.getContext('2d');
             canvas.width = canvas.offsetWidth;
             canvas.height = 400;
@@ -1412,766 +217,27 @@
             ctx.lineTo(50, canvas.height - 50);
             ctx.stroke();
             
-            const maxUnits = 5000;
-            const maxMoney = 250000;
-            
-            // Draw fixed cost line (horizontal)
-            ctx.strokeStyle = '#dc3545';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            const fixedY = canvas.height - 50 - (fixed / maxMoney) * (canvas.height - 80);
-            ctx.moveTo(50, fixedY);
-            ctx.lineTo(canvas.width - 30, fixedY);
-            ctx.stroke();
-            ctx.fillStyle = '#dc3545';
-            ctx.fillText('Fixed Costs', canvas.width - 120, fixedY - 5);
-            
-            // Draw total cost line
-            ctx.strokeStyle = '#ffc107';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            for (let units = 0; units <= maxUnits; units += 100) {
-                const x = 50 + (units / maxUnits) * (canvas.width - 80);
-                const totalCost = fixed + (variable * units);
-                const y = canvas.height - 50 - (totalCost / maxMoney) * (canvas.height - 80);
-                
-                if (units === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            ctx.fillStyle = '#ffc107';
-            ctx.fillText('Total Costs', 100, 100);
-            
-            // Draw revenue line
-            ctx.strokeStyle = '#48bb78';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            for (let units = 0; units <= maxUnits; units += 100) {
-                const x = 50 + (units / maxUnits) * (canvas.width - 80);
-                const revenue = price * units;
-                const y = canvas.height - 50 - (revenue / maxMoney) * (canvas.height - 80);
-                
-                if (units === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            ctx.fillStyle = '#48bb78';
-            ctx.fillText('Revenue', 200, 80);
-            
-            // Mark break-even point
-            const beUnits = fixed / (price - variable);
-            const beX = 50 + (beUnits / maxUnits) * (canvas.width - 80);
-            const beY = canvas.height - 50 - ((beUnits * price) / maxMoney) * (canvas.height - 80);
-            
+            // Generate and draw data points
             ctx.fillStyle = '#667eea';
-            ctx.beginPath();
-            ctx.arc(beX, beY, 8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillText('Break-Even', beX + 10, beY - 10);
-            
-            // Shade profit area
-            ctx.fillStyle = 'rgba(72, 187, 120, 0.1)';
-            ctx.beginPath();
-            ctx.moveTo(beX, beY);
-            for (let units = beUnits; units <= maxUnits; units += 100) {
-                const x = 50 + (units / maxUnits) * (canvas.width - 80);
-                const revenue = price * units;
-                const y = canvas.height - 50 - (revenue / maxMoney) * (canvas.height - 80);
-                ctx.lineTo(x, y);
+            for (let i = 0; i < samples; i++) {
+                const x = 50 + (i / samples) * (canvas.width - 80);
+                const y = canvas.height - 50 - (Math.random() * noise * 100 + 100);
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fill();
             }
-            for (let units = maxUnits; units >= beUnits; units -= 100) {
-                const x = 50 + (units / maxUnits) * (canvas.width - 80);
-                const totalCost = fixed + (variable * units);
-                const y = canvas.height - 50 - (totalCost / maxMoney) * (canvas.height - 80);
-                ctx.lineTo(x, y);
-            }
-            ctx.closePath();
-            ctx.fill();
             
-            // Label profit area
-            ctx.fillStyle = '#48bb78';
-            ctx.font = 'bold 14px sans-serif';
-            ctx.fillText('PROFIT ZONE', canvas.width - 150, canvas.height / 2);
-            
-            // Label loss area  
-            ctx.fillStyle = '#dc3545';
-            ctx.fillText('LOSS ZONE', 100, canvas.height / 2);
-        }
-        
-        // Show metric priority based on stage
-        function showMetricPriority(stage) {
-            const priorities = {
-                'startup': {
-                    title: 'Startup Priority Metrics',
-                    metrics: [
-                        'Weekly Active Users (WAU) - Are people using your product?',
-                        'Retention Rate - Do they come back?',
-                        'Product-Market Fit Score - Do they love it?',
-                        'Burn Rate - How long can you survive?'
-                    ]
-                },
-                'growth': {
-                    title: 'Growth Stage Priority Metrics',
-                    metrics: [
-                        'CAC (Customer Acquisition Cost) - Cost to get customers',
-                        'LTV (Lifetime Value) - Revenue per customer',
-                        'Monthly Growth Rate - Speed of expansion',
-                        'Churn Rate - Customer retention'
-                    ]
-                },
-                'mature': {
-                    title: 'Mature Company Priority Metrics',
-                    metrics: [
-                        'EBITDA Margin - Operational efficiency',
-                        'Market Share - Competitive position',
-                        'Customer Satisfaction (NPS) - Long-term health',
-                        'Revenue per Employee - Productivity'
-                    ]
-                }
-            };
-            
-            const priority = priorities[stage];
-            document.getElementById('metricPriority').innerHTML = `
-                <h4 style="color: #48bb78;">${priority.title}</h4>
-                <ol style="margin-top: 1rem;">
-                    ${priority.metrics.map(m => `<li style="margin: 0.5rem 0;">${m}</li>`).join('')}
-                </ol>
-                <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
-                    <strong>Remember:</strong> Focus on 3-5 metrics maximum. Too many metrics = no focus = failure.
-                </div>
-            `;
-            document.getElementById('metricPriority').classList.add('show');
-            
-            // Highlight selected stage
-            document.querySelectorAll('.decision-node').forEach(node => {
-                node.style.background = '#f8f9fa';
-            });
-            event.target.closest('.decision-node').style.background = '#e7f3ff';
-        }
-        
-        // Complete module
-        function completeModule() {
-            alert('Congratulations! You\'ve mastered Business Analytics Foundations. Ready for Module 2: Python Essentials!');
-            window.location.href = '../module2/class-material.html';
+            // Draw regression line
+            ctx.strokeStyle = '#dc3545';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(50, canvas.height - 100);
+            ctx.lineTo(canvas.width - 30, 100);
+            ctx.stroke();
         }
         
         // Initialize on load
-        window.onload = () => {
-            updateProgress();
-            updateMarket();
-            updateBreakEven();
-            drawSupplyDemandCurves();
-            
-            // Draw revenue distribution chart
-            const canvas = document.getElementById('revenueDistributionChart');
-            if (canvas) {
-                const ctx = canvas.getContext('2d');
-                canvas.width = canvas.offsetWidth;
-                canvas.height = 400;
-                
-                // Draw power law distribution
-                ctx.strokeStyle = '#667eea';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                
-                const products = 100;
-                for (let i = 1; i <= products; i++) {
-                    const x = 50 + ((i - 1) / products) * (canvas.width - 80);
-                    const revenue = 1000 / i; // Power law
-                    const y = canvas.height - 50 - (revenue / 1000) * (canvas.height - 80);
-                    
-                    if (i === 1) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                ctx.stroke();
-                
-                // Shade top 10%
-                ctx.fillStyle = 'rgba(102, 126, 234, 0.2)';
-                ctx.fillRect(50, 30, (canvas.width - 80) * 0.1, canvas.height - 80);
-                
-                // Labels
-                ctx.fillStyle = '#333';
-                ctx.font = '12px sans-serif';
-                ctx.fillText('Products (ranked by revenue)', canvas.width / 2 - 50, canvas.height - 10);
-                ctx.fillText('Top 10% = 90% of revenue', 100, 60);
-            }
-        };
+        window.onload = updateVisualization;
     </script>
 </body>
-</html>        <!-- Section 7: Data Types and Quality -->
-        <div class="section-card" id="section7" style="display: none;">
-            <span class="section-number">FOUNDATION 7 of 8</span>
-            <h2>Data: The New Oil of Business</h2>
-            
-            <div class="fundamental-box">
-                <div class="fundamental-title">📊 Why Bad Data Costs $3.1 Trillion Annually</div>
-                <p>IBM's research shows bad data is the #1 cause of business failure. Here's what you MUST understand about data to succeed:</p>
-            </div>
-            
-            <!-- The Four Data Types -->
-            <div style="margin-bottom: 2rem;">
-                <h3 style="color: #667eea; margin-bottom: 1.5rem;">The Four Fundamental Data Types</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                    <div class="law-card">
-                        <div class="law-title">1️⃣ Categorical (Nominal)</div>
-                        <p><strong>Definition:</strong> Labels with no order</p>
-                        <p><strong>Examples:</strong> 
-                            • Store location: "NYC", "LA", "Chicago"
-                            • Product type: "Coffee", "Tea", "Juice"
-                            • Customer segment: "Premium", "Regular"
-                        </p>
-                        <div style="background: white; padding: 0.5rem; border-radius: 5px; margin-top: 0.5rem;">
-                            <strong>⚠️ Common Mistake:</strong> Using ZIP codes as numbers (10001 + 10002 ≠ 20003!)
-                        </div>
-                    </div>
-                    
-                    <div class="law-card">
-                        <div class="law-title">2️⃣ Ordinal</div>
-                        <p><strong>Definition:</strong> Ordered categories, unequal gaps</p>
-                        <p><strong>Examples:</strong>
-                            • Satisfaction: "Very Unhappy" → "Unhappy" → "Neutral" → "Happy"
-                            • Education: "High School" → "Bachelor's" → "Master's"
-                            • Priority: "Low" → "Medium" → "High"
-                        </p>
-                        <div style="background: white; padding: 0.5rem; border-radius: 5px; margin-top: 0.5rem;">
-                            <strong>⚠️ Common Mistake:</strong> Averaging star ratings (4 stars ≠ 2×2 stars!)
-                        </div>
-                    </div>
-                    
-                    <div class="law-card">
-                        <div class="law-title">3️⃣ Interval</div>
-                        <p><strong>Definition:</strong> Equal gaps, no true zero</p>
-                        <p><strong>Examples:</strong>
-                            • Temperature in Celsius: 0°C isn't "no temperature"
-                            • Calendar dates: Year 0 is arbitrary
-                            • IQ scores: 0 doesn't mean "no intelligence"
-                        </p>
-                        <div style="background: white; padding: 0.5rem; border-radius: 5px; margin-top: 0.5rem;">
-                            <strong>⚠️ Common Mistake:</strong> Saying 80°F is "twice as hot" as 40°F
-                        </div>
-                    </div>
-                    
-                    <div class="law-card">
-                        <div class="law-title">4️⃣ Ratio</div>
-                        <p><strong>Definition:</strong> Equal gaps, true zero exists</p>
-                        <p><strong>Examples:</strong>
-                            • Revenue: $0 means no revenue
-                            • Customer count: 0 means no customers
-                            • Time duration: 0 seconds means no time
-                        </p>
-                        <div style="background: white; padding: 0.5rem; border-radius: 5px; margin-top: 0.5rem;">
-                            <strong>✅ Can do everything:</strong> Add, subtract, multiply, divide, ratios
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Measurement Scales Interactive -->
-            <div class="profit-calculator">
-                <h3 style="color: #667eea; margin-bottom: 1rem;">Test Your Understanding: What Operations Are Valid?</h3>
-                
-                <div class="quiz-container">
-                    <div class="quiz-question">Scenario: You have customer satisfaction ratings (1-5 stars). Can you:</div>
-                    <div class="quiz-options">
-                        <div class="quiz-option" onclick="checkDataOperation('mean', 'wrong')">Calculate the mean (average)?</div>
-                        <div class="quiz-option" onclick="checkDataOperation('median', 'correct')">Find the median (middle value)?</div>
-                        <div class="quiz-option" onclick="checkDataOperation('mode', 'correct')">Find the mode (most common)?</div>
-                        <div class="quiz-option" onclick="checkDataOperation('double', 'wrong')">Say 4 stars is "twice as good" as 2 stars?</div>
-                    </div>
-                    <div class="quiz-feedback" id="dataop-feedback" style="display: none;"></div>
-                </div>
-            </div>
-            
-            <!-- Data Quality Dimensions -->
-            <div style="margin: 2rem 0;">
-                <h3 style="color: #667eea; margin-bottom: 1.5rem;">The 6 Dimensions of Data Quality</h3>
-                
-                <div class="supply-demand-container">
-                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
-                        <h4 style="color: #667eea;">Data Quality Checklist</h4>
-                        <div style="margin-top: 1rem;">
-                            <label style="display: block; margin: 0.5rem 0;">
-                                <input type="checkbox" style="margin-right: 0.5rem;">
-                                <strong>Completeness:</strong> No critical fields missing
-                            </label>
-                            <label style="display: block; margin: 0.5rem 0;">
-                                <input type="checkbox" style="margin-right: 0.5rem;">
-                                <strong>Accuracy:</strong> Data matches reality
-                            </label>
-                            <label style="display: block; margin: 0.5rem 0;">
-                                <input type="checkbox" style="margin-right: 0.5rem;">
-                                <strong>Consistency:</strong> Same format everywhere
-                            </label>
-                            <label style="display: block; margin: 0.5rem 0;">
-                                <input type="checkbox" style="margin-right: 0.5rem;">
-                                <strong>Timeliness:</strong> Data is current
-                            </label>
-                            <label style="display: block; margin: 0.5rem 0;">
-                                <input type="checkbox" style="margin-right: 0.5rem;">
-                                <strong>Validity:</strong> Follows business rules
-                            </label>
-                            <label style="display: block; margin: 0.5rem 0;">
-                                <input type="checkbox" style="margin-right: 0.5rem;">
-                                <strong>Uniqueness:</strong> No unwanted duplicates
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div style="background: #fff3cd; padding: 1.5rem; border-radius: 10px;">
-                        <h4 style="color: #856404;">Real Data Quality Disasters</h4>
-                        <ul style="margin-top: 1rem;">
-                            <li><strong>Mars Climate Orbiter:</strong> $327M lost - metric vs imperial units</li>
-                            <li><strong>Citibank:</strong> $500M accidentally sent - decimal point error</li>
-                            <li><strong>Knight Capital:</strong> $440M lost in 45 min - bad data feed</li>
-                            <li><strong>1999 Y2K:</strong> $100B spent fixing 2-digit year fields</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Data Size and Tools -->
-            <div class="fundamental-box">
-                <div class="fundamental-title">📈 Data Size: Choosing the Right Tool</div>
-                <table style="width: 100%; margin-top: 1rem;">
-                    <thead>
-                        <tr style="background: #667eea; color: white;">
-                            <th style="padding: 1rem;">Data Size</th>
-                            <th style="padding: 1rem;">Row Count</th>
-                            <th style="padding: 1rem;">Right Tool</th>
-                            <th style="padding: 1rem;">Wrong Tool</th>
-                            <th style="padding: 1rem;">Example</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 0.8rem;"><strong>Tiny</strong><br>&lt; 1 MB</td>
-                            <td style="padding: 0.8rem;">&lt; 1,000</td>
-                            <td style="padding: 0.8rem;">Excel</td>
-                            <td style="padding: 0.8rem;">Hadoop</td>
-                            <td style="padding: 0.8rem;">Monthly sales report</td>
-                        </tr>
-                        <tr style="background: #f8f9fa;">
-                            <td style="padding: 0.8rem;"><strong>Small</strong><br>1 MB - 100 MB</td>
-                            <td style="padding: 0.8rem;">1K - 1M</td>
-                            <td style="padding: 0.8rem;">Excel, SQL</td>
-                            <td style="padding: 0.8rem;">Distributed systems</td>
-                            <td style="padding: 0.8rem;">Customer database</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.8rem;"><strong>Medium</strong><br>100 MB - 10 GB</td>
-                            <td style="padding: 0.8rem;">1M - 100M</td>
-                            <td style="padding: 0.8rem;">SQL, Python</td>
-                            <td style="padding: 0.8rem;">Excel (crashes!)</td>
-                            <td style="padding: 0.8rem;">Transaction history</td>
-                        </tr>
-                        <tr style="background: #f8f9fa;">
-                            <td style="padding: 0.8rem;"><strong>Large</strong><br>10 GB - 1 TB</td>
-                            <td style="padding: 0.8rem;">100M - 10B</td>
-                            <td style="padding: 0.8rem;">Spark, Cloud DB</td>
-                            <td style="padding: 0.8rem;">Desktop tools</td>
-                            <td style="padding: 0.8rem;">Web server logs</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.8rem;"><strong>Big Data</strong><br>&gt; 1 TB</td>
-                            <td style="padding: 0.8rem;">&gt; 10B</td>
-                            <td style="padding: 0.8rem;">Hadoop, Spark</td>
-                            <td style="padding: 0.8rem;">Single machine</td>
-                            <td style="padding: 0.8rem;">Social media data</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Visualization Best Practices -->
-            <div style="margin: 2rem 0;">
-                <h3 style="color: #667eea; margin-bottom: 1.5rem;">Choose the Right Visualization</h3>
-                <div class="revenue-models-grid">
-                    <div class="model-card">
-                        <div class="model-icon">📊</div>
-                        <div class="model-name">Bar Chart</div>
-                        <p><strong>Use for:</strong> Comparing categories</p>
-                        <p><strong>Data type:</strong> Categorical</p>
-                        <div class="model-example">Sales by region, Products by type</div>
-                    </div>
-                    
-                    <div class="model-card">
-                        <div class="model-icon">📈</div>
-                        <div class="model-name">Line Chart</div>
-                        <p><strong>Use for:</strong> Trends over time</p>
-                        <p><strong>Data type:</strong> Continuous</p>
-                        <div class="model-example">Revenue over months, Stock prices</div>
-                    </div>
-                    
-                    <div class="model-card">
-                        <div class="model-icon">🥧</div>
-                        <div class="model-name">Pie Chart</div>
-                        <p><strong>Use for:</strong> Parts of a whole</p>
-                        <p><strong>Data type:</strong> Categorical</p>
-                        <div class="model-example">Market share, Budget allocation</div>
-                    </div>
-                    
-                    <div class="model-card">
-                        <div class="model-icon">📉</div>
-                        <div class="model-name">Scatter Plot</div>
-                        <p><strong>Use for:</strong> Relationships</p>
-                        <p><strong>Data type:</strong> Two continuous</p>
-                        <div class="model-example">Price vs demand, Age vs income</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="important-note">
-                <strong>Remember:</strong> 90% of business decisions fail due to bad data quality, not bad analysis. Always verify your data quality BEFORE analyzing!
-            </div>
-            
-            <div class="section-nav">
-                <button class="nav-button" onclick="navigateToSection(6)">← Previous: Key Metrics</button>
-                <span class="section-indicator">Section 7 of 8</span>
-                <button class="nav-button" onclick="navigateToSection(8)">Next: ROI Analysis →</button>
-            </div>
-        </div>
-
-        <!-- Section 8: Analytics ROI and Business Case -->
-        <div class="section-card" id="section8" style="display: none;">
-            <span class="section-number">FOUNDATION 8 of 8</span>
-            <h2>Proving Analytics Value: The Complete Business Case</h2>
-            
-            <div class="fundamental-box">
-                <div class="fundamental-title">💰 Analytics ROI: From Cost Center to Profit Engine</div>
-                <p>Companies using analytics are 5x more likely to make faster decisions and 3x more likely to execute them successfully. Here's how to prove the value:</p>
-            </div>
-            
-            <!-- ROI Formula -->
-            <div class="equation-box" style="margin: 2rem 0;">
-                <strong style="font-size: 1.3rem;">Analytics ROI = [(Gain from Analytics - Cost of Analytics) / Cost of Analytics] × 100%</strong><br>
-                <span style="font-size: 1rem; color: #666; display: block; margin-top: 1rem;">
-                    Gain = (Better Decisions + Time Savings + Risk Reduction + Revenue Growth)
-                </span>
-            </div>
-            
-            <!-- Comprehensive ROI Calculator -->
-            <div class="profit-calculator">
-                <h3 style="color: #667eea; margin-bottom: 1.5rem;">📊 Build Your Complete Analytics Business Case</h3>
-                
-                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
-                    <h4>Step 1: Current State (Without Analytics)</h4>
-                    <div class="calc-inputs">
-                        <div class="calc-input">
-                            <label>Annual Revenue ($M)</label>
-                            <input type="number" id="annual_revenue" value="50" min="1" max="10000">
-                        </div>
-                        <div class="calc-input">
-                            <label>Bad Decisions per Year</label>
-                            <input type="number" id="bad_decisions" value="12" min="1" max="100">
-                        </div>
-                        <div class="calc-input">
-                            <label>Cost per Bad Decision ($K)</label>
-                            <input type="number" id="bad_decision_cost" value="100" min="10" max="1000">
-                        </div>
-                        <div class="calc-input">
-                            <label>Reports Created Monthly</label>
-                            <input type="number" id="reports_monthly" value="20" min="1" max="100">
-                        </div>
-                        <div class="calc-input">
-                            <label>Hours per Report</label>
-                            <input type="number" id="hours_per_report" value="8" min="1" max="40">
-                        </div>
-                        <div class="calc-input">
-                            <label>Analyst Hourly Rate ($)</label>
-                            <input type="number" id="analyst_rate" value="75" min="30" max="200">
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="background: #e7f3ff; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
-                    <h4>Step 2: Future State (With Analytics)</h4>
-                    <div class="calc-inputs">
-                        <div class="calc-input">
-                            <label>Analytics Tool Cost ($/month)</label>
-                            <input type="number" id="tool_cost" value="5000" min="100" max="50000">
-                        </div>
-                        <div class="calc-input">
-                            <label>Implementation Cost ($K)</label>
-                            <input type="number" id="implementation_cost" value="100" min="10" max="1000">
-                        </div>
-                        <div class="calc-input">
-                            <label>Training Cost ($K)</label>
-                            <input type="number" id="training_cost" value="50" min="5" max="500">
-                        </div>
-                        <div class="calc-input">
-                            <label>Bad Decision Reduction (%)</label>
-                            <input type="number" id="decision_improvement" value="75" min="10" max="90">
-                        </div>
-                        <div class="calc-input">
-                            <label>Report Time Reduction (%)</label>
-                            <input type="number" id="time_reduction" value="80" min="20" max="95">
-                        </div>
-                        <div class="calc-input">
-                            <label>Revenue Increase (%)</label>
-                            <input type="number" id="revenue_increase" value="5" min="1" max="30">
-                        </div>
-                    </div>
-                </div>
-                
-                <button class="calc-button" onclick="calculateCompleteROI()">
-                    Calculate Complete Analytics ROI
-                </button>
-                
-                <div id="completeROIResults" class="calc-results">
-                    <!-- Results will appear here -->
-                </div>
-            </div>
-            
-            <!-- Value Sources -->
-            <div style="margin: 3rem 0;">
-                <h3 style="color: #667eea; margin-bottom: 1.5rem;">Where Analytics Creates Value</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                    <div class="law-card">
-                        <div class="law-title">🎯 Better Targeting</div>
-                        <p><strong>Impact:</strong> 20-30% higher conversion</p>
-                        <p><strong>How:</strong> Identify best customers, personalize offers</p>
-                        <p><strong>Example:</strong> Amazon's recommendation engine drives 35% of revenue</p>
-                    </div>
-                    
-                    <div class="law-card">
-                        <div class="law-title">⚡ Faster Decisions</div>
-                        <p><strong>Impact:</strong> 5x faster than competitors</p>
-                        <p><strong>How:</strong> Real-time dashboards, automated alerts</p>
-                        <p><strong>Example:</strong> Netflix saves $1B/year through faster content decisions</p>
-                    </div>
-                    
-                    <div class="law-card">
-                        <div class="law-title">💸 Cost Reduction</div>
-                        <p><strong>Impact:</strong> 15-25% operational savings</p>
-                        <p><strong>How:</strong> Optimize inventory, reduce waste</p>
-                        <p><strong>Example:</strong> UPS saves $400M/year optimizing delivery routes</p>
-                    </div>
-                    
-                    <div class="law-card">
-                        <div class="law-title">🛡️ Risk Prevention</div>
-                        <p><strong>Impact:</strong> 50% fewer failures</p>
-                        <p><strong>How:</strong> Predict problems before they occur</p>
-                        <p><strong>Example:</strong> Credit card fraud detection saves $20B annually</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Implementation Timeline -->
-            <div class="fundamental-box">
-                <div class="fundamental-title">📅 Analytics Implementation Roadmap</div>
-                <div style="margin-top: 1.5rem;">
-                    <div style="display: flex; align-items: center; margin: 1rem 0;">
-                        <div style="background: #667eea; color: white; padding: 0.5rem 1rem; border-radius: 20px; margin-right: 1rem;">Month 1-2</div>
-                        <div><strong>Foundation:</strong> Data quality audit, tool selection, team training</div>
-                    </div>
-                    <div style="display: flex; align-items: center; margin: 1rem 0;">
-                        <div style="background: #667eea; color: white; padding: 0.5rem 1rem; border-radius: 20px; margin-right: 1rem;">Month 3-4</div>
-                        <div><strong>Quick Wins:</strong> Basic dashboards, automated reports, simple predictions</div>
-                    </div>
-                    <div style="display: flex; align-items: center; margin: 1rem 0;">
-                        <div style="background: #667eea; color: white; padding: 0.5rem 1rem; border-radius: 20px; margin-right: 1rem;">Month 5-6</div>
-                        <div><strong>Scale Up:</strong> Advanced models, cross-functional integration</div>
-                    </div>
-                    <div style="display: flex; align-items: center; margin: 1rem 0;">
-                        <div style="background: #48bb78; color: white; padding: 0.5rem 1rem; border-radius: 20px; margin-right: 1rem;">Month 6+</div>
-                        <div><strong>ROI Positive:</strong> Full payback achieved, continuous improvement</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Success Stories -->
-            <div style="margin: 2rem 0;">
-                <h3 style="color: #667eea; margin-bottom: 1.5rem;">🏆 Real Analytics Success Stories</h3>
-                <div class="supply-demand-container">
-                    <div style="background: #d4edda; padding: 1.5rem; border-radius: 10px;">
-                        <h4 style="color: #155724;">Walmart</h4>
-                        <p><strong>Challenge:</strong> Inventory optimization</p>
-                        <p><strong>Solution:</strong> Predictive analytics for demand</p>
-                        <p><strong>Result:</strong> $2B saved annually</p>
-                        <p><strong>ROI:</strong> 850%</p>
-                    </div>
-                    
-                    <div style="background: #cce5ff; padding: 1.5rem; border-radius: 10px;">
-                        <h4 style="color: #004085;">American Express</h4>
-                        <p><strong>Challenge:</strong> Customer churn</p>
-                        <p><strong>Solution:</strong> ML prediction models</p>
-                        <p><strong>Result:</strong> 23% churn reduction</p>
-                        <p><strong>ROI:</strong> 1,900%</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Final Message -->
-            <div class="important-note" style="background: linear-gradient(135deg, #d4edda, #c3e6cb); border-color: #48bb78;">
-                <strong style="color: #155724;">🎯 Key Takeaway:</strong> Analytics isn't an expense - it's an investment with measurable returns. Companies that don't adopt analytics will be extinct within 5 years. The question isn't "Can we afford analytics?" but "Can we afford NOT to have analytics?"
-            </div>
-            
-            <!-- Course Completion -->
-            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 3rem; border-radius: 15px; margin-top: 3rem; text-align: center;">
-                <h2 style="color: white; margin-bottom: 1.5rem;">🎉 Congratulations! You've Completed Module 1</h2>
-                <p style="font-size: 1.2rem; margin-bottom: 2rem;">
-                    You now understand the complete business foundation needed for analytics success:
-                </p>
-                <div style="max-width: 600px; margin: 0 auto; text-align: left;">
-                    <p>✅ How businesses make money (profit laws)</p>
-                    <p>✅ Market forces that drive decisions</p>
-                    <p>✅ Revenue models and cost structures</p>
-                    <p>✅ Essential business metrics</p>
-                    <p>✅ Data types and quality standards</p>
-                    <p>✅ How to build an analytics business case</p>
-                </div>
-                <div style="margin-top: 2rem;">
-                    <button class="nav-button" style="background: white; color: #667eea; padding: 1rem 3rem; font-size: 1.2rem;" onclick="completeModule()">
-                        Continue to Module 2: Python Essentials →
-                    </button>
-                </div>
-            </div>
-            
-            <div class="section-nav">
-                <button class="nav-button" onclick="navigateToSection(7)">← Previous: Data Quality</button>
-                <span class="section-indicator">Section 8 of 8</span>
-                <button class="nav-button" disabled>Complete ✓</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // [Previous JavaScript code remains the same until the new functions]
-        
-        // Check data operation understanding
-        function checkDataOperation(operation, result) {
-            const feedback = document.getElementById('dataop-feedback');
-            
-            if (result === 'correct') {
-                feedback.innerHTML = '<strong style="color: #48bb78;">✓ Correct!</strong> Ordinal data like ratings can use median (middle value) and mode (most common), but not mean because the gaps between ratings aren\'t equal.';
-                feedback.style.background = '#d4edda';
-            } else {
-                feedback.innerHTML = '<strong style="color: #dc3545;">✗ Incorrect!</strong> Star ratings are ordinal data - ordered categories. You cannot calculate means or say one rating is "twice" another because the psychological distance between ratings isn\'t equal.';
-                feedback.style.background = '#f8d7da';
-            }
-            
-            feedback.style.display = 'block';
-            feedback.style.padding = '1rem';
-            feedback.style.borderRadius = '8px';
-            feedback.style.marginTop = '1rem';
-        }
-        
-        // Calculate Complete ROI
-        function calculateCompleteROI() {
-            // Get all inputs
-            const annualRevenue = parseFloat(document.getElementById('annual_revenue').value) * 1000000;
-            const badDecisions = parseInt(document.getElementById('bad_decisions').value);
-            const badDecisionCost = parseFloat(document.getElementById('bad_decision_cost').value) * 1000;
-            const reportsMonthly = parseInt(document.getElementById('reports_monthly').value);
-            const hoursPerReport = parseFloat(document.getElementById('hours_per_report').value);
-            const analystRate = parseFloat(document.getElementById('analyst_rate').value);
-            
-            const toolCostMonthly = parseFloat(document.getElementById('tool_cost').value);
-            const implementationCost = parseFloat(document.getElementById('implementation_cost').value) * 1000;
-            const trainingCost = parseFloat(document.getElementById('training_cost').value) * 1000;
-            const decisionImprovement = parseFloat(document.getElementById('decision_improvement').value) / 100;
-            const timeReduction = parseFloat(document.getElementById('time_reduction').value) / 100;
-            const revenueIncrease = parseFloat(document.getElementById('revenue_increase').value) / 100;
-            
-            // Calculate current state costs
-            const currentDecisionCost = badDecisions * badDecisionCost;
-            const currentReportCost = reportsMonthly * hoursPerReport * analystRate * 12;
-            const currentTotalCost = currentDecisionCost + currentReportCost;
-            
-            // Calculate future state with analytics
-            const newDecisionCost = currentDecisionCost * (1 - decisionImprovement);
-            const newReportCost = currentReportCost * (1 - timeReduction);
-            const newRevenue = annualRevenue * revenueIncrease;
-            const analyticsCost = (toolCostMonthly * 12) + (implementationCost + trainingCost) / 3; // Amortize over 3 years
-            
-            // Calculate savings and ROI
-            const decisionSavings = currentDecisionCost - newDecisionCost;
-            const timeSavings = currentReportCost - newReportCost;
-            const totalGain = decisionSavings + timeSavings + newRevenue;
-            const netBenefit = totalGain - analyticsCost;
-            const roi = (netBenefit / analyticsCost) * 100;
-            const paybackMonths = (implementationCost + trainingCost) / (netBenefit / 12);
-            
-            // Display results
-            document.getElementById('completeROIResults').innerHTML = `
-                <h3 style="color: #48bb78; margin-bottom: 1.5rem;">📈 Your Analytics Business Case</h3>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-                    <div>
-                        <h4 style="color: #dc3545;">Current State (Annual)</h4>
-                        <div class="output-metric">
-                            <span>Bad Decision Costs:</span>
-                            <span class="output-value" style="color: #dc3545;">$${(currentDecisionCost/1000000).toFixed(2)}M</span>
-                        </div>
-                        <div class="output-metric">
-                            <span>Reporting Costs:</span>
-                            <span class="output-value" style="color: #dc3545;">$${(currentReportCost/1000000).toFixed(2)}M</span>
-                        </div>
-                        <div class="output-metric">
-                            <span>Total Waste:</span>
-                            <span class="output-value" style="color: #dc3545;">$${(currentTotalCost/1000000).toFixed(2)}M</span>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h4 style="color: #48bb78;">With Analytics (Annual)</h4>
-                        <div class="output-metric">
-                            <span>Decision Savings:</span>
-                            <span class="output-value">$${(decisionSavings/1000000).toFixed(2)}M</span>
-                        </div>
-                        <div class="output-metric">
-                            <span>Time Savings:</span>
-                            <span class="output-value">$${(timeSavings/1000000).toFixed(2)}M</span>
-                        </div>
-                        <div class="output-metric">
-                            <span>Revenue Increase:</span>
-                            <span class="output-value">$${(newRevenue/1000000).toFixed(2)}M</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="background: linear-gradient(135deg, #d4edda, #c3e6cb); padding: 1.5rem; border-radius: 10px;">
-                    <h4 style="color: #155724;">Bottom Line Results</h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
-                        <div style="text-align: center;">
-                            <p style="font-size: 2rem; font-weight: bold; color: #155724;">${roi.toFixed(0)}%</p>
-                            <p>ROI</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <p style="font-size: 2rem; font-weight: bold; color: #155724;">$${(netBenefit/1000000).toFixed(1)}M</p>
-                            <p>Annual Benefit</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <p style="font-size: 2rem; font-weight: bold; color: #155724;">${paybackMonths.toFixed(0)} mo</p>
-                            <p>Payback Period</p>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: 8px;">
-                        <strong>Executive Summary:</strong> 
-                        For an investment of $${((implementationCost + trainingCost)/1000).toFixed(0)}K upfront and $${(toolCostMonthly/1000).toFixed(0)}K/month, 
-                        you'll generate $${(totalGain/1000000).toFixed(1)}M in annual value through better decisions, time savings, and revenue growth. 
-                        The system pays for itself in ${paybackMonths.toFixed(0)} months with a ${roi.toFixed(0)}% ROI.
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('completeROIResults').classList.add('show');
-        }
-        
-        // Update existing functions to ensure they work
-        window.onload = () => {
-            updateProgress();
-            updateMarket();
-            updateBreakEven();
-            if (document.getElementById('supplyDemandChart')) {
-                drawSupplyDemandCurves();
-            }
-            
-            // Initialize revenue distribution chart if it exists
-            const revenueChart = document.getElementById('revenueDistributionChart');
-            if (revenueChart) {
-                // [Previous revenue distribution chart code]
-            }
-        };
-    </script>
+</html>
