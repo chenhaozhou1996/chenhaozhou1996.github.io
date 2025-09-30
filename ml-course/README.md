@@ -21,18 +21,7 @@ By the end of this module, students will be able to:
 Linear regression mirrors the ancient principle of "finding the middle way" (中庸之道). Just as traditional wisdom seeks balance and optimal paths, linear regression finds the best-fitting line that minimizes overall error, achieving mathematical harmony in data relationships.
 
 ## Files in This Module
-- `README.md` - This file
-- `theory.html` - Interactive theory explanation
-- `visualization.html` - Visual demonstrations
-- `code/` - Implementation notebooks
-  - `01_from_scratch.ipynb` - Build linear regression from scratch
-  - `02_sklearn_implementation.ipynb` - Using scikit-learn
-  - `03_advanced_techniques.ipynb` - Regularization and feature engineering
-- `case_study/` - Practical application
-  - `boston_housing.ipynb` - Complete case study
-  - `data/` - Dataset files
-- `exercises/` - Practice problems
-- `solutions/` - Exercise solutions
+
 
 ## Prerequisites
 - Basic calculus (derivatives)
