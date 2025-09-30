@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1 Lab: Hands-on Business Analytics - From Intuition to Data</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .lab-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .lab-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .lab-meta {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .lab-meta span {
+            opacity: 0.9;
+        }
+        
+        /* Navigation */
+        .lab-nav {
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-pills {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .nav-pill {
+            padding: 0.5rem 1.5rem;
+            background: #f8f9fa;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-pill:hover, .nav-pill.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        /* Main Content */
+        .lab-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        
+        /* Exercise Cards */
+        .exercise-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .exercise-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .exercise-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .exercise-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .difficulty-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .difficulty-easy {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .difficulty-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .difficulty-hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Task List */
+        .task-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .task-item:hover {
+            border-color: #667eea;
+        }
+        
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        
+        .task-content {
+            flex: 1;
+        }
+        
+        .task-content h4 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .task-content p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        /* Code Editor */
+        .code-editor {
+            background: #2d2d2d;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #444;
+        }
+        
+        .code-filename {
+            color: #95a99c;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .run-button {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        
+        .run-button:hover {
+            background: #38a169;
+        }
+        
+        .code-input {
+            background: transparent;
+            border: none;
+            color: #f8f8f2;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            width: 100%;
+            min-height: 150px;
+            resize: vertical;
+            outline: none;
+        }
+        
+        .code-output {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 14px;
+            min-height: 100px;
+            display: none;
+        }
+        
+        /* Data Table */
+        .data-table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .data-table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+        }
+        
+        .data-table thead {
+            background: #f8f9fa;
+        }
+        
+        .data-table th {
+            padding: 1rem;
+            text-align: left;
+            color: #667eea;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .data-table td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Interactive Scenario */
+        .scenario-box {
+            background: linear-gradient(135deg, #667eea10, #764ba210);
+            border: 2px solid #667eea30;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .scenario-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .decision-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .decision-btn {
+            padding: 1rem;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .decision-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .decision-btn.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .feedback-box {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .feedback-box.show {
+            display: block;
+        }
+        
+        .feedback-box.incorrect {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        
+        /* Hint System */
+        .hint-container {
+            margin: 1.5rem 0;
+        }
+        
+        .hint-toggle {
+            background: #ffc107;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .hint-content {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .hint-content.show {
+            display: block;
+        }
+        
+        /* Progress Tracker */
+        .progress-tracker {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            width: 200px;
+        }
+        
+        .progress-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .progress-item {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .progress-check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .progress-check.completed {
+            background: #48bb78;
+            border-color: #48bb78;
+        }
+        
+        .progress-check.completed::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+        }
+        
+        /* Submit Section */
+        .submit-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .submit-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Results Modal */
+        .results-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .results-content {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .results-score {
+            font-size: 3rem;
+            color: #48bb78;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="lab-header">
+        <h1>🔬 Lab 1: From Gut Feeling to Data Insights</h1>
+        <p>Transform real business scenarios using data-driven thinking</p>
+        <div class="lab-meta">
+            <span>⏱️ Duration: 90 minutes</span>
+            <span>💻 Hands-on Coding</span>
+            <span>📊 Real Data Sets</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="lab-nav">
+        <div class="nav-pills">
+            <a href="#exercise1" class="nav-pill active">Exercise 1</a>
+            <a href="#exercise2" class="nav-pill">Exercise 2</a>
+            <a href="#exercise3" class="nav-pill">Exercise 3</a>
+            <a href="#challenge" class="nav-pill">Challenge</a>
+            <a href="class-material.html" class="nav-pill">Back to Class</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="lab-content">
+        <!-- Exercise 1: Understanding Business vs Data Thinking -->
+        <div class="exercise-card" id="exercise1">
+            <span class="exercise-number">EXERCISE 1</span>
+            <h2 class="exercise-title">The Restaurant Location Dilemma</h2>
+            <span class="difficulty-badge difficulty-easy">Beginner Friendly</span>
+            
+            <p>You're consulting for a pizza chain that wants to open a new location. The management team has given you their "gut feeling" criteria. Your job is to translate these into measurable data points.</p>
+            
+            <div class="scenario-box">
+                <h3 class="scenario-title">🍕 Scenario: Pizza Palace Expansion</h3>
+                <p>The CEO says: "We need a location with good vibes, lots of young people, and where people like to eat out."</p>
+                
+                <div class="task-list">
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox" id="task1">
+                        <div class="task-content">
+                            <h4>Task 1: Translate "Good Vibes"</h4>
+                            <p>What measurable data could represent "good vibes"? Think about crime rates, reviews, foot traffic patterns...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox" id="task2">
+                        <div class="task-content">
+                            <h4>Task 2: Define "Young People"</h4>
+                            <p>Convert this vague term into specific demographic data points. Age ranges? Income levels? Education?</p>
+                        </div>
+                    </div>
+                    
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox" id="task3">
+                        <div class="task-content">
+                            <h4>Task 3: Measure "Like to Eat Out"</h4>
+                            <p>Find proxy metrics that indicate dining behavior. Credit card data? Restaurant density? Delivery app usage?</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="decision-options">
+                    <button class="decision-btn" onclick="selectMetric(1, this)">
+                        <strong>Social Media Check-ins</strong><br>
+                        <small>Instagram/Facebook location tags</small>
+                    </button>
+                    <button class="decision-btn" onclick="selectMetric(2, this)">
+                        <strong>Census Data</strong><br>
+                        <small>Age, income, education demographics</small>
+                    </button>
+                    <button class="decision-btn" onclick="selectMetric(3, this)">
+                        <strong>Credit Card Spending</strong><br>
+                        <small>Restaurant transaction frequency</small>
+                    </button>
+                    <button class="decision-btn" onclick="selectMetric(4, this)">
+                        <strong>All of the Above</strong><br>
+                        <small>Comprehensive data approach</small>
+                    </button>
+                </div>
+                
+                <div id="metric-feedback" class="feedback-box">
+                    <!-- Feedback appears here -->
+                </div>
+            </div>
+            
+            <div class="hint-container">
+                <button class="hint-toggle" onclick="toggleHint('hint1')">💡 Need a Hint?</button>
+                <div id="hint1" class="hint-content">
+                    Think about how successful companies like Starbucks choose locations. They don't rely on feelings—they use demographic data, traffic patterns, competition analysis, and income levels. Every "feeling" can be translated into numbers!
+                </div>
+            </div>
+        </div>
+
+        <!-- Exercise 2: Your First Data Analysis -->
+        <div class="exercise-card" id="exercise2">
+            <span class="exercise-number">EXERCISE 2</span>
+            <h2 class="exercise-title">Analyzing Real Coffee Shop Data</h2>
+            <span class="difficulty-badge difficulty-medium">Some Coding Required</span>
+            
+            <p>Let's analyze actual coffee shop sales data to find patterns humans might miss. You'll write simple Python code to uncover insights.</p>
+            
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Store ID</th>
+                            <th>Location Type</th>
+                            <th>Daily Sales ($)</th>
+                            <th>Foot Traffic</th>
+                            <th>Parking Spots</th>
+                            <th>Mobile Orders (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Store_001</td>
+                            <td>Downtown</td>
+                            <td>$3,450</td>
+                            <td>High</td>
+                            <td>0</td>
+                            <td>45%</td>
+                        </tr>
+                        <tr>
+                            <td>Store_002</td>
+                            <td>Suburban</td>
+                            <td>$5,200</td>
+                            <td>Medium</td>
+                            <td>25</td>
+                            <td>78%</td>
+                        </tr>
+                        <tr>
+                            <td>Store_003</td>
+                            <td>Downtown</td>
+                            <td>$2,800</td>
+                            <td>High</td>
+                            <td>5</td>
+                            <td>52%</td>
+                        </tr>
+                        <tr>
+                            <td>Store_004</td>
+                            <td>Suburban</td>
+                            <td>$4,900</td>
+                            <td>Low</td>
+                            <td>30</td>
+                            <td>82%</td>
+                        </tr>
+                        <tr>
+                            <td>Store_005</td>
+                            <td>Mall</td>
+                            <td>$3,100</td>
+                            <td>Very High</td>
+                            <td>500</td>
+                            <td>15%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="code-editor">
+                <div class="code-header">
+                    <span class="code-filename">analysis.py</span>
+                    <button class="run-button" onclick="runAnalysis()">▶ Run Code</button>
+                </div>
+                <textarea class="code-input" id="codeInput">
+# Your First Data Analysis!
+# Let's find what really drives coffee shop revenue
+
+import pandas as pd
+
+# This is our coffee shop data
+data = {
+    'store': ['Store_001', 'Store_002', 'Store_003', 'Store_004', 'Store_005'],
+    'location': ['Downtown', 'Suburban', 'Downtown', 'Suburban', 'Mall'],
+    'daily_sales': [3450, 5200, 2800, 4900, 3100],
+    'foot_traffic': ['High', 'Medium', 'High', 'Low', 'Very High'],
+    'parking': [0, 25, 5, 30, 500],
+    'mobile_orders': [45, 78, 52, 82, 15]
+}
+
+df = pd.DataFrame(data)
+
+# TODO: Find the average sales by location type
+# Hint: Use df.groupby('location')['daily_sales'].mean()
+
+# TODO: Find correlation between parking and sales
+# Hint: Is there a pattern?
+
+print("🎯 Key Insight:")
+print("Stores with more parking have higher sales!")
+print(f"Suburban stores average: ${df[df['location']=='Suburban']['daily_sales'].mean():.0f}")
+print(f"Downtown stores average: ${df[df['location']=='Downtown']['daily_sales'].mean():.0f}")
+                </textarea>
+                <div class="code-output" id="codeOutput"></div>
+            </div>
+            
+            <div class="task-list">
+                <div class="task-item">
+                    <input type="checkbox" class="task-checkbox" id="task4">
+                    <div class="task-content">
+                        <h4>Task 1: Find the Surprise Pattern</h4>
+                        <p>Look at the data table. Which factor seems MOST correlated with high sales? It's not what management expected!</p>
+                    </div>
+                </div>
+                
+                <div class="task-item">
+                    <input type="checkbox" class="task-checkbox" id="task5">
+                    <div class="task-content">
+                        <h4>Task 2: Calculate the Mobile Order Impact</h4>
+                        <p>Modify the code to calculate average sales for stores with >70% mobile orders vs <70%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exercise 3: ROI Calculation -->
+        <div class="exercise-card" id="exercise3">
+            <span class="exercise-number">EXERCISE 3</span>
+            <h2 class="exercise-title">Building Your Business Case</h2>
+            <span class="difficulty-badge difficulty-medium">Business Math</span>
+            
+            <p>Convince the CFO to invest in data analytics by calculating the real ROI.</p>
+            
+            <div class="scenario-box">
+                <h3 class="scenario-title">💰 The Investment Decision</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+                        <h4 style="color: #dc3545; margin-bottom: 1rem;">Current State (Manual)</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>📊 Monthly reports: 10</li>
+                            <li>⏱️ Hours per report: 6</li>
+                            <li>💰 Analyst cost: $50/hour</li>
+                            <li>❌ Wrong decisions/month: 2</li>
+                            <li>💸 Cost per wrong decision: $25,000</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: #d4edda; padding: 1.5rem; border-radius: 10px;">
+                        <h4 style="color: #155724; margin-bottom: 1rem;">With Analytics Tools</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>📊 Monthly reports: 50</li>
+                            <li>⏱️ Hours per report: 0.5</li>
+                            <li>💰 Same analyst cost: $50/hour</li>
+                            <li>✅ Wrong decisions/month: 0.5</li>
+                            <li>💰 Tool cost: $500/month</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="code-editor">
+                    <div class="code-header">
+                        <span class="code-filename">roi_calculator.py</span>
+                        <button class="run-button" onclick="calculateLabROI()">▶ Calculate ROI</button>
+                    </div>
+                    <textarea class="code-input" id="roiCode">
+# ROI Calculation for Data Analytics Investment
+
+# Current costs (monthly)
+manual_report_hours = 10 * 6  # reports * hours each
+manual_labor_cost = manual_report_hours * 50  # $50/hour
+bad_decisions_cost = 2 * 25000  # 2 bad decisions * $25k each
+current_total = manual_labor_cost + bad_decisions_cost
+
+# With analytics (monthly)
+auto_report_hours = 50 * 0.5  # more reports, less time!
+auto_labor_cost = auto_report_hours * 50
+tool_cost = 500
+new_bad_decisions = 0.5 * 25000  # fewer mistakes!
+new_total = auto_labor_cost + tool_cost + new_bad_decisions
+
+# Calculate savings
+monthly_savings = current_total - new_total
+annual_savings = monthly_savings * 12
+
+print(f"💰 Current monthly cost: ${current_total:,.0f}")
+print(f"📊 With analytics cost: ${new_total:,.0f}")
+print(f"✨ Monthly savings: ${monthly_savings:,.0f}")
+print(f"🎯 ANNUAL SAVINGS: ${annual_savings:,.0f}")
+print(f"\n🚀 ROI: {(annual_savings / (tool_cost * 12)) * 100:.0f}%")
+                    </textarea>
+                    <div class="code-output" id="roiOutput"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenge Exercise -->
+        <div class="exercise-card" id="challenge">
+            <span class="exercise-number">CHALLENGE</span>
+            <h2 class="exercise-title">The Complete Analysis Challenge</h2>
+            <span class="difficulty-badge difficulty-hard">Advanced</span>
+            
+            <p>Put it all together! You have data from 20 stores. Find the hidden pattern that predicts success.</p>
+            
+            <div class="scenario-box">
+                <h3 class="scenario-title">🏆 The Ultimate Test</h3>
+                <p>The CEO wants to know: "What single factor best predicts store success?"</p>
+                
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; margin: 1.5rem 0;">
+                    <p><strong>Available Data:</strong></p>
+                    <ul style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; list-style: none; padding: 0; margin-top: 1rem;">
+                        <li>📍 Distance to competitor</li>
+                        <li>🚗 Parking availability</li>
+                        <li>👥 Population density</li>
+                        <li>💰 Average income</li>
+                        <li>📱 Mobile order percentage</li>
+                        <li>☀️ Weather (sunny days/year)</li>
+                        <li>🎓 Nearby universities</li>
+                        <li>🚇 Public transit access</li>
+                    </ul>
+                </div>
+                
+                <div class="decision-options">
+                    <button class="decision-btn" onclick="selectFinalAnswer(1, this)">
+                        <strong>Population Density</strong><br>
+                        <small>More people = more sales</small>
+                    </button>
+                    <button class="decision-btn" onclick="selectFinalAnswer(2, this)">
+                        <strong>Parking × Mobile Orders</strong><br>
+                        <small>The combination effect</small>
+                    </button>
+                    <button class="decision-btn" onclick="selectFinalAnswer(3, this)">
+                        <strong>Income Level</strong><br>
+                        <small>Wealthier areas perform better</small>
+                    </button>
+                    <button class="decision-btn" onclick="selectFinalAnswer(4, this)">
+                        <strong>Distance to Competitor</strong><br>
+                        <small>Less competition is better</small>
+                    </button>
+                </div>
+                
+                <div id="challenge-feedback" class="feedback-box">
+                    <!-- Feedback appears here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Section -->
+        <div class="submit-section">
+            <h2 class="submit-title">Ready to Submit Your Lab?</h2>
+            <p style="margin-bottom: 2rem; color: #666;">Complete all exercises to unlock your certificate</p>
+            <button class="submit-btn" onclick="submitLab()">Submit Lab Work</button>
+        </div>
+    </div>
+
+    <!-- Progress Tracker -->
+    <div class="progress-tracker">
+        <div class="progress-title">Lab Progress</div>
+        <div class="progress-item">
+            <div class="progress-check" id="progress1"></div>
+            <span>Exercise 1</span>
+        </div>
+        <div class="progress-item">
+            <div class="progress-check" id="progress2"></div>
+            <span>Exercise 2</span>
+        </div>
+        <div class="progress-item">
+            <div class="progress-check" id="progress3"></div>
+            <span>Exercise 3</span>
+        </div>
+        <div class="progress-item">
+            <div class="progress-check" id="progress4"></div>
+            <span>Challenge</span>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="results-modal" id="resultsModal">
+        <div class="results-content">
+            <h2>🎉 Lab Complete!</h2>
+            <div class="results-score">95%</div>
+            <p>Excellent work! You've mastered the fundamentals of business analytics.</p>
+            <button onclick="closeResults()" class="submit-btn" style="margin-top: 2rem;">Continue to Next Module</button>
+        </div>
+    </div>
+
+    <script>
+        // Track progress
+        let progress = {
+            exercise1: false,
+            exercise2: false,
+            exercise3: false,
+            challenge: false
+        };
+
+        // Handle checkboxes
+        document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateProgress();
+            });
+        });
+
+        // Exercise 1 - Metric Selection
+        function selectMetric(choice, element) {
+            document.querySelectorAll('.decision-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            const feedback = document.getElementById('metric-feedback');
+            feedback.className = 'feedback-box show';
+            
+            if (choice === 4) {
+                feedback.innerHTML = `
+                    <strong>✅ Excellent!</strong><br>
+                    You understand that data-driven decisions require multiple data sources. 
+                    Real businesses combine social media data, demographics, spending patterns, 
+                    and more to make informed decisions. No single metric tells the whole story!
+                `;
+                progress.exercise1 = true;
+                document.getElementById('progress1').classList.add('completed');
+            } else {
+                feedback.className = 'feedback-box show incorrect';
+                feedback.innerHTML = `
+                    <strong>⚠️ Good thinking, but...</strong><br>
+                    While this data is useful, successful businesses use MULTIPLE data sources. 
+                    Think bigger—combine different types of data for the complete picture!
+                `;
+            }
+        }
+
+        // Exercise 2 - Run Analysis
+        function runAnalysis() {
+            const output = document.getElementById('codeOutput');
+            output.style.display = 'block';
+            output.innerHTML = `
+🎯 Key Insight:
+Stores with more parking have higher sales!
+Suburban stores average: $5050
+Downtown stores average: $3125
+
+📊 Additional Discovery:
+Mobile order percentage correlates with revenue!
+High mobile (>70%): $5050 average
+Low mobile (<70%): $3117 average
+
+The pattern is clear: Parking + Mobile Orders = Success! 
+            `;
+            
+            progress.exercise2 = true;
+            document.getElementById('progress2').classList.add('completed');
+        }
+
+        // Exercise 3 - ROI Calculation
+        function calculateLabROI() {
+            const output = document.getElementById('roiOutput');
+            output.style.display = 'block';
+            output.innerHTML = `
+💰 Current monthly cost: $53,000
+📊 With analytics cost: $14,750
+✨ Monthly savings: $38,250
+🎯 ANNUAL SAVINGS: $459,000
+
+🚀 ROI: 7650%
+
+CFO's Reaction: "Why didn't we do this sooner?!"
+            `;
+            
+            progress.exercise3 = true;
+            document.getElementById('progress3').classList.add('completed');
+        }
+
+        // Challenge - Final Answer
+        function selectFinalAnswer(choice, element) {
+            document.querySelectorAll('#challenge .decision-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            const feedback = document.getElementById('challenge-feedback');
+            feedback.className = 'feedback-box show';
+            
+            if (choice === 2) {
+                feedback.innerHTML = `
+                    <strong>🏆 Brilliant Analysis!</strong><br>
+                    You discovered the multiplicative effect! Stores with BOTH parking AND high mobile orders 
+                    perform 3x better than others. This is the kind of insight that only data can reveal—
+                    no amount of intuition would have found this combination effect!
+                    <br><br>
+                    <em>This is exactly how companies like Starbucks choose locations today.</em>
+                `;
+                progress.challenge = true;
+                document.getElementById('progress4').classList.add('completed');
+            } else {
+                feedback.className = 'feedback-box show incorrect';
+                feedback.innerHTML = `
+                    <strong>🤔 Interesting hypothesis, but...</strong><br>
+                    The data shows that individual factors aren't as powerful as combinations. 
+                    Look for interaction effects—when two factors work together!
+                `;
+            }
+        }
+
+        // Toggle hints
+        function toggleHint(hintId) {
+            const hint = document.getElementById(hintId);
+            hint.classList.toggle('show');
+        }
+
+        // Submit lab
+        function submitLab() {
+            const completed = Object.values(progress).filter(p => p).length;
+            if (completed === 4) {
+                document.getElementById('resultsModal').style.display = 'flex';
+            } else {
+                alert(`Please complete all exercises first! (${completed}/4 done)`);
+            }
+        }
+
+        // Close results
+        function closeResults() {
+            document.getElementById('resultsModal').style.display = 'none';
+            window.location.href = '../module2/class-material.html';
+        }
+
+        // Update overall progress
+        function updateProgress() {
+            // Check if all tasks in each exercise are completed
+            const exercise1Tasks = document.querySelectorAll('#exercise1 .task-checkbox:checked').length;
+            const exercise2Tasks = document.querySelectorAll('#exercise2 .task-checkbox:checked').length;
+            
+            if (exercise1Tasks >= 3) {
+                progress.exercise1 = true;
+                document.getElementById('progress1').classList.add('completed');
+            }
+            
+            if (exercise2Tasks >= 2) {
+                progress.exercise2 = true;
+                document.getElementById('progress2').classList.add('completed');
+            }
+        }
+    </script>
+</body>
+</html>
