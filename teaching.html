@@ -1,40 +1,164 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Teaching – Chenhao Zhou</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teaching – Chenhao Zhou | Courses & Student Evaluations</title>
+  <meta name="description" content="Teaching experience, courses taught, and student evaluations for Chenhao Zhou at Rutgers Business School." />
+  <meta name="keywords" content="Teaching, Courses, Student Evaluations, Chenhao Zhou, Rutgers" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+  
 <style>
-body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 950px; margin: auto; padding: 2rem; line-height: 1.6; }
-nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; }
-nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; }
-h1,h2 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
-.card { background: #fff; padding: 1.2em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-img.profile { width: 180px; border-radius: 50%; float: left; margin-right: 20px; }
-table { border-collapse: collapse; width: 100%; margin: 1em 0; }
-th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-th { background: #f0f0f0; }
-.highlight { background: #dff0d8; font-weight: bold; }
-.ml-course-card { 
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-    color: white; 
-    padding: 2em; 
-    margin: 1.5em 0; 
-    border-radius: 12px; 
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); 
-    text-align: center;
-    transition: transform 0.3s;
+:root {
+  --primary: #0f4c81;
+  --primary-light: #1a5fa1;
+  --primary-weak: #e6eef7;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+  --radius: 14px;
+}
+body {
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background: linear-gradient(180deg, var(--bg), #fbfdff 40%);
+  color: var(--text);
+  max-width: 920px;
+  margin: auto;
+  padding: 2rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+nav {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
+  padding: 1em;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-radius: var(--radius);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+nav a {
+  margin: 0 12px;
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+nav a:hover, nav a.active {
+  background: var(--primary-weak);
+  color: var(--primary);
+}
+h1, h2 {
+  font-family: inherit;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+h1 { font-size: clamp(24px, 3vw, 34px); margin-bottom: 1.5rem; }
+.card {
+  background: var(--surface);
+  padding: 1.5em;
+  margin: 1.2em 0;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.3s;
+}
+.card:hover { box-shadow: 0 10px 30px rgba(16, 24, 40, 0.1); }
+img.profile {
+  width: 180px;
+  border-radius: 50%;
+  float: left;
+  margin-right: 20px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 14px;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 10px;
+  text-align: center;
+}
+th {
+  background: #f0f4f8;
+  font-weight: 600;
+  color: var(--primary);
+}
+.highlight {
+  background: #dff0d8;
+  font-weight: bold;
+}
+.ml-course-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2em;
+  margin: 1.5em 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  text-align: center;
+  transition: transform 0.3s;
 }
 .ml-course-card:hover { transform: translateY(-5px); }
 .ml-course-card h2 { color: white; margin-bottom: 15px; }
 .ml-course-card p { margin: 10px 0; opacity: 0.95; }
-.ml-button { 
-    display: inline-block; 
-    background: white; 
-    color: #667eea; 
-    padding: 12px 30px; 
-    border-radius: 25px; 
-    text-decoration: none; 
-    font-weight: bold; 
-    margin-top: 20px;
-    transition: box-shadow 0.3s;
+.ml-button {
+  display: inline-block;
+  background: white;
+  color: #667eea;
+  padding: 12px 30px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+  margin-top: 20px;
+  transition: box-shadow 0.3s;
 }
 .ml-button:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+.back-to-top {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 48px;
+  height: 48px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(15, 76, 129, 0.3);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-to-top.visible { opacity: 1; visibility: visible; }
+.back-to-top:hover {
+  background: var(--primary-light);
+  transform: translateY(-4px);
+}
 </style>
 </head><body>
 <h1>Teaching</h1>
@@ -83,4 +207,39 @@ th { background: #f0f0f0; }
 <li>"Fast-paced due to summer schedule."</li>
 </ul>
 </div>
+
+<footer>
+  <p>Last updated 2025-01-12 · © 2025 Chenhao Zhou</p>
+  <p style="margin-top: 8px; font-size: 12px;">
+    <a href="mailto:chenhao.zhou@rutgers.edu">Email</a> · 
+    <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank" rel="noopener">LinkedIn</a>
+  </p>
+</footer>
+
+<!-- Back to Top Button -->
+<button id="backToTop" class="back-to-top" aria-label="Back to top">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="18 15 12 9 6 15"></polyline>
+  </svg>
+</button>
+
+<script>
+  // Back to Top
+  (function() {
+    const btn = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      btn.classList.toggle('visible', window.pageYOffset > 300);
+    });
+    btn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+  
+  // Active nav link
+  document.querySelectorAll('nav a').forEach(link => {
+    if (link.getAttribute('href') === 'teaching.html') {
+      link.classList.add('active');
+    }
+  });
+</script>
 </body></html>
