@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 6 Lab: Hands-On Boosting Implementation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.8;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .content {
+            padding: 60px 40px;
+        }
+        
+        .section {
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            font-weight: 700;
+        }
+        
+        .lab-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border-left: 5px solid #667eea;
+        }
+        
+        .objective-box {
+            background: #e3f2fd;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .task-box {
+            background: #fff3e0;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .hint-box {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .checkpoint-box {
+            background: #f3e5f5;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 4px solid #9c27b0;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            margin: 25px 0 15px;
+            font-weight: 600;
+        }
+        
+        h4 {
+            color: #1e3c72;
+            font-size: 1.2rem;
+            margin: 20px 0 10px;
+            font-weight: 600;
+        }
+        
+        strong {
+            color: #1e3c72;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .content {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 Module 6 Lab: Credit Risk Assessment with Boosting</h1>
+            <p class="subtitle">Build a production-grade credit scoring model using XGBoost</p>
+        </div>
+        
+        <div class="content">
+            <!-- Lab Overview -->
+            <div class="section">
+                <h2 class="section-title">Lab Overview</h2>
+                
+                <div class="objective-box">
+                    <h3>Learning Objectives</h3>
+                    <p>By completing this lab, you will develop practical skills in implementing boosting algorithms for a real-world financial application. You will learn how to handle imbalanced datasets, optimize hyperparameters using cross-validation, interpret feature importance for regulatory compliance, and deploy a model that meets business requirements for accuracy and explainability. This lab simulates the work you would perform as a data scientist at a financial institution.</p>
+                </div>
+                
+                <div class="lab-box">
+                    <h3>Business Context</h3>
+                    <p>You are a data scientist at FinanceFirst Bank, a regional bank processing 50,000 loan applications annually. The current credit scoring system approves 65% of applications with a 12% default rate, resulting in $24 million in annual losses. Your task is to build an XGBoost model that improves default prediction while maintaining approval rates above 60% to meet growth targets. The model must also provide feature importance scores to satisfy regulatory requirements for explainability in lending decisions.</p>
+                </div>
+            </div>
+            
+            <!-- Task 1: Data Preparation -->
+            <div class="section">
+                <h2 class="section-title">Task 1: Data Preparation and Exploration</h2>
+                
+                <div class="task-box">
+                    <h4>Your Task</h4>
+                    <p>Load the credit risk dataset, perform exploratory data analysis to understand feature distributions and default rates, identify missing values and outliers, and prepare the data for modeling by handling categorical variables and splitting into training and test sets.</p>
+                </div>
+                
+                <div class="code-block"># Import required libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+import warnings
+warnings.filterwarnings('ignore')
+
+# Load the dataset
+# Dataset contains 50,000 loan applications with 23 features
+df = pd.read_csv('credit_risk_data.csv')
+
+# Initial exploration
+print("Dataset shape:", df.shape)
+print("\nFirst few rows:")
+print(df.head())
+
+print("\nFeature types:")
+print(df.dtypes)
+
+print("\nMissing values:")
+print(df.isnull().sum())
+
+print("\nTarget variable distribution:")
+print(df['default'].value_counts())
+print(f"Default rate: {df['default'].mean():.2%}")
+
+# Visualize key relationships
+fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+
+# Default rate by age group
+df['age_group'] = pd.cut(df['age'], bins=[18, 30, 40, 50, 60, 100], 
+                          labels=['18-30', '30-40', '40-50', '50-60', '60+'])
+age_default = df.groupby('age_group')['default'].mean()
+axes[0, 0].bar(age_default.index, age_default.values)
+axes[0, 0].set_title('Default Rate by Age Group')
+axes[0, 0].set_ylabel('Default Rate')
+
+# Default rate by income level
+df['income_group'] = pd.cut(df['annual_income'], 
+                             bins=[0, 30000, 60000, 100000, 500000],
+                             labels=['<30K', '30-60K', '60-100K', '>100K'])
+income_default = df.groupby('income_group')['default'].mean()
+axes[0, 1].bar(income_default.index, income_default.values)
+axes[0, 1].set_title('Default Rate by Income Level')
+axes[0, 1].set_ylabel('Default Rate')
+
+# Loan amount distribution
+axes[1, 0].hist([df[df['default']==0]['loan_amount'], 
+                 df[df['default']==1]['loan_amount']], 
+                label=['Non-default', 'Default'], bins=30)
+axes[1, 0].set_title('Loan Amount Distribution')
+axes[1, 0].legend()
+
+# Credit score distribution
+axes[1, 1].hist([df[df['default']==0]['credit_score'], 
+                 df[df['default']==1]['credit_score']], 
+                label=['Non-default', 'Default'], bins=30)
+axes[1, 1].set_title('Credit Score Distribution')
+axes[1, 1].legend()
+
+plt.tight_layout()
+plt.show()</div>
+                
+                <div class="hint-box">
+                    <h4>Key Observations to Note</h4>
+                    <p>Your exploration should reveal that younger applicants (18-30) have higher default rates around 18%, while applicants over 50 show default rates below 8%. Income levels show a strong inverse relationship with default rates, with high-income borrowers defaulting at less than 5% compared to 22% for low-income borrowers. Credit scores provide clear separation between defaults and non-defaults, with most defaults occurring below 620. Loan amounts show moderate predictive power, with larger loans having slightly higher default rates. These insights will guide your feature engineering and model interpretation.</p>
+                </div>
+                
+                <div class="checkpoint-box">
+                    <h4>Checkpoint 1</h4>
+                    <p>Before proceeding, verify that you have successfully identified the class imbalance (default rate around 12%), confirmed that credit score and income are strong predictors based on distribution differences, noted any missing values that need imputation, and created visualizations that clearly show the relationship between key features and default rates. These foundational understandings will inform your modeling decisions in the next tasks.</p>
+                </div>
+            </div>
+            
+            <!-- Task 2: XGBoost Implementation -->
+            <div class="section">
+                <h2 class="section-title">Task 2: Build and Train the XGBoost Model</h2>
+                
+                <div class="task-box">
+                    <h4>Your Task</h4>
+                    <p>Implement an XGBoost classifier with appropriate parameters for the imbalanced credit risk dataset. Configure the model to handle class imbalance, set regularization parameters to prevent overfitting, and use early stopping to find the optimal number of trees. Train the model and evaluate its performance using metrics appropriate for imbalanced classification problems.</p>
+                </div>
+                
+                <div class="code-block"># Prepare data for modeling
+# Handle categorical variables
+categorical_cols = ['employment_status', 'home_ownership', 'loan_purpose']
+for col in categorical_cols:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col])
+
+# Separate features and target
+X = df.drop(['default', 'age_group', 'income_group'], axis=1)
+y = df['default']
+
+# Split into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+print(f"Training set size: {len(X_train)}")
+print(f"Test set size: {len(X_test)}")
+print(f"Training default rate: {y_train.mean():.2%}")
+
+# Build XGBoost model
+import xgboost as xgb
+from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix
+
+# Calculate scale_pos_weight for imbalanced data
+scale_pos_weight = len(y_train[y_train==0]) / len(y_train[y_train==1])
+
+# Set parameters
+params = {
+    'objective': 'binary:logistic',
+    'max_depth': 5,
+    'learning_rate': 0.05,
+    'n_estimators': 500,
+    'subsample': 0.8,
+    'colsample_bytree': 0.8,
+    'min_child_weight': 3,
+    'gamma': 0.1,
+    'reg_alpha': 0.1,
+    'reg_lambda': 1.0,
+    'scale_pos_weight': scale_pos_weight,
+    'eval_metric': ['auc', 'logloss'],
+    'random_state': 42
+}
+
+# Create DMatrix
+dtrain = xgb.DMatrix(X_train, label=y_train)
+dtest = xgb.DMatrix(X_test, label=y_test)
+
+# Train with early stopping
+evals = [(dtrain, 'train'), (dtest, 'eval')]
+model = xgb.train(
+    params,
+    dtrain,
+    num_boost_round=500,
+    evals=evals,
+    early_stopping_rounds=20,
+    verbose_eval=50
+)
+
+# Make predictions
+y_pred_proba = model.predict(dtest)
+y_pred = (y_pred_proba >= 0.5).astype(int)
+
+# Evaluate model
+print("\nModel Performance:")
+print(classification_report(y_test, y_pred))
+print(f"\nAUC Score: {roc_auc_score(y_test, y_pred_proba):.4f}")
+
+# Confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+print("\nConfusion Matrix:")
+print(cm)
+
+# Calculate business metrics
+tn, fp, fn, tp = cm.ravel()
+approval_rate = (tp + fp) / len(y_test)
+default_rate_approved = fn / (tp + fp) if (tp + fp) > 0 else 0
+
+print(f"\nBusiness Metrics:")
+print(f"Approval Rate: {approval_rate:.2%}")
+print(f"Default Rate Among Approved: {default_rate_approved:.2%}")</div>
+                
+                <div class="checkpoint-box">
+                    <h4>Checkpoint 2</h4>
+                    <p>Your model should achieve an AUC score above 0.85, indicating strong discriminatory power between defaulters and non-defaulters. The approval rate should remain above 60% to meet business growth targets, while the default rate among approved loans should drop below 8% (compared to the current 12%). The early stopping mechanism should have halted training somewhere between 80-150 trees, demonstrating that the model converged to an optimal solution without unnecessary complexity. If your metrics fall short of these targets, revisit your feature engineering or adjust the scale_pos_weight parameter to better balance precision and recall.</p>
+                </div>
+            </div>
+            
+            <!-- Task 3: Hyperparameter Tuning and Final Model -->
+            <div class="section">
+                <h2 class="section-title">Task 3: Optimize and Deploy the Final Model</h2>
+                
+                <div class="task-box">
+                    <h4>Your Task</h4>
+                    <p>Use cross-validation to find optimal hyperparameters for your XGBoost model, focusing on parameters that control model complexity and learning rate. Analyze feature importance to identify the top predictors of credit risk. Calculate the expected financial impact of deploying your model compared to the current system. Prepare a model summary that explains key drivers of credit risk in language accessible to non-technical stakeholders.</p>
+                </div>
+                
+                <div class="code-block"># Hyperparameter tuning with cross-validation
+from sklearn.model_selection import GridSearchCV
+
+# Define parameter grid (focused search)
+param_grid = {
+    'max_depth': [3, 5, 7],
+    'learning_rate': [0.01, 0.05, 0.1],
+    'min_child_weight': [1, 3, 5],
+    'subsample': [0.8, 1.0]
+}
+
+# Create XGBoost classifier
+xgb_clf = xgb.XGBClassifier(
+    objective='binary:logistic',
+    scale_pos_weight=scale_pos_weight,
+    random_state=42
+)
+
+# Perform grid search
+grid_search = GridSearchCV(
+    xgb_clf, param_grid, cv=5, scoring='roc_auc', 
+    n_jobs=-1, verbose=1
+)
+grid_search.fit(X_train, y_train)
+
+print("Best parameters:", grid_search.best_params_)
+print("Best AUC score:", grid_search.best_score_)
+
+# Train final model with best parameters
+final_model = grid_search.best_estimator_
+y_pred_final = final_model.predict(X_test)
+y_pred_proba_final = final_model.predict_proba(X_test)[:, 1]
+
+print("\nFinal Model Performance:")
+print(classification_report(y_test, y_pred_final))
+print(f"AUC: {roc_auc_score(y_test, y_pred_proba_final):.4f}")
+
+# Feature importance analysis
+import pandas as pd
+feature_importance = pd.DataFrame({
+    'feature': X.columns,
+    'importance': final_model.feature_importances_
+}).sort_values('importance', ascending=False)
+
+print("\nTop 10 Most Important Features:")
+print(feature_importance.head(10))
+
+# Visualize feature importance
+plt.figure(figsize=(12, 8))
+plt.barh(feature_importance.head(15)['feature'], 
+         feature_importance.head(15)['importance'])
+plt.xlabel('Importance Score')
+plt.title('Top 15 Features for Credit Risk Prediction')
+plt.tight_layout()
+plt.show()
+
+# Calculate financial impact
+cm_final = confusion_matrix(y_test, y_pred_final)
+tn_f, fp_f, fn_f, tp_f = cm_final.ravel()
+
+# Assume $100,000 average loan, 20% loss given default
+avg_loan = 100000
+lgd = 0.20
+current_loss_rate = 0.12
+new_loss_rate = fn_f / (tp_f + fp_f) if (tp_f + fp_f) > 0 else 0
+
+annual_volume = 50000
+current_losses = annual_volume * current_loss_rate * avg_loan * lgd
+new_losses = annual_volume * new_loss_rate * avg_loan * lgd
+savings = current_losses - new_losses
+
+print(f"\nFinancial Impact Analysis:")
+print(f"Current annual losses: ${current_losses:,.0f}")
+print(f"Projected annual losses: ${new_losses:,.0f}")
+print(f"Annual savings: ${savings:,.0f}")
+print(f"ROI from model deployment: {(savings/100000)*100:.1f}x")</div>
