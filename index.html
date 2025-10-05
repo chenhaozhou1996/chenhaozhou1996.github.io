@@ -3,8 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chenhao Zhou | Academic Homepage</title>
+  <title>Chenhao Zhou | Ph.D. Candidate in Supply Chain Management | Rutgers Business School</title>
   <meta name="description" content="Chenhao Zhou — Ph.D. Candidate in Supply Chain Management at Rutgers Business School. Research: operations management, healthcare operations, scheduling and optimization, simulation-based studies." />
+  <meta name="keywords" content="Chenhao Zhou, Supply Chain Management, Operations Management, Healthcare Operations, Rutgers Business School, Ph.D. Candidate, Operations Research, Scheduling Optimization, Simulation Studies" />
+  <meta name="author" content="Chenhao Zhou" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://chenhaozhou1996.github.io/" />
+  <meta property="og:title" content="Chenhao Zhou | Ph.D. Candidate in Supply Chain Management" />
+  <meta property="og:description" content="Ph.D. Candidate at Rutgers Business School specializing in operations management, healthcare operations, and optimization research." />
+  <meta property="og:image" content="https://chenhaozhou1996.github.io/images/profile.jpg" />
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary" />
+  <meta property="twitter:url" content="https://chenhaozhou1996.github.io/" />
+  <meta property="twitter:title" content="Chenhao Zhou | Ph.D. Candidate in Supply Chain Management" />
+  <meta property="twitter:description" content="Ph.D. Candidate at Rutgers Business School specializing in operations management, healthcare operations, and optimization research." />
+  <meta property="twitter:image" content="https://chenhaozhou1996.github.io/images/profile.jpg" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+  
+  <!-- Schema.org markup for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Chenhao Zhou",
+    "url": "https://chenhaozhou1996.github.io/",
+    "image": "https://chenhaozhou1996.github.io/images/profile.jpg",
+    "jobTitle": "Ph.D. Candidate",
+    "worksFor": {
+      "@type": "EducationalOrganization",
+      "name": "Rutgers Business School"
+    },
+    "alumniOf": [
+      {
+        "@type": "EducationalOrganization",
+        "name": "New York University"
+      },
+      {
+        "@type": "EducationalOrganization",
+        "name": "Boston University"
+      }
+    ],
+    "knowsAbout": ["Supply Chain Management", "Operations Management", "Healthcare Operations", "Optimization", "Simulation"],
+    "email": "chenhao.zhou@rutgers.edu"
+  }
+  </script>
 
   <!-- Single‑file build: modern, responsive, accessible; no external dependencies -->
   <style>
@@ -78,6 +125,32 @@
 
     /* Footer */
     footer { margin-top: 22px; color: var(--muted); font-size: 13px; text-align: center; }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--primary); text-decoration: underline; }
+
+    /* Back to Top Button */
+    .back-to-top {
+      position: fixed; bottom: 32px; right: 32px;
+      width: 48px; height: 48px;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(15, 76, 129, 0.3);
+      cursor: pointer;
+      opacity: 0; visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .back-to-top.visible { opacity: 1; visibility: visible; }
+    .back-to-top:hover {
+      background: #1a5fa1;
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(15, 76, 129, 0.4);
+    }
+    .back-to-top:focus {
+      outline: 2px solid var(--ring);
+      outline-offset: 2px;
+    }
 
     /* Responsive */
     @media (max-width: 860px) {
@@ -87,7 +160,7 @@
   </style>
 </head>
 <body>
-  <a class="skip" href="#main">Skip to main content</a>
+  <a class="skip" href="#main" role="link" aria-label="Skip to main content">Skip to main content</a>
   <header class="navwrap">
     <nav aria-label="Primary">
       <div class="brand">
@@ -169,8 +242,52 @@
       </div>
     </section>
     <footer>
-      <p>Last updated 2025‑09‑12 · © Chenhao Zhou</p>
+      <p>Last updated 2025‑01‑12 · © 2025 Chenhao Zhou · All rights reserved</p>
+      <p style="margin-top: 8px; font-size: 12px;">
+        <a href="mailto:chenhao.zhou@rutgers.edu" aria-label="Email Chenhao Zhou">Email</a> · 
+        <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile">LinkedIn</a> · 
+        <a href="https://scholar.google.com" target="_blank" rel="noopener noreferrer" aria-label="Google Scholar Profile">Google Scholar</a> · 
+        <a href="https://orcid.org" target="_blank" rel="noopener noreferrer" aria-label="ORCID Profile">ORCID</a>
+      </p>
     </footer>
   </main>
+  
+  <!-- Back to Top Button -->
+  <button id="backToTop" class="back-to-top" aria-label="Back to top" title="Back to top">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
+  
+  <!-- Scripts -->
+  <script>
+    // Back to Top Button
+    (function() {
+      const backToTopBtn = document.getElementById('backToTop');
+      
+      window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+          backToTopBtn.classList.add('visible');
+        } else {
+          backToTopBtn.classList.remove('visible');
+        }
+      });
+      
+      backToTopBtn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    })();
+    
+    // Set active nav link
+    (function() {
+      const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+      const navLinks = document.querySelectorAll('.menu a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPage) {
+          link.classList.add('active');
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
