@@ -1,17 +1,105 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Milestones – Chenhao Zhou</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Research Milestones – Chenhao Zhou</title>
+  <meta name="description" content="Research experiences and key milestones by Chenhao Zhou." />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+  
 <style>
-body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 950px; margin: auto; padding: 2rem; line-height: 1.6; }
-nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; }
-nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; }
-h1,h2 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
-.card { background: #fff; padding: 1.2em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-img.profile { width: 180px; border-radius: 50%; float: left; margin-right: 20px; }
-table { border-collapse: collapse; width: 100%; margin: 1em 0; }
-th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-th { background: #f0f0f0; }
-.highlight { background: #dff0d8; font-weight: bold; }
+:root {
+  --primary: #0f4c81;
+  --primary-weak: #e6eef7;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+  --radius: 14px;
+}
+body {
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background: linear-gradient(180deg, var(--bg), #fbfdff 40%);
+  color: var(--text);
+  max-width: 920px;
+  margin: auto;
+  padding: 2rem;
+  line-height: 1.65;
+}
+nav {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
+  padding: 1em;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  border-radius: var(--radius);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+nav a {
+  margin: 0 12px;
+  padding: 6px 10px;
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+nav a:hover, nav a.active { background: var(--primary-weak); }
+h1 { font-family: inherit; color: var(--primary); font-size: clamp(24px, 3vw, 34px); }
+.card {
+  background: var(--surface);
+  padding: 1.5em;
+  margin: 1.2em 0;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+.back-to-top {
+  position: fixed; bottom: 32px; right: 32px; width: 48px; height: 48px;
+  background: var(--primary); color: #fff; border: none; border-radius: 50%;
+  cursor: pointer; opacity: 0; visibility: hidden; transition: all 0.3s;
+  display: flex; align-items: center; justify-content: center;
+}
+.back-to-top.visible { opacity: 1; visibility: visible; }
 </style>
 </head><body>
 <h1>Research Experiences & Milestones</h1><nav><a href="index.html">Home</a><a href="research.html">Research</a><a href="milestones.html">Milestones</a><a href="conference.html">Conferences</a><a href="teaching.html">Teaching</a><a href="SIRS Summer 2025.pdf">Teaching Evaluation</a><a href="professional.html">Professional</a><a href="CvResumeChenhao05252025.pdf">CV</a></nav>
 <div class="card"><ul><li>Cancer Institute of New Jersey (2022–2024) – Simulation modeling of hospital operations.</li><li>Quantitative Investment Strategy (2020) – Machine learning for stock prediction; ICISCE 2020.</li><li>COVID-19 Predictive Model (2020) – Forecasted spread in New York.</li><li>Emergency Facilities Readiness Project (2020) – Optimized medical resource distribution in Boston.</li></ul></div>
+
+<footer>
+  <p>Last updated 2025-01-12 · © 2025 Chenhao Zhou</p>
+</footer>
+
+<button id="backToTop" class="back-to-top" aria-label="Back to top">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="18 15 12 9 6 15"></polyline>
+  </svg>
+</button>
+
+<script>
+  (function() {
+    const btn = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => btn.classList.toggle('visible', window.pageYOffset > 300));
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  })();
+  document.querySelectorAll('nav a').forEach(link => {
+    if (link.getAttribute('href') === 'milestones.html') link.classList.add('active');
+  });
+</script>
+
 </body></html>

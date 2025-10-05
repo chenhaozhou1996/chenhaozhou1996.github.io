@@ -1,2 +1,9 @@
-Site bundle: v9 (root)
-Built: 2025-09-12 15:13:12 UTC
+Site bundle: v10 (redesigned)
+Built: 2025-01-12 00:00:00 UTC
+Changes:
+- Unified design system across all pages
+- Enhanced SEO with Open Graph and Schema.org
+- Added Back-to-Top button with smooth scroll
+- Improved accessibility (ARIA labels, semantic HTML)
+- Consistent navigation and footer
+- Comprehensive README documentation
