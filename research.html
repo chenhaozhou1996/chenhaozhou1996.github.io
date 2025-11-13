@@ -60,7 +60,8 @@ nav a {
   border-radius: 10px;
   transition: all 0.2s;
 }
-nav a:hover, nav a.active {
+nav a:hover,
+nav a.active {
   background: var(--primary-weak);
   color: var(--primary);
 }
@@ -70,8 +71,14 @@ h1, h2, h3 {
   margin-top: 0.2em;
   letter-spacing: -0.02em;
 }
-h1 { font-size: clamp(24px, 3vw, 34px); margin-bottom: 1.5rem; }
-h2 { font-size: clamp(18px, 2.5vw, 24px); margin-bottom: 1rem; }
+h1 {
+  font-size: clamp(24px, 3vw, 34px);
+  margin-bottom: 1.5rem;
+}
+h2 {
+  font-size: clamp(18px, 2.5vw, 24px);
+  margin-bottom: 1rem;
+}
 .card {
   background: var(--surface);
   padding: 1.5em;
@@ -81,9 +88,17 @@ h2 { font-size: clamp(18px, 2.5vw, 24px); margin-bottom: 1rem; }
   border: 1px solid var(--border);
   transition: box-shadow 0.3s;
 }
-.card:hover { box-shadow: 0 10px 30px rgba(16, 24, 40, 0.1); }
-.small { font-size: 0.92rem; color: #444; }
-.note { font-size: 0.9rem; color: var(--muted); }
+.card:hover {
+  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.1);
+}
+.small {
+  font-size: 0.92rem;
+  color: #444;
+}
+.note {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
 table {
   border-collapse: collapse;
   width: 100%;
@@ -101,7 +116,9 @@ th {
   font-weight: 600;
   color: var(--primary);
 }
-tbody tr:hover { background: var(--bg); }
+tbody tr:hover {
+  background: var(--bg);
+}
 .badge {
   display: inline-block;
   background: var(--primary);
@@ -112,6 +129,12 @@ tbody tr:hover { background: var(--bg); }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+.status-text {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.83rem;
+  color: var(--muted);
 }
 footer {
   margin-top: 3rem;
@@ -141,14 +164,24 @@ footer {
   align-items: center;
   justify-content: center;
 }
-.back-to-top.visible { opacity: 1; visibility: visible; }
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
 .back-to-top:hover {
   background: var(--primary-light);
   transform: translateY(-4px);
 }
 @media (max-width: 640px) {
-  table { font-size: 12px; }
-  th, td { padding: 8px; }
+  body {
+    padding: 1.25rem;
+  }
+  table {
+    font-size: 12px;
+  }
+  th, td {
+    padding: 8px;
+  }
 }
   </style>
 </head>
@@ -168,109 +201,167 @@ footer {
 </nav>
 
 <main id="main">
-<div class="card">
-  <h2>Working Papers (Under Peer Review)</h2>
-  <table>
-    <thead><tr><th>Paraphrased Title</th><th>Status</th><th>Journal / Track</th><th>Authors (full)</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><strong>Clinician Empowerment and the Triple Aim: Resource Adequacy, Disparities, and Quality</strong></td>
-        <td><span class="badge">Round 1</span> — R&amp;R (Major), in progress</td>
-        <td><em>Journal of Operations Management</em></td>
-        <td>Zhou, C.; Dreyfus, D.*; Bagchi, A.</td>
-      </tr>
-      <tr>
-        <td><strong>Optimizing Oncology Outpatient Flow via Simulation and Analytics</strong></td>
-        <td><span class="badge">Round 1</span> — R&amp;R, due Jan 31, 2026</td>
-        <td><em>Annals of Operations Research</em></td>
-        <td>Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A. M.</td>
-      </tr>
-      <tr>
-        <td><strong>Operating in Underserved Markets: Chain Affiliation, Dynamic Capabilities, and Care Performance</strong></td>
-        <td><span class="badge">Round 1</span> — Under review (submitted Feb 3, 2025)</td>
-        <td><em>Health Care Management Science</em></td>
-        <td>Dreyfus, D.; Zhou, C.*; Lin, T.</td>
-      </tr>
-      <tr>
-        <td><strong>Resilient Healthcare Operations: Leveraging Contract RNs and Support Staff in Fissured Workforces</strong></td>
-        <td><span class="badge"> Round 2: receives major revision (following the initial revise-and-resubmit); Round 3 Resubmission Deadline: February 8, 2026 (The issue targets in May 2026)</span></td>
-        <td><em>Journal of Operations Management</em></td>
-        <td>Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L.</td>
-      </tr>
-    </tbody>
-  </table>
-  <p class="note">Note: Where journals apply double-blind reviewing, the titles above are paraphrased for public display. Manuscripts retain the official submission titles. “*” marks the corresponding author.</p>
-</div>
+  <div class="card">
+    <h2>Working Papers (Under Peer Review)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Paraphrased Title</th>
+          <th>Status</th>
+          <th>Journal / Track</th>
+          <th>Authors (full)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Clinician Empowerment and the Triple Aim: Resource Adequacy, Disparities, and Quality</strong></td>
+          <td>
+            <span class="badge">Round 1</span>
+            <span class="status-text">R&amp;R (major), in progress</span>
+          </td>
+          <td><em>Journal of Operations Management</em></td>
+          <td>Zhou, C.; Dreyfus, D.*; Bagchi, A.</td>
+        </tr>
+        <tr>
+          <td><strong>Optimizing Oncology Outpatient Flow via Simulation and Analytics</strong></td>
+          <td>
+            <span class="badge">Round 1</span>
+            <span class="status-text">R&amp;R, due Jan 31, 2026</span>
+          </td>
+          <td><em>Annals of Operations Research</em></td>
+          <td>Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A. M.</td>
+        </tr>
+        <tr>
+          <td><strong>Operating in Underserved Markets: Chain Affiliation, Dynamic Capabilities, and Care Performance</strong></td>
+          <td>
+            <span class="badge">Round 1</span>
+            <span class="status-text">Under review (submitted Feb 3, 2025)</span>
+          </td>
+          <td><em>Health Care Management Science</em></td>
+          <td>Dreyfus, D.; Zhou, C.*; Lin, T.</td>
+        </tr>
+        <tr>
+          <td><strong>Resilient Healthcare Operations: Leveraging Contract RNs and Support Staff in Fissured Workforces</strong></td>
+<td><span class="badge"> Round 2</span> — Major revision (following Round 1: revise-and-resubmit); The next Round 3 deadline: Feb 2026 (The issue targets in May 2026)</span></td>
+          <td><em>Journal of Operations Management</em></td>
+          <td>Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="note">
+      Note: Where journals apply double-blind reviewing, the titles above are paraphrased for public display. Manuscripts retain the official submission titles.
+      “*” marks the corresponding author.
+    </p>
+  </div>
 
-<div class="card">
-  <h2>Upcoming Submissions (Near-term)</h2>
-  <ul>
-    <li><strong>From Triple Aim to Quadruple Aim: Workforce Engagement and Healthcare Operational Performance</strong> — Target: POMS; Status: the first draft nearing submission.</li>
-    <td> Dreyfus, D.; Zhou, C.*; Ding, X.; Lin, T.</td>
-  </ul>
-</div>
+  <div class="card">
+    <h2>Upcoming Submissions (Near-term)</h2>
+    <ul>
+      <li>
+        <strong>From Triple Aim to Quadruple Aim: Workforce Engagement and Healthcare Operational Performance</strong><br>
+        Target journal: <em>POMS</em>; status: first draft nearing submission.<br>
+        Authors: Dreyfus, D.; Zhou, C.*; Ding, X.; Lin, T.
+      </li>
+    </ul>
+  </div>
 
-<div class="card">
-  <h2>Conceptual / Proposal</h2>
-  <p><strong>Systems approach to addressing ED congestion: The impact of inpatient length of stay variability on emergency department crowding</strong> — Project proposal (Nov 14, 2024; Jong M. Lim; ). Concept framing completed; data cleaning pipeline under development.</p>
-</div>
+  <div class="card">
+    <h2>Conceptual / Proposal</h2>
+    <p>
+      <strong>Systems Approach to Addressing ED Congestion: The Impact of Inpatient Length-of-Stay Variability on Emergency Department Crowding</strong><br>
+      Project proposal (Nov 14, 2024; with Jong M. Lim). Concept framing completed; data cleaning pipeline under development.
+    </p>
+  </div>
 
-<div class="card">
-  <h2>Others in Data Collection and Processing</h2>
-  <ul>
-    <li><strong>Improving Emergency Department Flow: A Predictive Model for Ambulance Diversion</strong> — IRB approved; hospital data feedback currently processing</li>
-    <li><strong>Do Nurse Staffing Levels Influence Turnover and Care Operations?</strong> — Drafting; data analysis &amp; collection ongoing.</li>
-  </ul>
-</div>
+  <div class="card">
+    <h2>Others in Data Collection and Processing</h2>
+    <ul>
+      <li>
+        <strong>Improving Emergency Department Flow: A Predictive Model for Ambulance Diversion</strong> — IRB approved; hospital data currently being processed.
+      </li>
+      <li>
+        <strong>Do Nurse Staffing Levels Influence Turnover and Care Operations?</strong> — Drafting; data analysis and collection ongoing.
+      </li>
+    </ul>
+  </div>
 
-<div class="card">
-  <h2>Proceedings</h2>
-  <ul>
-    <li>
-      <strong>House price prediction using polynomial regression with Particle Swarm Optimization</strong><br>
-      <em>Journal of Physics: Conference Series</em>, 1802(3), 032034, 2021.
-    </li>
-    <li>
-      <strong>Quantitative investment strategy analysis based on machine learning for share dealing</strong><br>
-      <em>2020 7th International Conference on Information Science and Control Engineering</em>.
-    </li>
-  </ul>
-</div>
+  <div class="card">
+    <h2>Proceedings</h2>
+    <ul>
+      <li>
+        <strong>House price prediction using polynomial regression with Particle Swarm Optimization</strong><br>
+        <em>Journal of Physics: Conference Series</em>, 1802(3), 032034, 2021.
+      </li>
+      <li>
+        <strong>Quantitative investment strategy analysis based on machine learning for share dealing</strong><br>
+        <em>2020 7th International Conference on Information Science and Control Engineering</em>.
+      </li>
+    </ul>
+  </div>
 
-<div class="card">
-  <h2>Book</h2>
-  <p>
-    <strong>Strategies for Enhancing the Effectiveness of Internal Audit and Risk Control</strong><br>
-    Edited by Jie Hui, Jie Liu, Chenhao Zhou, and Wenxuan Zhou.<br>
-    China Modern Economic Publishing House, Beijing, China; February 1, 2025.<br>
-    ISBN: 978-7-5119-3474-1. 
-    <a href="http://hunan.tsxcfw.com/so.asp?key=9787511934741&imgbtn.x=35&imgbtn.y=14">
-      Link to publisher page
-    </a><br>
-    <em>Recommended by Shanxi University of Finance and Economics as a core textbook for university-level courses in Internal Audit, Risk Control, and Operations Management.</em>
-  </p>
-</div>
+  <div class="card">
+    <h2>Book</h2>
+    <p>
+      <strong>Strategies for Enhancing the Effectiveness of Internal Audit and Risk Control</strong><br>
+      Edited by Jie Hui, Jie Liu, Chenhao Zhou, and Wenxuan Zhou.<br>
+      China Modern Economic Publishing House, Beijing, China; February 1, 2025.<br>
+      ISBN: 978-7-5119-3474-1.
+      <a href="http://hunan.tsxcfw.com/so.asp?key=9787511934741&imgbtn.x=35&imgbtn.y=14">
+        Link to publisher page
+      </a><br>
+      <em>
+        Recommended by Shanxi University of Finance and Economics as a core textbook for university-level courses in Internal Audit, Risk Control, and Operations Management.
+      </em>
+    </p>
+  </div>
 
-<div class="card">
-  <h2>Service &amp; Reviewing</h2>
-  <table>
-    <thead><tr><th>Year(s)</th><th>Role</th><th>Venue / Track</th><th>Notes</th></tr></thead>
-    <tbody>
-      <tr><td>2025</td><td>Session Chair</td><td>INFORMS — Service Science Track</td><td>Cochair &amp; Presenter</td></tr>
-      <tr><td>2024</td><td>Reviewer</td><td>DSI Annual Conference — Healthcare Track</td><td>Program reviewer</td></tr>
-      <tr><td>2025</td><td>Reviewer</td><td>DSI Annual Conference — Project Management; Gig Economy &amp; Social Media Research Tracks</td><td>Program reviewer</td></tr>
-      <tr><td>2022–present</td><td>Member</td><td>INFORMS; POMS; DSI</td><td>Professional memberships</td></tr>
-    </tbody>
-  </table>
-</div>
+  <div class="card">
+    <h2>Service &amp; Reviewing</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Year(s)</th>
+          <th>Role</th>
+          <th>Venue / Track</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2025</td>
+          <td>Session Chair</td>
+          <td>INFORMS — Service Science Track</td>
+          <td>Cochair &amp; Presenter</td>
+        </tr>
+        <tr>
+          <td>2024</td>
+          <td>Reviewer</td>
+          <td>DSI Annual Conference — Healthcare Track</td>
+          <td>Program reviewer</td>
+        </tr>
+        <tr>
+          <td>2025</td>
+          <td>Reviewer</td>
+          <td>DSI Annual Conference — Project Management; Gig Economy &amp; Social Media Research Tracks</td>
+          <td>Program reviewer</td>
+        </tr>
+        <tr>
+          <td>2022–present</td>
+          <td>Member</td>
+          <td>INFORMS; POMS; DSI</td>
+          <td>Professional memberships</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<footer>
-  <p>Last updated 2025-01-12 · © 2025 Chenhao Zhou</p>
-  <p style="margin-top: 8px; font-size: 12px;">
-    <a href="mailto:chenhao.zhou@rutgers.edu">Email</a> · 
-    <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank" rel="noopener">LinkedIn</a>
-  </p>
-</footer>
+  <footer>
+    <p>Last updated 2025-01-12 · © 2025 Chenhao Zhou</p>
+    <p style="margin-top: 8px; font-size: 12px;">
+      <a href="mailto:chenhao.zhou@rutgers.edu">Email</a> · 
+      <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank" rel="noopener">LinkedIn</a>
+    </p>
+  </footer>
 </main>
 
 <!-- Back to Top Button -->
