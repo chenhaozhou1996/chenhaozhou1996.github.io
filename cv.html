@@ -1,35 +1,176 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>CV – Chenhao Zhou</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Curriculum Vitae – Chenhao Zhou | Academic CV</title>
+  <meta name="description" content="Curriculum Vitae of Chenhao Zhou, Ph.D. Candidate in Supply Chain Management at Rutgers Business School." />
+  <meta name="keywords" content="Chenhao Zhou, CV, Curriculum Vitae, Academic CV, Resume" />
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="CV – Chenhao Zhou" />
+  <meta property="og:description" content="Academic CV of Chenhao Zhou, Ph.D. Candidate at Rutgers Business School." />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+  
   <style>
-    body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 1000px; margin: auto; padding: 2rem; line-height: 1.65; }
-    h1,h2,h3 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; margin-top: 0.2em; }
+:root {
+  --primary: #0f4c81;
+  --primary-light: #1a5fa1;
+  --primary-weak: #e6eef7;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+  --radius: 14px;
+}
+body {
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background: linear-gradient(180deg, var(--bg), #fbfdff 40%);
+  color: var(--text);
+  max-width: 920px;
+  margin: auto;
+  padding: 2rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 {
+  font-family: inherit;
+  color: var(--primary);
+  margin-top: 0.2em;
+  letter-spacing: -0.02em;
+}
+h1 { font-size: clamp(24px, 3vw, 34px); margin-bottom: 1.5rem; }
 
-    /* 置顶导航（单行结构 + 徽标可选） */
-    nav { 
-      background: #f5f5f5; padding: 1em; position: sticky; top: 0; z-index: 1000; 
-      border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-      display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
-    }
-    nav .links { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-    nav a { text-decoration: none; color: #0366d6; font-weight: 600; }
-    .online-badge { background: #003366; color: #fff; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.85rem; font-weight: 700; }
+/* Navigation */
+nav {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
+  padding: 1em;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-radius: var(--radius);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+nav .links { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+nav a {
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+nav a:hover, nav a.active {
+  background: var(--primary-weak);
+  color: var(--primary);
+}
+.online-badge {
+  background: var(--primary);
+  color: #fff;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
 
-    .card { background: #fff; padding: 1.2em 1.4em; margin: 1.1em 0; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    .small { font-size: 0.92rem; color: #444; }
-    .note { font-size: 0.9rem; color: #555; }
-    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
-    th { background: #f0f4f8; }
-    .badge { display: inline-block; background: #003366; color: #fff; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.8rem; }
+.card {
+  background: var(--surface);
+  padding: 1.5em;
+  margin: 1.2em 0;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.3s;
+}
+.card:hover { box-shadow: 0 10px 30px rgba(16, 24, 40, 0.1); }
+.small { font-size: 0.92rem; color: #444; }
+.note { font-size: 0.9rem; color: var(--muted); }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+th {
+  background: #f0f4f8;
+  font-weight: 600;
+  color: var(--primary);
+}
+.badge {
+  display: inline-block;
+  background: var(--primary);
+  color: #fff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
 
-    /* 预览高度在窄屏上更友好 */
-    @media (max-width: 600px) {
-      .pdf-frame { height: 65vh !important; }
-    }
+/* PDF Preview */
+.pdf-frame {
+  width: 100%;
+  height: 80vh;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.back-to-top {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 48px;
+  height: 48px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(15, 76, 129, 0.3);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-to-top.visible { opacity: 1; visibility: visible; }
+.back-to-top:hover {
+  background: var(--primary-light);
+  transform: translateY(-4px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .pdf-frame { height: 65vh !important; }
+}
   </style>
 </head>
 <body>
@@ -84,7 +225,7 @@
       <li><strong>Clinician Empowerment and the Triple Aim: Resource Adequacy, Disparities, and Quality</strong> — <em>Journal of Operations Management</em>; Rev.1 R&amp;R (Major), in progress. Authors: Zhou, C.; Dreyfus, D.*; Bagchi, A..</li>
       <li><strong>Optimizing Oncology Outpatient Flow via Simulation and Analytics</strong> — <em>Annals of Operations Research</em>; Rev.1 R&amp;R, due Jan 31, 2026. Authors: Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A. M..</li>
       <li><strong>Operating in Underserved Markets: Chain Affiliation, Dynamic Capabilities, and Care Performance</strong> — <em>Health Care Management Science</em> (SI); Round 1 under review. Authors: Dreyfus, D.*; Zhou, C.; Lin, T..</li>
-      <li><strong>Resilient Dialysis Operations: Leveraging Contract RNs and Support Staff in Fissured Workforces</strong> — <em>Journal of Operations Management</em> (SI); Rev.2 under review (submitted Sep 7, 2025). Authors: Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L..</li>
+      <li><strong>Resilient Dialysis Operations: Leveraging Contract RNs and Support Staff in Fissured Workforces</strong> — <em>Journal of Operations Management</em> (SI); Round 3 (2nd round decision: major revision). Authors: Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L..</li>
     </ul>
     <p class="note">Titles paraphrased for public listing under double-blind policies; manuscripts retain official titles. Authors follow CV style (surname, initials); “*” denotes corresponding author.</p>
   </div>
@@ -105,6 +246,39 @@
     </ul>
   </div>
 
-  <div class="card small">Last updated 2025-09-12.</div>
+  <footer>
+    <p>Last updated 2025-01-12 · © 2025 Chenhao Zhou</p>
+    <p style="margin-top: 8px; font-size: 12px;">
+      <a href="mailto:chenhao.zhou@rutgers.edu">Email</a> · 
+      <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank" rel="noopener">LinkedIn</a>
+    </p>
+  </footer>
+
+  <!-- Back to Top Button -->
+  <button id="backToTop" class="back-to-top" aria-label="Back to top">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
+  
+  <script>
+    // Back to Top
+    (function() {
+      const btn = document.getElementById('backToTop');
+      window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.pageYOffset > 300);
+      });
+      btn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    })();
+    
+    // Active nav link
+    document.querySelectorAll('nav a').forEach(link => {
+      if (link.getAttribute('href') === 'cv.html') {
+        link.classList.add('active');
+      }
+    });
+  </script>
 </body>
 </html>
