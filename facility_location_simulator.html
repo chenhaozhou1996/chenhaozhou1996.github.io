@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facility Location Strategy: Network Design Optimization | OM/SCM/BA Core Curriculum</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+Pro:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #064e3b;
+            --secondary: #047857;
+            --accent: #10b981;
+            --accent-light: #6ee7b7;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+            --bg-dark: #0a0f0d;
+            --bg-medium: #14201a;
+            --bg-light: #1e3329;
+            --text-primary: #f0fdf4;
+            --text-secondary: #bbf7d0;
+            --text-muted: #86efac;
+            --border: rgba(16, 185, 129, 0.2);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Source Sans Pro', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .container { max-width: 1900px; margin: 0 auto; padding: 20px; }
+        
+        /* Academic Header */
+        .academic-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--bg-medium) 100%);
+            border-bottom: 3px solid var(--accent);
+            padding: 25px 30px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .institution-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo-placeholder {
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--bg-dark);
+        }
+        .course-info h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .course-info .subtitle {
+            font-size: 0.95rem;
+            color: var(--accent-light);
+        }
+        .instructor-info {
+            text-align: right;
+            padding: 10px 20px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+        .instructor-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .instructor-title {
+            font-size: 0.85rem;
+            color: var(--accent-light);
+        }
+        .module-title {
+            text-align: center;
+        }
+        .module-title h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .module-title p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+        }
+
+        /* Learning Objectives */
+        .learning-panel {
+            background: linear-gradient(180deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin-bottom: 20px;
+        }
+        .learning-panel h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+        .objectives-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        .objective-item {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .objective-item .number {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            background: var(--accent);
+            color: var(--bg-dark);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+        .objective-item p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Dashboard */
+        .dashboard { display: grid; grid-template-columns: 300px 1fr 340px; gap: 20px; }
+        .panel {
+            background: var(--bg-medium);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+        .panel-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        /* Controls */
+        .control-group { margin-bottom: 16px; }
+        .control-group label { 
+            display: block; 
+            font-size: 0.75rem; 
+            color: var(--text-secondary); 
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-light);
+            -webkit-appearance: none;
+        }
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+        }
+        .value-display { display: flex; justify-content: space-between; margin-top: 6px; }
+        .value-display span { font-size: 0.7rem; color: var(--text-muted); }
+        .value-display .current-value { 
+            font-size: 0.9rem; 
+            font-weight: 700; 
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .btn-group { display: flex; gap: 8px; margin-top: 15px; }
+        .btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--secondary)); color: var(--bg-dark); }
+        .btn-secondary { background: var(--bg-light); color: var(--text-secondary); border: 1px solid var(--border); }
+        .btn-optimize { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; margin-top: 8px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25); }
+
+        .mode-toggle {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        .mode-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .theory-box {
+            background: rgba(10, 15, 13, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid var(--accent);
+        }
+        .theory-box h4 { 
+            color: var(--accent); 
+            font-size: 0.8rem; 
+            margin-bottom: 8px;
+            font-family: 'Playfair Display', serif;
+        }
+        .formula { 
+            font-family: 'JetBrains Mono', monospace; 
+            color: var(--text-primary); 
+            font-size: 0.8rem; 
+            line-height: 1.8;
+            background: rgba(16, 185, 129, 0.08);
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .tags { display: flex; gap: 6px; margin-top: 15px; flex-wrap: wrap; }
+        .tag {
+            padding: 4px 10px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            font-size: 0.65rem;
+            color: var(--accent-light);
+            text-transform: uppercase;
+        }
+
+        /* Center Section */
+        .center-section { display: flex; flex-direction: column; gap: 15px; }
+        .simulation-canvas {
+            height: 400px;
+            background: linear-gradient(180deg, var(--bg-medium) 0%, var(--bg-dark) 100%);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        #mapCanvas { width: 100%; height: 100%; cursor: crosshair; }
+        
+        .legend { display: flex; gap: 20px; justify-content: center; margin-top: 10px; font-size: 0.75rem; }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 14px; height: 14px; border-radius: 50%; }
+        .legend-dot.demand { background: #f59e0b; }
+        .legend-dot.facility { background: var(--accent); }
+        .legend-dot.candidate { background: #3b82f6; border: 2px dashed #60a5fa; }
+
+        .metrics-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        .metric-card {
+            background: var(--bg-medium);
+            border-radius: 10px;
+            padding: 15px 10px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .metric-icon { font-size: 1.4rem; margin-bottom: 5px; }
+        .metric-value { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .metric-value.warning { color: var(--warning); }
+        .metric-value.danger { color: var(--danger); }
+        .metric-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; }
+        
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .chart-container { height: 190px; }
+
+        /* Right Panel */
+        .right-panel { display: flex; flex-direction: column; gap: 15px; }
+        .facility-list { max-height: 160px; overflow-y: auto; }
+        .facility-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(10, 15, 13, 0.6);
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+        }
+        .facility-item .name { color: var(--accent); font-weight: 600; }
+        .facility-item .info { color: var(--text-secondary); }
+        .facility-item .remove {
+            background: var(--danger);
+            border: none;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+        .status-item .label { color: var(--text-muted); }
+        .status-item .value { font-weight: 600; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(10, 15, 13, 0.5);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+        }
+        .insight-icon { font-size: 1.2rem; }
+        .insight-text { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; }
+        .insight-text strong { color: var(--accent); }
+
+        /* Footer Sections */
+        .insights-footer {
+            background: linear-gradient(135deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin-top: 20px;
+        }
+        .insights-footer h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .insight-block h4 {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .insight-block p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .references {
+            background: var(--bg-medium);
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin-top: 20px;
+            border: 1px solid var(--border);
+        }
+        .references h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+        .references p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        @media (max-width: 1400px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .charts-row { grid-template-columns: 1fr; }
+            .objectives-grid { grid-template-columns: repeat(2, 1fr); }
+            .insights-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Academic Header -->
+        <header class="academic-header">
+            <div class="header-top">
+                <div class="institution-info">
+                    <div class="logo-placeholder">Σ</div>
+                    <div class="course-info">
+                        <h1>OM / SCM / BA</h1>
+                        <p class="subtitle">Interactive Learning Module</p>
+                    </div>
+                </div>
+                <div class="instructor-info">
+                    <div class="instructor-name">Chenhao Zhou</div>
+                    <div class="instructor-title">PhD Candidate | Lecturer</div>
+                </div>
+            </div>
+            <div class="module-title">
+                <h2>Facility Location Strategy: Network Design Optimization</h2>
+                <p>Capacitated Facility Location Problem with Coverage and Cost Trade-offs</p>
+            </div>
+        </header>
+
+        <!-- Learning Objectives -->
+        <section class="learning-panel">
+            <h3>📚 Learning Objectives</h3>
+            <div class="objectives-grid">
+                <div class="objective-item">
+                    <span class="number">1</span>
+                    <p>Formulate the capacitated facility location problem (CFLP) as a mixed-integer linear program with fixed and variable costs</p>
+                </div>
+                <div class="objective-item">
+                    <span class="number">2</span>
+                    <p>Analyze the trade-off between facility fixed costs, transportation costs, and service coverage requirements</p>
+                </div>
+                <div class="objective-item">
+                    <span class="number">3</span>
+                    <p>Apply greedy and optimization heuristics to determine which facilities to open from a set of candidates</p>
+                </div>
+                <div class="objective-item">
+                    <span class="number">4</span>
+                    <p>Evaluate network designs using metrics like coverage, utilization, and total cost efficiency</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Dashboard -->
+        <div class="dashboard">
+            <!-- Left Panel -->
+            <div class="panel">
+                <div class="panel-title">⚙️ Network Parameters</div>
+                
+                <div class="mode-toggle">
+                    <button class="mode-btn active" onclick="setMode('demand')" id="demandBtn">Add Demand</button>
+                    <button class="mode-btn" onclick="setMode('facility')" id="facilityBtn">Add Facility</button>
+                </div>
+
+                <div class="control-group">
+                    <label>Facility Fixed Cost ($K/year)</label>
+                    <input type="range" id="fixedCost" min="50" max="500" value="200" oninput="updateParams()">
+                    <div class="value-display">
+                        <span>$50K</span>
+                        <span class="current-value">$<span id="fixedCostValue">200</span>K</span>
+                        <span>$500K</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Transport Cost ($/unit-km)</label>
+                    <input type="range" id="transportCost" min="1" max="20" value="5" oninput="updateParams()">
+                    <div class="value-display">
+                        <span>$1</span>
+                        <span class="current-value">$<span id="transportCostValue">5</span></span>
+                        <span>$20</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Facility Capacity (units/year)</label>
+                    <input type="range" id="capacity" min="100" max="1000" value="500" step="50" oninput="updateParams()">
+                    <div class="value-display">
+                        <span>100</span>
+                        <span class="current-value"><span id="capacityValue">500</span> units</span>
+                        <span>1000</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Max Service Distance (km)</label>
+                    <input type="range" id="maxDistance" min="50" max="300" value="150" step="10" oninput="updateParams()">
+                    <div class="value-display">
+                        <span>50</span>
+                        <span class="current-value"><span id="maxDistValue">150</span> km</span>
+                        <span>300</span>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="generateScenario()">🎲 Generate</button>
+                    <button class="btn btn-secondary" onclick="resetAll()">↻ Reset</button>
+                </div>
+                <button class="btn btn-optimize" onclick="optimizeNetwork()" style="width: 100%;">🎯 Optimize Network</button>
+
+                <div class="theory-box">
+                    <h4>CFLP Formulation</h4>
+                    <div class="formula">
+                        min Σⱼ fⱼyⱼ + Σᵢ Σⱼ cᵢⱼxᵢⱼ<br>
+                        s.t. Σⱼ xᵢⱼ = dᵢ, ∀i<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp; Σᵢ xᵢⱼ ≤ Kⱼyⱼ, ∀j<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp; yⱼ ∈ {0,1}, xᵢⱼ ≥ 0
+                    </div>
+                </div>
+
+                <div class="tags">
+                    <span class="tag">MIP</span>
+                    <span class="tag">Network Design</span>
+                    <span class="tag">Capacitated</span>
+                    <span class="tag">Coverage</span>
+                </div>
+            </div>
+
+            <!-- Center Section -->
+            <div class="center-section">
+                <div class="simulation-canvas panel">
+                    <canvas id="mapCanvas"></canvas>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-dot demand"></div><span>Demand Point</span></div>
+                    <div class="legend-item"><div class="legend-dot facility"></div><span>Open Facility</span></div>
+                    <div class="legend-item"><div class="legend-dot candidate"></div><span>Candidate Site</span></div>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-card">
+                        <div class="metric-icon">📍</div>
+                        <div class="metric-value" id="demandPoints">0</div>
+                        <div class="metric-label">Demand Points</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🏭</div>
+                        <div class="metric-value" id="openFacilities">0</div>
+                        <div class="metric-label">Open Facilities</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📦</div>
+                        <div class="metric-value" id="totalDemand">0</div>
+                        <div class="metric-label">Total Demand</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">✅</div>
+                        <div class="metric-value" id="coverage">0%</div>
+                        <div class="metric-label">Coverage</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">💰</div>
+                        <div class="metric-value" id="totalCost">$0</div>
+                        <div class="metric-label">Total Cost</div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="panel">
+                        <div class="panel-title">📊 Facility Utilization</div>
+                        <div class="chart-container">
+                            <canvas id="coverageChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-title">💰 Cost Breakdown</div>
+                        <div class="chart-container">
+                            <canvas id="costChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <div class="panel">
+                    <div class="panel-title">🏭 Facilities</div>
+                    <div class="facility-list" id="facilityList">
+                        <div class="facility-item">
+                            <span class="info">Click "Generate" to create scenario</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">📊 Network Metrics</div>
+                    <div class="status-item">
+                        <span class="label">Fixed Cost Total</span>
+                        <span class="value" id="statusFixed">$0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Transport Cost Total</span>
+                        <span class="value" id="statusTransport">$0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Avg. Utilization</span>
+                        <span class="value" id="statusUtil">0%</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Uncovered Demand</span>
+                        <span class="value" id="statusUncovered">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Avg. Service Distance</span>
+                        <span class="value" id="statusAvgDist">0 km</span>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">💡 Strategic Insights</div>
+                    <div id="insights">
+                        <div class="insight-item">
+                            <span class="insight-icon">📌</span>
+                            <span class="insight-text">
+                                Generate a scenario or click on the map to add demand points and candidate facilities.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Managerial Insights -->
+        <section class="insights-footer">
+            <h3>🎯 Key Managerial Insights</h3>
+            <div class="insights-grid">
+                <div class="insight-block">
+                    <h4>Fixed vs. Variable Cost Trade-off</h4>
+                    <p>Opening fewer facilities reduces fixed costs but increases transportation costs and may reduce service levels. The optimal network balances these competing factors based on demand density and cost structure.</p>
+                </div>
+                <div class="insight-block">
+                    <h4>Coverage vs. Efficiency</h4>
+                    <p>100% coverage often requires disproportionate investment in low-demand areas. Strategic under-coverage of marginal customers can significantly reduce total costs while maintaining high average service levels.</p>
+                </div>
+                <div class="insight-block">
+                    <h4>Capacity Utilization Balance</h4>
+                    <p>High utilization maximizes asset efficiency but leaves no buffer for demand variability. The optimal utilization target depends on demand uncertainty and the cost of stockouts or delayed service.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- References -->
+        <section class="references">
+            <h3>📚 Academic References</h3>
+            <p>
+                Daskin, M. S. (2013). <em>Network and Discrete Location: Models, Algorithms, and Applications</em> (2nd ed.). Wiley. • 
+                Mirchandani, P. B., & Francis, R. L. (1990). <em>Discrete Location Theory</em>. Wiley-Interscience. • 
+                Simchi-Levi, D., Chen, X., & Bramel, J. (2014). <em>The Logic of Logistics</em> (3rd ed.). Springer. •
+                Klose, A., & Drexl, A. (2005). Facility location models for distribution system design. <em>European Journal of Operational Research</em>, 162(1), 4-29.
+            </p>
+        </section>
+    </div>
+
+    <script>
+        const SCALE = 2; // pixels per km
+        let params = { fixedCost: 200, transportCost: 5, capacity: 500, maxDistance: 150 };
+        let mode = 'demand';
+        let demandPoints = [];
+        let candidateFacilities = [];
+        let openFacilities = [];
+        let assignments = [];
+
+        const canvas = document.getElementById('mapCanvas');
+        const ctx = canvas.getContext('2d');
+        let coverageChart, costChart;
+
+        function init() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            canvas.addEventListener('click', handleCanvasClick);
+            updateParams();
+            initCharts();
+            render();
+        }
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            render();
+        }
+
+        function initCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#bbf7d0', font: { size: 11 } } } },
+                scales: {
+                    x: { grid: { color: 'rgba(16, 185, 129, 0.1)' }, ticks: { color: '#86efac' } },
+                    y: { grid: { color: 'rgba(16, 185, 129, 0.1)' }, ticks: { color: '#86efac' } }
+                }
+            };
+
+            coverageChart = new Chart(document.getElementById('coverageChart'), {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Demand Served', data: [], backgroundColor: 'rgba(16, 185, 129, 0.7)', borderColor: '#10b981', borderWidth: 2 },
+                        { label: 'Capacity', data: [], backgroundColor: 'rgba(234, 179, 8, 0.5)', borderColor: '#eab308', borderWidth: 2 }
+                    ]
+                },
+                options: chartOptions
+            });
+
+            costChart = new Chart(document.getElementById('costChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Fixed Costs', 'Transport Costs'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['rgba(16, 185, 129, 0.7)', 'rgba(245, 158, 11, 0.7)'],
+                        borderColor: ['#10b981', '#f59e0b'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#bbf7d0' } } }
+                }
+            });
+        }
+
+        function updateParams() {
+            params.fixedCost = parseInt(document.getElementById('fixedCost').value);
+            params.transportCost = parseInt(document.getElementById('transportCost').value);
+            params.capacity = parseInt(document.getElementById('capacity').value);
+            params.maxDistance = parseInt(document.getElementById('maxDistance').value);
+
+            document.getElementById('fixedCostValue').textContent = params.fixedCost;
+            document.getElementById('transportCostValue').textContent = params.transportCost;
+            document.getElementById('capacityValue').textContent = params.capacity;
+            document.getElementById('maxDistValue').textContent = params.maxDistance;
+
+            if (openFacilities.length > 0) {
+                assignDemand();
+                calculateCosts();
+                updateCharts();
+            }
+            render();
+        }
+
+        function setMode(m) {
+            mode = m;
+            document.getElementById('demandBtn').classList.toggle('active', m === 'demand');
+            document.getElementById('facilityBtn').classList.toggle('active', m === 'facility');
+        }
+
+        function handleCanvasClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const padding = 40;
+            if (x < padding || x > canvas.width - padding || y < padding || y > canvas.height - padding) return;
+
+            if (mode === 'demand') {
+                demandPoints.push({
+                    id: demandPoints.length + 1,
+                    x: x,
+                    y: y,
+                    demand: Math.floor(Math.random() * 200) + 50
+                });
+            } else {
+                const name = String.fromCharCode(65 + candidateFacilities.length);
+                candidateFacilities.push({
+                    id: candidateFacilities.length + 1,
+                    name: 'F-' + name,
+                    x: x,
+                    y: y,
+                    open: false
+                });
+            }
+
+            updateDisplays();
+            render();
+        }
+
+        function generateScenario() {
+            demandPoints = [];
+            candidateFacilities = [];
+            openFacilities = [];
+            assignments = [];
+            const padding = 60;
+
+            for (let i = 0; i < 12; i++) {
+                demandPoints.push({
+                    id: i + 1,
+                    x: padding + Math.random() * (canvas.width - 2 * padding),
+                    y: padding + Math.random() * (canvas.height - 2 * padding),
+                    demand: Math.floor(Math.random() * 200) + 50
+                });
+            }
+
+            for (let i = 0; i < 5; i++) {
+                const name = String.fromCharCode(65 + i);
+                candidateFacilities.push({
+                    id: i + 1,
+                    name: 'F-' + name,
+                    x: padding + Math.random() * (canvas.width - 2 * padding),
+                    y: padding + Math.random() * (canvas.height - 2 * padding),
+                    open: false
+                });
+            }
+
+            updateDisplays();
+            updateFacilityList();
+            render();
+        }
+
+        function distance(a, b) {
+            return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2) / SCALE;
+        }
+
+        function optimizeNetwork() {
+            if (candidateFacilities.length === 0 || demandPoints.length === 0) {
+                alert('Please add demand points and candidate facilities first!');
+                return;
+            }
+
+            // Greedy set cover heuristic
+            candidateFacilities.forEach(f => f.open = false);
+            openFacilities = [];
+            assignments = [];
+
+            let uncovered = [...demandPoints];
+            
+            while (uncovered.length > 0) {
+                let bestFacility = null;
+                let bestCoverage = 0;
+                let bestCost = Infinity;
+
+                for (const f of candidateFacilities) {
+                    if (f.open) continue;
+                    
+                    const canCover = uncovered.filter(d => distance(d, f) <= params.maxDistance);
+                    const coverage = canCover.reduce((sum, d) => sum + d.demand, 0);
+                    const marginalCost = params.fixedCost * 1000 / Math.max(1, coverage);
+                    
+                    if (coverage > 0 && (coverage > bestCoverage || (coverage === bestCoverage && marginalCost < bestCost))) {
+                        bestFacility = f;
+                        bestCoverage = coverage;
+                        bestCost = marginalCost;
+                    }
+                }
+
+                if (!bestFacility) break;
+
+                bestFacility.open = true;
+                openFacilities.push(bestFacility);
+                uncovered = uncovered.filter(d => distance(d, bestFacility) > params.maxDistance);
+            }
+
+            assignDemand();
+            calculateCosts();
+            updateFacilityList();
+            updateCharts();
+            updateInsights();
+            render();
+        }
+
+        function assignDemand() {
+            assignments = [];
+            const facilityLoad = new Map(openFacilities.map(f => [f.id, 0]));
+
+            demandPoints.forEach(d => {
+                let bestFacility = null;
+                let minDist = Infinity;
+
+                for (const f of openFacilities) {
+                    const dist = distance(d, f);
+                    if (dist <= params.maxDistance && dist < minDist && facilityLoad.get(f.id) < params.capacity) {
+                        minDist = dist;
+                        bestFacility = f;
+                    }
+                }
+
+                if (bestFacility) {
+                    assignments.push({ demand: d, facility: bestFacility, distance: minDist });
+                    facilityLoad.set(bestFacility.id, facilityLoad.get(bestFacility.id) + d.demand);
+                }
+            });
+        }
+
+        function calculateCosts() {
+            const fixedCost = openFacilities.length * params.fixedCost * 1000;
+            const transportCost = assignments.reduce((sum, a) => sum + a.demand.demand * a.distance * params.transportCost, 0);
+            const totalCost = fixedCost + transportCost;
+
+            const coveredDemand = assignments.reduce((sum, a) => sum + a.demand.demand, 0);
+            const totalDemand = demandPoints.reduce((sum, d) => sum + d.demand, 0);
+            const coverage = totalDemand > 0 ? (coveredDemand / totalDemand * 100) : 0;
+
+            document.getElementById('totalCost').textContent = '$' + (totalCost / 1000).toFixed(0) + 'K';
+            document.getElementById('coverage').textContent = coverage.toFixed(0) + '%';
+            document.getElementById('statusFixed').textContent = '$' + (fixedCost / 1000).toFixed(0) + 'K';
+            document.getElementById('statusTransport').textContent = '$' + (transportCost / 1000).toFixed(0) + 'K';
+
+            const avgUtil = openFacilities.length > 0 ? coveredDemand / (openFacilities.length * params.capacity) * 100 : 0;
+            document.getElementById('statusUtil').textContent = avgUtil.toFixed(0) + '%';
+            document.getElementById('statusUncovered').textContent = (demandPoints.length - assignments.length);
+            
+            const avgDist = assignments.length > 0 ? assignments.reduce((sum, a) => sum + a.distance, 0) / assignments.length : 0;
+            document.getElementById('statusAvgDist').textContent = avgDist.toFixed(1) + ' km';
+
+            costChart.data.datasets[0].data = [fixedCost / 1000, transportCost / 1000];
+            costChart.update();
+        }
+
+        function updateCharts() {
+            const labels = openFacilities.map(f => f.name);
+            const served = openFacilities.map(f => {
+                return assignments.filter(a => a.facility.id === f.id).reduce((sum, a) => sum + a.demand.demand, 0);
+            });
+            const capacities = openFacilities.map(() => params.capacity);
+
+            coverageChart.data.labels = labels;
+            coverageChart.data.datasets[0].data = served;
+            coverageChart.data.datasets[1].data = capacities;
+            coverageChart.update();
+        }
+
+        function updateInsights() {
+            const totalDemand = demandPoints.reduce((sum, d) => sum + d.demand, 0);
+            const coveredDemand = assignments.reduce((sum, a) => sum + a.demand.demand, 0);
+            const uncovered = demandPoints.length - assignments.length;
+
+            let insights = `
+                <div class="insight-item">
+                    <span class="insight-icon">🎯</span>
+                    <span class="insight-text">
+                        <strong>${openFacilities.length} facilities</strong> selected from ${candidateFacilities.length} candidates.
+                    </span>
+                </div>
+            `;
+
+            if (uncovered > 0) {
+                insights += `
+                    <div class="insight-item">
+                        <span class="insight-icon">⚠️</span>
+                        <span class="insight-text">
+                            <strong>${uncovered} demand points</strong> uncovered. Consider adding facilities or increasing max distance.
+                        </span>
+                    </div>
+                `;
+            }
+
+            const avgUtil = openFacilities.length > 0 ? coveredDemand / (openFacilities.length * params.capacity) * 100 : 0;
+            
+            if (avgUtil < 50) {
+                insights += `
+                    <div class="insight-item">
+                        <span class="insight-icon">📉</span>
+                        <span class="insight-text">
+                            Low utilization (<strong>${avgUtil.toFixed(0)}%</strong>). Consider consolidating facilities.
+                        </span>
+                    </div>
+                `;
+            } else if (avgUtil > 90) {
+                insights += `
+                    <div class="insight-item">
+                        <span class="insight-icon">📈</span>
+                        <span class="insight-text">
+                            High utilization (<strong>${avgUtil.toFixed(0)}%</strong>). May need capacity buffer.
+                        </span>
+                    </div>
+                `;
+            }
+
+            document.getElementById('insights').innerHTML = insights;
+        }
+
+        function updateDisplays() {
+            document.getElementById('demandPoints').textContent = demandPoints.length;
+            document.getElementById('openFacilities').textContent = openFacilities.length;
+            document.getElementById('totalDemand').textContent = demandPoints.reduce((sum, d) => sum + d.demand, 0).toLocaleString();
+        }
+
+        function updateFacilityList() {
+            const list = document.getElementById('facilityList');
+            if (candidateFacilities.length === 0) {
+                list.innerHTML = '<div class="facility-item"><span class="info">No facilities yet</span></div>';
+                return;
+            }
+
+            list.innerHTML = candidateFacilities.map(f => `
+                <div class="facility-item">
+                    <span class="name">${f.name} ${f.open ? '✓' : ''}</span>
+                    <span class="info">${f.open ? 'Open' : 'Candidate'}</span>
+                    <button class="remove" onclick="toggleFacility(${f.id})">${f.open ? 'Close' : 'Open'}</button>
+                </div>
+            `).join('');
+        }
+
+        function toggleFacility(id) {
+            const f = candidateFacilities.find(f => f.id === id);
+            if (f) {
+                f.open = !f.open;
+                openFacilities = candidateFacilities.filter(f => f.open);
+                assignDemand();
+                calculateCosts();
+                updateFacilityList();
+                updateCharts();
+                updateDisplays();
+                render();
+            }
+        }
+
+        function resetAll() {
+            demandPoints = [];
+            candidateFacilities = [];
+            openFacilities = [];
+            assignments = [];
+            updateDisplays();
+            updateFacilityList();
+            coverageChart.data.labels = [];
+            coverageChart.data.datasets.forEach(ds => ds.data = []);
+            coverageChart.update();
+            costChart.data.datasets[0].data = [0, 0];
+            costChart.update();
+            document.getElementById('insights').innerHTML = `
+                <div class="insight-item">
+                    <span class="insight-icon">📌</span>
+                    <span class="insight-text">Network reset. Generate a new scenario or add points manually.</span>
+                </div>
+            `;
+            render();
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+            drawGrid();
+            drawAssignments();
+            drawServiceAreas();
+            drawDemandPoints();
+            drawFacilities();
+        }
+
+        function drawBackground() {
+            ctx.fillStyle = '#0a0f0d';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(16, 185, 129, 0.08)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            ctx.fillStyle = '#86efac';
+            ctx.font = '10px Source Sans Pro';
+            ctx.fillText('Scale: 50px = 100km', 10, canvas.height - 10);
+        }
+
+        function drawServiceAreas() {
+            openFacilities.forEach(f => {
+                const radius = params.maxDistance / SCALE;
+                ctx.beginPath();
+                ctx.arc(f.x, f.y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.08)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.25)';
+                ctx.setLineDash([6, 6]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            });
+        }
+
+        function drawAssignments() {
+            assignments.forEach(a => {
+                ctx.beginPath();
+                ctx.moveTo(a.facility.x, a.facility.y);
+                ctx.lineTo(a.demand.x, a.demand.y);
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.35)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            });
+        }
+
+        function drawDemandPoints() {
+            demandPoints.forEach(d => {
+                const isAssigned = assignments.some(a => a.demand.id === d.id);
+                const size = 6 + (d.demand / 80);
+                
+                ctx.beginPath();
+                ctx.arc(d.x, d.y, size, 0, Math.PI * 2);
+                ctx.fillStyle = isAssigned ? '#f59e0b' : '#ef4444';
+                ctx.fill();
+                ctx.strokeStyle = isAssigned ? '#fbbf24' : '#f87171';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = '#f0fdf4';
+                ctx.font = '10px JetBrains Mono';
+                ctx.textAlign = 'center';
+                ctx.fillText(d.demand, d.x, d.y + size + 14);
+            });
+        }
+
+        function drawFacilities() {
+            candidateFacilities.forEach(f => {
+                const size = f.open ? 20 : 14;
+                
+                if (f.open) {
+                    ctx.beginPath();
+                    ctx.arc(f.x, f.y, size, 0, Math.PI * 2);
+                    ctx.fillStyle = '#10b981';
+                    ctx.fill();
+                    ctx.strokeStyle = '#34d399';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#f0fdf4';
+                    ctx.font = '16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('🏭', f.x, f.y + 6);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(f.x, f.y, size, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(59, 130, 246, 0.3)';
+                    ctx.fill();
+                    ctx.strokeStyle = '#3b82f6';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                ctx.fillStyle = '#f0fdf4';
+                ctx.font = 'bold 11px Source Sans Pro';
+                ctx.textAlign = 'center';
+                ctx.fillText(f.name, f.x, f.y - size - 6);
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
