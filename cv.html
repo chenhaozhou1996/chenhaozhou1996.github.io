@@ -14,245 +14,141 @@
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
   
+  <!-- Shared Stylesheet -->
+  <link rel="stylesheet" href="styles/main.css" />
+  
   <style>
-:root {
-  --primary: #0f4c81;
-  --primary-light: #1a5fa1;
-  --primary-weak: #e6eef7;
-  --text: #1f2937;
-  --muted: #6b7280;
-  --bg: #f7f9fc;
-  --surface: #ffffff;
-  --border: #e5e7eb;
-  --shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
-  --radius: 14px;
-}
-body {
-  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  background: linear-gradient(180deg, var(--bg), #fbfdff 40%);
-  color: var(--text);
-  max-width: 920px;
-  margin: auto;
-  padding: 2rem;
-  line-height: 1.65;
-  -webkit-font-smoothing: antialiased;
-}
-h1, h2, h3 {
-  font-family: inherit;
-  color: var(--primary);
-  margin-top: 0.2em;
-  letter-spacing: -0.02em;
-}
-h1 { font-size: clamp(24px, 3vw, 34px); margin-bottom: 1.5rem; }
-
-/* Navigation */
-nav {
-  background: rgba(255,255,255,0.8);
-  backdrop-filter: blur(10px);
-  padding: 1em;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  border-radius: var(--radius);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  border: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 2rem;
-}
-nav .links { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-nav a {
-  text-decoration: none;
-  color: var(--primary);
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: 10px;
-  transition: all 0.2s;
-}
-nav a:hover, nav a.active {
-  background: var(--primary-weak);
-  color: var(--primary);
-}
-.online-badge {
-  background: var(--primary);
-  color: #fff;
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.card {
-  background: var(--surface);
-  padding: 1.5em;
-  margin: 1.2em 0;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  transition: box-shadow 0.3s;
-}
-.card:hover { box-shadow: 0 10px 30px rgba(16, 24, 40, 0.1); }
-.small { font-size: 0.92rem; color: #444; }
-.note { font-size: 0.9rem; color: var(--muted); }
-table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 1em 0;
-}
-th, td {
-  border: 1px solid var(--border);
-  padding: 10px;
-  text-align: left;
-  vertical-align: top;
-}
-th {
-  background: #f0f4f8;
-  font-weight: 600;
-  color: var(--primary);
-}
-.badge {
-  display: inline-block;
-  background: var(--primary);
-  color: #fff;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-/* PDF Preview */
-.pdf-frame {
-  width: 100%;
-  height: 80vh;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-}
-
-footer {
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--border);
-  text-align: center;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.back-to-top {
-  position: fixed;
-  bottom: 32px;
-  right: 32px;
-  width: 48px;
-  height: 48px;
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(15, 76, 129, 0.3);
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.back-to-top.visible { opacity: 1; visibility: visible; }
-.back-to-top:hover {
-  background: var(--primary-light);
-  transform: translateY(-4px);
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .pdf-frame { height: 65vh !important; }
-}
+    /* Page-specific styles */
+    .page-header {
+      margin-bottom: var(--space-8);
+      padding-bottom: var(--space-6);
+      border-bottom: 2px solid var(--color-primary-weak);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    
+    .page-header h1 { margin-bottom: var(--space-2); }
+    .page-subtitle { color: var(--color-text-muted); font-size: var(--font-size-lg); }
+    
+    .online-badge {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+      color: #fff;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    /* PDF Preview */
+    .pdf-frame {
+      width: 100%;
+      height: 75vh;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      background: #f8fafc;
+    }
+    
+    .small { font-size: var(--font-size-sm); color: var(--color-text-muted); }
+    
+    @media (max-width: 600px) {
+      .pdf-frame { height: 60vh; }
+    }
   </style>
 </head>
 <body>
-  <h1>Curriculum Vitae</h1>
+  <a href="#main" class="skip-to-main">Skip to main content</a>
+  
+  <header>
+    <nav aria-label="Primary">
+      <a href="index.html" class="nav-brand">
+        <img alt="Chenhao Zhou" src="images/profile.jpg" />
+        <span class="nav-brand-text">Chenhao Zhou</span>
+      </a>
+      <div class="nav-menu">
+        <a href="index.html">Home</a>
+        <a href="research.html">Research</a>
+        <a href="milestones.html">Milestones</a>
+        <a href="conference.html">Conferences</a>
+        <a href="teaching.html">Teaching</a>
+        <a href="professional.html">Professional</a>
+        <a href="cv.html" class="active">CV (Online)</a>
+        <a href="CZ_resume_cv_DEC.pdf">CV (PDF)</a>
+      </div>
+    </nav>
+  </header>
 
-  <!-- 置顶导航（右侧有“Online”徽标，若不需要可删掉该 <span>）123 -->
-  <nav aria-label="Primary">
-    <div class="links"> 
-      <a href="index.html">Home</a>
-      <a href="research.html">Research</a>
-      <a href="milestones.html">Milestones</a>
-      <a href="conference.html">Conferences</a>
-      <a href="teaching.html">Teaching</a>
-      <a href="SIRS Summer 2025.pdf">Teaching Evaluation</a>
-      <a href="professional.html">Professional</a>
-      <a href="cv.html">CV (Online)</a>
-      <a href="CvResumeChenhao05252025.pdf">CV (PDF)</a>
+  <main id="main" class="container">
+    <div class="page-header">
+      <div>
+        <h1>Curriculum Vitae</h1>
+        <p class="page-subtitle">Academic CV with publications and experience</p>
+      </div>
+      <span class="online-badge">Online Version</span>
     </div>
-    <span class="online-badge" aria-label="当前为在线版本">Online</span>
-  </nav>
 
-  <!-- === 唯一且完整的“在线预览框” 开始 === -->
-  <div class="card">
-    <h2>CV Preview (PDF)</h2>
-    <!-- 首选 <object>，部分浏览器更稳；内部提供 <iframe> 作为降级 -->
-    <object 
-      data="CvResumeChenhao05252025.pdf#view=FitH" 
-      type="application/pdf" 
-      class="pdf-frame" 
-      style="width:100%; height:80vh; border:1px solid #ddd; border-radius:10px;">
-      <!-- 降级：若 <object> 失败，尝试 iframe -->
-      <iframe 
-        src="CvResumeChenhao05252025.pdf#view=FitH" 
-        title="CV PDF Preview"
-        loading="lazy"
-        class="pdf-frame"
-        style="width:100%; height:80vh; border:1px solid #ddd; border-radius:10px;">
-      </iframe>
-      <!-- 再降级：提示用户下载 -->
-      <p class="small note">
-        浏览器未能内嵌预览。请点击
-        <a href="CvResumeChenhao05252025.pdf" target="_blank" rel="noopener">这里下载 PDF</a>。
+    <!-- PDF Preview -->
+    <div class="card">
+      <h2>CV Preview (PDF)</h2>
+      <object 
+        data="CZ_resume_cv_DEC.pdf#view=FitH" 
+        type="application/pdf" 
+        class="pdf-frame">
+        <iframe 
+          src="CZ_resume_cv_DEC.pdf#view=FitH" 
+          title="CV PDF Preview"
+          loading="lazy"
+          class="pdf-frame">
+        </iframe>
+        <p class="small">
+          Your browser cannot preview this PDF. 
+          <a href="CZ_resume_cv_DEC.pdf" target="_blank" rel="noopener">Download the PDF here</a>.
+        </p>
+      </object>
+    </div>
+
+    <!-- Working Papers -->
+    <div class="card">
+      <h2>Working Papers (Under Peer Review)</h2>
+      <ul>
+        <li><strong>Clinician Empowerment and the Triple Aim: Resource Adequacy, Disparities, and Quality</strong> — <em>Journal of Operations Management</em>; Rev.1 R&R (Major), in progress. Authors: Zhou, C.; Dreyfus, D.*; Bagchi, A.</li>
+        <li><strong>Optimizing Oncology Outpatient Flow via Simulation and Analytics</strong> — <em>Annals of Operations Research</em>; Rev.1 R&R, due Jan 31, 2026. Authors: Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A. M.</li>
+        <li><strong>Operating in Underserved Markets: Chain Affiliation, Dynamic Capabilities, and Care Performance</strong> — <em>Health Care Management Science</em> (SI); Round 1 under review. Authors: Dreyfus, D.*; Zhou, C.; Lin, T.</li>
+        <li><strong>Resilient Dialysis Operations: Leveraging Contract RNs and Support Staff in Fissured Workforces</strong> — <em>Journal of Operations Management</em> (SI); Round 3 (2nd round decision: major revision). Authors: Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L.</li>
+      </ul>
+      <p class="note">Titles paraphrased for public listing under double-blind policies; manuscripts retain official titles. Authors follow CV style (surname, initials); "*" denotes corresponding author.</p>
+    </div>
+
+    <!-- Upcoming Submissions -->
+    <div class="card">
+      <h2>Upcoming Submissions</h2>
+      <ul>
+        <li><strong>From Triple Aim to Quadruple Aim</strong> — Target: POMS; first draft nearing submission.</li>
+      </ul>
+    </div>
+
+    <!-- In Progress -->
+    <div class="card">
+      <h2>In Progress</h2>
+      <ul>
+        <li><strong>ED Flow — Ambulance Diversion</strong> — IRB approved; hospital data feedback suspended.</li>
+        <li><strong>Nurse Staffing & Care Operations</strong> — Drafting; data analysis & collection.</li>
+        <li><strong>ED Congestion & Inpatient LOS Variability</strong> — Proposal (Nov 14, 2024, Jong M. Lim); conceptual stage; data cleaning in progress.</li>
+      </ul>
+    </div>
+
+    <footer>
+      <p>Last updated December 2025 · © 2025 Chenhao Zhou</p>
+      <p style="margin-top: 8px;">
+        <a href="mailto:chenhao.zhou@rutgers.edu">Email</a> · 
+        <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank" rel="noopener">LinkedIn</a>
       </p>
-    </object>
-  </div>
-  <!-- === 唯一且完整的“在线预览框” 结束 === -->
-
-  <!-- 下面是示例内容，可保留或删除 -->
-  <div class="card">
-    <h2>Working Papers (Under Peer Review)</h2>
-    <ul class="small">
-      <li><strong>Clinician Empowerment and the Triple Aim: Resource Adequacy, Disparities, and Quality</strong> — <em>Journal of Operations Management</em>; Rev.1 R&amp;R (Major), in progress. Authors: Zhou, C.; Dreyfus, D.*; Bagchi, A..</li>
-      <li><strong>Optimizing Oncology Outpatient Flow via Simulation and Analytics</strong> — <em>Annals of Operations Research</em>; Rev.1 R&amp;R, due Jan 31, 2026. Authors: Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A. M..</li>
-      <li><strong>Operating in Underserved Markets: Chain Affiliation, Dynamic Capabilities, and Care Performance</strong> — <em>Health Care Management Science</em> (SI); Round 1 under review. Authors: Dreyfus, D.*; Zhou, C.; Lin, T..</li>
-      <li><strong>Resilient Dialysis Operations: Leveraging Contract RNs and Support Staff in Fissured Workforces</strong> — <em>Journal of Operations Management</em> (SI); Round 3 (2nd round decision: major revision). Authors: Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L..</li>
-    </ul>
-    <p class="note">Titles paraphrased for public listing under double-blind policies; manuscripts retain official titles. Authors follow CV style (surname, initials); “*” denotes corresponding author.</p>
-  </div>
-
-  <div class="card">
-    <h2>Upcoming Submissions</h2>
-    <ul class="small">
-      <li><strong>From Triple Aim to Quadruple Aim</strong> — Target: POMS; first draft nearing submission.</li>
-    </ul>
-  </div>
-
-  <div class="card">
-    <h2>In Progress</h2>
-    <ul class="small">
-      <li><strong>ED Flow — Ambulance Diversion</strong> — IRB approved; hospital data feedback suspended.</li>
-      <li><strong>Nurse Staffing &amp; Care Operations</strong> — Drafting; data analysis &amp; collection.</li>
-      <li><strong>ED Congestion &amp; Inpatient LOS Variability</strong> — Proposal (Nov 14, 2024, Jong M. Lim); conceptual stage; data cleaning in progress.</li>
-    </ul>
-  </div>
-
-  <footer>
-    <p>Last updated 2025-01-12 · © 2025 Chenhao Zhou</p>
-    <p style="margin-top: 8px; font-size: 12px;">
-      <a href="mailto:chenhao.zhou@rutgers.edu">Email</a> · 
-      <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank" rel="noopener">LinkedIn</a>
-    </p>
-  </footer>
+    </footer>
+  </main>
 
   <!-- Back to Top Button -->
   <button id="backToTop" class="back-to-top" aria-label="Back to top">
@@ -272,13 +168,6 @@ footer {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     })();
-    
-    // Active nav link
-    document.querySelectorAll('nav a').forEach(link => {
-      if (link.getAttribute('href') === 'cv.html') {
-        link.classList.add('active');
-      }
-    });
   </script>
 </body>
 </html>
