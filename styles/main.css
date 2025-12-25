@@ -1,47 +1,56 @@
 /* 
  * Academic Personal Website - Main Stylesheet
  * Author: Chenhao Zhou
- * Version: 10.0
+ * Version: 11.0 - Refined Academic Professional Theme
  * Last Updated: 2025
  * 
  * Design Philosophy:
- * - Professional academic credibility
+ * - Elegant academic credibility with refined sophistication
  * - Clean, minimal clutter with clear visual hierarchy
- * - Modern, contemporary design
+ * - Modern, contemporary design with classic academic touches
  * - Accessible (WCAG 2.1 AA compliant)
  * - Performant and maintainable
  */
 
 /* ============================================
+   GOOGLE FONTS - Professional Academic Fonts
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ============================================
    CSS CUSTOM PROPERTIES (Design Tokens)
    ============================================ */
 :root {
-  /* Color Palette */
-  --color-primary: #0f4c81;
-  --color-primary-light: #1a5fa1;
-  --color-primary-weak: #e6eef7;
-  --color-primary-dark: #0a3659;
-  --color-secondary: #1f7a8c;
-  --color-accent: #c85a54;
-  --color-success: #059669;
-  --color-warning: #d97706;
-  --color-error: #dc2626;
-  --color-info: #0284c7;
+  /* Academic Color Palette - Refined & Sophisticated */
+  --color-primary: #1a365d;
+  --color-primary-light: #2b4c7e;
+  --color-primary-weak: #ebf4ff;
+  --color-primary-dark: #0f2442;
+  --color-secondary: #234e70;
+  --color-accent: #7c3aed;
+  --color-success: #047857;
+  --color-warning: #b45309;
+  --color-error: #b91c1c;
+  --color-info: #0369a1;
   
-  /* Neutral Colors */
-  --color-text: #1f2937;
-  --color-text-muted: #6b7280;
-  --color-text-light: #9ca3af;
-  --color-bg: #f7f9fc;
-  --color-bg-alt: #fbfdff;
+  /* Gold/Bronze Academic Accent */
+  --color-gold: #b8860b;
+  --color-gold-light: #daa520;
+  
+  /* Neutral Colors - Warmer Academic Tones */
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+  --color-text-light: #94a3b8;
+  --color-bg: #f8fafc;
+  --color-bg-alt: #ffffff;
   --color-surface: #ffffff;
-  --color-border: #e5e7eb;
-  --color-border-dark: #d1d5db;
+  --color-border: #e2e8f0;
+  --color-border-dark: #cbd5e1;
   
-  /* Typography */
-  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  --font-serif: Georgia, "Times New Roman", Times, serif;
-  --font-mono: ui-monospace, "Courier New", monospace;
+  /* Typography - Academic & Professional */
+  --font-sans: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: 'Crimson Pro', Georgia, "Times New Roman", Times, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, "Courier New", monospace;
   
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
@@ -52,12 +61,14 @@
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 1.875rem;
   --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
   
-  --line-height-tight: 1.25;
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.375;
   --line-height-normal: 1.5;
-  --line-height-relaxed: 1.65;
+  --line-height-relaxed: 1.7;
   
-  /* Spacing */
+  /* Spacing Scale */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -65,203 +76,881 @@
   --space-5: 1.25rem;
   --space-6: 1.5rem;
   --space-8: 2rem;
+  --space-10: 2.5rem;
   --space-12: 3rem;
+  --space-16: 4rem;
   
   /* Layout */
-  --container-max-width: 920px;
+  --container-max-width: 960px;
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
-  --radius-xl: 0.875rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
   --radius-full: 9999px;
   
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-card: 0 8px 24px rgba(16, 24, 40, 0.06);
+  /* Refined Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 4px 20px rgba(26, 54, 93, 0.08);
+  --shadow-card-hover: 0 12px 40px rgba(26, 54, 93, 0.12);
   
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Reset */
+/* ============================================
+   CSS RESET & BASE STYLES
+   ============================================ */
 *, *::before, *::after { box-sizing: border-box; }
-html { height: 100%; scroll-behavior: smooth; }
+
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
 body {
-  margin: 0; padding: 0; min-height: 100%;
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
+  font-weight: 400;
   line-height: var(--line-height-relaxed);
   color: var(--color-text);
-  background: linear-gradient(180deg, var(--color-bg), var(--color-bg-alt) 40%);
+  background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* Skip link */
+/* Subtle background pattern for academic feel */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(135deg, rgba(26, 54, 93, 0.02) 0%, transparent 50%),
+    linear-gradient(225deg, rgba(124, 58, 237, 0.015) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ============================================
+   ACCESSIBILITY - Skip Link
+   ============================================ */
 .skip-to-main {
-  position: absolute; top: -40px; left: 0;
-  background: var(--color-primary); color: white;
-  padding: var(--space-2) var(--space-4);
-  text-decoration: none; border-radius: 0 0 var(--radius-md) 0;
-  z-index: 100; font-weight: 600;
+  position: absolute;
+  top: -60px;
+  left: var(--space-4);
+  background: var(--color-primary);
+  color: white;
+  padding: var(--space-3) var(--space-6);
+  text-decoration: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  z-index: 1000;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  transition: top var(--transition-fast);
 }
-.skip-to-main:focus { top: 0; outline: 2px solid var(--color-primary); }
+.skip-to-main:focus {
+  top: 0;
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
 
-/* Typography */
+/* ============================================
+   TYPOGRAPHY - Academic & Professional
+   ============================================ */
 h1, h2, h3, h4, h5, h6 {
-  margin-top: 0; margin-bottom: var(--space-4);
-  font-weight: 700; line-height: var(--line-height-tight);
-  color: var(--color-primary-dark); letter-spacing: -0.02em;
+  margin-top: 0;
+  margin-bottom: var(--space-4);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+  color: var(--color-primary-dark);
+  letter-spacing: -0.025em;
 }
-h1 { font-size: clamp(var(--font-size-2xl), 3vw, var(--font-size-4xl)); }
-h2 { font-size: clamp(var(--font-size-xl), 2.5vw, var(--font-size-3xl)); }
-h3 { font-size: clamp(var(--font-size-lg), 2vw, var(--font-size-2xl)); }
 
+h1 {
+  font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-5xl));
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h2 {
+  font-size: clamp(var(--font-size-xl), 2.5vw, var(--font-size-3xl));
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+h2::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 1.2em;
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  border-radius: var(--radius-full);
+}
+
+h3 {
+  font-size: clamp(var(--font-size-lg), 2vw, var(--font-size-2xl));
+  color: var(--color-primary-dark);
+}
+
+p {
+  margin: 0 0 var(--space-4);
+}
+
+/* Academic emphasis for important text */
+.lead {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ============================================
+   LINKS
+   ============================================ */
 a {
   color: var(--color-primary);
   text-decoration: none;
-  transition: color var(--transition-fast);
+  transition: all var(--transition-fast);
+  position: relative;
 }
-a:hover { color: var(--color-primary-light); text-decoration: underline; }
-a:focus { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
-/* Layout */
+a:hover {
+  color: var(--color-accent);
+}
+
+/* Underline animation for content links */
+.content a:not(.btn):not(.nav-link) {
+  text-decoration: underline;
+  text-decoration-color: rgba(26, 54, 93, 0.3);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--transition-fast);
+}
+
+.content a:not(.btn):not(.nav-link):hover {
+  text-decoration-color: var(--color-accent);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* ============================================
+   LAYOUT - Container
+   ============================================ */
 .container {
   max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: var(--space-6) var(--space-4) var(--space-12);
+  padding: var(--space-6) var(--space-5) var(--space-16);
 }
-section { margin-top: var(--space-8); }
 
-/* Header & Nav */
-header {
-  position: sticky; top: 0; z-index: 20;
-  backdrop-filter: saturate(140%) blur(10px);
-  border-bottom: 1px solid var(--color-border);
-  background: rgba(255, 255, 255, 0.8);
+section {
+  margin-top: var(--space-10);
 }
+
+/* ============================================
+   HEADER & NAVIGATION - Refined Academic Style
+   ============================================ */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255, 255, 255, 0.85);
+}
+
 nav {
   max-width: var(--container-max-width);
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  gap: var(--space-4);
+  flex-wrap: wrap;
 }
+
 .nav-brand {
-  display: flex; align-items: center; gap: var(--space-3);
-  font-weight: 800; color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   text-decoration: none;
+  transition: transform var(--transition-fast);
 }
+
+.nav-brand:hover {
+  transform: translateY(-1px);
+}
+
 .nav-brand img {
-  width: 36px; height: 36px;
+  width: 42px;
+  height: 42px;
   border-radius: var(--radius-full);
   border: 2px solid var(--color-primary-weak);
+  object-fit: cover;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
 }
+
+.nav-brand:hover img {
+  border-color: var(--color-primary-light);
+  box-shadow: var(--shadow-md);
+}
+
+.nav-brand-text {
+  font-weight: 800;
+  font-size: var(--font-size-md);
+  color: var(--color-primary-dark);
+  letter-spacing: -0.02em;
+}
+
 .nav-menu {
-  display: flex; flex-wrap: wrap; gap: var(--space-2);
-  list-style: none; margin: 0; padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
+
 .nav-menu a {
-  display: inline-block;
-  padding: var(--space-2) var(--space-3);
-  font-weight: 600; font-size: var(--font-size-sm);
-  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
   border-radius: var(--radius-lg);
   transition: all var(--transition-fast);
-}
-.nav-menu a:hover, .nav-menu a.active {
-  background: var(--color-primary-weak);
-  color: var(--color-primary);
   text-decoration: none;
 }
 
-/* Cards */
+.nav-menu a:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-weak);
+}
+
+.nav-menu a.active {
+  color: var(--color-primary);
+  background: var(--color-primary-weak);
+  font-weight: 700;
+}
+
+/* ============================================
+   CARDS - Elegant Academic Style
+   ============================================ */
 .card {
   background: var(--color-surface);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-card);
   border: 1px solid var(--color-border);
-  padding: var(--space-5) var(--space-6);
+  padding: var(--space-6) var(--space-8);
   margin-bottom: var(--space-6);
-  transition: box-shadow var(--transition-base);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
 }
-.card:hover { box-shadow: var(--shadow-lg); }
 
-/* Badges */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+/* Card variants */
+.card-highlight {
+  border-left: 4px solid var(--color-primary);
+  padding-left: var(--space-6);
+}
+
+.card-success {
+  border-left: 4px solid var(--color-success);
+  background: linear-gradient(90deg, rgba(4, 120, 87, 0.04) 0%, transparent 100%);
+}
+
+/* ============================================
+   BADGES - Professional & Academic
+   ============================================ */
 .badge {
-  display: inline-flex; align-items: center; gap: var(--space-1);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
   padding: var(--space-1) var(--space-3);
-  font-size: var(--font-size-xs); font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.025em;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   border-radius: var(--radius-full);
-  background: var(--color-primary); color: white;
+  background: var(--color-primary);
+  color: white;
 }
-.badge-secondary { background: var(--color-secondary); }
 
-/* Buttons */
+.badge-secondary {
+  background: var(--color-secondary);
+}
+
+.badge-success {
+  background: var(--color-success);
+}
+
+.badge-warning {
+  background: var(--color-warning);
+}
+
+.badge-accent {
+  background: var(--color-accent);
+}
+
+.badge-outline {
+  background: transparent;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Publication status badges */
+.badge-r1 {
+  background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+}
+
+.badge-r2 {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+}
+
+.badge-r3 {
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+}
+
+/* ============================================
+   BUTTONS - Academic Professional Style
+   ============================================ */
 .btn {
-  display: inline-flex; align-items: center; gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--font-size-sm); font-weight: 600;
-  border: 1px solid var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  border: 2px solid var(--color-primary);
   border-radius: var(--radius-lg);
-  background: transparent; color: var(--color-primary);
-  cursor: pointer; transition: all var(--transition-base);
+  background: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 8px 24px rgba(26, 54, 93, 0.25);
+  transform: translateY(-2px);
   text-decoration: none;
 }
-.btn:hover {
-  background: var(--color-primary); color: white;
-  box-shadow: 0 8px 16px rgba(15, 76, 129, 0.2);
-  transform: translateY(-1px); text-decoration: none;
+
+.btn:active {
+  transform: translateY(0);
 }
 
-/* Tables */
-table { width: 100%; border-collapse: collapse; margin: var(--space-4) 0; }
-th, td { padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border); text-align: left; }
-th { background: #f0f4f8; font-weight: 600; color: var(--color-primary-dark); }
-tbody tr:hover { background: var(--color-bg); }
+.btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
 
-/* Footer */
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  border-color: transparent;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+  box-shadow: 0 12px 32px rgba(26, 54, 93, 0.3);
+}
+
+.btn-sm {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-xs);
+}
+
+.btn-lg {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--font-size-md);
+}
+
+/* ============================================
+   TABLES - Clean Academic Style
+   ============================================ */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-6) 0;
+  font-size: var(--font-size-sm);
+}
+
+th, td {
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  text-transform: uppercase;
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.05em;
+}
+
+tbody tr {
+  transition: background var(--transition-fast);
+}
+
+tbody tr:hover {
+  background: var(--color-primary-weak);
+}
+
+/* ============================================
+   LISTS - Academic Style
+   ============================================ */
+ul, ol {
+  margin: 0 0 var(--space-4);
+  padding-left: var(--space-6);
+}
+
+li {
+  margin-bottom: var(--space-2);
+  line-height: var(--line-height-relaxed);
+}
+
+ul.clean {
+  list-style: none;
+  padding-left: 0;
+}
+
+ul.clean li {
+  position: relative;
+  padding-left: var(--space-6);
+}
+
+ul.clean li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 6px;
+  height: 6px;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+}
+
+/* ============================================
+   INFO GRID - Academic Profile Layout
+   ============================================ */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
+}
+
+.info-item {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary-weak) 0%, rgba(235, 244, 255, 0.5) 100%);
+  border: 1px solid rgba(26, 54, 93, 0.08);
+  transition: all var(--transition-fast);
+}
+
+.info-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.info-item .label {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-1);
+}
+
+.info-item .value {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-base);
+}
+
+/* ============================================
+   PUBLICATION ITEMS - Academic Research Style
+   ============================================ */
+.pub-item {
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pub-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.pub-title {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-md);
+  margin-bottom: var(--space-2);
+  line-height: var(--line-height-snug);
+}
+
+.pub-meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-normal);
+}
+
+.pub-meta em {
+  color: var(--color-text);
+  font-style: italic;
+}
+
+/* ============================================
+   SKILLS & TAGS
+   ============================================ */
+.skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-4) 0;
+}
+
+.skill-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary-weak);
+  color: var(--color-primary);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+}
+
+.skill-tag:hover {
+  background: var(--color-primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   HERO SECTION - Academic Profile
+   ============================================ */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: var(--space-8);
+  align-items: start;
+  margin-top: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-card {
+  text-align: center;
+  padding: var(--space-8);
+}
+
+.profile-card img {
+  width: 180px;
+  height: 180px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 4px solid var(--color-primary-weak);
+  margin-bottom: var(--space-5);
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-base);
+}
+
+.profile-card:hover img {
+  border-color: var(--color-primary-light);
+  transform: scale(1.02);
+}
+
+.contact-info {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+
+.contact-info a {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* ============================================
+   FOOTER - Refined Academic Style
+   ============================================ */
 footer {
-  margin-top: var(--space-12);
-  padding: var(--space-6) 0;
+  margin-top: var(--space-16);
+  padding: var(--space-8) 0;
   text-align: center;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   border-top: 1px solid var(--color-border);
+  background: linear-gradient(180deg, transparent 0%, rgba(248, 250, 252, 0.8) 100%);
 }
 
-/* Back to top */
+footer a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  margin: 0 var(--space-2);
+}
+
+footer a:hover {
+  color: var(--color-primary);
+}
+
+/* ============================================
+   BACK TO TOP BUTTON
+   ============================================ */
 .back-to-top {
-  position: fixed; bottom: var(--space-8); right: var(--space-8);
-  width: 48px; height: 48px;
-  background: var(--color-primary); color: white;
-  border: none; border-radius: var(--radius-full);
+  position: fixed;
+  bottom: var(--space-8);
+  right: var(--space-8);
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
   box-shadow: var(--shadow-lg);
   cursor: pointer;
-  opacity: 0; visibility: hidden;
+  opacity: 0;
+  visibility: hidden;
   transition: all var(--transition-base);
-  z-index: 30;
-  display: flex; align-items: center; justify-content: center;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.back-to-top.visible { opacity: 1; visibility: visible; }
+
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
 .back-to-top:hover {
-  background: var(--color-primary-light);
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-accent) 100%);
   transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
 }
 
-/* Responsive */
+.back-to-top:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.text-center { text-align: center; }
+.text-muted { color: var(--color-text-muted); }
+.text-primary { color: var(--color-primary); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-xs { font-size: var(--font-size-xs); }
+
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mt-8 { margin-top: var(--space-8); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-6 { margin-bottom: var(--space-6); }
+
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* ============================================
+   NOTE & CALLOUT BOXES
+   ============================================ */
+.note {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.callout {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  margin: var(--space-4) 0;
+}
+
+.callout-success {
+  background: linear-gradient(90deg, rgba(4, 120, 87, 0.08) 0%, rgba(4, 120, 87, 0.02) 100%);
+  border-left: 4px solid var(--color-success);
+}
+
+.callout-info {
+  background: linear-gradient(90deg, rgba(3, 105, 161, 0.08) 0%, rgba(3, 105, 161, 0.02) 100%);
+  border-left: 4px solid var(--color-info);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
 @media (max-width: 860px) {
-  nav { padding: var(--space-2) var(--space-3); }
-  .nav-menu { gap: var(--space-1) var(--space-2); }
+  nav {
+    padding: var(--space-3) var(--space-4);
+  }
+  
+  .nav-menu {
+    gap: var(--space-1);
+  }
+  
+  .nav-menu a {
+    padding: var(--space-2) var(--space-3);
+  }
+  
+  .card {
+    padding: var(--space-5) var(--space-5);
+  }
+  
+  th, td {
+    padding: var(--space-3);
+    font-size: var(--font-size-xs);
+  }
 }
 
-/* Print */
+@media (max-width: 640px) {
+  .container {
+    padding: var(--space-4) var(--space-4) var(--space-12);
+  }
+  
+  h2::before {
+    display: none;
+  }
+  
+  .hero {
+    gap: var(--space-6);
+  }
+  
+  .profile-card img {
+    width: 140px;
+    height: 140px;
+  }
+  
+  .back-to-top {
+    bottom: var(--space-4);
+    right: var(--space-4);
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
 @media print {
-  header, footer, .back-to-top { display: none; }
-  .card { box-shadow: none; border: 1px solid var(--color-border); }
+  header, footer, .back-to-top {
+    display: none;
+  }
+  
+  body {
+    background: white;
+    color: black;
+  }
+  
+  body::before {
+    display: none;
+  }
+  
+  .card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+    page-break-inside: avoid;
+  }
+  
+  a {
+    color: black;
+    text-decoration: underline;
+  }
+  
+  h1, h2, h3 {
+    color: black;
+    background: none;
+    -webkit-text-fill-color: black;
+  }
+}
+
+/* ============================================
+   ANIMATION KEYFRAMES
+   ============================================ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.5s ease-out forwards;
 }
