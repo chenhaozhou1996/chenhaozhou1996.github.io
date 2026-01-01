@@ -84,7 +84,7 @@ h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; 
 </head><body>
 
 <h1>🚀 Module 1: The $10 Million Prediction Problem</h1>
-<nav><a href="class-notes.html">📚 Notes</a><a href="lab-manual.html">🔬 Lab</a><a href="../index.html">🏠 Home</a></nav>
+<nav><a href="module1_refined_class.html">📚 Class Material</a><a href="module1_refined_lab.html">🔬 Lab</a><a href="index.html">🏠 Course Home</a></nav>
 
 <!-- Opening Hook -->
 <div class="card">
@@ -560,6 +560,330 @@ function calculateImpact() {
     }, 2000);
 }
 
+// ------------------------------------------------------------
+// Missing interactive handlers (added for reliable online use)
+// ------------------------------------------------------------
+
+const sandboxConfig = {
+    complexity: 5,
+    noise: 30,      // percent
+    samples: 200,
+    regularization: 0
+};
+
+function updateComplexity(value) {
+    sandboxConfig.complexity = parseInt(value, 10);
+    const el = document.getElementById('complexity-value');
+    if (el) el.textContent = sandboxConfig.complexity;
+}
+
+function updateNoise(value) {
+    sandboxConfig.noise = parseInt(value, 10);
+    const el = document.getElementById('noise-value');
+    if (el) el.textContent = sandboxConfig.noise + '%';
+}
+
+function updateSamples(value) {
+    sandboxConfig.samples = parseInt(value, 10);
+    const el = document.getElementById('samples-value');
+    if (el) el.textContent = sandboxConfig.samples;
+}
+
+function compareBoth() {
+    const results = document.getElementById('approach-results');
+    if (!results) return;
+
+    const complexity = sandboxConfig.complexity;
+    const noise = sandboxConfig.noise;
+    const samples = sandboxConfig.samples;
+
+    // Simple, explainable performance simulation
+    const statAccuracy = Math.max(55, 86 - complexity * 2.2 - noise * 0.18);
+    const mlAccuracy = Math.min(95, 62 + complexity * 2.3 - noise * 0.10 + Math.log(samples) * 3.2);
+
+    const winner = mlAccuracy >= statAccuracy ? 'Machine Learning' : 'Statistical Analysis';
+
+    results.innerHTML = `
+        <div style="background: #ffffff; border: 1px solid #e1e4e8; padding: 1em; border-radius: 10px; margin-top: 1em;">
+            <h5 style="margin: 0 0 0.5em 0;">Comparison Summary</h5>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1em;">
+                <div style="background:#f8f9fa; border-radius:8px; padding: 1em;">
+                    <strong>Statistical</strong><br>
+                    Accuracy: <strong>${statAccuracy.toFixed(1)}%</strong><br>
+                    Best when: low complexity, low noise
+                </div>
+                <div style="background:#e7f3ff; border-radius:8px; padding: 1em;">
+                    <strong>Machine Learning</strong><br>
+                    Accuracy: <strong>${mlAccuracy.toFixed(1)}%</strong><br>
+                    Best when: higher complexity, enough samples
+                </div>
+            </div>
+            <p style="margin: 0.75em 0 0 0;">
+                <strong>Recommended:</strong> ${winner} for this scenario.
+            </p>
+        </div>
+    `;
+}
+
+function randn() {
+    // Box–Muller transform
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+function runExperiment() {
+    const canvas = document.getElementById('main-visualization');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Pull latest values from DOM (in case user changed without triggering oninput)
+    const cEl = document.getElementById('complexity-slider');
+    const nEl = document.getElementById('noise-slider');
+    const sEl = document.getElementById('samples-slider');
+    if (cEl) updateComplexity(cEl.value);
+    if (nEl) updateNoise(nEl.value);
+    if (sEl) updateSamples(sEl.value);
+
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 400;
+
+    // Axes + labels
+    drawComparison(ctx);
+
+    const paddingLeft = 50;
+    const paddingRight = 30;
+    const paddingTop = 30;
+    const paddingBottom = 50;
+    const w = canvas.width - paddingLeft - paddingRight;
+    const h = canvas.height - paddingTop - paddingBottom;
+
+    const maxPoints = Math.min(sandboxConfig.samples, 350);
+    const noiseScale = (sandboxConfig.noise / 100) * 0.25;
+    const freq = Math.max(1, sandboxConfig.complexity);
+
+    // Data points
+    ctx.fillStyle = '#0366d6';
+    for (let i = 0; i < maxPoints; i++) {
+        const x0 = i / (maxPoints - 1);
+        const yTrue = 0.55 + 0.25 * x0 + 0.15 * Math.sin(2 * Math.PI * x0 * (freq / 2));
+        const yNoisy = yTrue + randn() * noiseScale;
+
+        const x = paddingLeft + x0 * w;
+        const y = paddingTop + (1 - Math.min(Math.max(yNoisy, 0), 1)) * h;
+
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Statistical "model" (simple line)
+    ctx.strokeStyle = '#6c757d';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let i = 0; i < 100; i++) {
+        const x0 = i / 99;
+        const yPred = 0.55 + 0.25 * x0;
+        const x = paddingLeft + x0 * w;
+        const y = paddingTop + (1 - yPred) * h;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // ML "model" (captures some nonlinearity)
+    ctx.strokeStyle = '#28a745';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let i = 0; i < 120; i++) {
+        const x0 = i / 119;
+        const yPred = 0.55 + 0.25 * x0 + 0.12 * Math.sin(2 * Math.PI * x0 * (freq / 2));
+        const x = paddingLeft + x0 * w;
+        const y = paddingTop + (1 - yPred) * h;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Legend
+    ctx.fillStyle = '#111';
+    ctx.font = '13px Helvetica Neue';
+    ctx.fillText('Gray: Statistical (simple)', paddingLeft + 10, paddingTop + 20);
+    ctx.fillStyle = '#14532d';
+    ctx.fillText('Green: ML (captures complexity)', paddingLeft + 10, paddingTop + 40);
+
+    compareBoth();
+}
+
+function showSimpleModel() {
+    renderOverfitDemo('simple');
+}
+
+function showComplexModel() {
+    renderOverfitDemo('complex');
+}
+
+function showOverfitModel() {
+    renderOverfitDemo('overfit');
+}
+
+function renderOverfitDemo(kind) {
+    const canvas = document.getElementById('overfit-viz');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 300;
+
+    // Clear
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const paddingLeft = 50;
+    const paddingRight = 30;
+    const paddingTop = 20;
+    const paddingBottom = 40;
+    const w = canvas.width - paddingLeft - paddingRight;
+    const h = canvas.height - paddingTop - paddingBottom;
+
+    // Axes
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(paddingLeft, canvas.height - paddingBottom);
+    ctx.lineTo(canvas.width - paddingRight, canvas.height - paddingBottom);
+    ctx.moveTo(paddingLeft, paddingTop);
+    ctx.lineTo(paddingLeft, canvas.height - paddingBottom);
+    ctx.stroke();
+
+    // Points (same data each render for consistency)
+    const points = [];
+    const n = 60;
+    const baseNoise = 0.12;
+    for (let i = 0; i < n; i++) {
+        const x0 = i / (n - 1);
+        const yTrue = 0.55 + 0.25 * x0 + 0.18 * Math.sin(2 * Math.PI * x0);
+        const yNoisy = yTrue + randn() * baseNoise;
+        points.push({ x0, y: Math.min(Math.max(yNoisy, 0), 1) });
+    }
+
+    ctx.fillStyle = '#0366d6';
+    points.forEach(p => {
+        const x = paddingLeft + p.x0 * w;
+        const y = paddingTop + (1 - p.y) * h;
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    // Model curve
+    ctx.lineWidth = 3;
+    if (kind === 'simple') {
+        ctx.strokeStyle = '#6c757d';
+    } else if (kind === 'complex') {
+        ctx.strokeStyle = '#f59e0b';
+    } else {
+        ctx.strokeStyle = '#dc3545';
+    }
+
+    ctx.beginPath();
+    const steps = 120;
+    for (let i = 0; i < steps; i++) {
+        const x0 = i / (steps - 1);
+        let yPred = 0.55 + 0.25 * x0;
+
+        if (kind === 'complex') {
+            yPred = 0.55 + 0.25 * x0 + 0.14 * Math.sin(2 * Math.PI * x0);
+        } else if (kind === 'overfit') {
+            yPred = 0.55 + 0.25 * x0 + 0.20 * Math.sin(2 * Math.PI * x0) + 0.08 * Math.sin(10 * Math.PI * x0);
+        }
+
+        yPred = Math.min(Math.max(yPred, 0), 1);
+
+        const x = paddingLeft + x0 * w;
+        const y = paddingTop + (1 - yPred) * h;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Update metrics
+    let trainR2 = 0.0;
+    let testR2 = 0.0;
+    if (kind === 'simple') {
+        trainR2 = 0.78;
+        testR2 = 0.75;
+    } else if (kind === 'complex') {
+        trainR2 = 0.91;
+        testR2 = 0.86;
+    } else {
+        trainR2 = 0.99;
+        testR2 = 0.58;
+    }
+
+    const trainEl = document.getElementById('train-performance');
+    const testEl = document.getElementById('test-performance');
+    if (trainEl) trainEl.textContent = `R² = ${trainR2.toFixed(2)}`;
+    if (testEl) testEl.textContent = `R² = ${testR2.toFixed(2)}`;
+
+    // Hint to user
+    const kindLabel = kind === 'simple' ? 'Simple (underfits)' : kind === 'complex' ? 'Complex (balanced)' : 'Overfit (memorizes noise)';
+    const regResult = document.getElementById('regularization-result');
+    if (regResult) {
+        regResult.innerHTML = `<div style="background:#f8f9fa; padding: 1em; border-radius: 8px;">
+            <strong>Model selected:</strong> ${kindLabel}.<br>
+            Try regularization to reduce the gap between training and test performance.
+        </div>`;
+    }
+}
+
+function updateRegularization(value) {
+    sandboxConfig.regularization = parseInt(value, 10);
+    const el = document.getElementById('reg-value');
+    if (el) el.textContent = `λ = ${(sandboxConfig.regularization / 10).toFixed(1)}`;
+}
+
+function downloadSummary() {
+    const progressEl = document.getElementById('overall-progress');
+    const progressText = progressEl ? progressEl.textContent : 'Unknown';
+
+    const savingsEl = document.getElementById('savings-display');
+    const savingsText = savingsEl ? savingsEl.textContent : 'N/A';
+
+    const summary = [
+        'Module 1: The $10 Million Prediction Problem',
+        `Date: ${new Date().toLocaleString()}`,
+        '',
+        `Progress: ${progressText}`,
+        `Estimated annual savings (if calculated): ${savingsText}`,
+        '',
+        'Key takeaways:',
+        '- Predicting outcomes (ML) vs explaining relationships (stats)',
+        '- Train/test split for real-world validation',
+        '- Overfitting and regularization',
+        '- Converting accuracy into business impact ($)',
+        '',
+        'Next:',
+        '- Continue to Module 2 for deeper regression + feature engineering'
+    ].join('\n');
+
+    const blob = new Blob([summary], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'module1_session_summary.txt';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+function proceedToNextModule() {
+    window.location.href = 'interactive_ml_course_module.html';
+}
+
 // Initialize visualizations
 window.onload = function() {
     // Set up canvas contexts
@@ -569,6 +893,14 @@ window.onload = function() {
         // Draw initial visualization
         drawComparison(ctx);
     }
+
+    // Initialize sandbox display values (keeps UI consistent)
+    const cEl = document.getElementById('complexity-slider');
+    const nEl = document.getElementById('noise-slider');
+    const sEl = document.getElementById('samples-slider');
+    if (cEl) updateComplexity(cEl.value);
+    if (nEl) updateNoise(nEl.value);
+    if (sEl) updateSamples(sEl.value);
 };
 
 // Visualization functions

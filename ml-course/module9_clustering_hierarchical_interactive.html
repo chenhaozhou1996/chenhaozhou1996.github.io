@@ -1169,7 +1169,7 @@ for i in range(3):
                     </div>
                 </div>
                 
-                <button class="action-btn" style="width: 100%; margin-top: 20px;" onclick="runSegmentation()">
+                <button class="action-btn" style="width: 100%; margin-top: 20px;" onclick="runSegmentation(event)">
                     🚀 Run Segmentation Analysis
                 </button>
             </div>
@@ -1179,7 +1179,7 @@ for i in range(3):
             
             <!-- Segment Results -->
             <div class="segment-grid" id="segmentResults" style="display: none;">
-                <div class="segment-card segment-1" onclick="selectSegment(1)">
+                <div class="segment-card segment-1" onclick="selectSegment(event, 1)">
                     <div class="segment-emoji">👑</div>
                     <div class="segment-name">VIP Champions</div>
                     <div class="segment-stats">
@@ -1190,7 +1190,7 @@ for i in range(3):
                     </div>
                 </div>
                 
-                <div class="segment-card segment-2" onclick="selectSegment(2)">
+                <div class="segment-card segment-2" onclick="selectSegment(event, 2)">
                     <div class="segment-emoji">💎</div>
                     <div class="segment-name">Loyal Regulars</div>
                     <div class="segment-stats">
@@ -1201,7 +1201,7 @@ for i in range(3):
                     </div>
                 </div>
                 
-                <div class="segment-card segment-3" onclick="selectSegment(3)">
+                <div class="segment-card segment-3" onclick="selectSegment(event, 3)">
                     <div class="segment-emoji">🌱</div>
                     <div class="segment-name">Occasional Shoppers</div>
                     <div class="segment-stats">
@@ -1212,7 +1212,7 @@ for i in range(3):
                     </div>
                 </div>
                 
-                <div class="segment-card segment-4" onclick="selectSegment(4)">
+                <div class="segment-card segment-4" onclick="selectSegment(event, 4)">
                     <div class="segment-emoji">😴</div>
                     <div class="segment-name">Dormant Users</div>
                     <div class="segment-stats">
@@ -1819,9 +1819,10 @@ print("🎯 Decision: Roll out segmented approach to all customers!")
         }
         
         // Run segmentation
-        function runSegmentation() {
+        function runSegmentation(evt) {
             // Show loading animation
-            const button = event.target;
+            const button = (evt && evt.target) ? evt.target : null;
+            if (!button) return;
             button.textContent = '⏳ Analyzing 2 million customers...';
             button.disabled = true;
             
@@ -1865,12 +1866,14 @@ print("🎯 Decision: Roll out segmented approach to all customers!")
         }
         
         // Select segment
-        function selectSegment(id) {
+        function selectSegment(evt, id) {
             // Update selection
             document.querySelectorAll('.segment-card').forEach(card => {
                 card.classList.remove('selected');
             });
-            event.currentTarget.classList.add('selected');
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add('selected');
+            }
             
             // Show strategy
             document.getElementById('strategyCard').style.display = 'block';

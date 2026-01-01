@@ -1096,28 +1096,24 @@
         
         // Navigation Functions
         function navigateToModule(moduleNumber) {
-            const moduleNames = {
-                1: 'foundation',
-                2: 'regression',
-                3: 'classification',
-                4: 'clustering',
-                5: 'timeseries',
-                6: 'nlp',
-                7: 'recommendation',
-                8: 'deeplearning',
-                9: 'deployment',
-                10: 'capstone'
+            // Map course modules to real, hosted pages (static GitHub Pages safe)
+            const routes = {
+                1: 'module1_interactive_class.html',
+                2: 'interactive_ml_course_module.html',
+                // Module 3 pages exist (logistic + regularization) but this portal marks it "Coming Soon"
+                // 3: 'module3_logistic_class.html',
+                // Module 4 story is currently hosted under the clustering interactive demo
+                4: 'module9_clustering_kmeans_interactive.html',
+                5: 'module5_timeseries_interactive.html',
             };
-            
-            // Simulate navigation
-            console.log(`Navigating to Module ${moduleNumber}: ${moduleNames[moduleNumber]}`);
-            
-            // Add loading animation
-            event.currentTarget.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                event.currentTarget.style.transform = '';
-                alert(`Loading Module ${moduleNumber}: ${moduleNames[moduleNumber]}\n\nThis would navigate to the interactive module.`);
-            }, 300);
+
+            const route = routes[moduleNumber];
+            if (!route) {
+                alert('This module is coming soon. Please start with available modules (1, 2, 4, 5).');
+                return;
+            }
+
+            window.location.href = route;
         }
         
         function startLearning() {
@@ -1125,7 +1121,7 @@
         }
         
         function viewSyllabus() {
-            alert('Downloading comprehensive syllabus PDF...');
+            alert('Syllabus is coming soon. For now, please use the course portal and module PDFs on the Course Home page.');
         }
         
         // Smooth scroll for timeline

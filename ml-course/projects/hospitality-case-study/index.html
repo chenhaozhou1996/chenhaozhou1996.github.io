@@ -127,6 +127,8 @@
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 0.9rem;
             line-height: 1.6;
+            white-space: pre;
+            tab-size: 4;
         }
         
         .highlight {
@@ -1354,7 +1356,7 @@
             const baseRate = parseFloat(document.getElementById('baseRate').value);
             const compRate = parseFloat(document.getElementById('compRate').value);
             const strategy = document.getElementById('pricingStrategy').value;
-            const segment = document.getElementById('marketSegment').value);
+            const segment = document.getElementById('marketSegment').value;
             
             // Calculate segment-specific price elasticity
             let elasticity;

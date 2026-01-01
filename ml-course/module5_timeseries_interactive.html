@@ -868,10 +868,10 @@
             <div class="timeseries-container">
                 <h3 style="margin-bottom: 20px; color: #1e293b;">📊 Last Year's Black Friday Pattern</h3>
                 <div class="time-controls">
-                    <button class="time-btn active" onclick="showTimeView('hourly')">Hourly View</button>
-                    <button class="time-btn" onclick="showTimeView('cumulative')">Cumulative Sales</button>
-                    <button class="time-btn" onclick="showTimeView('comparison')">vs Normal Day</button>
-                    <button class="time-btn" onclick="showTimeView('heatmap')">Heat Map</button>
+                    <button class="time-btn active" onclick="showTimeView(event, 'hourly')">Hourly View</button>
+                    <button class="time-btn" onclick="showTimeView(event, 'cumulative')">Cumulative Sales</button>
+                    <button class="time-btn" onclick="showTimeView(event, 'comparison')">vs Normal Day</button>
+                    <button class="time-btn" onclick="showTimeView(event, 'heatmap')">Heat Map</button>
                 </div>
                 <div id="historicalChart"></div>
             </div>
@@ -1057,7 +1057,7 @@
                     </div>
                 </div>
                 
-                <button class="action-btn" style="width: 100%; margin-top: 20px;" onclick="trainSelectedModel()">
+                <button class="action-btn" style="width: 100%; margin-top: 20px;" onclick="trainSelectedModel(event)">
                     🚀 Train Selected Model
                 </button>
             </div>
@@ -1325,7 +1325,7 @@ print("• Evening surge: 6:00 PM - Second wave preparation needed")
                     </div>
                 </div>
                 
-                <button class="action-btn" style="width: 100%; margin-top: 20px;" onclick="runSimulation()">
+                <button class="action-btn" style="width: 100%; margin-top: 20px;" onclick="runSimulation(event)">
                     🚀 Run Simulation
                 </button>
                 
@@ -1613,12 +1613,33 @@ print("• Evening surge: 6:00 PM - Second wave preparation needed")
         }
         
         // Countdown timer
+        function getBlackFridayDate(year) {
+            // Thanksgiving = 4th Thursday of November; Black Friday = next day.
+            const novemberFirst = new Date(year, 10, 1); // Month is 0-indexed; 10 = November
+            const firstDay = novemberFirst.getDay(); // 0=Sun, 4=Thu
+            const daysUntilThursday = (4 - firstDay + 7) % 7;
+            const firstThursdayDate = 1 + daysUntilThursday;
+            const fourthThursdayDate = firstThursdayDate + 21;
+            const thanksgiving = new Date(year, 10, fourthThursdayDate);
+            return new Date(thanksgiving.getFullYear(), thanksgiving.getMonth(), thanksgiving.getDate() + 1);
+        }
+
+        function getNextBlackFriday(now) {
+            const currentYear = now.getFullYear();
+            let bf = getBlackFridayDate(currentYear);
+            if (bf.getTime() <= now.getTime()) {
+                bf = getBlackFridayDate(currentYear + 1);
+            }
+            return bf;
+        }
+
         function startCountdown() {
-            setInterval(() => {
+            const tick = () => {
                 const now = new Date();
-                const blackFriday = new Date('2024-11-29');
-                const diff = blackFriday - now;
-                
+                const blackFriday = getNextBlackFriday(now);
+                let diff = blackFriday.getTime() - now.getTime();
+                if (diff < 0) diff = 0;
+
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -1628,7 +1649,10 @@ print("• Evening surge: 6:00 PM - Second wave preparation needed")
                     document.getElementById('hours').textContent = hours;
                     document.getElementById('minutes').textContent = minutes;
                 }
-            }, 60000);
+            };
+
+            tick();
+            setInterval(tick, 60000);
         }
         
         // Update current time display
@@ -1689,10 +1713,12 @@ print("• Evening surge: 6:00 PM - Second wave preparation needed")
         }
         
         // Show different time views
-        function showTimeView(view) {
+        function showTimeView(evt, view) {
             // Update button states
             document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (evt && evt.target) {
+                evt.target.classList.add('active');
+            }
             
             // Update chart based on view
             // This would show different visualizations
@@ -1751,13 +1777,14 @@ print("• Evening surge: 6:00 PM - Second wave preparation needed")
         }
         
         // Train selected model
-        function trainSelectedModel() {
+        function trainSelectedModel(evt) {
             if (!selectedModel) {
                 alert('Please select a model first!');
                 return;
             }
             
-            const button = event.target;
+            const button = (evt && evt.target) ? evt.target : null;
+            if (!button) return;
             button.textContent = '⏳ Training ' + selectedModel.toUpperCase() + '...';
             button.disabled = true;
             
@@ -1862,11 +1889,12 @@ Overall Accuracy: 96.2%`;
         }
         
         // Run simulation
-        function runSimulation() {
+        function runSimulation(evt) {
             if (simulationRunning) return;
             simulationRunning = true;
             
-            const button = event.target;
+            const button = (evt && evt.target) ? evt.target : null;
+            if (!button) return;
             button.textContent = '⏳ Simulating Black Friday...';
             
             setTimeout(() => {
