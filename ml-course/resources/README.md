@@ -94,7 +94,7 @@ Upon completion, students will be able to:
 - Present findings effectively
 
 ## Author
-Prof. Chenhao Zhou
+Chenhao Zhou
 Machine Learning & Operations Research
 Email: [your-email]
 
