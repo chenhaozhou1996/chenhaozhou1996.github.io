@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Frameworks & Applied Analytics | Chenhao Zhou</title>
+    <meta name="description" content="Advanced machine learning course focused on framework development, system architecture, and applied analytics solutions.">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #f59e0b 0%, #f97316 50%, #ef4444 100%);
+            --secondary-gradient: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            --framework-gradient: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --text-muted: #6b7280;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --border: #e5e7eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Upload Banner */
+        .upload-banner {
+            background: linear-gradient(90deg, #f59e0b, #f97316, #ef4444);
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .upload-banner .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        /* Hero */
+        .hero {
+            background: var(--primary-gradient);
+            padding: 80px 20px 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            text-align: center;
+            color: white;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .course-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            margin-bottom: 32px;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 2.5rem; font-weight: 700; display: block; margin-bottom: 4px; }
+        .stat-label { font-size: 0.95rem; opacity: 0.9; }
+
+        /* Navigation */
+        .nav-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-bar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 60px 20px;
+        }
+
+        .section {
+            margin-bottom: 80px;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 48px;
+        }
+
+        .section-label {
+            display: inline-block;
+            color: #f59e0b;
+            font-weight: 600;
+            font-size: 0.875rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: clamp(1.75rem, 3vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .section-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Framework Cards */
+        .framework-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 28px;
+        }
+
+        .framework-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .framework-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+        }
+
+        .framework-card.coming-soon {
+            opacity: 0.85;
+        }
+
+        .framework-card.coming-soon::after {
+            content: 'UPLOADING';
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: linear-gradient(90deg, #f59e0b, #f97316);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            animation: pulse 2s infinite;
+        }
+
+        .framework-header {
+            padding: 28px;
+            color: white;
+        }
+
+        .framework-header.architecture { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); }
+        .framework-header.pipeline { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        .framework-header.deployment { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .framework-header.integration { background: var(--primary-gradient); }
+
+        .framework-number {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .framework-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .framework-subtitle {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .framework-body {
+            padding: 28px;
+        }
+
+        .framework-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .topic-list {
+            list-style: none;
+        }
+
+        .topic-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        .topic-item:last-child {
+            border-bottom: none;
+        }
+
+        .badges {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-architecture { background: #dbeafe; color: #1e40af; }
+        .badge-code { background: #fef3c7; color: #92400e; }
+        .badge-production { background: #d1fae5; color: #065f46; }
+        .badge-advanced { background: #fce7f3; color: #be185d; }
+
+        /* Roadmap Section */
+        .roadmap-container {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            border-radius: 20px;
+            padding: 48px;
+            color: white;
+        }
+
+        .roadmap-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .roadmap-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .roadmap-subtitle {
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+
+        .roadmap-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .roadmap-item {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+        }
+
+        .roadmap-marker {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .roadmap-marker.active {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            border-color: #f59e0b;
+        }
+
+        .roadmap-marker.completed {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .roadmap-content h3 {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+        }
+
+        .roadmap-content p {
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+
+        .roadmap-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .status-uploading {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-planned {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+        }
+
+        .status-complete {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 48px;
+        }
+
+        .info-box-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-box-content {
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover { color: white; }
+
+        @media (max-width: 768px) {
+            .framework-grid { grid-template-columns: 1fr; }
+            .roadmap-container { padding: 32px 20px; }
+            .hero-stats { gap: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Upload Status Banner -->
+    <div class="upload-banner">
+        <span class="status-dot"></span>
+        Course materials actively uploading - New content added regularly during development
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="course-badge">
+                    <span>COURSE 2</span>
+                    <span>|</span>
+                    <span>ADVANCED FRAMEWORKS</span>
+                </div>
+                <h1>ML Frameworks & Applied Analytics</h1>
+                <p class="hero-subtitle">Building production-ready machine learning systems from architecture to deployment. Focus on framework design, pipeline construction, and enterprise integration.</p>
+
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">4</span>
+                        <span class="stat-label">Core Frameworks</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">12+</span>
+                        <span class="stat-label">Topics</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">Active</span>
+                        <span class="stat-label">Development</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <div class="nav-wrapper">
+        <nav class="nav-bar">
+            <a href="#overview" class="nav-link">Overview</a>
+            <a href="#frameworks" class="nav-link">Frameworks</a>
+            <a href="#roadmap" class="nav-link">Roadmap</a>
+            <a href="../ml-course/index.html" class="nav-link">Course 1 (Theory)</a>
+            <a href="../teaching.html" class="nav-link">Teaching Home</a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+
+            <!-- Course Info Box -->
+            <div class="info-box" id="overview">
+                <h2 class="info-box-title">
+                    <span>About This Course</span>
+                </h2>
+                <p class="info-box-content">
+                    This second ML course focuses on practical framework implementation and production system design.
+                    While Course 1 covers theory and algorithms, this course emphasizes building scalable, maintainable
+                    ML systems that solve real business problems. Content is being actively developed and uploaded -
+                    check back regularly for new materials.
+                </p>
+            </div>
+
+            <!-- Frameworks Section -->
+            <section id="frameworks" class="section">
+                <div class="section-header">
+                    <div class="section-label">Core Curriculum</div>
+                    <h2 class="section-title">Framework Modules</h2>
+                    <p class="section-description">Four comprehensive frameworks covering the ML system lifecycle from design to production</p>
+                </div>
+
+                <div class="framework-grid">
+                    <!-- Framework 1: System Architecture -->
+                    <div class="framework-card">
+                        <div class="framework-header architecture">
+                            <span class="framework-number">FRAMEWORK 1</span>
+                            <h3 class="framework-title">ML System Architecture</h3>
+                            <p class="framework-subtitle">Designing Scalable ML Systems</p>
+                        </div>
+                        <div class="framework-body">
+                            <p class="framework-description">Learn to design ML systems that scale with organizational needs, covering architectural patterns, component design, and system integration strategies.</p>
+                            <ul class="topic-list">
+                                <li class="topic-item">Microservices vs monolithic ML architectures</li>
+                                <li class="topic-item">Feature stores and data management patterns</li>
+                                <li class="topic-item">Model registry and versioning systems</li>
+                                <li class="topic-item">API design for ML services</li>
+                            </ul>
+                            <div class="badges">
+                                <span class="badge badge-architecture">Architecture</span>
+                                <span class="badge badge-production">Production</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Framework 2: ML Pipelines -->
+                    <div class="framework-card coming-soon">
+                        <div class="framework-header pipeline">
+                            <span class="framework-number">FRAMEWORK 2</span>
+                            <h3 class="framework-title">ML Pipeline Engineering</h3>
+                            <p class="framework-subtitle">End-to-End Pipeline Development</p>
+                        </div>
+                        <div class="framework-body">
+                            <p class="framework-description">Build robust ML pipelines from data ingestion through model serving, with emphasis on automation, monitoring, and reproducibility.</p>
+                            <ul class="topic-list">
+                                <li class="topic-item">Data pipeline orchestration (Airflow, Prefect)</li>
+                                <li class="topic-item">Feature engineering pipelines</li>
+                                <li class="topic-item">Training pipeline automation</li>
+                                <li class="topic-item">Continuous training systems</li>
+                            </ul>
+                            <div class="badges">
+                                <span class="badge badge-code">Code</span>
+                                <span class="badge badge-production">Production</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Framework 3: Model Deployment -->
+                    <div class="framework-card coming-soon">
+                        <div class="framework-header deployment">
+                            <span class="framework-number">FRAMEWORK 3</span>
+                            <h3 class="framework-title">Model Deployment & MLOps</h3>
+                            <p class="framework-subtitle">Production Model Management</p>
+                        </div>
+                        <div class="framework-body">
+                            <p class="framework-description">Master MLOps practices for deploying, monitoring, and maintaining ML models in production environments.</p>
+                            <ul class="topic-list">
+                                <li class="topic-item">Containerization (Docker, Kubernetes)</li>
+                                <li class="topic-item">Model serving patterns (batch, real-time, streaming)</li>
+                                <li class="topic-item">A/B testing and canary deployments</li>
+                                <li class="topic-item">Model monitoring and drift detection</li>
+                            </ul>
+                            <div class="badges">
+                                <span class="badge badge-production">Production</span>
+                                <span class="badge badge-advanced">Advanced</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Framework 4: Enterprise Integration -->
+                    <div class="framework-card coming-soon">
+                        <div class="framework-header integration">
+                            <span class="framework-number">FRAMEWORK 4</span>
+                            <h3 class="framework-title">Enterprise ML Integration</h3>
+                            <p class="framework-subtitle">Business System Integration</p>
+                        </div>
+                        <div class="framework-body">
+                            <p class="framework-description">Integrate ML capabilities with enterprise systems, covering data governance, security, and organizational change management.</p>
+                            <ul class="topic-list">
+                                <li class="topic-item">Enterprise data architecture integration</li>
+                                <li class="topic-item">Security and compliance frameworks</li>
+                                <li class="topic-item">Cost optimization and resource management</li>
+                                <li class="topic-item">ML team organization and workflows</li>
+                            </ul>
+                            <div class="badges">
+                                <span class="badge badge-architecture">Architecture</span>
+                                <span class="badge badge-advanced">Advanced</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Roadmap Section -->
+            <section id="roadmap" class="section">
+                <div class="roadmap-container">
+                    <div class="roadmap-header">
+                        <h2 class="roadmap-title">Development Roadmap</h2>
+                        <p class="roadmap-subtitle">Track content development progress - materials uploaded as completed</p>
+                    </div>
+
+                    <div class="roadmap-timeline">
+                        <div class="roadmap-item">
+                            <div class="roadmap-marker active">1</div>
+                            <div class="roadmap-content">
+                                <h3>Framework 1: ML System Architecture</h3>
+                                <p>Core architectural patterns and system design principles for ML applications</p>
+                                <span class="roadmap-status status-uploading">Uploading</span>
+                            </div>
+                        </div>
+
+                        <div class="roadmap-item">
+                            <div class="roadmap-marker">2</div>
+                            <div class="roadmap-content">
+                                <h3>Framework 2: Pipeline Engineering</h3>
+                                <p>Data and training pipeline construction with orchestration tools</p>
+                                <span class="roadmap-status status-planned">Planned</span>
+                            </div>
+                        </div>
+
+                        <div class="roadmap-item">
+                            <div class="roadmap-marker">3</div>
+                            <div class="roadmap-content">
+                                <h3>Framework 3: MLOps & Deployment</h3>
+                                <p>Production deployment, monitoring, and continuous improvement</p>
+                                <span class="roadmap-status status-planned">Planned</span>
+                            </div>
+                        </div>
+
+                        <div class="roadmap-item">
+                            <div class="roadmap-marker">4</div>
+                            <div class="roadmap-content">
+                                <h3>Framework 4: Enterprise Integration</h3>
+                                <p>Business system integration and organizational deployment</p>
+                                <span class="roadmap-status status-planned">Planned</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="../ml-course/index.html" class="footer-link">ML Course 1 (Theory)</a>
+            <a href="../teaching.html" class="footer-link">Teaching Home</a>
+            <a href="../index.html" class="footer-link">Main Site</a>
+        </div>
+        <p>© 2025 Chenhao Zhou | ML Frameworks & Applied Analytics</p>
+    </footer>
+</body>
+</html>

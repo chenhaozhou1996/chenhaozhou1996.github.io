@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Analytics in Management | Leadership, Strategy & AI | Chenhao Zhou</title>
+    <meta name="description" content="Comprehensive module on business analytics for management - integrating leadership, strategy, and management analytics with ML/AI/Statistics.">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+            --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+            --leadership-gradient: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            --strategy-gradient: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --text-muted: #6b7280;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --border: #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        /* Hero */
+        .hero {
+            background: var(--primary-gradient);
+            padding: 80px 20px 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            text-align: center;
+            color: white;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .module-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            margin-bottom: 32px;
+        }
+
+        /* Navigation */
+        .nav-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-bar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 60px 20px;
+        }
+
+        .section {
+            margin-bottom: 80px;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 48px;
+        }
+
+        .section-label {
+            display: inline-block;
+            color: #059669;
+            font-weight: 600;
+            font-size: 0.875rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: clamp(1.75rem, 3vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .section-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Framework Cards */
+        .framework-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 28px;
+        }
+
+        .framework-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .framework-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+        }
+
+        .framework-header {
+            padding: 28px;
+            color: white;
+        }
+
+        .framework-header.leadership { background: var(--leadership-gradient); }
+        .framework-header.strategy { background: var(--strategy-gradient); }
+        .framework-header.analytics { background: var(--accent-gradient); }
+        .framework-header.integration { background: var(--primary-gradient); }
+
+        .framework-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .framework-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .framework-subtitle {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .framework-body {
+            padding: 28px;
+        }
+
+        .framework-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .concept-list {
+            list-style: none;
+        }
+
+        .concept-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .concept-item:last-child {
+            border-bottom: none;
+        }
+
+        .concept-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .concept-text {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        /* Theory Section */
+        .theory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .theory-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            padding: 28px;
+            border-left: 4px solid #059669;
+        }
+
+        .theory-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .theory-content {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* ML Toolkit Section */
+        .toolkit-container {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            border-radius: 20px;
+            padding: 48px;
+            color: white;
+        }
+
+        .toolkit-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .toolkit-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .toolkit-subtitle {
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+
+        .toolkit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .toolkit-item {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.12);
+            transition: all 0.3s ease;
+        }
+
+        .toolkit-item:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-4px);
+        }
+
+        .toolkit-item-icon {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+
+        .toolkit-item-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .toolkit-item-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .tag {
+            background: rgba(52, 211, 153, 0.2);
+            color: #34d399;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Case Studies */
+        .case-studies {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 28px;
+        }
+
+        .case-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .case-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .case-type {
+            display: inline-block;
+            background: #d1fae5;
+            color: #065f46;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .case-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .case-desc {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .case-metrics {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #059669;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Learning Objectives */
+        .objectives-container {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 16px;
+            padding: 40px;
+        }
+
+        .objectives-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .objectives-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .objective-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .objective-number {
+            background: var(--primary-gradient);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .objective-text {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .framework-grid,
+            .toolkit-grid,
+            .case-studies {
+                grid-template-columns: 1fr;
+            }
+
+            .toolkit-container {
+                padding: 32px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="module-badge">
+                    <span>MODULE 11</span>
+                    <span>|</span>
+                    <span>MANAGEMENT ANALYTICS</span>
+                </div>
+                <h1>Business Analytics in Management</h1>
+                <p class="hero-subtitle">Integrating Leadership, Strategy, and Management Analytics with ML/AI/Statistics</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <div class="nav-wrapper">
+        <nav class="nav-bar">
+            <a href="#frameworks" class="nav-link">Frameworks</a>
+            <a href="#theory" class="nav-link">Theory</a>
+            <a href="#toolkit" class="nav-link">ML Toolkit</a>
+            <a href="#cases" class="nav-link">Case Studies</a>
+            <a href="index.html" class="nav-link">Back to Course</a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+
+            <!-- Learning Objectives -->
+            <section class="section">
+                <div class="objectives-container">
+                    <h2 class="objectives-title">
+                        <span>Learning Objectives</span>
+                    </h2>
+                    <div class="objectives-grid">
+                        <div class="objective-item">
+                            <span class="objective-number">1</span>
+                            <span class="objective-text">Apply data-driven decision frameworks to leadership challenges using statistical inference and ML models</span>
+                        </div>
+                        <div class="objective-item">
+                            <span class="objective-number">2</span>
+                            <span class="objective-text">Design strategic analytics dashboards that translate complex data into executive-level insights</span>
+                        </div>
+                        <div class="objective-item">
+                            <span class="objective-number">3</span>
+                            <span class="objective-text">Implement predictive models for talent management, resource allocation, and organizational performance</span>
+                        </div>
+                        <div class="objective-item">
+                            <span class="objective-number">4</span>
+                            <span class="objective-text">Evaluate AI/ML solutions within ethical frameworks and organizational constraints</span>
+                        </div>
+                        <div class="objective-item">
+                            <span class="objective-number">5</span>
+                            <span class="objective-text">Synthesize quantitative analysis with qualitative leadership judgment for strategic decision-making</span>
+                        </div>
+                        <div class="objective-item">
+                            <span class="objective-number">6</span>
+                            <span class="objective-text">Communicate analytical findings effectively to diverse stakeholder groups</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Frameworks Section -->
+            <section id="frameworks" class="section">
+                <div class="section-header">
+                    <div class="section-label">Conceptual Foundations</div>
+                    <h2 class="section-title">Management Analytics Frameworks</h2>
+                    <p class="section-description">Four pillars that bridge data science capabilities with executive decision-making requirements</p>
+                </div>
+
+                <div class="framework-grid">
+                    <!-- Leadership Analytics -->
+                    <div class="framework-card">
+                        <div class="framework-header leadership">
+                            <div class="framework-icon">Leadership Analytics</div>
+                            <h3 class="framework-title">Leadership Analytics</h3>
+                            <p class="framework-subtitle">Data-Driven Leadership Development</p>
+                        </div>
+                        <div class="framework-body">
+                            <p class="framework-description">Leverage ML models to identify leadership potential, optimize team compositions, and predict leadership effectiveness across organizational contexts.</p>
+                            <ul class="concept-list">
+                                <li class="concept-item">
+                                    <span class="concept-icon">Classification models for leadership style identification</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Network analysis for influence mapping</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Sentiment analysis for team dynamics assessment</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Survival analysis for retention prediction</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Strategic Analytics -->
+                    <div class="framework-card">
+                        <div class="framework-header strategy">
+                            <h3 class="framework-title">Strategic Analytics</h3>
+                            <p class="framework-subtitle">Competitive Intelligence & Market Positioning</p>
+                        </div>
+                        <div class="framework-body">
+                            <p class="framework-description">Apply machine learning to strategic planning, competitive analysis, and market positioning decisions with quantifiable uncertainty measures.</p>
+                            <ul class="concept-list">
+                                <li class="concept-item">
+                                    <span class="concept-icon">Time series forecasting for market trends</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Clustering for market segmentation strategy</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Causal inference for strategic interventions</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Scenario modeling with Monte Carlo simulation</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Operations Analytics -->
+                    <div class="framework-card">
+                        <div class="framework-header analytics">
+                            <h3 class="framework-title">Management Operations Analytics</h3>
+                            <p class="framework-subtitle">Organizational Performance Optimization</p>
+                        </div>
+                        <div class="framework-body">
+                            <p class="framework-description">Optimize organizational processes, resource allocation, and operational efficiency through statistical modeling and optimization algorithms.</p>
+                            <ul class="concept-list">
+                                <li class="concept-item">
+                                    <span class="concept-icon">Regression models for KPI driver analysis</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Optimization models for resource allocation</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Process mining for workflow optimization</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Anomaly detection for risk management</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Integration Framework -->
+                    <div class="framework-card">
+                        <div class="framework-header integration">
+                            <h3 class="framework-title">AI-Management Integration</h3>
+                            <p class="framework-subtitle">Human-AI Decision Augmentation</p>
+                        </div>
+                        <div class="framework-body">
+                            <p class="framework-description">Design hybrid decision systems that combine AI capabilities with human judgment, ensuring ethical deployment and organizational alignment.</p>
+                            <ul class="concept-list">
+                                <li class="concept-item">
+                                    <span class="concept-icon">Explainable AI for executive decision support</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Bias detection and fairness auditing</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Human-in-the-loop model deployment</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Change management for AI adoption</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Theory Section -->
+            <section id="theory" class="section">
+                <div class="section-header">
+                    <div class="section-label">Theoretical Foundations</div>
+                    <h2 class="section-title">Conceptual Underpinnings</h2>
+                    <p class="section-description">Key theoretical frameworks connecting management science with analytics methodologies</p>
+                </div>
+
+                <div class="theory-grid">
+                    <div class="theory-card">
+                        <h3 class="theory-title">Bounded Rationality & ML Augmentation</h3>
+                        <p class="theory-content">Herbert Simon's bounded rationality theory explains why human decision-makers benefit from ML support. Machine learning models extend cognitive capacity for information processing while maintaining human oversight for contextual judgment.</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3 class="theory-title">Resource-Based View & Predictive Analytics</h3>
+                        <p class="theory-content">The RBV framework identifies data capabilities as strategic resources. Predictive analytics transforms data assets into competitive advantages through VRIN (Valuable, Rare, Inimitable, Non-substitutable) analytical capabilities.</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3 class="theory-title">Agency Theory & Performance Monitoring</h3>
+                        <p class="theory-content">Principal-agent problems can be addressed through analytics-driven monitoring systems. ML models enable sophisticated performance measurement while maintaining alignment between organizational and individual objectives.</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3 class="theory-title">Dynamic Capabilities & Adaptive Analytics</h3>
+                        <p class="theory-content">Teece's dynamic capabilities framework emphasizes sensing, seizing, and transforming. Analytics systems that continuously learn and adapt represent organizational capabilities for navigating uncertain environments.</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3 class="theory-title">Contingency Theory & Model Selection</h3>
+                        <p class="theory-content">No single ML approach fits all organizational contexts. Contingency theory guides model selection based on organizational structure, environmental uncertainty, and strategic priorities.</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3 class="theory-title">Stakeholder Theory & Ethical AI</h3>
+                        <p class="theory-content">Freeman's stakeholder theory provides ethical grounding for AI deployment. Analytics solutions must balance multiple stakeholder interests and incorporate fairness constraints into model optimization.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ML Toolkit Section -->
+            <section id="toolkit" class="section">
+                <div class="toolkit-container">
+                    <div class="toolkit-header">
+                        <h2 class="toolkit-title">ML Toolkit for Management Analytics</h2>
+                        <p class="toolkit-subtitle">Applied machine learning techniques tailored for management decision contexts</p>
+                    </div>
+
+                    <div class="toolkit-grid">
+                        <div class="toolkit-item">
+                            <div class="toolkit-item-icon">Predictive Modeling</div>
+                            <h3 class="toolkit-item-title">Predictive Modeling for HR Analytics</h3>
+                            <p class="toolkit-item-desc">Apply classification and regression models to predict employee performance, turnover risk, and promotion readiness using organizational data.</p>
+                            <div class="tags">
+                                <span class="tag">Random Forest</span>
+                                <span class="tag">XGBoost</span>
+                                <span class="tag">SHAP</span>
+                            </div>
+                        </div>
+
+                        <div class="toolkit-item">
+                            <div class="toolkit-item-icon">Time Series</div>
+                            <h3 class="toolkit-item-title">Strategic Forecasting</h3>
+                            <p class="toolkit-item-desc">Implement time series models for demand forecasting, budget planning, and strategic scenario analysis with confidence intervals.</p>
+                            <div class="tags">
+                                <span class="tag">Prophet</span>
+                                <span class="tag">ARIMA</span>
+                                <span class="tag">LSTM</span>
+                            </div>
+                        </div>
+
+                        <div class="toolkit-item">
+                            <div class="toolkit-item-icon">NLP</div>
+                            <h3 class="toolkit-item-title">Text Analytics for Leadership</h3>
+                            <p class="toolkit-item-desc">Extract insights from qualitative data sources - employee feedback, meeting transcripts, and strategic documents using NLP techniques.</p>
+                            <div class="tags">
+                                <span class="tag">Transformers</span>
+                                <span class="tag">Topic Modeling</span>
+                                <span class="tag">Sentiment</span>
+                            </div>
+                        </div>
+
+                        <div class="toolkit-item">
+                            <div class="toolkit-item-icon">Network</div>
+                            <h3 class="toolkit-item-title">Organizational Network Analysis</h3>
+                            <p class="toolkit-item-desc">Map informal organizational networks, identify key influencers, and optimize team structures using graph analytics and community detection.</p>
+                            <div class="tags">
+                                <span class="tag">NetworkX</span>
+                                <span class="tag">Centrality</span>
+                                <span class="tag">Clustering</span>
+                            </div>
+                        </div>
+
+                        <div class="toolkit-item">
+                            <div class="toolkit-item-icon">Causal</div>
+                            <h3 class="toolkit-item-title">Causal Inference for Strategy</h3>
+                            <p class="toolkit-item-desc">Move beyond correlation to establish causal relationships for strategic interventions using econometric and ML-based causal methods.</p>
+                            <div class="tags">
+                                <span class="tag">DiD</span>
+                                <span class="tag">Propensity Score</span>
+                                <span class="tag">IV</span>
+                            </div>
+                        </div>
+
+                        <div class="toolkit-item">
+                            <div class="toolkit-item-icon">Optimization</div>
+                            <h3 class="toolkit-item-title">Resource Optimization Models</h3>
+                            <p class="toolkit-item-desc">Apply mathematical optimization for workforce scheduling, budget allocation, and strategic resource deployment under constraints.</p>
+                            <div class="tags">
+                                <span class="tag">Linear Programming</span>
+                                <span class="tag">MIP</span>
+                                <span class="tag">Simulation</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Case Studies Section -->
+            <section id="cases" class="section">
+                <div class="section-header">
+                    <div class="section-label">Applied Learning</div>
+                    <h2 class="section-title">Management Analytics Case Studies</h2>
+                    <p class="section-description">Real-world applications demonstrating the integration of ML with management decisions</p>
+                </div>
+
+                <div class="case-studies">
+                    <div class="case-card">
+                        <span class="case-type">Leadership</span>
+                        <h3 class="case-title">Executive Team Composition Analytics</h3>
+                        <p class="case-desc">Apply clustering and classification to analyze high-performing executive teams, identifying optimal composition patterns and predicting team effectiveness.</p>
+                        <div class="case-metrics">
+                            <div class="metric">
+                                <div class="metric-value">23%</div>
+                                <div class="metric-label">Performance Lift</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">ML+Stats</div>
+                                <div class="metric-label">Methods</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="case-card">
+                        <span class="case-type">Strategy</span>
+                        <h3 class="case-title">Competitive Response Modeling</h3>
+                        <p class="case-desc">Build predictive models for competitor behavior analysis, enabling proactive strategic responses using game-theoretic ML frameworks.</p>
+                        <div class="case-metrics">
+                            <div class="metric">
+                                <div class="metric-value">85%</div>
+                                <div class="metric-label">Prediction Accuracy</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">Time Series</div>
+                                <div class="metric-label">Methods</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="case-card">
+                        <span class="case-type">Operations</span>
+                        <h3 class="case-title">Talent Pipeline Optimization</h3>
+                        <p class="case-desc">Design ML-driven talent management systems for succession planning, skill gap analysis, and workforce optimization using survival and classification models.</p>
+                        <div class="case-metrics">
+                            <div class="metric">
+                                <div class="metric-value">40%</div>
+                                <div class="metric-label">Turnover Reduction</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">Ensemble</div>
+                                <div class="metric-label">Methods</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="index.html" class="footer-link">Course Home</a>
+            <a href="#frameworks" class="footer-link">Frameworks</a>
+            <a href="#toolkit" class="footer-link">ML Toolkit</a>
+            <a href="#cases" class="footer-link">Case Studies</a>
+        </div>
+        <p>© 2025 Chenhao Zhou | Business Analytics in Management</p>
+    </footer>
+</body>
+</html>
