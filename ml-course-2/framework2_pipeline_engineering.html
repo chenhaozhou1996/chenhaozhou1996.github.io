@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Framework 2: ML Pipeline Engineering | Chenhao Zhou</title>
+    <meta name="description" content="End-to-end ML pipeline development - data pipelines, orchestration, feature engineering, and continuous training systems.">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --primary-gradient: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --text-muted: #6b7280;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --border: #e5e7eb;
+            --code-bg: #1e293b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .hero {
+            background: var(--primary-gradient);
+            padding: 60px 20px 80px;
+            color: white;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+
+        .breadcrumb { margin-bottom: 20px; opacity: 0.9; }
+        .breadcrumb a { color: white; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        .hero h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 16px; }
+        .hero-meta { display: flex; gap: 24px; flex-wrap: wrap; opacity: 0.9; }
+
+        .nav-wrapper {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-bar {
+            max-width: 1000px; margin: 0 auto; padding: 12px 20px;
+            display: flex; gap: 8px; flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: var(--text-secondary); text-decoration: none;
+            padding: 8px 16px; border-radius: 6px; font-size: 0.9rem; transition: all 0.2s;
+        }
+        .nav-link:hover { background: var(--primary); color: white; }
+
+        .content { padding: 48px 20px; }
+        .section { margin-bottom: 64px; }
+
+        .section-number {
+            display: inline-block; background: var(--primary-gradient);
+            color: white; width: 36px; height: 36px; border-radius: 50%;
+            text-align: center; line-height: 36px; font-weight: 700; margin-right: 12px;
+        }
+
+        h2 { font-size: 1.75rem; margin-bottom: 24px; display: flex; align-items: center; }
+        h3 { font-size: 1.25rem; margin: 32px 0 16px; color: var(--primary-dark); }
+        h4 { font-size: 1.1rem; margin: 24px 0 12px; }
+        p { margin-bottom: 16px; color: var(--text-secondary); }
+
+        .concept-box {
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            border-left: 4px solid var(--primary);
+            padding: 24px; border-radius: 0 12px 12px 0; margin: 24px 0;
+        }
+        .concept-box h4 { color: var(--primary-dark); margin-top: 0; }
+
+        .code-block {
+            background: var(--code-bg); border-radius: 12px;
+            padding: 24px; margin: 24px 0; overflow-x: auto;
+        }
+        .code-block pre {
+            color: #e2e8f0; font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.9rem; line-height: 1.6; margin: 0;
+        }
+        .code-label {
+            color: #94a3b8; font-size: 0.8rem; margin-bottom: 12px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        .diagram {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 32px; margin: 24px 0; text-align: center;
+        }
+        .diagram-title { font-weight: 600; margin-bottom: 20px; }
+
+        .pipeline-flow {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            align-items: center; gap: 12px;
+        }
+        .pipeline-step {
+            background: white; border: 2px solid var(--primary);
+            border-radius: 8px; padding: 12px 20px; font-weight: 600; color: var(--primary-dark);
+        }
+        .pipeline-arrow { color: var(--primary); font-size: 1.5rem; }
+
+        .comparison-table {
+            width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.95rem;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 16px; text-align: left; border-bottom: 1px solid var(--border);
+        }
+        .comparison-table th { background: var(--surface); font-weight: 600; }
+        .comparison-table tr:hover { background: #f8fafc; }
+
+        .feature-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px; margin: 24px 0;
+        }
+        .feature-card {
+            background: white; border: 1px solid var(--border);
+            border-radius: 12px; padding: 24px; transition: all 0.2s;
+        }
+        .feature-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .feature-title { font-weight: 600; margin-bottom: 8px; }
+        .feature-desc { font-size: 0.9rem; color: var(--text-secondary); }
+
+        .key-points {
+            background: #fef3c7; border-radius: 12px; padding: 24px; margin: 24px 0;
+        }
+        .key-points h4 { color: #92400e; margin-top: 0; }
+        .key-points ul { margin: 0; padding-left: 20px; }
+        .key-points li { margin-bottom: 8px; color: #78350f; }
+
+        .exercise {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-radius: 12px; padding: 24px; margin: 32px 0;
+        }
+        .exercise h4 { color: #065f46; margin-top: 0; }
+        .exercise p, .exercise li { color: #047857; }
+
+        .footer {
+            background: var(--text-primary); color: white;
+            padding: 32px 20px; text-align: center;
+        }
+        .footer a { color: rgba(255,255,255,0.8); text-decoration: none; margin: 0 16px; }
+        .footer a:hover { color: white; }
+
+        @media (max-width: 768px) {
+            .pipeline-flow { flex-direction: column; }
+            .pipeline-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">ML Frameworks Course</a> / Framework 2
+            </div>
+            <h1>ML Pipeline Engineering</h1>
+            <div class="hero-meta">
+                <span>Framework 2 of 4</span>
+                <span>|</span>
+                <span>Estimated: 5-7 hours</span>
+                <span>|</span>
+                <span>Level: Intermediate to Advanced</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="nav-wrapper">
+        <nav class="nav-bar">
+            <a href="#introduction" class="nav-link">Introduction</a>
+            <a href="#data-pipelines" class="nav-link">Data Pipelines</a>
+            <a href="#orchestration" class="nav-link">Orchestration</a>
+            <a href="#feature-pipelines" class="nav-link">Feature Pipelines</a>
+            <a href="#training-pipelines" class="nav-link">Training Pipelines</a>
+            <a href="#continuous-training" class="nav-link">Continuous Training</a>
+            <a href="index.html" class="nav-link">Back to Course</a>
+        </nav>
+    </div>
+
+    <main class="content">
+        <div class="container">
+
+            <!-- Section 1: Introduction -->
+            <section id="introduction" class="section">
+                <h2><span class="section-number">1</span>Introduction to ML Pipelines</h2>
+
+                <p>An ML pipeline is an automated workflow that orchestrates the steps from raw data to deployed model. Well-designed pipelines ensure reproducibility, enable automation, and reduce time from experimentation to production.</p>
+
+                <div class="concept-box">
+                    <h4>Why Pipelines Matter</h4>
+                    <p>Manual ML workflows suffer from:</p>
+                    <ul>
+                        <li><strong>Reproducibility issues:</strong> Cannot recreate exact results</li>
+                        <li><strong>Error-prone processes:</strong> Manual steps introduce mistakes</li>
+                        <li><strong>Slow iteration:</strong> Manual execution limits experimentation speed</li>
+                        <li><strong>No auditability:</strong> Difficult to trace how models were created</li>
+                    </ul>
+                </div>
+
+                <h3>Pipeline Components Overview</h3>
+
+                <div class="diagram">
+                    <div class="diagram-title">End-to-End ML Pipeline</div>
+                    <div class="pipeline-flow">
+                        <div class="pipeline-step">Data Ingestion</div>
+                        <span class="pipeline-arrow">→</span>
+                        <div class="pipeline-step">Data Validation</div>
+                        <span class="pipeline-arrow">→</span>
+                        <div class="pipeline-step">Feature Engineering</div>
+                        <span class="pipeline-arrow">→</span>
+                        <div class="pipeline-step">Training</div>
+                        <span class="pipeline-arrow">→</span>
+                        <div class="pipeline-step">Evaluation</div>
+                        <span class="pipeline-arrow">→</span>
+                        <div class="pipeline-step">Model Registry</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Data Pipelines -->
+            <section id="data-pipelines" class="section">
+                <h2><span class="section-number">2</span>Data Pipeline Design</h2>
+
+                <p>Data pipelines extract, transform, and load (ETL) data from source systems into formats suitable for ML training. They must handle data quality, schema evolution, and incremental updates.</p>
+
+                <h3>2.1 Batch vs Streaming Pipelines</h3>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Batch Pipeline</th>
+                            <th>Streaming Pipeline</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Latency</td>
+                            <td>Minutes to hours</td>
+                            <td>Milliseconds to seconds</td>
+                        </tr>
+                        <tr>
+                            <td>Processing</td>
+                            <td>Fixed time windows</td>
+                            <td>Continuous event processing</td>
+                        </tr>
+                        <tr>
+                            <td>Use Cases</td>
+                            <td>Daily reports, model training</td>
+                            <td>Real-time features, fraud detection</td>
+                        </tr>
+                        <tr>
+                            <td>Tools</td>
+                            <td>Spark, dbt, Airflow</td>
+                            <td>Kafka, Flink, Spark Streaming</td>
+                        </tr>
+                        <tr>
+                            <td>Complexity</td>
+                            <td>Lower</td>
+                            <td>Higher (ordering, exactly-once)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>2.2 Data Pipeline with Apache Spark</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - PySpark Data Pipeline</div>
+                    <pre>
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, when, datediff, current_date, avg, count
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType, TimestampType
+
+# Initialize Spark
+spark = SparkSession.builder \
+    .appName("CustomerFeaturePipeline") \
+    .config("spark.sql.adaptive.enabled", "true") \
+    .getOrCreate()
+
+# Define schema for validation
+transaction_schema = StructType([
+    StructField("transaction_id", StringType(), False),
+    StructField("customer_id", StringType(), False),
+    StructField("amount", DoubleType(), False),
+    StructField("timestamp", TimestampType(), False),
+    StructField("category", StringType(), True)
+])
+
+def extract_transactions(date: str) -> DataFrame:
+    """Extract transactions for a given date."""
+    return spark.read \
+        .schema(transaction_schema) \
+        .parquet(f"s3://data-lake/transactions/date={date}")
+
+def validate_data(df: DataFrame) -> DataFrame:
+    """Validate data quality."""
+    # Remove nulls in required fields
+    df_clean = df.dropna(subset=["transaction_id", "customer_id", "amount"])
+
+    # Filter invalid amounts
+    df_valid = df_clean.filter(col("amount") > 0)
+
+    # Log validation metrics
+    total = df.count()
+    valid = df_valid.count()
+    print(f"Data validation: {valid}/{total} records valid ({100*valid/total:.1f}%)")
+
+    return df_valid
+
+def compute_customer_features(df: DataFrame) -> DataFrame:
+    """Compute customer-level features."""
+    return df.groupBy("customer_id").agg(
+        count("*").alias("transaction_count_30d"),
+        avg("amount").alias("avg_transaction_amount_30d"),
+        sum("amount").alias("total_spend_30d"),
+        max("timestamp").alias("last_transaction_date"),
+        countDistinct("category").alias("unique_categories")
+    ).withColumn(
+        "days_since_last_transaction",
+        datediff(current_date(), col("last_transaction_date"))
+    )
+
+def run_pipeline(date: str):
+    """Execute full pipeline."""
+    # Extract
+    raw_data = extract_transactions(date)
+
+    # Validate
+    valid_data = validate_data(raw_data)
+
+    # Transform
+    features = compute_customer_features(valid_data)
+
+    # Load to feature store
+    features.write \
+        .mode("overwrite") \
+        .partitionBy("date") \
+        .parquet("s3://feature-store/customer_features/")
+
+    return features
+
+# Run
+features_df = run_pipeline("2024-01-15")</pre>
+                </div>
+
+                <h3>2.3 Data Validation with Great Expectations</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Data Quality Validation</div>
+                    <pre>
+import great_expectations as gx
+from great_expectations.core.batch import RuntimeBatchRequest
+
+# Initialize context
+context = gx.get_context()
+
+# Define expectations suite
+suite = context.add_or_update_expectation_suite("transaction_quality")
+
+# Add expectations
+validator = context.get_validator(
+    batch_request=RuntimeBatchRequest(
+        datasource_name="spark_datasource",
+        data_connector_name="runtime_connector",
+        data_asset_name="transactions",
+        runtime_parameters={"batch_data": transactions_df},
+        batch_identifiers={"run_id": "2024-01-15"}
+    ),
+    expectation_suite_name="transaction_quality"
+)
+
+# Column existence and types
+validator.expect_column_to_exist("transaction_id")
+validator.expect_column_to_exist("customer_id")
+validator.expect_column_to_exist("amount")
+
+# Value constraints
+validator.expect_column_values_to_not_be_null("transaction_id")
+validator.expect_column_values_to_not_be_null("customer_id")
+validator.expect_column_values_to_be_between("amount", min_value=0, max_value=100000)
+
+# Uniqueness
+validator.expect_column_values_to_be_unique("transaction_id")
+
+# Distribution checks
+validator.expect_column_mean_to_be_between("amount", min_value=10, max_value=500)
+validator.expect_column_proportion_of_unique_values_to_be_between(
+    "category", min_value=0.01, max_value=0.5
+)
+
+# Run validation
+results = validator.validate()
+
+if not results.success:
+    raise DataQualityError(f"Validation failed: {results.statistics}")</pre>
+                </div>
+            </section>
+
+            <!-- Section 3: Orchestration -->
+            <section id="orchestration" class="section">
+                <h2><span class="section-number">3</span>Pipeline Orchestration</h2>
+
+                <p>Orchestration tools manage the execution of pipeline tasks, handling dependencies, scheduling, retries, and monitoring. They turn individual scripts into reliable, automated workflows.</p>
+
+                <h3>3.1 Orchestration Tool Comparison</h3>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-title">Apache Airflow</div>
+                        <div class="feature-desc">Industry standard for batch workflows. Python-native DAGs, extensive integrations, strong community. Best for complex dependencies.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-title">Prefect</div>
+                        <div class="feature-desc">Modern Python-native orchestration. Dynamic workflows, better local development, hybrid execution model.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-title">Dagster</div>
+                        <div class="feature-desc">Data-aware orchestration. Strong typing, asset-based paradigm, excellent for data engineering.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-title">Kubeflow Pipelines</div>
+                        <div class="feature-desc">Kubernetes-native ML pipelines. Designed for ML workflows, integrates with ML platforms.</div>
+                    </div>
+                </div>
+
+                <h3>3.2 Apache Airflow Pipeline</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Airflow ML Training DAG</div>
+                    <pre>
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.providers.amazon.aws.operators.s3 import S3CopyObjectOperator
+from airflow.utils.dates import days_ago
+from datetime import timedelta
+
+default_args = {
+    'owner': 'ml-team',
+    'depends_on_past': False,
+    'email_on_failure': True,
+    'email': ['ml-alerts@company.com'],
+    'retries': 2,
+    'retry_delay': timedelta(minutes=5),
+}
+
+dag = DAG(
+    'ml_training_pipeline',
+    default_args=default_args,
+    description='Daily model training pipeline',
+    schedule_interval='0 6 * * *',  # 6 AM daily
+    start_date=days_ago(1),
+    catchup=False,
+    tags=['ml', 'training'],
+)
+
+def extract_data(**context):
+    """Extract data from source systems."""
+    from data_pipelines import extract_transactions
+    date = context['ds']
+    df = extract_transactions(date)
+    # Save to intermediate storage
+    df.to_parquet(f'/tmp/raw_data_{date}.parquet')
+    return f'/tmp/raw_data_{date}.parquet'
+
+def validate_data(**context):
+    """Validate data quality."""
+    from data_validation import run_validation
+    ti = context['ti']
+    data_path = ti.xcom_pull(task_ids='extract_data')
+    validation_results = run_validation(data_path)
+    if not validation_results['success']:
+        raise ValueError(f"Validation failed: {validation_results['errors']}")
+    return validation_results
+
+def compute_features(**context):
+    """Compute training features."""
+    from feature_engineering import compute_features
+    ti = context['ti']
+    data_path = ti.xcom_pull(task_ids='extract_data')
+    features_path = compute_features(data_path)
+    return features_path
+
+def train_model(**context):
+    """Train ML model."""
+    from model_training import train_and_evaluate
+    ti = context['ti']
+    features_path = ti.xcom_pull(task_ids='compute_features')
+    model_info = train_and_evaluate(features_path)
+    return model_info
+
+def evaluate_model(**context):
+    """Evaluate model and decide on deployment."""
+    ti = context['ti']
+    model_info = ti.xcom_pull(task_ids='train_model')
+
+    # Check if model meets deployment criteria
+    if model_info['metrics']['auc'] > 0.75:
+        return 'deploy'
+    return 'skip_deployment'
+
+def register_model(**context):
+    """Register model to MLflow."""
+    from mlflow_utils import register_model
+    ti = context['ti']
+    model_info = ti.xcom_pull(task_ids='train_model')
+    register_model(model_info['artifact_path'], model_info['metrics'])
+
+# Define tasks
+extract_task = PythonOperator(
+    task_id='extract_data',
+    python_callable=extract_data,
+    dag=dag,
+)
+
+validate_task = PythonOperator(
+    task_id='validate_data',
+    python_callable=validate_data,
+    dag=dag,
+)
+
+features_task = PythonOperator(
+    task_id='compute_features',
+    python_callable=compute_features,
+    dag=dag,
+)
+
+train_task = PythonOperator(
+    task_id='train_model',
+    python_callable=train_model,
+    dag=dag,
+)
+
+evaluate_task = PythonOperator(
+    task_id='evaluate_model',
+    python_callable=evaluate_model,
+    dag=dag,
+)
+
+register_task = PythonOperator(
+    task_id='register_model',
+    python_callable=register_model,
+    dag=dag,
+)
+
+# Define dependencies
+extract_task >> validate_task >> features_task >> train_task >> evaluate_task >> register_task</pre>
+                </div>
+
+                <h3>3.3 Prefect Pipeline (Modern Alternative)</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Prefect ML Pipeline</div>
+                    <pre>
+from prefect import flow, task
+from prefect.tasks import task_input_hash
+from datetime import timedelta
+import pandas as pd
+
+@task(retries=2, cache_key_fn=task_input_hash, cache_expiration=timedelta(hours=1))
+def extract_data(date: str) -> pd.DataFrame:
+    """Extract data with caching."""
+    return pd.read_parquet(f"s3://data-lake/transactions/date={date}")
+
+@task
+def validate_data(df: pd.DataFrame) -> pd.DataFrame:
+    """Validate data quality."""
+    assert df['amount'].min() >= 0, "Negative amounts found"
+    assert df['customer_id'].notna().all(), "Null customer IDs"
+    return df
+
+@task
+def compute_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Feature engineering."""
+    features = df.groupby('customer_id').agg({
+        'amount': ['mean', 'sum', 'count'],
+        'timestamp': 'max'
+    }).reset_index()
+    features.columns = ['customer_id', 'avg_amount', 'total_spend', 'transaction_count', 'last_txn']
+    return features
+
+@task
+def train_model(features: pd.DataFrame) -> dict:
+    """Train model."""
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.model_selection import train_test_split
+
+    X = features.drop(['customer_id', 'target'], axis=1)
+    y = features['target']
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    model = RandomForestClassifier(n_estimators=100)
+    model.fit(X_train, y_train)
+
+    return {
+        'model': model,
+        'accuracy': model.score(X_test, y_test)
+    }
+
+@flow(name="ML Training Pipeline")
+def training_pipeline(date: str):
+    """Main training flow."""
+    # Extract
+    raw_data = extract_data(date)
+
+    # Validate
+    valid_data = validate_data(raw_data)
+
+    # Transform
+    features = compute_features(valid_data)
+
+    # Train
+    model_result = train_model(features)
+
+    return model_result
+
+# Run
+if __name__ == "__main__":
+    result = training_pipeline("2024-01-15")</pre>
+                </div>
+            </section>
+
+            <!-- Section 4: Feature Pipelines -->
+            <section id="feature-pipelines" class="section">
+                <h2><span class="section-number">4</span>Feature Engineering Pipelines</h2>
+
+                <p>Feature pipelines transform raw data into features that ML models can consume. They must be reproducible, testable, and maintain consistency between training and serving.</p>
+
+                <h3>4.1 Feature Transformation Framework</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Scikit-learn Pipeline</div>
+                    <pre>
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.impute import SimpleImputer
+import pandas as pd
+import joblib
+
+# Define feature groups
+numeric_features = ['age', 'income', 'transaction_count', 'avg_amount']
+categorical_features = ['occupation', 'region', 'customer_segment']
+
+# Numeric transformer
+numeric_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', StandardScaler())
+])
+
+# Categorical transformer
+categorical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
+])
+
+# Combined preprocessor
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numeric_transformer, numeric_features),
+        ('cat', categorical_transformer, categorical_features)
+    ],
+    remainder='drop'  # Drop columns not specified
+)
+
+# Full pipeline with model
+from sklearn.ensemble import GradientBoostingClassifier
+
+full_pipeline = Pipeline(steps=[
+    ('preprocessor', preprocessor),
+    ('classifier', GradientBoostingClassifier(n_estimators=100))
+])
+
+# Fit pipeline
+full_pipeline.fit(X_train, y_train)
+
+# Save pipeline (preprocessing + model together)
+joblib.dump(full_pipeline, 'model_pipeline.joblib')
+
+# Load and predict (same preprocessing automatically applied)
+loaded_pipeline = joblib.load('model_pipeline.joblib')
+predictions = loaded_pipeline.predict(X_new)</pre>
+                </div>
+
+                <h3>4.2 Custom Feature Transformers</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Custom Transformer</div>
+                    <pre>
+from sklearn.base import BaseEstimator, TransformerMixin
+import numpy as np
+import pandas as pd
+
+class DateFeatureExtractor(BaseEstimator, TransformerMixin):
+    """Extract features from datetime columns."""
+
+    def __init__(self, date_column: str, features: list = None):
+        self.date_column = date_column
+        self.features = features or ['dayofweek', 'month', 'quarter', 'is_weekend']
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        dt = pd.to_datetime(X[self.date_column])
+
+        if 'dayofweek' in self.features:
+            X['dayofweek'] = dt.dt.dayofweek
+        if 'month' in self.features:
+            X['month'] = dt.dt.month
+        if 'quarter' in self.features:
+            X['quarter'] = dt.dt.quarter
+        if 'is_weekend' in self.features:
+            X['is_weekend'] = (dt.dt.dayofweek >= 5).astype(int)
+        if 'days_since_epoch' in self.features:
+            X['days_since_epoch'] = (dt - pd.Timestamp('1970-01-01')).dt.days
+
+        return X.drop(columns=[self.date_column])
+
+
+class RatioFeatureCreator(BaseEstimator, TransformerMixin):
+    """Create ratio features from numeric columns."""
+
+    def __init__(self, numerator: str, denominator: str, name: str = None):
+        self.numerator = numerator
+        self.denominator = denominator
+        self.name = name or f"{numerator}_per_{denominator}"
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        X[self.name] = X[self.numerator] / (X[self.denominator] + 1e-8)
+        return X
+
+
+class OutlierClipper(BaseEstimator, TransformerMixin):
+    """Clip outliers based on percentiles."""
+
+    def __init__(self, columns: list, lower_percentile: float = 1, upper_percentile: float = 99):
+        self.columns = columns
+        self.lower_percentile = lower_percentile
+        self.upper_percentile = upper_percentile
+        self.bounds_ = {}
+
+    def fit(self, X, y=None):
+        for col in self.columns:
+            lower = np.percentile(X[col], self.lower_percentile)
+            upper = np.percentile(X[col], self.upper_percentile)
+            self.bounds_[col] = (lower, upper)
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        for col, (lower, upper) in self.bounds_.items():
+            X[col] = X[col].clip(lower=lower, upper=upper)
+        return X
+
+
+# Use in pipeline
+feature_pipeline = Pipeline([
+    ('date_features', DateFeatureExtractor('signup_date')),
+    ('ratios', RatioFeatureCreator('revenue', 'transaction_count', 'avg_order_value')),
+    ('clip_outliers', OutlierClipper(['income', 'revenue'])),
+    ('preprocessor', preprocessor)
+])</pre>
+                </div>
+
+                <div class="key-points">
+                    <h4>Feature Pipeline Best Practices</h4>
+                    <ul>
+                        <li><strong>Fit on training data only:</strong> Never leak information from test/production data</li>
+                        <li><strong>Save fitted transformers:</strong> Use same transformations at inference time</li>
+                        <li><strong>Handle missing values:</strong> Define explicit imputation strategies</li>
+                        <li><strong>Document feature logic:</strong> Clear definitions prevent training-serving skew</li>
+                        <li><strong>Version feature pipelines:</strong> Track changes alongside model versions</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 5: Training Pipelines -->
+            <section id="training-pipelines" class="section">
+                <h2><span class="section-number">5</span>Training Pipeline Automation</h2>
+
+                <p>Automated training pipelines standardize the model development process, enabling reproducible experiments and efficient hyperparameter optimization.</p>
+
+                <h3>5.1 Experiment Tracking with MLflow</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - MLflow Training Pipeline</div>
+                    <pre>
+import mlflow
+from mlflow.tracking import MlflowClient
+from sklearn.model_selection import cross_val_score
+import optuna
+
+mlflow.set_tracking_uri("http://mlflow-server:5000")
+mlflow.set_experiment("customer_churn_v2")
+
+def objective(trial):
+    """Optuna objective for hyperparameter tuning."""
+    with mlflow.start_run(nested=True):
+        # Suggest hyperparameters
+        params = {
+            'n_estimators': trial.suggest_int('n_estimators', 50, 300),
+            'max_depth': trial.suggest_int('max_depth', 3, 10),
+            'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.3, log=True),
+            'subsample': trial.suggest_float('subsample', 0.6, 1.0),
+            'colsample_bytree': trial.suggest_float('colsample_bytree', 0.6, 1.0),
+        }
+
+        # Log parameters
+        mlflow.log_params(params)
+
+        # Train model
+        from xgboost import XGBClassifier
+        model = XGBClassifier(**params, use_label_encoder=False, eval_metric='logloss')
+
+        # Cross-validation
+        scores = cross_val_score(model, X_train, y_train, cv=5, scoring='roc_auc')
+        mean_auc = scores.mean()
+
+        # Log metrics
+        mlflow.log_metric('cv_auc_mean', mean_auc)
+        mlflow.log_metric('cv_auc_std', scores.std())
+
+        return mean_auc
+
+def run_training_pipeline(X_train, y_train, X_test, y_test, n_trials=50):
+    """Full training pipeline with hyperparameter optimization."""
+    with mlflow.start_run(run_name="hyperparameter_search"):
+
+        # Hyperparameter optimization
+        study = optuna.create_study(direction='maximize')
+        study.optimize(objective, n_trials=n_trials)
+
+        # Log best parameters
+        best_params = study.best_params
+        mlflow.log_params({f"best_{k}": v for k, v in best_params.items()})
+
+        # Train final model with best params
+        from xgboost import XGBClassifier
+        final_model = XGBClassifier(**best_params, use_label_encoder=False, eval_metric='logloss')
+        final_model.fit(X_train, y_train)
+
+        # Evaluate on test set
+        from sklearn.metrics import roc_auc_score, precision_score, recall_score
+        y_pred = final_model.predict(X_test)
+        y_prob = final_model.predict_proba(X_test)[:, 1]
+
+        metrics = {
+            'test_auc': roc_auc_score(y_test, y_prob),
+            'test_precision': precision_score(y_test, y_pred),
+            'test_recall': recall_score(y_test, y_pred),
+        }
+        mlflow.log_metrics(metrics)
+
+        # Log model
+        mlflow.xgboost.log_model(
+            final_model,
+            "model",
+            registered_model_name="customer_churn_model"
+        )
+
+        # Log feature importance
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(figsize=(10, 8))
+        importance = final_model.feature_importances_
+        # ... plot importance
+        mlflow.log_figure(fig, "feature_importance.png")
+
+        return final_model, metrics
+
+# Run
+model, metrics = run_training_pipeline(X_train, y_train, X_test, y_test)</pre>
+                </div>
+            </section>
+
+            <!-- Section 6: Continuous Training -->
+            <section id="continuous-training" class="section">
+                <h2><span class="section-number">6</span>Continuous Training Systems</h2>
+
+                <p>Continuous training (CT) systems automatically retrain models when performance degrades or new data becomes available. This ensures models stay accurate as data distributions change.</p>
+
+                <div class="concept-box">
+                    <h4>When to Trigger Retraining</h4>
+                    <ul>
+                        <li><strong>Scheduled:</strong> Daily/weekly retraining on new data</li>
+                        <li><strong>Performance-based:</strong> When model metrics drop below threshold</li>
+                        <li><strong>Data drift:</strong> When input distributions change significantly</li>
+                        <li><strong>On-demand:</strong> Manual trigger for urgent updates</li>
+                    </ul>
+                </div>
+
+                <h3>6.1 Drift Detection Pipeline</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Data Drift Detection</div>
+                    <pre>
+from scipy import stats
+import numpy as np
+from dataclasses import dataclass
+from typing import Dict, List
+
+@dataclass
+class DriftResult:
+    feature: str
+    drift_detected: bool
+    p_value: float
+    drift_score: float
+
+def detect_drift(
+    reference_data: np.ndarray,
+    current_data: np.ndarray,
+    feature_name: str,
+    threshold: float = 0.05
+) -> DriftResult:
+    """Detect drift using Kolmogorov-Smirnov test."""
+    statistic, p_value = stats.ks_2samp(reference_data, current_data)
+
+    return DriftResult(
+        feature=feature_name,
+        drift_detected=p_value < threshold,
+        p_value=p_value,
+        drift_score=statistic
+    )
+
+def run_drift_detection(
+    reference_df,
+    current_df,
+    numeric_features: List[str],
+    threshold: float = 0.05
+) -> Dict[str, DriftResult]:
+    """Run drift detection on all features."""
+    results = {}
+
+    for feature in numeric_features:
+        result = detect_drift(
+            reference_df[feature].values,
+            current_df[feature].values,
+            feature,
+            threshold
+        )
+        results[feature] = result
+
+        if result.drift_detected:
+            print(f"DRIFT DETECTED in {feature}: p-value={result.p_value:.4f}")
+
+    return results
+
+def should_retrain(drift_results: Dict[str, DriftResult], max_drifted_features: int = 2) -> bool:
+    """Decide if retraining is needed based on drift results."""
+    drifted_count = sum(1 for r in drift_results.values() if r.drift_detected)
+    return drifted_count >= max_drifted_features</pre>
+                </div>
+
+                <h3>6.2 Automated Retraining Trigger</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Continuous Training DAG</div>
+                    <pre>
+from airflow import DAG
+from airflow.operators.python import PythonOperator, BranchPythonOperator
+from datetime import datetime, timedelta
+
+dag = DAG(
+    'continuous_training',
+    schedule_interval='0 */6 * * *',  # Every 6 hours
+    start_date=datetime(2024, 1, 1),
+    catchup=False
+)
+
+def check_model_performance(**context):
+    """Check if current model performance is acceptable."""
+    from monitoring import get_current_metrics, get_threshold
+
+    metrics = get_current_metrics('customer_churn_model')
+    threshold = get_threshold('customer_churn_model')
+
+    if metrics['auc'] < threshold['auc']:
+        return 'trigger_retraining'
+    return 'skip_retraining'
+
+def check_data_drift(**context):
+    """Check for data drift in recent predictions."""
+    from drift_detection import run_drift_detection, load_reference_data
+
+    reference = load_reference_data()
+    current = load_recent_data(hours=6)
+
+    drift_results = run_drift_detection(reference, current, NUMERIC_FEATURES)
+
+    if should_retrain(drift_results):
+        context['ti'].xcom_push(key='drift_results', value=drift_results)
+        return 'trigger_retraining'
+    return 'skip_retraining'
+
+def trigger_retraining(**context):
+    """Trigger the training pipeline."""
+    from airflow.api.client.local_client import Client
+    client = Client(None, None)
+    client.trigger_dag(dag_id='ml_training_pipeline', conf={
+        'triggered_by': 'continuous_training',
+        'trigger_reason': context.get('trigger_reason', 'performance_degradation')
+    })
+
+def send_notification(**context):
+    """Send notification about retraining decision."""
+    # Implementation for Slack/email notification
+    pass
+
+# Define tasks
+check_performance = BranchPythonOperator(
+    task_id='check_model_performance',
+    python_callable=check_model_performance,
+    dag=dag
+)
+
+check_drift = BranchPythonOperator(
+    task_id='check_data_drift',
+    python_callable=check_data_drift,
+    dag=dag
+)
+
+retrain = PythonOperator(
+    task_id='trigger_retraining',
+    python_callable=trigger_retraining,
+    dag=dag
+)
+
+skip = PythonOperator(
+    task_id='skip_retraining',
+    python_callable=lambda: print("No retraining needed"),
+    dag=dag
+)
+
+notify = PythonOperator(
+    task_id='send_notification',
+    python_callable=send_notification,
+    trigger_rule='none_failed_min_one_success',
+    dag=dag
+)
+
+check_performance >> [check_drift, skip]
+check_drift >> [retrain, skip]
+[retrain, skip] >> notify</pre>
+                </div>
+
+                <div class="exercise">
+                    <h4>Summary: Pipeline Engineering Checklist</h4>
+                    <ul>
+                        <li>Data pipelines with validation and quality checks</li>
+                        <li>Orchestration tool configured for your workflow complexity</li>
+                        <li>Feature pipelines with consistent transformations</li>
+                        <li>Automated training with experiment tracking</li>
+                        <li>Continuous training triggers for drift and performance</li>
+                        <li>Monitoring and alerting integrated throughout</li>
+                    </ul>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <a href="framework1_system_architecture.html">Previous: System Architecture</a>
+        <a href="index.html">Course Home</a>
+        <a href="framework3_mlops_deployment.html">Next: MLOps & Deployment</a>
+        <p style="margin-top: 24px; opacity: 0.7;">© 2025 Chenhao Zhou</p>
+    </footer>
+</body>
+</html>

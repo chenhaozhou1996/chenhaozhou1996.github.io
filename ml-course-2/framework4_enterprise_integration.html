@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Framework 4: Enterprise ML Integration | Chenhao Zhou</title>
+    <meta name="description" content="Enterprise ML integration - data governance, security, compliance, cost optimization, and organizational deployment.">
+    <style>
+        :root {
+            --primary: #f59e0b;
+            --primary-dark: #d97706;
+            --primary-gradient: linear-gradient(135deg, #f59e0b 0%, #f97316 50%, #ef4444 100%);
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --text-muted: #6b7280;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --border: #e5e7eb;
+            --code-bg: #1e293b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .hero {
+            background: var(--primary-gradient);
+            padding: 60px 20px 80px;
+            color: white;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+
+        .breadcrumb { margin-bottom: 20px; opacity: 0.9; }
+        .breadcrumb a { color: white; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        .hero h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 16px; }
+        .hero-meta { display: flex; gap: 24px; flex-wrap: wrap; opacity: 0.9; }
+
+        .nav-wrapper {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-bar {
+            max-width: 1000px; margin: 0 auto; padding: 12px 20px;
+            display: flex; gap: 8px; flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: var(--text-secondary); text-decoration: none;
+            padding: 8px 16px; border-radius: 6px; font-size: 0.9rem; transition: all 0.2s;
+        }
+        .nav-link:hover { background: var(--primary); color: white; }
+
+        .content { padding: 48px 20px; }
+        .section { margin-bottom: 64px; }
+
+        .section-number {
+            display: inline-block; background: var(--primary-gradient);
+            color: white; width: 36px; height: 36px; border-radius: 50%;
+            text-align: center; line-height: 36px; font-weight: 700; margin-right: 12px;
+        }
+
+        h2 { font-size: 1.75rem; margin-bottom: 24px; display: flex; align-items: center; }
+        h3 { font-size: 1.25rem; margin: 32px 0 16px; color: var(--primary-dark); }
+        h4 { font-size: 1.1rem; margin: 24px 0 12px; }
+        p { margin-bottom: 16px; color: var(--text-secondary); }
+
+        .concept-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid var(--primary);
+            padding: 24px; border-radius: 0 12px 12px 0; margin: 24px 0;
+        }
+        .concept-box h4 { color: var(--primary-dark); margin-top: 0; }
+
+        .code-block {
+            background: var(--code-bg); border-radius: 12px;
+            padding: 24px; margin: 24px 0; overflow-x: auto;
+        }
+        .code-block pre {
+            color: #e2e8f0; font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.9rem; line-height: 1.6; margin: 0;
+        }
+        .code-label {
+            color: #94a3b8; font-size: 0.8rem; margin-bottom: 12px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        .comparison-table {
+            width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.95rem;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 16px; text-align: left; border-bottom: 1px solid var(--border);
+        }
+        .comparison-table th { background: var(--surface); font-weight: 600; }
+        .comparison-table tr:hover { background: #f8fafc; }
+
+        .feature-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px; margin: 24px 0;
+        }
+        .feature-card {
+            background: white; border: 1px solid var(--border);
+            border-radius: 12px; padding: 24px; transition: all 0.2s;
+        }
+        .feature-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .feature-title { font-weight: 600; margin-bottom: 8px; }
+        .feature-desc { font-size: 0.9rem; color: var(--text-secondary); }
+
+        .key-points {
+            background: #fef3c7; border-radius: 12px; padding: 24px; margin: 24px 0;
+        }
+        .key-points h4 { color: #92400e; margin-top: 0; }
+        .key-points ul { margin: 0; padding-left: 20px; }
+        .key-points li { margin-bottom: 8px; color: #78350f; }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-left: 4px solid #ef4444;
+            padding: 24px; border-radius: 0 12px 12px 0; margin: 24px 0;
+        }
+        .warning-box h4 { color: #991b1b; margin-top: 0; }
+        .warning-box ul { color: #991b1b; }
+
+        .exercise {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-radius: 12px; padding: 24px; margin: 32px 0;
+        }
+        .exercise h4 { color: #065f46; margin-top: 0; }
+        .exercise p, .exercise li { color: #047857; }
+
+        .checklist {
+            background: var(--surface); border-radius: 12px; padding: 24px; margin: 24px 0;
+        }
+        .checklist h4 { margin-top: 0; margin-bottom: 16px; }
+        .checklist ul { list-style: none; padding: 0; }
+        .checklist li { padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .checklist li:last-child { border-bottom: none; }
+
+        .footer {
+            background: var(--text-primary); color: white;
+            padding: 32px 20px; text-align: center;
+        }
+        .footer a { color: rgba(255,255,255,0.8); text-decoration: none; margin: 0 16px; }
+        .footer a:hover { color: white; }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">ML Frameworks Course</a> / Framework 4
+            </div>
+            <h1>Enterprise ML Integration</h1>
+            <div class="hero-meta">
+                <span>Framework 4 of 4</span>
+                <span>|</span>
+                <span>Estimated: 5-7 hours</span>
+                <span>|</span>
+                <span>Level: Advanced</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="nav-wrapper">
+        <nav class="nav-bar">
+            <a href="#data-governance" class="nav-link">Data Governance</a>
+            <a href="#security" class="nav-link">Security</a>
+            <a href="#compliance" class="nav-link">Compliance</a>
+            <a href="#cost" class="nav-link">Cost Optimization</a>
+            <a href="#organization" class="nav-link">Team Organization</a>
+            <a href="index.html" class="nav-link">Back to Course</a>
+        </nav>
+    </div>
+
+    <main class="content">
+        <div class="container">
+
+            <!-- Section 1: Data Governance -->
+            <section id="data-governance" class="section">
+                <h2><span class="section-number">1</span>Data Governance for ML</h2>
+
+                <p>Data governance ensures data quality, accessibility, and compliance across the ML lifecycle. Enterprise ML requires formal policies for data collection, storage, access, and usage.</p>
+
+                <div class="concept-box">
+                    <h4>Data Governance Pillars</h4>
+                    <ul>
+                        <li><strong>Data Catalog:</strong> Centralized inventory of all data assets with metadata</li>
+                        <li><strong>Data Lineage:</strong> Track data flow from source through transformations to models</li>
+                        <li><strong>Data Quality:</strong> Automated validation and monitoring of data integrity</li>
+                        <li><strong>Access Control:</strong> Role-based permissions for data access</li>
+                        <li><strong>Data Retention:</strong> Policies for data lifecycle and deletion</li>
+                    </ul>
+                </div>
+
+                <h3>1.1 Data Catalog Implementation</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Data Catalog with Metadata</div>
+                    <pre>
+from dataclasses import dataclass, field
+from typing import List, Dict, Optional
+from datetime import datetime
+from enum import Enum
+
+class DataClassification(Enum):
+    PUBLIC = "public"
+    INTERNAL = "internal"
+    CONFIDENTIAL = "confidential"
+    RESTRICTED = "restricted"  # PII, financial data
+
+class DataType(Enum):
+    STRUCTURED = "structured"
+    UNSTRUCTURED = "unstructured"
+    SEMI_STRUCTURED = "semi_structured"
+
+@dataclass
+class DataAsset:
+    """Represents a data asset in the catalog."""
+    asset_id: str
+    name: str
+    description: str
+    owner: str
+    data_type: DataType
+    classification: DataClassification
+    location: str  # S3 path, database table, etc.
+    schema: Optional[Dict] = None
+    tags: List[str] = field(default_factory=list)
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+    retention_days: int = 365
+    pii_columns: List[str] = field(default_factory=list)
+
+@dataclass
+class DataLineage:
+    """Tracks data transformations and dependencies."""
+    source_assets: List[str]  # asset_ids
+    target_asset: str
+    transformation: str  # Description or code reference
+    created_by: str
+    created_at: datetime
+    job_id: Optional[str] = None
+
+class DataCatalog:
+    def __init__(self):
+        self.assets: Dict[str, DataAsset] = {}
+        self.lineage: List[DataLineage] = []
+
+    def register_asset(self, asset: DataAsset):
+        """Register a new data asset."""
+        self.assets[asset.asset_id] = asset
+        self._notify_data_stewards(asset)
+
+    def get_asset(self, asset_id: str) -> Optional[DataAsset]:
+        return self.assets.get(asset_id)
+
+    def search(self, query: str = None, classification: DataClassification = None,
+               tags: List[str] = None) -> List[DataAsset]:
+        """Search data assets."""
+        results = list(self.assets.values())
+
+        if classification:
+            results = [a for a in results if a.classification == classification]
+        if tags:
+            results = [a for a in results if any(t in a.tags for t in tags)]
+        if query:
+            query = query.lower()
+            results = [a for a in results if query in a.name.lower() or query in a.description.lower()]
+
+        return results
+
+    def add_lineage(self, lineage: DataLineage):
+        """Track data transformation."""
+        self.lineage.append(lineage)
+
+    def get_upstream(self, asset_id: str) -> List[DataAsset]:
+        """Get all upstream dependencies."""
+        upstream = set()
+        queue = [asset_id]
+
+        while queue:
+            current = queue.pop(0)
+            for lineage in self.lineage:
+                if lineage.target_asset == current:
+                    for source in lineage.source_assets:
+                        if source not in upstream:
+                            upstream.add(source)
+                            queue.append(source)
+
+        return [self.assets[aid] for aid in upstream if aid in self.assets]
+
+    def get_downstream(self, asset_id: str) -> List[DataAsset]:
+        """Get all downstream dependents."""
+        downstream = set()
+        queue = [asset_id]
+
+        while queue:
+            current = queue.pop(0)
+            for lineage in self.lineage:
+                if current in lineage.source_assets:
+                    if lineage.target_asset not in downstream:
+                        downstream.add(lineage.target_asset)
+                        queue.append(lineage.target_asset)
+
+        return [self.assets[aid] for aid in downstream if aid in self.assets]
+
+    def _notify_data_stewards(self, asset: DataAsset):
+        """Notify relevant parties about new data asset."""
+        if asset.classification in [DataClassification.CONFIDENTIAL, DataClassification.RESTRICTED]:
+            # Send notification to data governance team
+            pass
+
+# Usage
+catalog = DataCatalog()
+
+# Register customer data
+catalog.register_asset(DataAsset(
+    asset_id="customer_transactions",
+    name="Customer Transactions",
+    description="Daily transaction records from payment system",
+    owner="data-engineering@company.com",
+    data_type=DataType.STRUCTURED,
+    classification=DataClassification.CONFIDENTIAL,
+    location="s3://data-lake/transactions/",
+    tags=["customer", "financial", "daily"],
+    pii_columns=["customer_id", "email", "phone"]
+))</pre>
+                </div>
+
+                <h3>1.2 Data Quality Framework</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Data Quality Checks</div>
+                    <pre>
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import List, Any
+import pandas as pd
+
+@dataclass
+class QualityCheckResult:
+    check_name: str
+    passed: bool
+    actual_value: Any
+    expected_value: Any
+    message: str
+
+class DataQualityCheck(ABC):
+    @abstractmethod
+    def run(self, df: pd.DataFrame) -> QualityCheckResult:
+        pass
+
+class CompletenessCheck(DataQualityCheck):
+    def __init__(self, column: str, max_null_percent: float = 0.01):
+        self.column = column
+        self.max_null_percent = max_null_percent
+
+    def run(self, df: pd.DataFrame) -> QualityCheckResult:
+        null_percent = df[self.column].isnull().mean()
+        passed = null_percent <= self.max_null_percent
+
+        return QualityCheckResult(
+            check_name=f"completeness_{self.column}",
+            passed=passed,
+            actual_value=null_percent,
+            expected_value=self.max_null_percent,
+            message=f"Column {self.column}: {null_percent:.2%} null (max: {self.max_null_percent:.2%})"
+        )
+
+class UniquenessCheck(DataQualityCheck):
+    def __init__(self, column: str):
+        self.column = column
+
+    def run(self, df: pd.DataFrame) -> QualityCheckResult:
+        duplicate_count = df[self.column].duplicated().sum()
+        passed = duplicate_count == 0
+
+        return QualityCheckResult(
+            check_name=f"uniqueness_{self.column}",
+            passed=passed,
+            actual_value=duplicate_count,
+            expected_value=0,
+            message=f"Column {self.column}: {duplicate_count} duplicates found"
+        )
+
+class RangeCheck(DataQualityCheck):
+    def __init__(self, column: str, min_value: float = None, max_value: float = None):
+        self.column = column
+        self.min_value = min_value
+        self.max_value = max_value
+
+    def run(self, df: pd.DataFrame) -> QualityCheckResult:
+        violations = 0
+        if self.min_value is not None:
+            violations += (df[self.column] < self.min_value).sum()
+        if self.max_value is not None:
+            violations += (df[self.column] > self.max_value).sum()
+
+        passed = violations == 0
+
+        return QualityCheckResult(
+            check_name=f"range_{self.column}",
+            passed=passed,
+            actual_value=violations,
+            expected_value=0,
+            message=f"Column {self.column}: {violations} values out of range [{self.min_value}, {self.max_value}]"
+        )
+
+class DataQualityValidator:
+    def __init__(self, checks: List[DataQualityCheck]):
+        self.checks = checks
+
+    def validate(self, df: pd.DataFrame) -> List[QualityCheckResult]:
+        results = [check.run(df) for check in self.checks]
+
+        # Log results
+        passed = sum(1 for r in results if r.passed)
+        total = len(results)
+        print(f"Data quality: {passed}/{total} checks passed")
+
+        for result in results:
+            status = "PASS" if result.passed else "FAIL"
+            print(f"  [{status}] {result.message}")
+
+        return results
+
+# Usage
+validator = DataQualityValidator([
+    CompletenessCheck("customer_id"),
+    CompletenessCheck("amount"),
+    UniquenessCheck("transaction_id"),
+    RangeCheck("amount", min_value=0, max_value=100000),
+])
+
+results = validator.validate(transactions_df)</pre>
+                </div>
+            </section>
+
+            <!-- Section 2: Security -->
+            <section id="security" class="section">
+                <h2><span class="section-number">2</span>ML Security</h2>
+
+                <p>Security in ML systems extends beyond traditional application security to include model protection, data encryption, and adversarial robustness.</p>
+
+                <div class="warning-box">
+                    <h4>ML Security Threats</h4>
+                    <ul>
+                        <li><strong>Data poisoning:</strong> Malicious training data corrupts model behavior</li>
+                        <li><strong>Model extraction:</strong> Attackers reverse-engineer proprietary models</li>
+                        <li><strong>Adversarial attacks:</strong> Crafted inputs cause misclassifications</li>
+                        <li><strong>Model inversion:</strong> Reconstructing training data from model outputs</li>
+                        <li><strong>Membership inference:</strong> Determining if specific data was used for training</li>
+                    </ul>
+                </div>
+
+                <h3>2.1 Secure Model Serving</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Secure API Implementation</div>
+                    <pre>
+from fastapi import FastAPI, HTTPException, Depends, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
+from functools import wraps
+import hashlib
+import time
+from typing import Optional
+
+app = FastAPI()
+security = HTTPBearer()
+
+# Configuration
+SECRET_KEY = "your-secret-key"  # Load from secure vault in production
+RATE_LIMIT_PER_MINUTE = 100
+
+class RateLimiter:
+    def __init__(self):
+        self.requests = {}
+
+    def is_allowed(self, client_id: str) -> bool:
+        current_minute = int(time.time() / 60)
+        key = f"{client_id}:{current_minute}"
+
+        if key not in self.requests:
+            self.requests[key] = 0
+
+        self.requests[key] += 1
+        return self.requests[key] <= RATE_LIMIT_PER_MINUTE
+
+rate_limiter = RateLimiter()
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Security(security)):
+    """Verify JWT token."""
+    try:
+        payload = jwt.decode(
+            credentials.credentials,
+            SECRET_KEY,
+            algorithms=["HS256"]
+        )
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+def check_rate_limit(payload: dict = Depends(verify_token)):
+    """Check rate limits."""
+    client_id = payload.get("client_id")
+    if not rate_limiter.is_allowed(client_id):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded")
+    return payload
+
+def log_request(payload: dict, request_data: dict, response_data: dict):
+    """Audit logging for compliance."""
+    log_entry = {
+        "timestamp": time.time(),
+        "client_id": payload.get("client_id"),
+        "user_id": payload.get("user_id"),
+        "action": "prediction",
+        "request_hash": hashlib.sha256(str(request_data).encode()).hexdigest(),
+        "response_hash": hashlib.sha256(str(response_data).encode()).hexdigest(),
+    }
+    # Write to audit log (secure, append-only storage)
+    audit_logger.info(log_entry)
+
+@app.post("/predict")
+async def predict(
+    request: PredictionRequest,
+    payload: dict = Depends(check_rate_limit)
+):
+    """Secure prediction endpoint."""
+    # Validate input
+    if not validate_input(request.features):
+        raise HTTPException(status_code=400, detail="Invalid input")
+
+    # Check permissions
+    if not has_model_access(payload, "churn_model"):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    # Make prediction
+    prediction = model.predict(request.features)
+
+    response = {"prediction": prediction}
+
+    # Audit log
+    log_request(payload, request.dict(), response)
+
+    return response</pre>
+                </div>
+
+                <h3>2.2 Data Encryption</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Encryption for Sensitive Data</div>
+                    <pre>
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+import base64
+import os
+
+class DataEncryptor:
+    def __init__(self, key: bytes = None):
+        if key is None:
+            key = Fernet.generate_key()
+        self.fernet = Fernet(key)
+
+    def encrypt(self, data: str) -> str:
+        """Encrypt sensitive data."""
+        return self.fernet.encrypt(data.encode()).decode()
+
+    def decrypt(self, encrypted_data: str) -> str:
+        """Decrypt sensitive data."""
+        return self.fernet.decrypt(encrypted_data.encode()).decode()
+
+class PIIProtector:
+    """Protect personally identifiable information."""
+
+    def __init__(self, encryptor: DataEncryptor):
+        self.encryptor = encryptor
+        self.pii_columns = ['email', 'phone', 'ssn', 'credit_card']
+
+    def protect_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Encrypt PII columns in dataframe."""
+        df = df.copy()
+        for col in self.pii_columns:
+            if col in df.columns:
+                df[col] = df[col].apply(
+                    lambda x: self.encryptor.encrypt(str(x)) if pd.notna(x) else x
+                )
+        return df
+
+    def hash_identifier(self, value: str, salt: str = None) -> str:
+        """One-way hash for pseudonymization."""
+        if salt is None:
+            salt = os.urandom(16).hex()
+        hashed = hashlib.sha256(f"{salt}{value}".encode()).hexdigest()
+        return f"{salt}:{hashed}"
+
+# Usage
+encryptor = DataEncryptor()
+protector = PIIProtector(encryptor)
+
+# Protect data before storage/training
+protected_df = protector.protect_dataframe(customer_df)</pre>
+                </div>
+            </section>
+
+            <!-- Section 3: Compliance -->
+            <section id="compliance" class="section">
+                <h2><span class="section-number">3</span>Regulatory Compliance</h2>
+
+                <p>ML systems must comply with data protection regulations (GDPR, CCPA), industry standards (SOC2, HIPAA), and emerging AI regulations (EU AI Act).</p>
+
+                <h3>3.1 Compliance Requirements by Regulation</h3>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Regulation</th>
+                            <th>Key Requirements</th>
+                            <th>ML Implications</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>GDPR</strong></td>
+                            <td>Right to explanation, data minimization, consent</td>
+                            <td>Model explainability, feature selection justification</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CCPA</strong></td>
+                            <td>Opt-out rights, data disclosure</td>
+                            <td>Track data usage in models, deletion capabilities</td>
+                        </tr>
+                        <tr>
+                            <td><strong>HIPAA</strong></td>
+                            <td>PHI protection, access controls</td>
+                            <td>Encryption, audit trails, de-identification</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EU AI Act</strong></td>
+                            <td>Risk classification, transparency</td>
+                            <td>Documentation, testing, human oversight</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>3.2 Model Card Documentation</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Model Card Generator</div>
+                    <pre>
+from dataclasses import dataclass, field
+from typing import List, Dict
+from datetime import datetime
+import json
+
+@dataclass
+class ModelCard:
+    """Standardized model documentation for compliance."""
+
+    # Model Details
+    model_name: str
+    model_version: str
+    model_type: str  # e.g., "Binary Classification"
+    description: str
+    developers: List[str]
+    created_date: datetime
+
+    # Intended Use
+    primary_use_cases: List[str]
+    out_of_scope_uses: List[str]
+    target_users: List[str]
+
+    # Training Data
+    training_data_description: str
+    training_data_size: int
+    training_date_range: str
+    data_preprocessing: str
+
+    # Evaluation
+    evaluation_metrics: Dict[str, float]
+    evaluation_data_description: str
+    performance_by_group: Dict[str, Dict[str, float]] = field(default_factory=dict)
+
+    # Ethical Considerations
+    sensitive_features_used: List[str] = field(default_factory=list)
+    fairness_considerations: str = ""
+    potential_harms: List[str] = field(default_factory=list)
+    mitigations: List[str] = field(default_factory=list)
+
+    # Technical Specifications
+    input_features: List[str] = field(default_factory=list)
+    output_format: str = ""
+    model_size_mb: float = 0
+    inference_latency_ms: float = 0
+
+    # Maintenance
+    update_frequency: str = ""
+    monitoring_approach: str = ""
+    feedback_mechanism: str = ""
+
+    def to_markdown(self) -> str:
+        """Generate markdown documentation."""
+        return f"""
+# Model Card: {self.model_name}
+
+**Version:** {self.model_version}
+**Created:** {self.created_date.strftime('%Y-%m-%d')}
+**Developers:** {', '.join(self.developers)}
+
+## Model Description
+{self.description}
+
+**Model Type:** {self.model_type}
+
+## Intended Use
+
+### Primary Use Cases
+{chr(10).join(f'- {use}' for use in self.primary_use_cases)}
+
+### Out of Scope Uses
+{chr(10).join(f'- {use}' for use in self.out_of_scope_uses)}
+
+## Training Data
+{self.training_data_description}
+
+- **Size:** {self.training_data_size:,} samples
+- **Date Range:** {self.training_date_range}
+
+## Evaluation Results
+
+| Metric | Value |
+|--------|-------|
+{chr(10).join(f'| {k} | {v:.4f} |' for k, v in self.evaluation_metrics.items())}
+
+## Ethical Considerations
+
+### Sensitive Features
+{chr(10).join(f'- {f}' for f in self.sensitive_features_used) or 'None'}
+
+### Potential Harms
+{chr(10).join(f'- {h}' for h in self.potential_harms)}
+
+### Mitigations
+{chr(10).join(f'- {m}' for m in self.mitigations)}
+
+## Technical Specifications
+- **Input Features:** {len(self.input_features)} features
+- **Inference Latency:** {self.inference_latency_ms:.1f}ms (p50)
+- **Model Size:** {self.model_size_mb:.1f} MB
+
+## Maintenance
+- **Update Frequency:** {self.update_frequency}
+- **Monitoring:** {self.monitoring_approach}
+"""
+
+# Create model card
+card = ModelCard(
+    model_name="Customer Churn Predictor",
+    model_version="2.1.0",
+    model_type="Binary Classification (XGBoost)",
+    description="Predicts likelihood of customer churn within 30 days",
+    developers=["ML Team", "Data Science"],
+    created_date=datetime.now(),
+    primary_use_cases=[
+        "Identify at-risk customers for retention campaigns",
+        "Prioritize customer success team outreach"
+    ],
+    out_of_scope_uses=[
+        "Credit decisions",
+        "Employment decisions",
+        "Real-time fraud detection"
+    ],
+    target_users=["Customer Success Team", "Marketing"],
+    training_data_description="Historical customer behavior and transaction data",
+    training_data_size=500000,
+    training_date_range="2023-01-01 to 2024-01-01",
+    data_preprocessing="Standard scaling, one-hot encoding for categoricals",
+    evaluation_metrics={
+        "AUC-ROC": 0.87,
+        "Precision": 0.82,
+        "Recall": 0.79,
+        "F1 Score": 0.80
+    },
+    evaluation_data_description="20% holdout test set",
+    potential_harms=[
+        "False positives may lead to unnecessary discount offers",
+        "Model may perform differently across customer segments"
+    ],
+    mitigations=[
+        "Regular fairness audits across demographic groups",
+        "Human review required for high-value customer actions"
+    ]
+)
+
+print(card.to_markdown())</pre>
+                </div>
+            </section>
+
+            <!-- Section 4: Cost Optimization -->
+            <section id="cost" class="section">
+                <h2><span class="section-number">4</span>Cost Optimization</h2>
+
+                <p>ML infrastructure can become expensive quickly. Effective cost management requires monitoring usage, optimizing resources, and making informed trade-offs.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-title">Compute Costs</div>
+                        <div class="feature-desc">Training jobs, inference servers, GPU instances. Often 60-80% of ML infrastructure costs.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-title">Storage Costs</div>
+                        <div class="feature-desc">Training data, model artifacts, logs, experiment history. Grows continuously.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-title">Data Transfer</div>
+                        <div class="feature-desc">Cross-region data movement, API egress, streaming data costs.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-title">Managed Services</div>
+                        <div class="feature-desc">Feature stores, ML platforms, monitoring tools. Often overlooked.</div>
+                    </div>
+                </div>
+
+                <h3>4.1 Cost Tracking Implementation</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Python - ML Cost Tracker</div>
+                    <pre>
+from dataclasses import dataclass
+from typing import Dict, List
+from datetime import datetime, timedelta
+import boto3
+
+@dataclass
+class CostRecord:
+    timestamp: datetime
+    resource_type: str  # compute, storage, network
+    resource_id: str
+    usage_amount: float
+    usage_unit: str
+    cost_usd: float
+    tags: Dict[str, str]
+
+class MLCostTracker:
+    def __init__(self):
+        self.records: List[CostRecord] = []
+        self.budgets: Dict[str, float] = {}
+
+    def set_budget(self, category: str, monthly_budget: float):
+        """Set monthly budget for a category."""
+        self.budgets[category] = monthly_budget
+
+    def record_cost(self, record: CostRecord):
+        """Record a cost event."""
+        self.records.append(record)
+        self._check_budget_alerts(record)
+
+    def get_costs_by_project(self, start_date: datetime, end_date: datetime) -> Dict[str, float]:
+        """Get costs grouped by project."""
+        costs = {}
+        for record in self.records:
+            if start_date <= record.timestamp <= end_date:
+                project = record.tags.get("project", "untagged")
+                costs[project] = costs.get(project, 0) + record.cost_usd
+        return costs
+
+    def get_training_costs(self, model_name: str) -> float:
+        """Get total training cost for a model."""
+        return sum(
+            r.cost_usd for r in self.records
+            if r.tags.get("model") == model_name and r.tags.get("stage") == "training"
+        )
+
+    def get_inference_cost_per_prediction(self, model_name: str) -> float:
+        """Calculate cost per prediction."""
+        inference_records = [
+            r for r in self.records
+            if r.tags.get("model") == model_name and r.tags.get("stage") == "inference"
+        ]
+        total_cost = sum(r.cost_usd for r in inference_records)
+        total_predictions = sum(r.usage_amount for r in inference_records)
+        return total_cost / total_predictions if total_predictions > 0 else 0
+
+    def _check_budget_alerts(self, record: CostRecord):
+        """Check if budget thresholds exceeded."""
+        category = record.resource_type
+        if category in self.budgets:
+            current_month_cost = self._get_month_to_date_cost(category)
+            budget = self.budgets[category]
+
+            if current_month_cost > budget * 0.8:
+                self._send_alert(f"Warning: {category} at {current_month_cost/budget:.0%} of budget")
+            if current_month_cost > budget:
+                self._send_alert(f"ALERT: {category} exceeded budget!")
+
+    def generate_report(self) -> str:
+        """Generate cost report."""
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=30)
+
+        costs_by_project = self.get_costs_by_project(start_date, end_date)
+        total = sum(costs_by_project.values())
+
+        report = f"""
+ML Infrastructure Cost Report
+Period: {start_date.date()} to {end_date.date()}
+
+Total Cost: ${total:,.2f}
+
+By Project:
+"""
+        for project, cost in sorted(costs_by_project.items(), key=lambda x: -x[1]):
+            report += f"  {project}: ${cost:,.2f} ({cost/total*100:.1f}%)\n"
+
+        return report</pre>
+                </div>
+
+                <h3>4.2 Cost Optimization Strategies</h3>
+
+                <div class="key-points">
+                    <h4>Compute Optimization</h4>
+                    <ul>
+                        <li><strong>Spot instances:</strong> Use spot/preemptible instances for training (60-90% savings)</li>
+                        <li><strong>Right-sizing:</strong> Match instance types to workload requirements</li>
+                        <li><strong>Auto-scaling:</strong> Scale inference pods based on demand</li>
+                        <li><strong>Batch inference:</strong> Process predictions in batches during off-peak hours</li>
+                    </ul>
+                </div>
+
+                <div class="key-points">
+                    <h4>Storage Optimization</h4>
+                    <ul>
+                        <li><strong>Tiered storage:</strong> Move old data to cheaper storage classes</li>
+                        <li><strong>Compression:</strong> Compress model artifacts and datasets</li>
+                        <li><strong>Retention policies:</strong> Automatically delete old experiment artifacts</li>
+                        <li><strong>Deduplication:</strong> Avoid storing duplicate datasets</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 5: Team Organization -->
+            <section id="organization" class="section">
+                <h2><span class="section-number">5</span>ML Team Organization</h2>
+
+                <p>Effective ML organizations balance specialized expertise with cross-functional collaboration. Team structure significantly impacts velocity and quality of ML deliverables.</p>
+
+                <h3>5.1 ML Team Structures</h3>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Structure</th>
+                            <th>Description</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Centralized</strong></td>
+                            <td>Single ML team serves all business units</td>
+                            <td>Early-stage ML adoption, consistency</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Embedded</strong></td>
+                            <td>ML engineers embedded in product teams</td>
+                            <td>Fast iteration, product alignment</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hub-and-Spoke</strong></td>
+                            <td>Central platform team + embedded specialists</td>
+                            <td>Scale, balance of standards and speed</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>5.2 ML Roles and Responsibilities</h3>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-title">ML Engineer</div>
+                        <div class="feature-desc">Builds and deploys ML systems. Focuses on production reliability, scalability, and automation.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-title">Data Scientist</div>
+                        <div class="feature-desc">Develops models and analyzes data. Focuses on model quality, experimentation, and insights.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-title">Data Engineer</div>
+                        <div class="feature-desc">Builds data pipelines and infrastructure. Ensures data quality, availability, and governance.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-title">ML Platform Engineer</div>
+                        <div class="feature-desc">Develops internal ML tools and platforms. Enables self-service for ML practitioners.</div>
+                    </div>
+                </div>
+
+                <h3>5.3 ML Project Workflow</h3>
+
+                <div class="checklist">
+                    <h4>ML Project Lifecycle Checklist</h4>
+                    <ul>
+                        <li><strong>Problem Definition:</strong> Clear business objective, success metrics, constraints</li>
+                        <li><strong>Data Assessment:</strong> Data availability, quality, access permissions</li>
+                        <li><strong>Feasibility Study:</strong> Baseline model, expected performance, timeline</li>
+                        <li><strong>Development:</strong> Feature engineering, model training, evaluation</li>
+                        <li><strong>Review:</strong> Code review, model review, security review</li>
+                        <li><strong>Deployment:</strong> Staging test, canary release, production rollout</li>
+                        <li><strong>Monitoring:</strong> Performance tracking, drift detection, alerting</li>
+                        <li><strong>Iteration:</strong> Feedback collection, model updates, continuous improvement</li>
+                    </ul>
+                </div>
+
+                <div class="exercise">
+                    <h4>Enterprise ML Integration Summary</h4>
+                    <p>Successfully integrating ML into enterprise systems requires:</p>
+                    <ul>
+                        <li><strong>Governance:</strong> Data catalog, lineage tracking, quality monitoring</li>
+                        <li><strong>Security:</strong> Authentication, encryption, audit logging</li>
+                        <li><strong>Compliance:</strong> Documentation, explainability, fairness audits</li>
+                        <li><strong>Cost Management:</strong> Tracking, optimization, budgeting</li>
+                        <li><strong>Organization:</strong> Clear roles, workflows, cross-functional collaboration</li>
+                    </ul>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <a href="framework3_mlops_deployment.html">Previous: MLOps & Deployment</a>
+        <a href="index.html">Course Home</a>
+        <a href="../teaching.html">Teaching</a>
+        <p style="margin-top: 24px; opacity: 0.7;">© 2025 Chenhao Zhou</p>
+    </footer>
+</body>
+</html>
