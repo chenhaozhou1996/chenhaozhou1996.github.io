@@ -7,16 +7,16 @@
     <meta name="description" content="Comprehensive module on business analytics for management - integrating leadership, strategy, and management analytics with ML/AI/Statistics.">
     <style>
         :root {
+            --primary: #059669;
+            --primary-dark: #047857;
             --primary-gradient: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
-            --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
-            --leadership-gradient: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-            --strategy-gradient: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
             --text-primary: #1a1a1a;
             --text-secondary: #4a4a4a;
             --text-muted: #6b7280;
             --background: #ffffff;
             --surface: #f8fafc;
             --border: #e5e7eb;
+            --code-bg: #1e293b;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,843 +31,1206 @@
         /* Hero */
         .hero {
             background: var(--primary-gradient);
-            padding: 80px 20px 100px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background:
-                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-content {
-            text-align: center;
+            padding: 60px 20px 80px;
             color: white;
-            max-width: 900px;
-            margin: 0 auto;
         }
 
-        .module-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            padding: 10px 24px;
-            border-radius: 30px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 24px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
 
-        .hero h1 {
-            font-size: clamp(2rem, 4vw, 3.5rem);
-            font-weight: 700;
-            margin-bottom: 20px;
-            line-height: 1.2;
-        }
+        .breadcrumb { margin-bottom: 20px; opacity: 0.9; }
+        .breadcrumb a { color: white; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
 
-        .hero-subtitle {
-            font-size: 1.2rem;
-            opacity: 0.95;
-            margin-bottom: 32px;
-        }
+        .hero h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 16px; }
+        .hero-meta { display: flex; gap: 24px; flex-wrap: wrap; opacity: 0.9; }
 
         /* Navigation */
         .nav-wrapper {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            position: sticky; top: 0; z-index: 100;
             background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border);
         }
 
         .nav-bar {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 16px 20px;
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
+            max-width: 1000px; margin: 0 auto; padding: 12px 20px;
+            display: flex; gap: 8px; flex-wrap: wrap;
         }
 
         .nav-link {
-            color: var(--text-primary);
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            font-weight: 500;
+            color: var(--text-secondary); text-decoration: none;
+            padding: 8px 16px; border-radius: 6px; font-size: 0.9rem; transition: all 0.2s;
+        }
+        .nav-link:hover { background: var(--primary); color: white; }
+
+        /* Content */
+        .content { padding: 48px 20px; }
+        .section { margin-bottom: 64px; }
+
+        .section-number {
+            display: inline-block; background: var(--primary-gradient);
+            color: white; width: 36px; height: 36px; border-radius: 50%;
+            text-align: center; line-height: 36px; font-weight: 700; margin-right: 12px;
         }
 
-        .nav-link:hover {
-            background: var(--primary-gradient);
-            color: white;
+        h2 { font-size: 1.75rem; margin-bottom: 24px; display: flex; align-items: center; }
+        h3 { font-size: 1.25rem; margin: 32px 0 16px; color: var(--primary-dark); }
+        h4 { font-size: 1.1rem; margin: 24px 0 12px; }
+        p { margin-bottom: 16px; color: var(--text-secondary); }
+
+        .concept-box {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-left: 4px solid var(--primary);
+            padding: 24px; border-radius: 0 12px 12px 0; margin: 24px 0;
+        }
+        .concept-box h4 { color: var(--primary-dark); margin-top: 0; }
+
+        .code-block {
+            background: var(--code-bg); border-radius: 12px;
+            padding: 24px; margin: 24px 0; overflow-x: auto;
+        }
+        .code-block pre {
+            color: #e2e8f0; font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.9rem; line-height: 1.6; margin: 0;
+        }
+        .code-label {
+            color: #94a3b8; font-size: 0.8rem; margin-bottom: 12px;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
 
-        /* Main Content */
-        .main-content {
-            padding: 60px 20px;
+        .comparison-table {
+            width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.95rem;
         }
-
-        .section {
-            margin-bottom: 80px;
+        .comparison-table th, .comparison-table td {
+            padding: 16px; text-align: left; border-bottom: 1px solid var(--border);
         }
+        .comparison-table th { background: var(--surface); font-weight: 600; }
+        .comparison-table tr:hover { background: #f8fafc; }
 
-        .section-header {
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto 48px;
+        .feature-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px; margin: 24px 0;
         }
-
-        .section-label {
-            display: inline-block;
-            color: #059669;
-            font-weight: 600;
-            font-size: 0.875rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 12px;
+        .feature-card {
+            background: white; border: 1px solid var(--border);
+            border-radius: 12px; padding: 24px; transition: all 0.2s;
         }
+        .feature-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .feature-title { font-weight: 600; margin-bottom: 8px; }
+        .feature-desc { font-size: 0.9rem; color: var(--text-secondary); }
 
-        .section-title {
-            font-size: clamp(1.75rem, 3vw, 2.5rem);
-            font-weight: 700;
-            margin-bottom: 16px;
+        .key-points {
+            background: #fef3c7; border-radius: 12px; padding: 24px; margin: 24px 0;
         }
+        .key-points h4 { color: #92400e; margin-top: 0; }
+        .key-points ul { margin: 0; padding-left: 20px; }
+        .key-points li { margin-bottom: 8px; color: #78350f; }
 
-        .section-description {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
+        .exercise {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-radius: 12px; padding: 24px; margin: 32px 0;
         }
+        .exercise h4 { color: #065f46; margin-top: 0; }
+        .exercise p, .exercise li { color: #047857; }
 
-        /* Framework Cards */
-        .framework-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 28px;
+        .theory-box {
+            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+            border-left: 4px solid #7c3aed;
+            padding: 24px; border-radius: 0 12px 12px 0; margin: 24px 0;
         }
+        .theory-box h4 { color: #5b21b6; margin-top: 0; }
 
-        .framework-card {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            border: 1px solid var(--border);
+        .diagram {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 32px; margin: 24px 0; text-align: center;
         }
+        .diagram-title { font-weight: 600; margin-bottom: 20px; }
+        .flow-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; margin: 12px 0; }
+        .flow-box { background: white; border: 2px solid var(--primary); border-radius: 8px; padding: 12px 20px; font-weight: 600; color: var(--primary-dark); }
+        .flow-arrow { color: var(--primary); font-size: 1.5rem; }
 
-        .framework-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
-        }
-
-        .framework-header {
-            padding: 28px;
-            color: white;
-        }
-
-        .framework-header.leadership { background: var(--leadership-gradient); }
-        .framework-header.strategy { background: var(--strategy-gradient); }
-        .framework-header.analytics { background: var(--accent-gradient); }
-        .framework-header.integration { background: var(--primary-gradient); }
-
-        .framework-icon {
-            font-size: 2.5rem;
-            margin-bottom: 16px;
-        }
-
-        .framework-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .framework-subtitle {
-            font-size: 0.95rem;
-            opacity: 0.9;
-        }
-
-        .framework-body {
-            padding: 28px;
-        }
-
-        .framework-description {
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-        }
-
-        .concept-list {
-            list-style: none;
-        }
-
-        .concept-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .concept-item:last-child {
-            border-bottom: none;
-        }
-
-        .concept-icon {
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-
-        .concept-text {
-            font-size: 0.95rem;
-            color: var(--text-primary);
-        }
-
-        /* Theory Section */
-        .theory-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-        }
-
-        .theory-card {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            border-radius: 12px;
-            padding: 28px;
-            border-left: 4px solid #059669;
-        }
-
-        .theory-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-primary);
-        }
-
-        .theory-content {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        /* ML Toolkit Section */
-        .toolkit-container {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
-            border-radius: 20px;
-            padding: 48px;
-            color: white;
-        }
-
-        .toolkit-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .toolkit-title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .toolkit-subtitle {
-            opacity: 0.8;
-            font-size: 1.1rem;
-        }
-
-        .toolkit-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-        }
-
-        .toolkit-item {
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 24px;
-            border: 1px solid rgba(255,255,255,0.12);
-            transition: all 0.3s ease;
-        }
-
-        .toolkit-item:hover {
-            background: rgba(255,255,255,0.12);
-            transform: translateY(-4px);
-        }
-
-        .toolkit-item-icon {
-            font-size: 2rem;
-            margin-bottom: 16px;
-        }
-
-        .toolkit-item-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .toolkit-item-desc {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            line-height: 1.6;
-        }
-
-        .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 16px;
-        }
-
-        .tag {
-            background: rgba(52, 211, 153, 0.2);
-            color: #34d399;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        /* Case Studies */
-        .case-studies {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 28px;
-        }
-
-        .case-card {
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border: 1px solid var(--border);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .case-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 4px;
-            background: var(--primary-gradient);
-        }
-
-        .case-type {
-            display: inline-block;
-            background: #d1fae5;
-            color: #065f46;
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-        }
-
-        .case-title {
-            font-size: 1.35rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .case-desc {
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-        }
-
-        .case-metrics {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .metric {
-            text-align: center;
-        }
-
-        .metric-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #059669;
-        }
-
-        .metric-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* Learning Objectives */
-        .objectives-container {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-radius: 16px;
-            padding: 40px;
-        }
-
-        .objectives-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .objectives-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .objective-item {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-        }
-
-        .objective-number {
-            background: var(--primary-gradient);
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-
-        .objective-text {
-            font-size: 0.95rem;
-            color: var(--text-primary);
-        }
-
-        /* Footer */
         .footer {
-            background: var(--text-primary);
-            color: white;
-            padding: 40px 20px;
-            text-align: center;
+            background: var(--text-primary); color: white;
+            padding: 32px 20px; text-align: center;
         }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 32px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
-
-        .footer-link {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .footer-link:hover {
-            color: white;
-        }
+        .footer a { color: rgba(255,255,255,0.8); text-decoration: none; margin: 0 16px; }
+        .footer a:hover { color: white; }
 
         @media (max-width: 768px) {
-            .framework-grid,
-            .toolkit-grid,
-            .case-studies {
-                grid-template-columns: 1fr;
-            }
-
-            .toolkit-container {
-                padding: 32px 20px;
-            }
+            .flow-row { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
         }
     </style>
 </head>
 <body>
-    <!-- Hero Section -->
     <section class="hero">
         <div class="container">
-            <div class="hero-content">
-                <div class="module-badge">
-                    <span>MODULE 11</span>
-                    <span>|</span>
-                    <span>MANAGEMENT ANALYTICS</span>
-                </div>
-                <h1>Business Analytics in Management</h1>
-                <p class="hero-subtitle">Integrating Leadership, Strategy, and Management Analytics with ML/AI/Statistics</p>
+            <div class="breadcrumb">
+                <a href="index.html">ML Course</a> / Module 11
+            </div>
+            <h1>Business Analytics in Management</h1>
+            <div class="hero-meta">
+                <span>Module 11</span>
+                <span>|</span>
+                <span>Leadership, Strategy & AI Integration</span>
+                <span>|</span>
+                <span>Level: Graduate</span>
             </div>
         </div>
     </section>
 
-    <!-- Navigation -->
     <div class="nav-wrapper">
         <nav class="nav-bar">
-            <a href="#frameworks" class="nav-link">Frameworks</a>
-            <a href="#theory" class="nav-link">Theory</a>
+            <a href="#leadership" class="nav-link">Leadership Analytics</a>
+            <a href="#strategy" class="nav-link">Strategic Analytics</a>
+            <a href="#operations" class="nav-link">Operations</a>
+            <a href="#ai-integration" class="nav-link">AI Integration</a>
             <a href="#toolkit" class="nav-link">ML Toolkit</a>
             <a href="#cases" class="nav-link">Case Studies</a>
             <a href="index.html" class="nav-link">Back to Course</a>
         </nav>
     </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
+    <main class="content">
         <div class="container">
 
-            <!-- Learning Objectives -->
+            <!-- Section 1: Introduction -->
             <section class="section">
-                <div class="objectives-container">
-                    <h2 class="objectives-title">
-                        <span>Learning Objectives</span>
-                    </h2>
-                    <div class="objectives-grid">
-                        <div class="objective-item">
-                            <span class="objective-number">1</span>
-                            <span class="objective-text">Apply data-driven decision frameworks to leadership challenges using statistical inference and ML models</span>
-                        </div>
-                        <div class="objective-item">
-                            <span class="objective-number">2</span>
-                            <span class="objective-text">Design strategic analytics dashboards that translate complex data into executive-level insights</span>
-                        </div>
-                        <div class="objective-item">
-                            <span class="objective-number">3</span>
-                            <span class="objective-text">Implement predictive models for talent management, resource allocation, and organizational performance</span>
-                        </div>
-                        <div class="objective-item">
-                            <span class="objective-number">4</span>
-                            <span class="objective-text">Evaluate AI/ML solutions within ethical frameworks and organizational constraints</span>
-                        </div>
-                        <div class="objective-item">
-                            <span class="objective-number">5</span>
-                            <span class="objective-text">Synthesize quantitative analysis with qualitative leadership judgment for strategic decision-making</span>
-                        </div>
-                        <div class="objective-item">
-                            <span class="objective-number">6</span>
-                            <span class="objective-text">Communicate analytical findings effectively to diverse stakeholder groups</span>
-                        </div>
-                    </div>
+                <h2><span class="section-number">1</span>Introduction: Analytics Meets Management</h2>
+
+                <p>Management has always been about making decisions under uncertainty. What has fundamentally changed is our ability to quantify that uncertainty. This module bridges machine learning, statistics, and AI with the core challenges of leadership, strategy, and organizational management.</p>
+
+                <p>The traditional management toolkit -- SWOT analysis, Porter's Five Forces, balanced scorecards -- provided qualitative structure. Modern management analytics extends these frameworks with quantitative rigor: instead of guessing which leadership style "feels right," we can classify leadership behaviors and predict their impact; instead of intuiting market trends, we can forecast them with confidence intervals.</p>
+
+                <div class="concept-box">
+                    <h4>The Management Analytics Paradigm</h4>
+                    <p>Management analytics is not about replacing human judgment with algorithms. It is about augmenting decision-making capacity by:</p>
+                    <ul>
+                        <li><strong>Reducing uncertainty:</strong> Probabilistic models quantify what we don't know</li>
+                        <li><strong>Scaling pattern recognition:</strong> ML detects patterns across thousands of variables simultaneously</li>
+                        <li><strong>Testing assumptions:</strong> Causal inference validates whether interventions actually work</li>
+                        <li><strong>Optimizing under constraints:</strong> Mathematical optimization finds best solutions in complex spaces</li>
+                    </ul>
+                </div>
+
+                <h3>1.1 The Analytics Maturity Model for Management</h3>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th>Analytics Type</th>
+                            <th>Management Question</th>
+                            <th>Methods</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. Descriptive</strong></td>
+                            <td>What happened?</td>
+                            <td>How did Q4 sales perform?</td>
+                            <td>Summary statistics, dashboards</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. Diagnostic</strong></td>
+                            <td>Why did it happen?</td>
+                            <td>Why did turnover spike in Engineering?</td>
+                            <td>Regression, driver analysis</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. Predictive</strong></td>
+                            <td>What will happen?</td>
+                            <td>Which employees are at risk of leaving?</td>
+                            <td>Classification, forecasting</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. Prescriptive</strong></td>
+                            <td>What should we do?</td>
+                            <td>How should we allocate the retention budget?</td>
+                            <td>Optimization, simulation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5. Causal</strong></td>
+                            <td>Did it actually work?</td>
+                            <td>Did the leadership program improve performance?</td>
+                            <td>Causal inference, A/B testing</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 2: Leadership Analytics -->
+            <section id="leadership" class="section">
+                <h2><span class="section-number">2</span>Leadership Analytics</h2>
+
+                <p>Leadership analytics applies data science methods to understand, predict, and develop leadership effectiveness. Rather than relying solely on subjective assessments, we combine qualitative leadership theory with quantitative ML approaches.</p>
+
+                <h3>2.1 Leadership Style Classification</h3>
+
+                <p>Leadership theory identifies several dominant styles (transformational, transactional, servant, authentic). Using survey data, 360-degree feedback, and behavioral indicators, we can classify leaders and predict team outcomes associated with each style.</p>
+
+                <div class="theory-box">
+                    <h4>Theoretical Foundation: Full-Range Leadership Model (Bass & Avolio)</h4>
+                    <p>The Full-Range Leadership Model positions leadership behaviors on a spectrum from laissez-faire (passive) to transformational (proactive, inspirational). Each style has measurable behavioral indicators that can be extracted from text data, survey responses, and performance metrics. ML classification enables us to identify dominant styles from behavioral data rather than self-report surveys alone.</p>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Leadership Style Classification from Survey Data</div>
+                    <pre>
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+import shap
+
+# Load 360-degree feedback survey data
+# Features: behavioral indicators rated by peers, reports, supervisors
+survey_data = pd.DataFrame({
+    'inspires_vision': np.random.uniform(1, 5, 500),
+    'intellectual_stimulation': np.random.uniform(1, 5, 500),
+    'individualized_consideration': np.random.uniform(1, 5, 500),
+    'contingent_reward': np.random.uniform(1, 5, 500),
+    'active_management': np.random.uniform(1, 5, 500),
+    'passive_management': np.random.uniform(1, 5, 500),
+    'team_empowerment': np.random.uniform(1, 5, 500),
+    'ethical_modeling': np.random.uniform(1, 5, 500),
+    'communication_frequency': np.random.uniform(0, 50, 500),
+    'decision_inclusiveness': np.random.uniform(1, 5, 500),
+    'team_performance_score': np.random.uniform(50, 100, 500),
+    'leadership_style': np.random.choice(
+        ['transformational', 'transactional', 'servant', 'authentic'], 500
+    )
+})
+
+# Feature engineering: create composite indicators
+survey_data['transformation_index'] = (
+    survey_data['inspires_vision'] +
+    survey_data['intellectual_stimulation'] +
+    survey_data['individualized_consideration']
+) / 3
+
+survey_data['transactional_index'] = (
+    survey_data['contingent_reward'] +
+    survey_data['active_management']
+) / 2
+
+# Prepare features and target
+feature_cols = [
+    'inspires_vision', 'intellectual_stimulation', 'individualized_consideration',
+    'contingent_reward', 'active_management', 'passive_management',
+    'team_empowerment', 'ethical_modeling', 'communication_frequency',
+    'decision_inclusiveness', 'transformation_index', 'transactional_index'
+]
+
+X = survey_data[feature_cols]
+y = survey_data['leadership_style']
+
+# Build classification pipeline
+pipeline = Pipeline([
+    ('scaler', StandardScaler()),
+    ('classifier', RandomForestClassifier(n_estimators=200, max_depth=8, random_state=42))
+])
+
+# Cross-validation
+cv_scores = cross_val_score(pipeline, X, y, cv=5, scoring='accuracy')
+print(f"Classification Accuracy: {cv_scores.mean():.3f} (+/- {cv_scores.std():.3f})")
+
+# Fit and explain with SHAP
+pipeline.fit(X, y)
+
+explainer = shap.TreeExplainer(pipeline.named_steps['classifier'])
+X_scaled = pipeline.named_steps['scaler'].transform(X)
+shap_values = explainer.shap_values(X_scaled)
+
+# Which behavioral indicators most distinguish leadership styles?
+print("\nTop Features Driving Classification:")
+feature_importance = pd.DataFrame({
+    'feature': feature_cols,
+    'importance': pipeline.named_steps['classifier'].feature_importances_
+}).sort_values('importance', ascending=False)
+print(feature_importance.to_string(index=False))</pre>
+                </div>
+
+                <h3>2.2 Employee Turnover Prediction with Survival Analysis</h3>
+
+                <p>Traditional turnover models give a binary yes/no prediction. Survival analysis answers a more nuanced question: <em>when</em> is an employee likely to leave? This enables time-sensitive retention interventions.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Survival Analysis for Retention Prediction</div>
+                    <pre>
+from lifelines import CoxPHFitter, KaplanMeierFitter
+import pandas as pd
+import numpy as np
+
+# Employee data with tenure and event indicator
+employee_data = pd.DataFrame({
+    'tenure_months': np.random.exponential(24, 1000).astype(int).clip(1, 120),
+    'departed': np.random.binomial(1, 0.35, 1000),  # 1 = left, 0 = still employed
+    'salary_band': np.random.choice(['low', 'mid', 'high'], 1000),
+    'performance_rating': np.random.uniform(1, 5, 1000),
+    'manager_quality_score': np.random.uniform(1, 5, 1000),
+    'promotion_last_2yr': np.random.binomial(1, 0.25, 1000),
+    'team_size': np.random.randint(3, 25, 1000),
+    'remote_work_pct': np.random.uniform(0, 100, 1000),
+    'engagement_score': np.random.uniform(1, 5, 1000),
+    'training_hours_annual': np.random.uniform(0, 100, 1000),
+})
+
+# Encode salary band
+salary_dummies = pd.get_dummies(employee_data['salary_band'], prefix='salary', drop_first=True)
+employee_data = pd.concat([employee_data, salary_dummies], axis=1)
+
+# Kaplan-Meier survival curves by salary band
+kmf = KaplanMeierFitter()
+
+print("Median Survival Time by Salary Band:")
+for band in ['low', 'mid', 'high']:
+    mask = employee_data['salary_band'] == band
+    kmf.fit(
+        employee_data.loc[mask, 'tenure_months'],
+        employee_data.loc[mask, 'departed'],
+        label=f'Salary: {band}'
+    )
+    print(f"  {band}: {kmf.median_survival_time_:.1f} months")
+
+# Cox Proportional Hazards - which factors accelerate departure?
+cph = CoxPHFitter()
+
+cox_features = [
+    'performance_rating', 'manager_quality_score', 'promotion_last_2yr',
+    'team_size', 'remote_work_pct', 'engagement_score',
+    'training_hours_annual', 'salary_mid', 'salary_high'
+]
+
+cph.fit(
+    employee_data[cox_features + ['tenure_months', 'departed']],
+    duration_col='tenure_months',
+    event_col='departed'
+)
+
+print("\nCox Model - Turnover Risk Factors:")
+print(cph.summary[['coef', 'exp(coef)', 'p']].to_string())
+print("\nInterpretation:")
+print("  exp(coef) > 1: Factor increases departure risk")
+print("  exp(coef) < 1: Factor is protective (reduces departure risk)")
+
+# Predict individual survival curves
+# "When will this specific employee likely leave?"
+new_employee = pd.DataFrame({
+    'performance_rating': [4.2],
+    'manager_quality_score': [2.1],  # Low manager quality
+    'promotion_last_2yr': [0],
+    'team_size': [15],
+    'remote_work_pct': [20],
+    'engagement_score': [3.0],
+    'training_hours_annual': [10],
+    'salary_mid': [1],
+    'salary_high': [0],
+})
+
+survival_function = cph.predict_survival_function(new_employee)
+print(f"\nProbability employee stays 12+ months: {survival_function.loc[12].values[0]:.2%}")
+print(f"Probability employee stays 24+ months: {survival_function.loc[24].values[0]:.2%}")</pre>
+                </div>
+
+                <h3>2.3 Organizational Network Analysis</h3>
+
+                <p>Formal org charts don't capture how organizations actually work. Network analysis reveals informal influence patterns, communication bottlenecks, and hidden leaders by analyzing email metadata, meeting patterns, and collaboration data.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Organizational Influence Network</div>
+                    <pre>
+import networkx as nx
+import pandas as pd
+import numpy as np
+from collections import defaultdict
+
+# Build communication network from email/meeting data
+# Nodes = employees, edges = communication frequency
+communication_data = pd.DataFrame({
+    'sender': np.random.choice([f'EMP_{i}' for i in range(50)], 500),
+    'receiver': np.random.choice([f'EMP_{i}' for i in range(50)], 500),
+    'frequency': np.random.randint(1, 30, 500),
+    'avg_response_time_hrs': np.random.exponential(4, 500),
+})
+
+# Create directed graph
+G = nx.DiGraph()
+for _, row in communication_data.iterrows():
+    if row['sender'] != row['receiver']:
+        G.add_edge(row['sender'], row['receiver'], weight=row['frequency'])
+
+# Centrality measures - who are the key influencers?
+degree_centrality = nx.degree_centrality(G)
+betweenness_centrality = nx.betweenness_centrality(G, weight='weight')
+pagerank = nx.pagerank(G, weight='weight')
+
+# Combine into influence score
+influence_df = pd.DataFrame({
+    'employee': list(degree_centrality.keys()),
+    'degree_centrality': list(degree_centrality.values()),
+    'betweenness_centrality': [betweenness_centrality.get(n, 0) for n in degree_centrality.keys()],
+    'pagerank': [pagerank.get(n, 0) for n in degree_centrality.keys()],
+})
+
+# Composite influence score (weighted combination)
+influence_df['influence_score'] = (
+    0.3 * influence_df['degree_centrality'] / influence_df['degree_centrality'].max() +
+    0.4 * influence_df['betweenness_centrality'] / influence_df['betweenness_centrality'].max() +
+    0.3 * influence_df['pagerank'] / influence_df['pagerank'].max()
+)
+
+print("Top 10 Organizational Influencers:")
+top_influencers = influence_df.nlargest(10, 'influence_score')
+print(top_influencers[['employee', 'influence_score', 'betweenness_centrality']].to_string(index=False))
+
+# Community detection - identify informal groups
+from networkx.algorithms.community import greedy_modularity_communities
+
+G_undirected = G.to_undirected()
+communities = list(greedy_modularity_communities(G_undirected))
+
+print(f"\nDetected {len(communities)} informal communities:")
+for i, community in enumerate(communities):
+    print(f"  Community {i+1}: {len(community)} members")
+
+# Bridge nodes - employees who connect different communities
+bridge_scores = {}
+for node in G_undirected.nodes():
+    neighbors = set(G_undirected.neighbors(node))
+    communities_connected = set()
+    for i, comm in enumerate(communities):
+        if neighbors & comm:
+            communities_connected.add(i)
+    bridge_scores[node] = len(communities_connected)
+
+bridges = sorted(bridge_scores.items(), key=lambda x: -x[1])[:5]
+print("\nKey Bridge Employees (connecting multiple groups):")
+for emp, score in bridges:
+    print(f"  {emp}: connects {score} communities")</pre>
                 </div>
             </section>
 
-            <!-- Frameworks Section -->
-            <section id="frameworks" class="section">
-                <div class="section-header">
-                    <div class="section-label">Conceptual Foundations</div>
-                    <h2 class="section-title">Management Analytics Frameworks</h2>
-                    <p class="section-description">Four pillars that bridge data science capabilities with executive decision-making requirements</p>
+            <!-- Section 3: Strategic Analytics -->
+            <section id="strategy" class="section">
+                <h2><span class="section-number">3</span>Strategic Analytics</h2>
+
+                <p>Strategic decisions carry high stakes and long time horizons. Analytics doesn't eliminate strategic uncertainty, but it dramatically improves the quality of information feeding into strategic choices.</p>
+
+                <h3>3.1 Market Segmentation with Clustering</h3>
+
+                <p>Strategic market segmentation goes beyond demographics. ML clustering reveals behavioral segments that drive differentiated strategies.</p>
+
+                <div class="theory-box">
+                    <h4>Theoretical Foundation: Resource-Based View (Barney, 1991)</h4>
+                    <p>The Resource-Based View (RBV) argues that sustained competitive advantage comes from resources that are Valuable, Rare, Inimitable, and Non-substitutable (VRIN). A firm's analytical capability -- its ability to extract insights from data that competitors cannot -- qualifies as a VRIN resource. This frames data analytics not as a cost center but as a strategic asset.</p>
                 </div>
 
-                <div class="framework-grid">
-                    <!-- Leadership Analytics -->
-                    <div class="framework-card">
-                        <div class="framework-header leadership">
-                            <div class="framework-icon">Leadership Analytics</div>
-                            <h3 class="framework-title">Leadership Analytics</h3>
-                            <p class="framework-subtitle">Data-Driven Leadership Development</p>
-                        </div>
-                        <div class="framework-body">
-                            <p class="framework-description">Leverage ML models to identify leadership potential, optimize team compositions, and predict leadership effectiveness across organizational contexts.</p>
-                            <ul class="concept-list">
-                                <li class="concept-item">
-                                    <span class="concept-icon">Classification models for leadership style identification</span>
-                                </li>
-                                <li class="concept-item">
-                                    <span class="concept-icon">Network analysis for influence mapping</span>
-                                </li>
-                                <li class="concept-item">
-                                    <span class="concept-icon">Sentiment analysis for team dynamics assessment</span>
-                                </li>
-                                <li class="concept-item">
-                                    <span class="concept-icon">Survival analysis for retention prediction</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+                <div class="code-block">
+                    <div class="code-label">Python - Strategic Customer Segmentation</div>
+                    <pre>
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+import pandas as pd
+import numpy as np
 
-                    <!-- Strategic Analytics -->
-                    <div class="framework-card">
-                        <div class="framework-header strategy">
-                            <h3 class="framework-title">Strategic Analytics</h3>
-                            <p class="framework-subtitle">Competitive Intelligence & Market Positioning</p>
-                        </div>
-                        <div class="framework-body">
-                            <p class="framework-description">Apply machine learning to strategic planning, competitive analysis, and market positioning decisions with quantifiable uncertainty measures.</p>
-                            <ul class="concept-list">
-                                <li class="concept-item">
-                                    <span class="concept-icon">Time series forecasting for market trends</span>
-                                </li>
-                                <li class="concept-item">
-                                    <span class="concept-icon">Clustering for market segmentation strategy</span>
-                                </li>
-                                <li class="concept-item">
-                                    <span class="concept-icon">Causal inference for strategic interventions</span>
-                                </li>
-                                <li class="concept-item">
-                                    <span class="concept-icon">Scenario modeling with Monte Carlo simulation</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+# Customer behavioral data
+customers = pd.DataFrame({
+    'customer_id': range(2000),
+    'annual_revenue': np.random.exponential(5000, 2000),
+    'purchase_frequency': np.random.poisson(12, 2000),
+    'avg_order_value': np.random.exponential(200, 2000),
+    'customer_tenure_years': np.random.exponential(3, 2000),
+    'support_tickets_annual': np.random.poisson(4, 2000),
+    'product_breadth': np.random.randint(1, 8, 2000),
+    'digital_engagement_score': np.random.uniform(0, 100, 2000),
+    'nps_score': np.random.randint(-100, 100, 2000),
+})
 
-                    <!-- Operations Analytics -->
-                    <div class="framework-card">
-                        <div class="framework-header analytics">
-                            <h3 class="framework-title">Management Operations Analytics</h3>
-                            <p class="framework-subtitle">Organizational Performance Optimization</p>
-                        </div>
-                        <div class="framework-body">
-                            <p class="framework-description">Optimize organizational processes, resource allocation, and operational efficiency through statistical modeling and optimization algorithms.</p>
-                            <ul class="concept-list">
-                                <li class="concept-item">
-                                    <span class="concept-icon">Regression models for KPI driver analysis</span>
-                                </li>
-                                <li class="concept-item">
-                                    <span class="concept-icon">Optimization models for resource allocation</span>
-                                </li>
-                                <li class="concept-item">
-                                    <span class="concept-icon">Process mining for workflow optimization</span>
-                                </li>
-                                <li class="concept-item">
-                                    <span class="concept-icon">Anomaly detection for risk management</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+# Prepare features for clustering
+cluster_features = [
+    'annual_revenue', 'purchase_frequency', 'avg_order_value',
+    'customer_tenure_years', 'product_breadth', 'digital_engagement_score', 'nps_score'
+]
 
-                    <!-- Integration Framework -->
-                    <div class="framework-card">
-                        <div class="framework-header integration">
-                            <h3 class="framework-title">AI-Management Integration</h3>
-                            <p class="framework-subtitle">Human-AI Decision Augmentation</p>
-                        </div>
-                        <div class="framework-body">
-                            <p class="framework-description">Design hybrid decision systems that combine AI capabilities with human judgment, ensuring ethical deployment and organizational alignment.</p>
-                            <ul class="concept-list">
-                                <li class="concept-item">
-                                    <span class="concept-icon">Explainable AI for executive decision support</span>
-                                </li>
-                                <li class="concept-item">
-                                    <span class="concept-icon">Bias detection and fairness auditing</span>
-                                </li>
-                                <li class="concept-item">
-                                    <span class="concept-icon">Human-in-the-loop model deployment</span>
-                                </li>
-                                <li class="concept-item">
-                                    <span class="concept-icon">Change management for AI adoption</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(customers[cluster_features])
+
+# Find optimal number of clusters
+silhouette_scores = {}
+for k in range(2, 8):
+    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+    labels = kmeans.fit_predict(X_scaled)
+    silhouette_scores[k] = silhouette_score(X_scaled, labels)
+    print(f"k={k}: Silhouette Score = {silhouette_scores[k]:.3f}")
+
+optimal_k = max(silhouette_scores, key=silhouette_scores.get)
+print(f"\nOptimal clusters: {optimal_k}")
+
+# Fit final model
+kmeans = KMeans(n_clusters=optimal_k, random_state=42, n_init=10)
+customers['segment'] = kmeans.fit_predict(X_scaled)
+
+# Profile each segment for strategic interpretation
+print("\nSegment Profiles:")
+segment_profiles = customers.groupby('segment')[cluster_features].mean()
+segment_sizes = customers['segment'].value_counts().sort_index()
+
+for seg in range(optimal_k):
+    print(f"\n--- Segment {seg} ({segment_sizes[seg]} customers, {segment_sizes[seg]/len(customers)*100:.1f}%) ---")
+    profile = segment_profiles.loc[seg]
+    print(f"  Revenue: ${profile['annual_revenue']:,.0f}")
+    print(f"  Purchase Freq: {profile['purchase_frequency']:.1f}/year")
+    print(f"  Tenure: {profile['customer_tenure_years']:.1f} years")
+    print(f"  NPS: {profile['nps_score']:.0f}")
+    print(f"  Engagement: {profile['digital_engagement_score']:.0f}/100")</pre>
+                </div>
+
+                <h3>3.2 Strategic Scenario Analysis with Monte Carlo Simulation</h3>
+
+                <p>Strategy involves making decisions under deep uncertainty -- market shifts, competitor actions, regulatory changes. Monte Carlo simulation quantifies the range of possible outcomes and their probabilities, enabling risk-adjusted strategic planning.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Monte Carlo Strategic Scenario Model</div>
+                    <pre>
+import numpy as np
+import pandas as pd
+
+def strategic_scenario_simulation(n_simulations=10000):
+    """
+    Simulate market entry decision under uncertainty.
+    Question: Should we enter a new market given uncertain demand,
+    competitive response, and regulatory environment?
+    """
+    np.random.seed(42)
+
+    # Uncertain variables with distributions based on expert estimates
+    market_size = np.random.triangular(50e6, 80e6, 120e6, n_simulations)  # $50M-$120M
+    market_share_yr1 = np.random.beta(2, 8, n_simulations)  # Right-skewed, ~20% mean
+    price_per_unit = np.random.normal(45, 5, n_simulations)  # $45 +/- $5
+    variable_cost = np.random.normal(20, 3, n_simulations)   # $20 +/- $3
+    fixed_costs = np.random.triangular(5e6, 8e6, 12e6, n_simulations)  # $5M-$12M
+
+    # Competitor response probability (70% chance of aggressive response)
+    competitor_response = np.random.binomial(1, 0.7, n_simulations)
+    share_reduction = competitor_response * np.random.uniform(0.1, 0.3, n_simulations)
+
+    # Regulatory risk (15% chance of unfavorable regulation)
+    regulatory_impact = np.random.binomial(1, 0.15, n_simulations)
+    regulatory_cost = regulatory_impact * np.random.uniform(1e6, 5e6, n_simulations)
+
+    # Calculate outcomes
+    adjusted_share = market_share_yr1 * (1 - share_reduction)
+    revenue = market_size * adjusted_share
+    units = revenue / price_per_unit
+    gross_profit = units * (price_per_unit - variable_cost)
+    net_profit = gross_profit - fixed_costs - regulatory_cost
+
+    # Analysis
+    results = pd.DataFrame({
+        'revenue': revenue,
+        'net_profit': net_profit,
+        'market_share': adjusted_share,
+    })
+
+    print("=== Strategic Scenario Analysis: Market Entry ===\n")
+    print(f"Simulations: {n_simulations:,}")
+    print(f"\nRevenue Distribution:")
+    print(f"  P10: ${results['revenue'].quantile(0.10):,.0f}")
+    print(f"  P50: ${results['revenue'].quantile(0.50):,.0f}")
+    print(f"  P90: ${results['revenue'].quantile(0.90):,.0f}")
+
+    print(f"\nNet Profit Distribution:")
+    print(f"  P10: ${results['net_profit'].quantile(0.10):,.0f}")
+    print(f"  P50: ${results['net_profit'].quantile(0.50):,.0f}")
+    print(f"  P90: ${results['net_profit'].quantile(0.90):,.0f}")
+
+    probability_profitable = (results['net_profit'] > 0).mean()
+    print(f"\nProbability of Profitability: {probability_profitable:.1%}")
+
+    probability_strong = (results['net_profit'] > 2e6).mean()
+    print(f"Probability of >$2M Profit: {probability_strong:.1%}")
+
+    expected_value = results['net_profit'].mean()
+    print(f"\nExpected Value: ${expected_value:,.0f}")
+
+    # Value at Risk
+    var_5pct = results['net_profit'].quantile(0.05)
+    print(f"Value at Risk (5%): ${var_5pct:,.0f}")
+    print(f"  (5% chance of losing more than ${abs(var_5pct):,.0f})")
+
+    return results
+
+results = strategic_scenario_simulation()</pre>
+                </div>
+
+                <h3>3.3 Causal Inference for Strategic Interventions</h3>
+
+                <p>Correlation is not causation -- and in management, the distinction matters enormously. Did the new training program actually improve performance, or did high-performing employees self-select into it? Causal inference methods answer these questions rigorously.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Difference-in-Differences for Program Evaluation</div>
+                    <pre>
+import pandas as pd
+import numpy as np
+import statsmodels.formula.api as smf
+
+# Did the leadership development program improve team performance?
+# Treatment: Selected managers received 6-month program
+# Control: Comparable managers did not
+
+np.random.seed(42)
+n = 200  # 100 treatment + 100 control
+
+data = pd.DataFrame({
+    'manager_id': range(n),
+    'treated': [1]*100 + [0]*100,
+    'experience_years': np.random.uniform(3, 20, n),
+    'team_size': np.random.randint(5, 25, n),
+    'pre_performance': np.random.normal(70, 10, n),  # Before program
+})
+
+# Generate post-performance with treatment effect
+treatment_effect = 5.2  # True effect: +5.2 points
+noise = np.random.normal(0, 5, n)
+time_trend = 2.0  # Natural improvement over time
+
+data['post_performance'] = (
+    data['pre_performance'] +
+    time_trend +
+    treatment_effect * data['treated'] +
+    noise
+)
+
+# Reshape for DiD panel format
+pre = data[['manager_id', 'treated', 'pre_performance', 'experience_years', 'team_size']].copy()
+pre['period'] = 0
+pre.rename(columns={'pre_performance': 'performance'}, inplace=True)
+
+post = data[['manager_id', 'treated', 'post_performance', 'experience_years', 'team_size']].copy()
+post['period'] = 1
+post.rename(columns={'post_performance': 'performance'}, inplace=True)
+
+panel = pd.concat([pre, post], ignore_index=True)
+
+# Difference-in-Differences regression
+did_model = smf.ols(
+    'performance ~ treated * period + experience_years + team_size',
+    data=panel
+).fit(cov_type='cluster', cov_kwds={'groups': panel['manager_id']})
+
+print("=== Difference-in-Differences: Leadership Program Impact ===\n")
+print(did_model.summary().tables[1])
+
+# The coefficient on treated:period is the DiD estimate (causal effect)
+did_estimate = did_model.params['treated:period']
+did_pvalue = did_model.pvalues['treated:period']
+
+print(f"\nEstimated Causal Effect: {did_estimate:.2f} performance points")
+print(f"P-value: {did_pvalue:.4f}")
+print(f"95% CI: [{did_model.conf_int().loc['treated:period', 0]:.2f}, "
+      f"{did_model.conf_int().loc['treated:period', 1]:.2f}]")
+
+if did_pvalue < 0.05:
+    print(f"\nConclusion: The leadership program had a statistically significant "
+          f"positive effect of {did_estimate:.1f} points on team performance.")
+else:
+    print("\nConclusion: No statistically significant effect detected.")</pre>
                 </div>
             </section>
 
-            <!-- Theory Section -->
-            <section id="theory" class="section">
-                <div class="section-header">
-                    <div class="section-label">Theoretical Foundations</div>
-                    <h2 class="section-title">Conceptual Underpinnings</h2>
-                    <p class="section-description">Key theoretical frameworks connecting management science with analytics methodologies</p>
+            <!-- Section 4: Management Operations Analytics -->
+            <section id="operations" class="section">
+                <h2><span class="section-number">4</span>Management Operations Analytics</h2>
+
+                <p>Operational management decisions -- resource allocation, process optimization, workforce planning -- are particularly well-suited to analytics because they involve quantifiable inputs, constraints, and outcomes.</p>
+
+                <h3>4.1 KPI Driver Analysis with Regression</h3>
+
+                <p>Before optimizing a KPI, you need to understand what drives it. Regression analysis identifies which controllable factors most influence outcomes, enabling focused management intervention.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Python - KPI Driver Analysis</div>
+                    <pre>
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import GradientBoostingRegressor
+import shap
+
+# What drives customer satisfaction (CSAT) scores?
+n_stores = 500
+stores = pd.DataFrame({
+    'store_id': range(n_stores),
+    'staff_per_sqft': np.random.uniform(0.01, 0.05, n_stores),
+    'avg_wait_time_min': np.random.exponential(5, n_stores),
+    'training_hours_per_staff': np.random.uniform(10, 80, n_stores),
+    'inventory_accuracy': np.random.uniform(0.85, 0.99, n_stores),
+    'store_age_years': np.random.uniform(1, 20, n_stores),
+    'local_competition_density': np.random.poisson(3, n_stores),
+    'manager_tenure_years': np.random.exponential(3, n_stores),
+    'digital_kiosk_available': np.random.binomial(1, 0.4, n_stores),
+})
+
+# CSAT driven by these factors (true model)
+stores['csat_score'] = (
+    70 +
+    200 * stores['staff_per_sqft'] +
+    -1.5 * stores['avg_wait_time_min'] +
+    0.15 * stores['training_hours_per_staff'] +
+    20 * stores['inventory_accuracy'] +
+    2 * stores['manager_tenure_years'].clip(upper=10) +
+    3 * stores['digital_kiosk_available'] +
+    np.random.normal(0, 3, n_stores)
+).clip(0, 100)
+
+# Fit Gradient Boosting to capture non-linear relationships
+features = [
+    'staff_per_sqft', 'avg_wait_time_min', 'training_hours_per_staff',
+    'inventory_accuracy', 'store_age_years', 'local_competition_density',
+    'manager_tenure_years', 'digital_kiosk_available'
+]
+
+X = stores[features]
+y = stores['csat_score']
+
+model = GradientBoostingRegressor(n_estimators=200, max_depth=4, random_state=42)
+model.fit(X, y)
+
+# SHAP analysis - which factors matter most?
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(X)
+
+print("=== CSAT Driver Analysis ===\n")
+print("Feature Importance (Mean |SHAP|):")
+importance = pd.DataFrame({
+    'feature': features,
+    'importance': np.abs(shap_values).mean(axis=0)
+}).sort_values('importance', ascending=False)
+
+for _, row in importance.iterrows():
+    bar = '#' * int(row['importance'] * 5)
+    print(f"  {row['feature']:30s} {row['importance']:.3f} {bar}")
+
+print(f"\nModel R-squared: {model.score(X, y):.3f}")
+print("\nManagement Implication:")
+print(f"  Top driver: {importance.iloc[0]['feature']}")
+print(f"  Invest in: {importance.iloc[:3]['feature'].tolist()}")</pre>
                 </div>
 
-                <div class="theory-grid">
-                    <div class="theory-card">
-                        <h3 class="theory-title">Bounded Rationality & ML Augmentation</h3>
-                        <p class="theory-content">Herbert Simon's bounded rationality theory explains why human decision-makers benefit from ML support. Machine learning models extend cognitive capacity for information processing while maintaining human oversight for contextual judgment.</p>
-                    </div>
+                <h3>4.2 Resource Allocation Optimization</h3>
 
-                    <div class="theory-card">
-                        <h3 class="theory-title">Resource-Based View & Predictive Analytics</h3>
-                        <p class="theory-content">The RBV framework identifies data capabilities as strategic resources. Predictive analytics transforms data assets into competitive advantages through VRIN (Valuable, Rare, Inimitable, Non-substitutable) analytical capabilities.</p>
-                    </div>
+                <p>Given limited resources (budget, headcount, time), how should a manager allocate them to maximize outcomes? Linear programming provides optimal solutions under constraints.</p>
 
-                    <div class="theory-card">
-                        <h3 class="theory-title">Agency Theory & Performance Monitoring</h3>
-                        <p class="theory-content">Principal-agent problems can be addressed through analytics-driven monitoring systems. ML models enable sophisticated performance measurement while maintaining alignment between organizational and individual objectives.</p>
-                    </div>
+                <div class="code-block">
+                    <div class="code-label">Python - Workforce Allocation Optimization</div>
+                    <pre>
+from scipy.optimize import linprog
+import numpy as np
 
-                    <div class="theory-card">
-                        <h3 class="theory-title">Dynamic Capabilities & Adaptive Analytics</h3>
-                        <p class="theory-content">Teece's dynamic capabilities framework emphasizes sensing, seizing, and transforming. Analytics systems that continuously learn and adapt represent organizational capabilities for navigating uncertain environments.</p>
-                    </div>
+def optimize_workforce_allocation():
+    """
+    Allocate workforce across 4 projects to maximize total value.
 
-                    <div class="theory-card">
-                        <h3 class="theory-title">Contingency Theory & Model Selection</h3>
-                        <p class="theory-content">No single ML approach fits all organizational contexts. Contingency theory guides model selection based on organizational structure, environmental uncertainty, and strategic priorities.</p>
-                    </div>
+    Constraints:
+    - Total available: 50 FTEs
+    - Each project needs minimum staffing
+    - Budget constraint: $5M total
+    - Skill mix requirements
+    """
+    # Decision variables: FTEs allocated to each project
+    # x = [project_A, project_B, project_C, project_D]
 
-                    <div class="theory-card">
-                        <h3 class="theory-title">Stakeholder Theory & Ethical AI</h3>
-                        <p class="theory-content">Freeman's stakeholder theory provides ethical grounding for AI deployment. Analytics solutions must balance multiple stakeholder interests and incorporate fairness constraints into model optimization.</p>
-                    </div>
+    # Objective: maximize value (negative because linprog minimizes)
+    # Value per FTE for each project (estimated from historical data)
+    value_per_fte = np.array([120000, 85000, 150000, 95000])
+    c = -value_per_fte  # Negate for maximization
+
+    # Inequality constraints (Ax <= b)
+    A_ub = [
+        [1, 1, 1, 1],          # Total FTEs <= 50
+        [90000, 75000, 110000, 80000],  # Budget per FTE * FTEs <= $5M
+    ]
+    b_ub = [50, 5000000]
+
+    # Equality constraints (minimum staffing)
+    # None in this case - using bounds instead
+
+    # Bounds: each project needs min 5, max 20 FTEs
+    bounds = [(5, 20), (5, 20), (5, 20), (5, 20)]
+
+    result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method='highs')
+
+    projects = ['Project A', 'Project B', 'Project C', 'Project D']
+
+    print("=== Optimal Workforce Allocation ===\n")
+    print(f"Status: {'Optimal' if result.success else 'Failed'}")
+    print(f"Maximum Total Value: ${-result.fun:,.0f}\n")
+
+    total_ftes = 0
+    total_cost = 0
+    cost_per_fte = [90000, 75000, 110000, 80000]
+
+    for i, (project, ftes) in enumerate(zip(projects, result.x)):
+        cost = ftes * cost_per_fte[i]
+        value = ftes * value_per_fte[i]
+        roi = (value - cost) / cost * 100
+        total_ftes += ftes
+        total_cost += cost
+        print(f"  {project}: {ftes:.1f} FTEs | Cost: ${cost:,.0f} | Value: ${value:,.0f} | ROI: {roi:.0f}%")
+
+    print(f"\n  Total FTEs: {total_ftes:.1f}/50")
+    print(f"  Total Cost: ${total_cost:,.0f}/$5,000,000")
+
+optimize_workforce_allocation()</pre>
                 </div>
             </section>
 
-            <!-- ML Toolkit Section -->
+            <!-- Section 5: AI-Management Integration -->
+            <section id="ai-integration" class="section">
+                <h2><span class="section-number">5</span>AI-Management Integration</h2>
+
+                <p>Integrating AI into management decisions raises critical questions about transparency, fairness, and human oversight. This section covers practical frameworks for responsible AI deployment in management contexts.</p>
+
+                <h3>5.1 Explainable AI for Executive Decision Support</h3>
+
+                <p>Executives need to understand <em>why</em> a model makes a recommendation, not just what it recommends. SHAP (SHapley Additive exPlanations) provides individual-level explanations that translate model logic into business terms.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Executive-Friendly Model Explanations</div>
+                    <pre>
+import shap
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import GradientBoostingClassifier
+
+# Promotion readiness model
+candidates = pd.DataFrame({
+    'years_in_role': np.random.uniform(1, 8, 200),
+    'performance_avg_3yr': np.random.uniform(2.5, 5, 200),
+    'leadership_assessment': np.random.uniform(1, 5, 200),
+    'cross_functional_projects': np.random.randint(0, 10, 200),
+    'direct_reports': np.random.randint(0, 15, 200),
+    'revenue_responsibility_M': np.random.exponential(2, 200),
+    'executive_sponsor': np.random.binomial(1, 0.3, 200),
+    'promoted': np.random.binomial(1, 0.25, 200),
+})
+
+features = [
+    'years_in_role', 'performance_avg_3yr', 'leadership_assessment',
+    'cross_functional_projects', 'direct_reports', 'revenue_responsibility_M',
+    'executive_sponsor'
+]
+
+X = candidates[features]
+y = candidates['promoted']
+
+model = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42)
+model.fit(X, y)
+
+# Generate executive-friendly explanation for a specific candidate
+explainer = shap.TreeExplainer(model)
+
+candidate_idx = 42
+candidate = X.iloc[[candidate_idx]]
+shap_values = explainer.shap_values(candidate)
+
+print("=== Promotion Readiness Analysis ===")
+print(f"\nCandidate: Employee #{candidate_idx}")
+print(f"Promotion Probability: {model.predict_proba(candidate)[0][1]:.1%}")
+print(f"\nKey Factors Driving This Assessment:")
+
+explanations = pd.DataFrame({
+    'Factor': features,
+    'Value': candidate.values[0],
+    'Impact': shap_values[0],
+    'Direction': ['Supports' if s > 0 else 'Against' for s in shap_values[0]]
+}).sort_values('Impact', key=abs, ascending=False)
+
+for _, row in explanations.iterrows():
+    direction = '+' if row['Impact'] > 0 else '-'
+    print(f"  [{direction}] {row['Factor']}: {row['Value']:.1f} "
+          f"(Impact: {row['Impact']:.3f}) - {row['Direction']} promotion")
+
+print("\nRecommendation for Development:")
+negative_factors = explanations[explanations['Impact'] < 0].head(3)
+for _, row in negative_factors.iterrows():
+    print(f"  - Improve: {row['Factor']} (currently {row['Value']:.1f})")</pre>
+                </div>
+
+                <h3>5.2 Fairness Auditing for Management Models</h3>
+
+                <p>Any ML model used in people decisions (hiring, promotion, performance) must be audited for bias. Disparate impact analysis ensures models don't systematically disadvantage protected groups.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Python - Fairness Audit Framework</div>
+                    <pre>
+import pandas as pd
+import numpy as np
+
+def fairness_audit(predictions, actuals, sensitive_attribute, positive_label=1):
+    """
+    Audit model predictions for fairness across demographic groups.
+
+    Uses the 80% (4/5ths) rule: selection rate for any group should be
+    at least 80% of the rate for the highest-scoring group.
+    """
+    results = pd.DataFrame({
+        'prediction': predictions,
+        'actual': actuals,
+        'group': sensitive_attribute
+    })
+
+    print("=== Fairness Audit Report ===\n")
+
+    # Selection rates by group
+    groups = results['group'].unique()
+    selection_rates = {}
+
+    for group in groups:
+        mask = results['group'] == group
+        rate = results.loc[mask, 'prediction'].mean()
+        n = mask.sum()
+        selection_rates[group] = rate
+        print(f"Group '{group}': Selection Rate = {rate:.1%} (n={n})")
+
+    # 80% rule check
+    max_rate = max(selection_rates.values())
+    max_group = max(selection_rates, key=selection_rates.get)
+
+    print(f"\nHighest rate: {max_group} ({max_rate:.1%})")
+    print(f"80% threshold: {max_rate * 0.8:.1%}\n")
+
+    violations = []
+    for group, rate in selection_rates.items():
+        ratio = rate / max_rate
+        status = "PASS" if ratio >= 0.8 else "FAIL"
+        if ratio < 0.8:
+            violations.append(group)
+        print(f"  {group}: ratio = {ratio:.2f} [{status}]")
+
+    # Equalized odds check (equal TPR and FPR across groups)
+    print("\nEqualized Odds Check:")
+    for group in groups:
+        mask = results['group'] == group
+        group_data = results[mask]
+        tp = ((group_data['prediction'] == 1) & (group_data['actual'] == 1)).sum()
+        fn = ((group_data['prediction'] == 0) & (group_data['actual'] == 1)).sum()
+        fp = ((group_data['prediction'] == 1) & (group_data['actual'] == 0)).sum()
+        tn = ((group_data['prediction'] == 0) & (group_data['actual'] == 0)).sum()
+
+        tpr = tp / (tp + fn) if (tp + fn) > 0 else 0
+        fpr = fp / (fp + tn) if (fp + tn) > 0 else 0
+        print(f"  {group}: TPR={tpr:.2f}, FPR={fpr:.2f}")
+
+    if violations:
+        print(f"\n*** FAIRNESS VIOLATION: Groups {violations} fail 80% rule ***")
+        print("Action Required: Review features, consider bias mitigation strategies")
+    else:
+        print("\nAll groups pass 80% rule fairness check.")
+
+# Example usage
+np.random.seed(42)
+n = 1000
+predictions = np.random.binomial(1, 0.3, n)
+actuals = np.random.binomial(1, 0.28, n)
+groups = np.random.choice(['Group A', 'Group B', 'Group C'], n, p=[0.5, 0.3, 0.2])
+
+fairness_audit(predictions, actuals, groups)</pre>
+                </div>
+
+                <div class="key-points">
+                    <h4>When to Require Human Override</h4>
+                    <ul>
+                        <li><strong>High-stakes people decisions:</strong> Hiring, firing, promotions always need human review</li>
+                        <li><strong>Novel situations:</strong> When input data falls outside training distribution</li>
+                        <li><strong>Low-confidence predictions:</strong> When model probability is near decision threshold</li>
+                        <li><strong>Ethical gray areas:</strong> When optimization conflicts with organizational values</li>
+                        <li><strong>Regulatory requirements:</strong> GDPR "right to explanation" triggers</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 6: Applied ML Toolkit -->
             <section id="toolkit" class="section">
-                <div class="toolkit-container">
-                    <div class="toolkit-header">
-                        <h2 class="toolkit-title">ML Toolkit for Management Analytics</h2>
-                        <p class="toolkit-subtitle">Applied machine learning techniques tailored for management decision contexts</p>
-                    </div>
+                <h2><span class="section-number">6</span>Applied ML Toolkit for Managers</h2>
 
-                    <div class="toolkit-grid">
-                        <div class="toolkit-item">
-                            <div class="toolkit-item-icon">Predictive Modeling</div>
-                            <h3 class="toolkit-item-title">Predictive Modeling for HR Analytics</h3>
-                            <p class="toolkit-item-desc">Apply classification and regression models to predict employee performance, turnover risk, and promotion readiness using organizational data.</p>
-                            <div class="tags">
-                                <span class="tag">Random Forest</span>
-                                <span class="tag">XGBoost</span>
-                                <span class="tag">SHAP</span>
-                            </div>
-                        </div>
+                <p>This section provides a practical reference mapping management problems to appropriate ML/statistical methods.</p>
 
-                        <div class="toolkit-item">
-                            <div class="toolkit-item-icon">Time Series</div>
-                            <h3 class="toolkit-item-title">Strategic Forecasting</h3>
-                            <p class="toolkit-item-desc">Implement time series models for demand forecasting, budget planning, and strategic scenario analysis with confidence intervals.</p>
-                            <div class="tags">
-                                <span class="tag">Prophet</span>
-                                <span class="tag">ARIMA</span>
-                                <span class="tag">LSTM</span>
-                            </div>
-                        </div>
-
-                        <div class="toolkit-item">
-                            <div class="toolkit-item-icon">NLP</div>
-                            <h3 class="toolkit-item-title">Text Analytics for Leadership</h3>
-                            <p class="toolkit-item-desc">Extract insights from qualitative data sources - employee feedback, meeting transcripts, and strategic documents using NLP techniques.</p>
-                            <div class="tags">
-                                <span class="tag">Transformers</span>
-                                <span class="tag">Topic Modeling</span>
-                                <span class="tag">Sentiment</span>
-                            </div>
-                        </div>
-
-                        <div class="toolkit-item">
-                            <div class="toolkit-item-icon">Network</div>
-                            <h3 class="toolkit-item-title">Organizational Network Analysis</h3>
-                            <p class="toolkit-item-desc">Map informal organizational networks, identify key influencers, and optimize team structures using graph analytics and community detection.</p>
-                            <div class="tags">
-                                <span class="tag">NetworkX</span>
-                                <span class="tag">Centrality</span>
-                                <span class="tag">Clustering</span>
-                            </div>
-                        </div>
-
-                        <div class="toolkit-item">
-                            <div class="toolkit-item-icon">Causal</div>
-                            <h3 class="toolkit-item-title">Causal Inference for Strategy</h3>
-                            <p class="toolkit-item-desc">Move beyond correlation to establish causal relationships for strategic interventions using econometric and ML-based causal methods.</p>
-                            <div class="tags">
-                                <span class="tag">DiD</span>
-                                <span class="tag">Propensity Score</span>
-                                <span class="tag">IV</span>
-                            </div>
-                        </div>
-
-                        <div class="toolkit-item">
-                            <div class="toolkit-item-icon">Optimization</div>
-                            <h3 class="toolkit-item-title">Resource Optimization Models</h3>
-                            <p class="toolkit-item-desc">Apply mathematical optimization for workforce scheduling, budget allocation, and strategic resource deployment under constraints.</p>
-                            <div class="tags">
-                                <span class="tag">Linear Programming</span>
-                                <span class="tag">MIP</span>
-                                <span class="tag">Simulation</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Management Problem</th>
+                            <th>Method</th>
+                            <th>Key Output</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Who will leave the company?</td>
+                            <td>Classification (XGBoost) + Survival Analysis</td>
+                            <td>Risk score + expected tenure</td>
+                        </tr>
+                        <tr>
+                            <td>Which customers are most valuable?</td>
+                            <td>K-Means Clustering + RFM Analysis</td>
+                            <td>Customer segments with strategy</td>
+                        </tr>
+                        <tr>
+                            <td>Did our program actually work?</td>
+                            <td>Diff-in-Diff / Propensity Score Matching</td>
+                            <td>Causal effect estimate with CI</td>
+                        </tr>
+                        <tr>
+                            <td>How should we allocate budget?</td>
+                            <td>Linear/Integer Programming</td>
+                            <td>Optimal allocation under constraints</td>
+                        </tr>
+                        <tr>
+                            <td>What drives employee engagement?</td>
+                            <td>Regression + SHAP</td>
+                            <td>Ranked drivers with effect sizes</td>
+                        </tr>
+                        <tr>
+                            <td>What will demand look like?</td>
+                            <td>Time Series (Prophet/ARIMA)</td>
+                            <td>Forecast with confidence intervals</td>
+                        </tr>
+                        <tr>
+                            <td>Who are the hidden influencers?</td>
+                            <td>Network Analysis (Centrality)</td>
+                            <td>Influence scores + communities</td>
+                        </tr>
+                        <tr>
+                            <td>What are employees saying?</td>
+                            <td>NLP (Topic Modeling + Sentiment)</td>
+                            <td>Theme clusters + sentiment trends</td>
+                        </tr>
+                        <tr>
+                            <td>Should we enter this market?</td>
+                            <td>Monte Carlo Simulation</td>
+                            <td>Probability distribution of outcomes</td>
+                        </tr>
+                        <tr>
+                            <td>Is our model fair?</td>
+                            <td>Fairness Metrics (80% rule, Equalized Odds)</td>
+                            <td>Disparate impact report</td>
+                        </tr>
+                    </tbody>
+                </table>
             </section>
 
-            <!-- Case Studies Section -->
+            <!-- Section 7: Case Study -->
             <section id="cases" class="section">
-                <div class="section-header">
-                    <div class="section-label">Applied Learning</div>
-                    <h2 class="section-title">Management Analytics Case Studies</h2>
-                    <p class="section-description">Real-world applications demonstrating the integration of ML with management decisions</p>
+                <h2><span class="section-number">7</span>Integrated Case Study: Talent Analytics at Scale</h2>
+
+                <p>This end-to-end case study demonstrates how a technology company combines multiple analytics techniques to transform its talent management strategy.</p>
+
+                <div class="concept-box">
+                    <h4>Scenario</h4>
+                    <p>TechCorp (5,000 employees) faces 22% annual turnover in engineering -- well above the industry 15% average. The CHRO asks: Why are we losing talent, who is at risk, and what should we do about it?</p>
                 </div>
 
-                <div class="case-studies">
-                    <div class="case-card">
-                        <span class="case-type">Leadership</span>
-                        <h3 class="case-title">Executive Team Composition Analytics</h3>
-                        <p class="case-desc">Apply clustering and classification to analyze high-performing executive teams, identifying optimal composition patterns and predicting team effectiveness.</p>
-                        <div class="case-metrics">
-                            <div class="metric">
-                                <div class="metric-value">23%</div>
-                                <div class="metric-label">Performance Lift</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-value">ML+Stats</div>
-                                <div class="metric-label">Methods</div>
-                            </div>
-                        </div>
-                    </div>
+                <h3>Step 1: Diagnostic -- What Drives Turnover?</h3>
 
-                    <div class="case-card">
-                        <span class="case-type">Strategy</span>
-                        <h3 class="case-title">Competitive Response Modeling</h3>
-                        <p class="case-desc">Build predictive models for competitor behavior analysis, enabling proactive strategic responses using game-theoretic ML frameworks.</p>
-                        <div class="case-metrics">
-                            <div class="metric">
-                                <div class="metric-value">85%</div>
-                                <div class="metric-label">Prediction Accuracy</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-value">Time Series</div>
-                                <div class="metric-label">Methods</div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="code-block">
+                    <div class="code-label">Python - Turnover Driver Analysis</div>
+                    <pre>
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import GradientBoostingClassifier
+import shap
 
-                    <div class="case-card">
-                        <span class="case-type">Operations</span>
-                        <h3 class="case-title">Talent Pipeline Optimization</h3>
-                        <p class="case-desc">Design ML-driven talent management systems for succession planning, skill gap analysis, and workforce optimization using survival and classification models.</p>
-                        <div class="case-metrics">
-                            <div class="metric">
-                                <div class="metric-value">40%</div>
-                                <div class="metric-label">Turnover Reduction</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-value">Ensemble</div>
-                                <div class="metric-label">Methods</div>
-                            </div>
-                        </div>
-                    </div>
+# Engineering employee data
+np.random.seed(42)
+n = 800
+
+engineers = pd.DataFrame({
+    'salary_competitiveness': np.random.uniform(0.8, 1.3, n),  # vs market rate
+    'manager_rating': np.random.uniform(1, 5, n),
+    'project_interest_score': np.random.uniform(1, 5, n),
+    'promotion_wait_years': np.random.exponential(2, n),
+    'learning_opportunities': np.random.uniform(1, 5, n),
+    'work_life_balance': np.random.uniform(1, 5, n),
+    'peer_quality_score': np.random.uniform(1, 5, n),
+    'remote_flexibility': np.random.binomial(1, 0.6, n),
+    'stock_vesting_remaining': np.random.uniform(0, 4, n),
+})
+
+# Turnover influenced by these factors
+turnover_prob = 1 / (1 + np.exp(-(
+    -2 +
+    -3 * (engineers['salary_competitiveness'] - 1) +
+    -0.5 * engineers['manager_rating'] +
+    -0.4 * engineers['project_interest_score'] +
+    0.3 * engineers['promotion_wait_years'] +
+    -0.3 * engineers['learning_opportunities'] +
+    -0.2 * engineers['work_life_balance'] +
+    -0.5 * engineers['stock_vesting_remaining'] +
+    np.random.normal(0, 0.5, n)
+)))
+engineers['departed'] = (np.random.uniform(0, 1, n) < turnover_prob).astype(int)
+
+features = engineers.columns.drop('departed')
+X, y = engineers[features], engineers['departed']
+
+model = GradientBoostingClassifier(n_estimators=200, max_depth=4, random_state=42)
+model.fit(X, y)
+
+# SHAP driver analysis
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(X)
+
+print("=== Engineering Turnover Driver Analysis ===\n")
+importance = pd.DataFrame({
+    'Driver': features,
+    'Impact': np.abs(shap_values).mean(axis=0)
+}).sort_values('Impact', ascending=False)
+
+for _, row in importance.iterrows():
+    bar = '#' * int(row['Impact'] * 50)
+    print(f"  {row['Driver']:30s} {bar}")
+
+print(f"\nCurrent turnover rate: {y.mean():.1%}")
+print(f"Top 3 actionable drivers: {importance.head(3)['Driver'].tolist()}")</pre>
+                </div>
+
+                <h3>Step 2: Predictive -- Who Is At Risk?</h3>
+                <p>Use the trained model to score all current employees and create a risk-tiered watchlist for the retention team.</p>
+
+                <h3>Step 3: Prescriptive -- How Should We Respond?</h3>
+                <p>Combine prediction with optimization: allocate the $2M retention budget across employees and intervention types to maximize expected retention.</p>
+
+                <h3>Step 4: Causal -- Did Our Interventions Work?</h3>
+                <p>After implementing interventions, use Difference-in-Differences to evaluate whether the retention program caused improvement or whether turnover declined for other reasons.</p>
+
+                <div class="exercise">
+                    <h4>Module Summary</h4>
+                    <p>After completing this module, you should be able to:</p>
+                    <ul>
+                        <li>Classify leadership styles using survey data and ML models</li>
+                        <li>Predict employee turnover timing with survival analysis</li>
+                        <li>Map organizational influence using network analysis</li>
+                        <li>Segment markets for strategic planning with clustering</li>
+                        <li>Quantify strategic risk using Monte Carlo simulation</li>
+                        <li>Establish causation (not just correlation) with Difference-in-Differences</li>
+                        <li>Identify KPI drivers with SHAP-based regression analysis</li>
+                        <li>Optimize resource allocation with linear programming</li>
+                        <li>Generate explainable predictions for executive decisions</li>
+                        <li>Audit models for fairness before deployment</li>
+                    </ul>
                 </div>
             </section>
 
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
-        <div class="footer-links">
-            <a href="index.html" class="footer-link">Course Home</a>
-            <a href="#frameworks" class="footer-link">Frameworks</a>
-            <a href="#toolkit" class="footer-link">ML Toolkit</a>
-            <a href="#cases" class="footer-link">Case Studies</a>
-        </div>
-        <p>© 2025 Chenhao Zhou | Business Analytics in Management</p>
+        <a href="index.html">Course Home</a>
+        <a href="../teaching.html">Teaching</a>
+        <p style="margin-top: 24px; opacity: 0.7;">© 2025 Chenhao Zhou | Business Analytics in Management</p>
     </footer>
 </body>
 </html>
