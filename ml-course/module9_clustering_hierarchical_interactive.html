@@ -2,1071 +2,1402 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 9: Hierarchical Clustering — Deep Dive | ML Course</title>
+<title>Module 9: Hierarchical Clustering | Chenhao Zhou</title>
 <style>
-body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 980px; margin: auto; padding: 2rem; line-height: 1.6; }
-nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #ddd; }
+body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 950px; margin: auto; padding: 2rem; line-height: 1.6; }
+nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #e1e4e8; }
 nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; }
 h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
-.card { background: #fff; padding: 1.3em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.card { background: #fff; padding: 1.2em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 .interactive-section { background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); padding: 2em; margin: 2em 0; border-radius: 12px; border: 1px solid #e1e4e8; }
-.button { display: inline-block; padding: 0.8em 1.5em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; transition: all 0.3s ease; margin: 0.5em 0.5em 0.5em 0; font-weight: bold; }
+.button { display: inline-block; padding: 0.8em 1.5em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; transition: all 0.3s ease; margin: 0.5em 0.5em 0.5em 0; font-weight: bold; font-family: Georgia, serif; }
 .button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
 .button.secondary { background: #6c757d; }
 .button.success { background: #28a745; }
 .button.warning { background: #ffc107; color: #212529; }
 .button.danger { background: #dc3545; }
-.slider-container { margin: 1.2em 0; }
-.slider-container label { display: block; font-weight: bold; margin-bottom: 0.5em; color: #003366; }
+.button.small { padding: 0.4em 0.9em; font-size: 0.85em; }
+.slider-container { margin: 1.5em 0; }
+.slider-container label { font-weight: bold; color: #003366; }
 .slider { width: 100%; height: 8px; border-radius: 4px; background: #e1e4e8; outline: none; -webkit-appearance: none; }
 .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #0366d6; cursor: pointer; }
-canvas { border: 1px solid #e1e4e8; border-radius: 8px; display: block; margin: 0 auto; }
-.quick-question { background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%); border: 2px solid #0366d6; border-radius: 10px; padding: 1.5em; margin: 2em 0; }
-.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin: 1em 0; }
-.answer-option { padding: 1em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: center; }
-.answer-option:hover { border-color: #0366d6; transform: scale(1.02); }
-.answer-option.correct { background: #d4edda; border-color: #28a745; }
-.answer-option.incorrect { background: #f8d7da; border-color: #dc3545; }
+.progress-bar { height: 30px; background: #e9ecef; border-radius: 15px; margin: 2em 0; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #0366d6 0%, #667eea 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; transition: width 1s ease; }
+.story-progress { display: flex; justify-content: space-between; margin: 2em 0; position: relative; }
+.story-progress::before { content: ""; position: absolute; top: 20px; left: 0; right: 0; height: 2px; background: #e1e4e8; z-index: 0; }
+.story-step { background: white; border: 3px solid #e1e4e8; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; z-index: 1; cursor: pointer; transition: all 0.3s ease; font-size: 0.9em; }
+.story-step.completed { background: #28a745; color: white; border-color: #28a745; }
+.story-step.active { background: #0366d6; color: white; border-color: #0366d6; transform: scale(1.2); }
+.step-label { position: absolute; top: 48px; left: 50%; transform: translateX(-50%); font-size: 0.7em; color: #666; white-space: nowrap; font-family: Arial, sans-serif; }
 .feedback-panel { background: white; border-left: 5px solid #0366d6; padding: 1.5em; margin: 1.5em 0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: none; }
 .feedback-panel.show { display: block; animation: slideIn 0.5s ease; }
 @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-.progress-bar { height: 30px; background: #e9ecef; border-radius: 15px; margin: 1.5em 0; overflow: hidden; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, #003366 0%, #0366d6 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; transition: width 1s ease; min-width: 40px; }
-.concept-box { background: #e7f3ff; border-left: 4px solid #0366d6; padding: 1.2em; margin: 1.5em 0; border-radius: 0 8px 8px 0; }
-.warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 1.2em; margin: 1.5em 0; border-radius: 0 8px 8px 0; }
-.success-box { background: #d4edda; border-left: 4px solid #28a745; padding: 1.2em; margin: 1.5em 0; border-radius: 0 8px 8px 0; }
-.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1em; margin: 1em 0; }
-.stat-card { background: #fff; border: 2px solid #e1e4e8; border-radius: 8px; padding: 1em; text-align: center; }
-.stat-number { font-size: 2.5em; font-weight: bold; color: #003366; }
-.stat-label { color: #666; font-size: 0.9em; }
-table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin: 1em 0; }
+.answer-option { padding: 1em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: center; }
+.answer-option:hover:not(.correct):not(.incorrect) { border-color: #0366d6; transform: scale(1.02); }
+.answer-option.selected { background: #e7f3ff; border-color: #0366d6; }
+.answer-option.correct { background: #d4edda; border-color: #28a745; }
+.answer-option.incorrect { background: #f8d7da; border-color: #dc3545; }
+.quiz-card { background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%); border: 2px solid #0366d6; border-radius: 10px; padding: 1.5em; margin: 2em 0; position: relative; overflow: hidden; }
+.quiz-card::before { content: "?"; position: absolute; top: -20px; right: -20px; font-size: 120px; color: rgba(3,102,214,0.05); font-weight: bold; }
+canvas { display: block; }
+.viz-container { background: white; border: 2px solid #e1e4e8; border-radius: 10px; padding: 1em; margin: 1.5em 0; }
+.viz-row { display: flex; gap: 1em; flex-wrap: wrap; }
+.viz-half { flex: 1; min-width: 280px; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; }
 th { background: #003366; color: white; padding: 0.8em; text-align: left; }
 td { padding: 0.8em; border-bottom: 1px solid #e1e4e8; }
-tr:hover td { background: #f0f8ff; }
-.section-header { background: linear-gradient(135deg, #003366 0%, #1e5799 100%); color: white; padding: 1.5em; border-radius: 10px; margin: 2em 0 1em; }
-.section-header h2 { color: white; margin: 0; }
-.section-header p { color: rgba(255,255,255,0.85); margin: 0.5em 0 0; }
-.step-display { background: #f8f9fa; border-radius: 8px; padding: 1em; margin-top: 0.8em; font-family: monospace; color: #003366; min-height: 2.5em; }
-.linkage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin: 1em 0; }
-.linkage-card { background: #fff; border: 2px solid #e1e4e8; border-radius: 10px; padding: 1.2em; cursor: pointer; transition: all 0.3s ease; }
-.linkage-card:hover { border-color: #0366d6; }
-.linkage-card.active { border-color: #0366d6; background: #e7f3ff; }
-.linkage-card h4 { color: #003366; margin-bottom: 0.4em; }
-.comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; margin: 1.5em 0; }
-.compare-card { border: 2px solid #e1e4e8; border-radius: 10px; padding: 1.5em; }
-.compare-card h3 { color: #003366; margin-top: 0; }
-.compare-card.kmeans { border-color: #3498db; }
-.compare-card.hier { border-color: #9b59b6; }
+tr:hover td { background: #f8f9fa; }
+.badge { display: inline-block; padding: 0.2em 0.6em; border-radius: 12px; font-size: 0.8em; font-weight: bold; }
+.badge-green { background: #d4edda; color: #155724; }
+.badge-blue { background: #cce5ff; color: #004085; }
+.badge-orange { background: #fff3cd; color: #856404; }
+.highlight-box { background: #e7f3ff; border-left: 4px solid #0366d6; padding: 1em 1.5em; border-radius: 0 8px 8px 0; margin: 1em 0; }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1em; margin: 1em 0; }
+.info-card { background: white; border-radius: 8px; padding: 1.2em; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; border-top: 4px solid #003366; }
+.info-card .big-num { font-size: 2em; font-weight: bold; color: #003366; }
+.controls-row { display: flex; gap: 0.8em; flex-wrap: wrap; align-items: center; margin-bottom: 1em; }
+.tag { display: inline-block; padding: 0.2em 0.7em; background: #f0f4ff; border: 1px solid #003366; border-radius: 12px; font-size: 0.85em; color: #003366; margin: 0.2em; }
+#quiz-score-display { font-size: 1.2em; font-weight: bold; color: #003366; }
 </style>
 </head>
 <body>
 
 <nav>
-  <a href="module9_class_material.html">📊 Module 9 Overview</a>
-  <a href="module9_clustering_kmeans_interactive.html">🎯 K-Means</a>
+  <a href="module9_class_material.html">📚 Class Material</a>
+  <a href="module9_clustering_kmeans_interactive.html">🔵 K-Means</a>
   <a href="index.html">🏠 Course Home</a>
-  <a href="module9_lab_manual.html">🔬 Lab</a>
 </nav>
 
-<h1>🌳 Hierarchical Clustering: Deep Dive</h1>
+<h1>🌳 Module 9B: Hierarchical Clustering — Structure, Not Just Groups</h1>
 
-<!-- Opening Hook -->
-<div class="card" style="border-left: 6px solid #9b59b6;">
-  <h2>🧩 The Challenge</h2>
-  <p style="font-size: 1.15em;">The marketing team ran K-Means on RetailMax's customers and found 4 groups. Great. But now the CMO asks: <strong>"Are the Premium customers more like Standard customers, or more like Budget customers? Are there sub-groups within Premium?"</strong></p>
-  <p>K-Means can't answer this — it only tells you cluster assignments, not <em>how clusters relate to each other.</em></p>
-  <p><strong>The marketing team wants to know not just WHAT groups exist, but HOW they relate to each other.</strong> Enter hierarchical clustering.</p>
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-number">∞</div>
-      <div class="stat-label">No k needed upfront</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">🌳</div>
-      <div class="stat-label">Full hierarchy of relationships</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">1</div>
-      <div class="stat-label">Cut → any k you want</div>
-    </div>
-  </div>
-</div>
-
-<!-- Progress Tracker -->
+<!-- PROGRESS TRACKER -->
 <div class="card">
-  <h3>📈 Your Progress</h3>
-  <div class="progress-bar">
-    <div class="progress-fill" id="progress-fill" style="width: 5%;">5%</div>
-  </div>
-  <div style="display: flex; justify-content: space-between; font-size: 0.85em; color: #666; margin-top: 0.5em;">
-    <span>⚙️ Algorithm</span><span>🌳 Dendrogram</span><span>🔗 Linkage</span><span>💼 Business Case</span><span>✅ Quiz</span>
+  <h3>📍 Your Journey Through Hierarchical Clustering</h3>
+  <div class="progress-bar"><div class="progress-fill" id="main-progress" style="width:0%">0%</div></div>
+  <div class="story-progress">
+    <div style="position:relative;text-align:center;">
+      <div class="story-step active" id="step1" onclick="goToStep(1)">1<span class="step-label">Concept</span></div>
+    </div>
+    <div style="position:relative;text-align:center;">
+      <div class="story-step" id="step2" onclick="goToStep(2)">2<span class="step-label">Build</span></div>
+    </div>
+    <div style="position:relative;text-align:center;">
+      <div class="story-step" id="step3" onclick="goToStep(3)">3<span class="step-label">Dendrogram</span></div>
+    </div>
+    <div style="position:relative;text-align:center;">
+      <div class="story-step" id="step4" onclick="goToStep(4)">4<span class="step-label">Linkage</span></div>
+    </div>
+    <div style="position:relative;text-align:center;">
+      <div class="story-step" id="step5" onclick="goToStep(5)">5<span class="step-label">Apply</span></div>
+    </div>
   </div>
 </div>
 
-<!-- Section 1: How Agglomerative Works -->
-<div class="section-header">
-  <h2>1. Agglomerative Clustering: Bottom-Up</h2>
-  <p>Start with individuals, merge into groups</p>
-</div>
-
-<div class="card">
-  <h3>The Core Idea</h3>
-  <p>Agglomerative (bottom-up) hierarchical clustering is the most common variant. It starts with each data point as its own cluster, then repeatedly merges the two closest clusters until everything is merged into one.</p>
-  
-  <div class="concept-box">
-    <strong>Algorithm:</strong>
-    <ol style="line-height:2; margin: 0.5em 0 0;">
-      <li>Initialize: n clusters, one per data point</li>
-      <li>Compute distance matrix (all pairwise distances)</li>
-      <li>Find the two closest clusters</li>
-      <li>Merge them — record the merge height (distance)</li>
-      <li>Update the distance matrix</li>
-      <li>Repeat steps 3-5 until 1 cluster remains</li>
-      <li>Cut the resulting dendrogram at desired height</li>
-    </ol>
+<!-- OPENING HOOK -->
+<div class="card" id="section-hook">
+  <h2>🎯 The Business Problem K-Means Can't Solve</h2>
+  <div class="highlight-box">
+    <p><em>"The marketing team wants to know not just <strong>WHAT</strong> groups exist, but <strong>HOW they relate to each other</strong>. Are 'budget shoppers' a completely separate segment, or are they a sub-group of 'value seekers'? Which premium customers are closest to standard-tier? We need a <strong>hierarchy</strong>, not just a partition."</em></p>
+    <p>— CMO of a $2B retail company during a strategy meeting</p>
   </div>
-
-  <h3>Time Complexity</h3>
+  <p>K-Means gave us k clusters. Great. But it can't tell us:</p>
   <ul>
-    <li>Naïve: O(n³) — building the full distance matrix and updating it n times</li>
-    <li>With priority queues: O(n² log n)</li>
-    <li>Practical limit: ~10,000–50,000 points (use K-Means for millions)</li>
+    <li>🌿 Which clusters are <strong>natural sub-segments</strong> of each other?</li>
+    <li>📏 <strong>How similar</strong> are different clusters to each other?</li>
+    <li>🔢 What's the <strong>right number</strong> of clusters — without guessing k upfront?</li>
+    <li>🗺️ What's the <strong>full landscape</strong> of customer relationships?</li>
   </ul>
+  <p><strong>Hierarchical clustering</strong> builds a tree of relationships — a <em>dendrogram</em> — that answers all of these at once. You can cut it at any level to get 2, 3, 5, or 10 clusters without rerunning anything.</p>
+  <button class="button success" onclick="markStep(1); scrollTo('#section-build')">Let's Build the Tree →</button>
 </div>
 
-<!-- Interactive Step-by-Step Animation -->
-<div class="interactive-section">
-  <h3>⚙️ Step-by-Step Agglomerative Clustering</h3>
-  <p>Watch the algorithm merge clusters one at a time. Click <strong>Next Step</strong> to advance, or <strong>Auto Run</strong> to watch it automatically.</p>
-  
-  <div style="display: flex; gap: 1em; flex-wrap: wrap; align-items: center; margin-bottom: 1em;">
-    <button class="button success" onclick="generateStepData()">🔄 New Data</button>
-    <button class="button" onclick="nextStep()">⏭ Next Step</button>
-    <button class="button warning" onclick="autoRun()">▶ Auto Run</button>
-    <button class="button secondary" onclick="resetSteps()">↺ Reset</button>
-  </div>
+<!-- SECTION 1: AGGLOMERATIVE CLUSTERING ANIMATION -->
+<div class="card" id="section-build">
+  <h2>🏗️ Step 1: Agglomerative Clustering — Building From the Bottom Up</h2>
+  <p>Agglomerative (bottom-up) clustering starts with <strong>every point as its own cluster</strong>, then repeatedly merges the two closest clusters until only one remains. Watch it happen:</p>
 
-  <canvas id="step-canvas" width="920" height="380"></canvas>
-  <div class="step-display" id="step-info">Generate new data, then step through the algorithm.</div>
-</div>
-
-<!-- Section 2: The Dendrogram -->
-<div class="section-header">
-  <h2>2. Reading the Dendrogram</h2>
-  <p>The tree that shows everything</p>
-</div>
-
-<div class="card">
-  <h3>What is a Dendrogram?</h3>
-  <p>A dendrogram is a tree diagram that records the complete history of merges. The <strong>y-axis is distance</strong> (or dissimilarity) at which clusters merged. The higher the merge, the more different the clusters were.</p>
-  
-  <div class="concept-box">
-    <strong>How to read a dendrogram:</strong>
-    <ul>
-      <li>Leaf nodes at the bottom = individual data points</li>
-      <li>Each horizontal line = a merge event</li>
-      <li>Height of the horizontal line = distance at which the merge happened</li>
-      <li>Long vertical gap before a merge = the two groups were very different</li>
-      <li>Cut at any height to get a specific number of clusters</li>
-    </ul>
-  </div>
-
-  <div class="warning-box">
-    <strong>Key insight — the elbow rule for dendrograms:</strong> Look for the longest vertical line you can draw without crossing any horizontal line. The height of that line suggests the natural number of clusters — cut just below the longest gap.
-  </div>
-</div>
-
-<!-- Interactive Dendrogram -->
-<div class="interactive-section">
-  <h3>🌳 Interactive Dendrogram Explorer</h3>
-  <p>Use the slider to <strong>cut the dendrogram at different heights</strong>. The clusters update in real time. Look for the longest vertical line to find the natural cluster count.</p>
-
-  <div style="display: flex; gap: 1em; flex-wrap: wrap; align-items: center; margin-bottom: 1em;">
-    <button class="button success" onclick="buildDendrogram()">🔄 Generate New Data</button>
-    <button class="button secondary" onclick="highlightLongestGap()">💡 Find Longest Gap</button>
-  </div>
-
-  <div class="slider-container">
-    <label>Cut Height: <strong id="cut-height-display">—</strong> &nbsp;→&nbsp; <strong id="cut-clusters-display">—</strong> clusters</label>
-    <input type="range" class="slider" id="cut-slider" min="0" max="100" value="50" oninput="sliderCut(parseInt(this.value))">
-  </div>
-
-  <canvas id="dend-canvas" width="920" height="380" onclick="clickCutDendrogram(event)"></canvas>
-  <canvas id="scatter-canvas" width="920" height="260" style="margin-top: 1em;"></canvas>
-  <div class="step-display" id="dend-info">Click "Generate New Data" to start. Then drag the slider to cut the dendrogram.</div>
-  <div id="dend-progress" style="margin-top: 0.5em;"></div>
-</div>
-
-<!-- Section 3: Linkage Methods -->
-<div class="section-header">
-  <h2>3. Linkage Methods: How We Measure Distance Between Clusters</h2>
-  <p>Different definitions of "closest" give very different results</p>
-</div>
-
-<div class="card">
-  <p>Once you have more than one point in a cluster, how do you measure the distance between two clusters? The answer depends on your <strong>linkage method</strong>.</p>
-
-  <div class="linkage-grid">
-    <div class="linkage-card" id="lc-single" onclick="selectLinkage('single')">
-      <h4>🔹 Single Linkage</h4>
-      <p><strong>Distance = minimum</strong> between any pair of points</p>
-      <small>Tends to create long, "chaining" clusters. Good for detecting elongated shapes.</small>
-    </div>
-    <div class="linkage-card" id="lc-complete" onclick="selectLinkage('complete')">
-      <h4>🔶 Complete Linkage</h4>
-      <p><strong>Distance = maximum</strong> between any pair of points</p>
-      <small>Creates compact, roughly equal-sized clusters. Sensitive to outliers.</small>
-    </div>
-    <div class="linkage-card" id="lc-average" onclick="selectLinkage('average')">
-      <h4>🔷 Average Linkage</h4>
-      <p><strong>Distance = average</strong> of all pairwise distances</p>
-      <small>Balances single and complete. More robust than both.</small>
-    </div>
-    <div class="linkage-card active" id="lc-ward" onclick="selectLinkage('ward')">
-      <h4>⭐ Ward Linkage</h4>
-      <p><strong>Minimize increase in WCSS</strong> when merging</p>
-      <small>Usually the best default. Produces balanced, compact clusters.</small>
-    </div>
-  </div>
-</div>
-
-<!-- Interactive Linkage Comparison -->
-<div class="interactive-section">
-  <h3>🔗 Linkage Method Comparison</h3>
-  <p>Select a linkage method and see how it changes the resulting dendrogram and clusters.</p>
-
-  <div style="display: flex; gap: 1em; flex-wrap: wrap; margin-bottom: 1em;">
-    <button class="button" onclick="selectAndDraw('single')">Single</button>
-    <button class="button" onclick="selectAndDraw('complete')">Complete</button>
-    <button class="button" onclick="selectAndDraw('average')">Average</button>
-    <button class="button success" onclick="selectAndDraw('ward')">⭐ Ward</button>
-    <button class="button secondary" onclick="generateLinkageData()">🔄 New Data</button>
-  </div>
-
-  <canvas id="linkage-canvas" width="920" height="350"></canvas>
-  <div class="step-display" id="linkage-info">Select a linkage method to see the dendrogram.</div>
-</div>
-
-<div class="card">
-  <h3>Choosing Linkage: Quick Guide</h3>
-  <table>
-    <tr><th>Linkage</th><th>Best For</th><th>Watch Out</th></tr>
-    <tr><td>Single</td><td>Elongated clusters, filament detection</td><td>Chaining effect — creates uneven clusters</td></tr>
-    <tr><td>Complete</td><td>Compact, separated clusters</td><td>Sensitive to outliers; breaks large clusters</td></tr>
-    <tr><td>Average</td><td>Moderate clusters, biological data</td><td>Intermediate behavior</td></tr>
-    <tr><td>Ward ⭐</td><td>Customer segmentation, general use</td><td>Computationally heavier; assumes similar cluster sizes</td></tr>
-  </table>
-</div>
-
-<!-- Quiz Question 1 -->
-<div class="quick-question" id="q1">
-  <h3>❓ Quick Check 1</h3>
-  <p>You're clustering geographic regions (countries) by economic indicators. Some regions have very different characteristics and you want compact clusters. Which linkage should you choose?</p>
-  <div class="answer-options">
-    <div class="answer-option" onclick="checkAnswer('q1', this, false)">Single — it preserves shape</div>
-    <div class="answer-option" onclick="checkAnswer('q1', this, true)">Ward or Complete — they create compact clusters</div>
-    <div class="answer-option" onclick="checkAnswer('q1', this, false)">Average — it's always the best choice</div>
-    <div class="answer-option" onclick="checkAnswer('q1', this, false)">Linkage doesn't matter for geographic data</div>
-  </div>
-  <div class="feedback-panel" id="q1-feedback"></div>
-</div>
-
-<!-- Section 4: Choosing Number of Clusters -->
-<div class="section-header">
-  <h2>4. Choosing the Number of Clusters</h2>
-  <p>Reading the dendrogram vs. silhouette score</p>
-</div>
-
-<div class="card">
-  <h3>Method 1: Dendrogram Visual Cut</h3>
-  <p>Find the <strong>longest vertical line</strong> that you can extend horizontally without crossing any merge line. The number of lines cut at that level = number of clusters.</p>
-  <div class="success-box">
-    <strong>Rule of thumb:</strong> Draw a horizontal line across the dendrogram such that it cuts through the longest vertical segment. Count how many branches you cut through — that's your k.
-  </div>
-
-  <h3>Method 2: Silhouette Score</h3>
-  <p>After cutting the dendrogram at different heights (giving different k values), compute the silhouette score for each. Pick the k that maximizes silhouette score.</p>
-
-  <div class="concept-box">
-    <code>s(i) = (b(i) - a(i)) / max(a(i), b(i))</code><br>
-    where a(i) = avg distance to own cluster, b(i) = avg distance to nearest other cluster.<br>
-    <strong>Range:</strong> -1 to +1 (higher is better; > 0.5 is good).
-  </div>
-
-  <h3>Method 3: Domain Knowledge</h3>
-  <p>The business constraint is often the most important factor. If your marketing team can only execute 4 campaigns, then k=4. The dendrogram helps you check whether a 4-cluster cut is supported by the data.</p>
-</div>
-
-<!-- Quiz Question 2 -->
-<div class="quick-question" id="q2">
-  <h3>❓ Quick Check 2</h3>
-  <p>A dendrogram's longest vertical gap is between heights 40 and 95. Cutting at height 60 gives 3 clusters (silhouette = 0.68). Cutting at height 20 gives 7 clusters (silhouette = 0.42). What do you recommend?</p>
-  <div class="answer-options">
-    <div class="answer-option" onclick="checkAnswer('q2', this, true)">3 clusters — both the dendrogram gap and silhouette agree</div>
-    <div class="answer-option" onclick="checkAnswer('q2', this, false)">7 clusters — more granularity is always useful</div>
-    <div class="answer-option" onclick="checkAnswer('q2', this, false)">Neither — you need more data</div>
-    <div class="answer-option" onclick="checkAnswer('q2', this, false)">Run K-Means instead to validate</div>
-  </div>
-  <div class="feedback-panel" id="q2-feedback"></div>
-</div>
-
-<!-- Section 5: Business Case -->
-<div class="section-header">
-  <h2>5. Business Case: RetailMax Customer Hierarchy</h2>
-  <p>Understanding not just who the segments are, but how they relate</p>
-</div>
-
-<div class="card">
-  <h3>Why Hierarchy Matters for RetailMax</h3>
-  <p>K-Means told RetailMax: "You have 4 segments." But hierarchical clustering reveals the nested structure: Premium customers split into two sub-groups (High-frequency Premium and Occasional Premium). Budget customers split into Price-Sensitive and Discount-Hunters.</p>
-  
   <div class="interactive-section">
-    <h3>🏢 Customer Hierarchy Visualization</h3>
-    <p>This dendrogram shows RetailMax's actual customer hierarchy. Notice how Premium and Standard customers are more similar to each other than either is to Budget customers.</p>
-    <button class="button success" onclick="drawBizDendrogram()">Show Customer Hierarchy</button>
-    <canvas id="biz-dend-canvas" width="920" height="380"></canvas>
-    <div class="step-display" id="biz-dend-info">Click "Show Customer Hierarchy" to see the dendrogram.</div>
+    <h3>🎬 Live Merge Animation</h3>
+    <div class="controls-row">
+      <button class="button small" onclick="resetAgg()">🔄 New Points</button>
+      <button class="button small success" onclick="stepAgg()">⏭ Next Merge</button>
+      <button class="button small warning" onclick="autoAgg()">▶ Auto Run</button>
+      <button class="button small danger" onclick="stopAgg()">⏹ Stop</button>
+    </div>
+    <div id="agg-status" style="background:#f8f9fa;padding:0.8em;border-radius:6px;margin-bottom:0.8em;font-family:monospace;font-size:0.95em;">
+      Click "New Points" to generate data, then "Next Merge" to step through agglomerative clustering.
+    </div>
+    <canvas id="agg-canvas" width="860" height="380" style="border:1px solid #e1e4e8;border-radius:8px;width:100%;max-width:860px;"></canvas>
+    <div style="display:flex;gap:2em;margin-top:0.8em;flex-wrap:wrap;">
+      <div><span style="display:inline-block;width:14px;height:14px;background:#0366d6;border-radius:50%;vertical-align:middle;"></span> Current clusters</div>
+      <div><span style="display:inline-block;width:14px;height:14px;background:#e1e4e8;border:2px dashed #999;border-radius:50%;vertical-align:middle;"></span> Merged (last step)</div>
+      <div id="agg-step-counter" style="margin-left:auto;font-weight:bold;color:#003366;">Step: 0</div>
+    </div>
   </div>
 
-  <h3 style="margin-top: 1.5em;">Hierarchy → Strategy</h3>
+  <div class="highlight-box">
+    <strong>Algorithm in Plain English:</strong><br>
+    1. Start: N points → N singleton clusters<br>
+    2. Find the two closest clusters (by chosen linkage method)<br>
+    3. Merge them into one cluster<br>
+    4. Repeat from step 2 until 1 cluster remains<br>
+    5. Record every merge — this becomes your dendrogram!
+  </div>
+</div>
+
+<!-- SECTION 2: DENDROGRAM -->
+<div class="card" id="section-dendrogram">
+  <h2>🌲 Step 2: Reading the Dendrogram</h2>
+  <p>The dendrogram records <em>every merge</em>: which clusters merged and at what distance. The <strong>height</strong> of each horizontal bar = the distance between clusters when they merged. <strong>Cut the tree</strong> at any height to get your clusters.</p>
+
+  <div class="interactive-section">
+    <h3>✂️ Interactive Dendrogram — Drag to Cut</h3>
+    <div class="controls-row">
+      <button class="button small" onclick="rebuildDendro()">🔄 Regenerate</button>
+      <label style="font-weight:bold;">Cut Height:</label>
+      <input type="range" min="0" max="100" value="50" id="cut-slider" class="slider" style="width:200px;" oninput="updateCut()">
+      <span id="cut-value" style="font-weight:bold;color:#003366;">50</span>
+      <span id="cluster-count-display" style="background:#003366;color:white;padding:0.3em 0.8em;border-radius:12px;font-weight:bold;">Clusters: 2</span>
+    </div>
+    <canvas id="dendro-canvas" width="860" height="400" style="border:1px solid #e1e4e8;border-radius:8px;width:100%;max-width:860px;cursor:ew-resize;"></canvas>
+    <p style="font-size:0.9em;color:#666;margin-top:0.5em;">⬆ Drag the slider or click on the dendrogram to set the cut height. Each color = one cluster.</p>
+
+    <div id="dendro-summary" class="highlight-box" style="margin-top:1em;">
+      Adjust the cut height slider to see how many clusters you get.
+    </div>
+  </div>
+
+  <h3>🔑 Key Insight: Long Branches = Natural Clusters</h3>
+  <div class="info-grid">
+    <div class="info-card">
+      <div style="font-size:2em;">📏</div>
+      <strong>Height = Distance</strong>
+      <p style="font-size:0.9em;">Taller bars = clusters that were far apart when merged. Look for large gaps.</p>
+    </div>
+    <div class="info-card">
+      <div style="font-size:2em;">✂️</div>
+      <strong>Cut = k Clusters</strong>
+      <p style="font-size:0.9em;">Cut at height h → count the vertical lines crossing the cut line = number of clusters.</p>
+    </div>
+    <div class="info-card">
+      <div style="font-size:2em;">🌿</div>
+      <strong>Hierarchy Preserved</strong>
+      <p style="font-size:0.9em;">Clusters at k=4 are sub-divisions of clusters at k=2. No re-running needed.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: LINKAGE METHODS -->
+<div class="card" id="section-linkage">
+  <h2>🔗 Step 3: Linkage Methods — How Do We Measure Cluster Distance?</h2>
+  <p>Once we have clusters (not just points), how do we measure distance <em>between clusters</em>? Different answers give dramatically different trees.</p>
+
+  <div class="interactive-section">
+    <h3>⚖️ Compare Linkage Methods Side-by-Side</h3>
+    <div class="controls-row">
+      <button class="button small" id="btn-single" onclick="setLinkage('single')" style="background:#dc3545;">Single</button>
+      <button class="button small" id="btn-complete" onclick="setLinkage('complete')" style="background:#6c757d;">Complete</button>
+      <button class="button small" id="btn-average" onclick="setLinkage('average')" style="background:#6c757d;">Average</button>
+      <button class="button small" id="btn-ward" onclick="setLinkage('ward')" style="background:#6c757d;">Ward</button>
+      <button class="button small secondary" onclick="regenerateLinkage()">🔄 New Data</button>
+    </div>
+
+    <div class="viz-row">
+      <div class="viz-half">
+        <canvas id="linkage-scatter" width="400" height="300" style="border:1px solid #e1e4e8;border-radius:8px;width:100%;"></canvas>
+        <p style="text-align:center;font-size:0.85em;color:#666;">Point clusters</p>
+      </div>
+      <div class="viz-half">
+        <canvas id="linkage-dendro" width="400" height="300" style="border:1px solid #e1e4e8;border-radius:8px;width:100%;"></canvas>
+        <p style="text-align:center;font-size:0.85em;color:#666;">Resulting dendrogram</p>
+      </div>
+    </div>
+
+    <div id="linkage-explanation" class="highlight-box" style="margin-top:1em;">
+      Select a linkage method above to see how it shapes the tree.
+    </div>
+  </div>
+
   <table>
-    <tr><th>Level</th><th>Clusters</th><th>Strategy</th></tr>
-    <tr><td>Cut at top (k=2)</td><td>High-Value vs. Price-Sensitive</td><td>Two separate product lines, two pricing strategies</td></tr>
-    <tr><td>Cut at middle (k=4)</td><td>Premium / Standard / Budget / New</td><td>Four email campaign tracks, four loyalty tiers</td></tr>
-    <tr><td>Cut at bottom (k=8)</td><td>8 granular sub-segments</td><td>Personalized recommendations per sub-segment</td></tr>
+    <tr><th>Linkage</th><th>Distance = ?</th><th>Pros</th><th>Cons</th><th>Best For</th></tr>
+    <tr>
+      <td><span class="badge badge-blue">Single</span></td>
+      <td>Minimum distance between any two points across clusters</td>
+      <td>Handles non-spherical shapes</td>
+      <td>Chaining effect — long, stringy clusters</td>
+      <td>Detecting elongated shapes</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-green">Complete</span></td>
+      <td>Maximum distance between any two points</td>
+      <td>Compact, tight clusters</td>
+      <td>Sensitive to outliers</td>
+      <td>Equal-size, compact clusters</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-orange">Average</span></td>
+      <td>Average of all pairwise distances</td>
+      <td>Balanced, robust</td>
+      <td>Less intuitive</td>
+      <td>General-purpose use</td>
+    </tr>
+    <tr>
+      <td><span class="badge" style="background:#d4edda;color:#155724;">Ward</span></td>
+      <td>Increase in total within-cluster variance</td>
+      <td>Minimizes variance — similar to K-Means criterion</td>
+      <td>Tends toward equal-size clusters</td>
+      <td>Most business applications ✅</td>
+    </tr>
   </table>
-  <div class="success-box">
-    <strong>The hierarchy lets RetailMax be flexible:</strong> Use k=4 for email campaigns (manageable for the team), but drill to k=8 for product recommendation algorithms.
-  </div>
 </div>
 
-<!-- Quiz Question 3 -->
-<div class="quick-question" id="q3">
-  <h3>❓ Quick Check 3</h3>
-  <p>RetailMax has 500,000 customers and wants to run hierarchical clustering. The data scientist warns it may not be feasible. Why?</p>
-  <div class="answer-options">
-    <div class="answer-option" onclick="checkAnswer('q3', this, false)">Hierarchical clustering requires labeled data</div>
-    <div class="answer-option" onclick="checkAnswer('q3', this, true)">Hierarchical clustering is O(n²) or O(n³) — it doesn't scale to 500K rows</div>
-    <div class="answer-option" onclick="checkAnswer('q3', this, false)">The dendrogram would be too wide to display</div>
-    <div class="answer-option" onclick="checkAnswer('q3', this, false)">Ward linkage fails above 100K points</div>
-  </div>
-  <div class="feedback-panel" id="q3-feedback"></div>
-</div>
+<!-- SECTION 4: DISTANCE METRICS -->
+<div class="card" id="section-distance">
+  <h2>📐 Distance Metrics: What Does "Close" Mean?</h2>
+  <p>Before we can merge clusters, we need to define <em>distance between points</em>. The choice can change your results dramatically — especially with high-dimensional or text data.</p>
 
-<!-- Section 6: K-Means vs. Hierarchical -->
-<div class="section-header">
-  <h2>6. K-Means vs. Hierarchical: When to Use Each</h2>
-  <p>Pick the right tool for your problem</p>
-</div>
-
-<div class="card">
-  <div class="comparison-grid">
-    <div class="compare-card kmeans">
-      <h3>🎯 K-Means</h3>
-      <p><strong>Choose K-Means when:</strong></p>
-      <ul>
-        <li>Dataset has &gt; 50,000 rows</li>
-        <li>You already know (or can estimate) k</li>
-        <li>Clusters are roughly spherical and similar-sized</li>
-        <li>You need speed and scalability</li>
-        <li>You need to re-run frequently (streaming data)</li>
-      </ul>
-      <p><strong>Classic use cases:</strong> Customer segmentation at scale, image compression, document clustering</p>
+  <div class="interactive-section">
+    <h3>📊 Visual Comparison of Distance Metrics</h3>
+    <div class="controls-row">
+      <button class="button small" id="btn-euclidean" onclick="setMetric('euclidean')" style="background:#0366d6;">Euclidean</button>
+      <button class="button small" id="btn-manhattan" onclick="setMetric('manhattan')" style="background:#6c757d;">Manhattan</button>
+      <button class="button small" id="btn-cosine" onclick="setMetric('cosine')" style="background:#6c757d;">Cosine</button>
     </div>
-    <div class="compare-card hier">
-      <h3>🌳 Hierarchical</h3>
-      <p><strong>Choose Hierarchical when:</strong></p>
-      <ul>
-        <li>You don't know k and want to explore</li>
-        <li>The hierarchy itself is valuable (taxonomy)</li>
-        <li>Dataset has &lt; 50,000 rows</li>
-        <li>You need to cut at multiple levels</li>
-        <li>You want to visualize cluster relationships</li>
-      </ul>
-      <p><strong>Classic use cases:</strong> Gene expression analysis, product taxonomy, organizational structure analysis</p>
+    <canvas id="metric-canvas" width="860" height="300" style="border:1px solid #e1e4e8;border-radius:8px;width:100%;max-width:860px;"></canvas>
+    <div id="metric-explanation" class="highlight-box" style="margin-top:1em;"></div>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <div style="font-size:1.8em;">📐</div>
+      <strong>Euclidean</strong>
+      <p style="font-size:0.85em;">Straight-line distance. √(Σ(aᵢ-bᵢ)²)<br>Use for: spatial, continuous numeric data</p>
+    </div>
+    <div class="info-card">
+      <div style="font-size:1.8em;">🏙️</div>
+      <strong>Manhattan</strong>
+      <p style="font-size:0.85em;">Grid-path distance. Σ|aᵢ-bᵢ|<br>Use for: robust to outliers, city-block movement</p>
+    </div>
+    <div class="info-card">
+      <div style="font-size:1.8em;">📐</div>
+      <strong>Cosine</strong>
+      <p style="font-size:0.85em;">Angle between vectors. 1 - (a·b)/(|a||b|)<br>Use for: text, high-dimensional data, NLP</p>
     </div>
   </div>
+</div>
 
-  <h3>A Practical Approach: Use Both</h3>
-  <div class="concept-box">
-    <strong>Common workflow:</strong>
-    <ol>
-      <li>Run hierarchical clustering on a representative sample (5–10K rows) to understand structure</li>
-      <li>Read the dendrogram to determine the natural number of clusters</li>
-      <li>Run K-Means on the full dataset with the k from step 2</li>
-      <li>Compare K-Means centroids with hierarchical cluster profiles — they should roughly align</li>
-    </ol>
+<!-- SECTION 5: CHOOSING K -->
+<div class="card" id="section-k">
+  <h2>🎯 Step 4: Choosing the Right Number of Clusters</h2>
+  <p>With hierarchical clustering, you can choose k <em>after</em> building the tree. Two methods help you pick the optimal cut:</p>
+
+  <div class="interactive-section">
+    <h3>📏 Dendrogram Gap Method + Silhouette Score</h3>
+    <div class="viz-row">
+      <div class="viz-half">
+        <h4 style="margin-top:0;">Dendrogram — Find the Largest Gap</h4>
+        <canvas id="gap-dendro" width="400" height="300" style="border:1px solid #e1e4e8;border-radius:8px;width:100%;"></canvas>
+        <p style="font-size:0.85em;color:#666;">The <span style="color:#dc3545;font-weight:bold;">red arrow</span> points to the largest gap — that's where you should cut!</p>
+      </div>
+      <div class="viz-half">
+        <h4 style="margin-top:0;">Silhouette Score by k</h4>
+        <canvas id="silhouette-canvas" width="400" height="300" style="border:1px solid #e1e4e8;border-radius:8px;width:100%;"></canvas>
+        <p style="font-size:0.85em;color:#666;">Higher silhouette = better-separated clusters. Pick the k with the <span style="color:#28a745;font-weight:bold;">highest score</span>.</p>
+      </div>
+    </div>
+    <button class="button small" onclick="regenerateKSelection()">🔄 Try Different Dataset</button>
+    <div id="k-selection-result" class="highlight-box" style="margin-top:1em;"></div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Two Rules of Thumb:</strong><br>
+    🌲 <strong>Dendrogram Gap:</strong> Find the longest vertical line with no horizontal crossing — cut in the middle of that gap.<br>
+    📊 <strong>Silhouette Score:</strong> Ranges from -1 to 1. Score near 1 = tight, well-separated clusters. Pick k that maximizes it.
   </div>
 </div>
 
-<!-- Quiz Question 4 -->
-<div class="quick-question" id="q4">
-  <h3>❓ Quick Check 4 (Final)</h3>
-  <p>A genomics researcher wants to cluster 800 genes by expression pattern to identify regulatory modules (nested gene groups that activate together). Which method fits best?</p>
-  <div class="answer-options">
-    <div class="answer-option" onclick="checkAnswer('q4', this, false)">K-Means — it's faster</div>
-    <div class="answer-option" onclick="checkAnswer('q4', this, true)">Hierarchical — the nested regulatory structure maps naturally to a dendrogram</div>
-    <div class="answer-option" onclick="checkAnswer('q4', this, false)">DBSCAN — genes have irregular expression patterns</div>
-    <div class="answer-option" onclick="checkAnswer('q4', this, false)">Either; they give identical results</div>
+<!-- SECTION 6: BUSINESS CASE -->
+<div class="card" id="section-business">
+  <h2>💼 Business Case: Customer Hierarchy at LuxRetail</h2>
+
+  <div class="highlight-box">
+    <strong>Scenario:</strong> LuxRetail has 50,000 customers with purchase history, visit frequency, and average spend. The CMO wants a <em>customer hierarchy</em> — not just 3 segments, but a full tree showing how segments relate, so marketing can target at multiple levels of granularity.
   </div>
-  <div class="feedback-panel" id="q4-feedback"></div>
+
+  <div class="interactive-section">
+    <h3>🏪 Customer Clustering Hierarchy — Interactive Explore</h3>
+    <div class="controls-row">
+      <button class="button small" onclick="setBusinessK(2)">2 Segments</button>
+      <button class="button small" onclick="setBusinessK(3)">3 Segments</button>
+      <button class="button small" onclick="setBusinessK(5)">5 Segments</button>
+      <button class="button small" onclick="setBusinessK(8)">8 Segments</button>
+    </div>
+    <div class="viz-row">
+      <div class="viz-half">
+        <canvas id="business-scatter" width="400" height="320" style="border:1px solid #e1e4e8;border-radius:8px;width:100%;"></canvas>
+      </div>
+      <div class="viz-half">
+        <canvas id="business-dendro" width="400" height="320" style="border:1px solid #e1e4e8;border-radius:8px;width:100%;"></canvas>
+      </div>
+    </div>
+    <div id="business-description" class="highlight-box" style="margin-top:1em;"></div>
+  </div>
+
+  <h3>📋 Discovered Customer Hierarchy (3-level)</h3>
+  <div style="background:#f8f9fa;padding:1.5em;border-radius:8px;font-family:monospace;font-size:0.9em;line-height:2;">
+    All Customers<br>
+    ├── <span style="color:#003366;font-weight:bold;">💎 Premium Tier</span> (top 20%, avg spend $850/visit)<br>
+    │&nbsp;&nbsp;&nbsp;├── Luxury Loyalists (frequent, high spend, brand-conscious)<br>
+    │&nbsp;&nbsp;&nbsp;└── Occasion Splurgers (infrequent but very high single-visit spend)<br>
+    ├── <span style="color:#0366d6;font-weight:bold;">📦 Standard Tier</span> (middle 55%, avg spend $210/visit)<br>
+    │&nbsp;&nbsp;&nbsp;├── Regular Shoppers (steady frequency, moderate spend)<br>
+    │&nbsp;&nbsp;&nbsp;└── Deal Hunters (medium frequency, discount-driven)<br>
+    └── <span style="color:#6c757d;font-weight:bold;">🏷️ Budget Tier</span> (bottom 25%, avg spend $45/visit)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;├── Occasional Browsers (low frequency, low spend)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;└── Churn Risk (declining engagement)<br>
+  </div>
+
+  <h3>🎯 Marketing Actions at Each Level</h3>
+  <table>
+    <tr><th>Level</th><th>Segment</th><th>Strategy</th><th>Expected ROI</th></tr>
+    <tr><td>Broad (2 clusters)</td><td>Premium vs. Rest</td><td>VIP program vs. mass campaign</td><td>15% lift</td></tr>
+    <tr><td>Medium (3 clusters)</td><td>Premium / Standard / Budget</td><td>Tiered loyalty rewards</td><td>23% lift</td></tr>
+    <tr><td>Granular (5+ clusters)</td><td>All sub-segments</td><td>Personalized 1:1 messaging</td><td>31% lift</td></tr>
+  </table>
+  <p><strong>Key advantage:</strong> You ran hierarchical clustering <em>once</em>. Marketing can cut the dendrogram at whatever level makes sense for this month's campaign — no rerunning, no choosing k upfront.</p>
 </div>
 
-<!-- Summary -->
-<div class="card" style="border-left: 6px solid #9b59b6;">
-  <h2>📝 Module 9 — Hierarchical Clustering Summary</h2>
-  <ul style="line-height: 2.2;">
-    <li><strong>Agglomerative clustering</strong> starts with n individual clusters and merges iteratively</li>
-    <li>The <strong>dendrogram</strong> captures the full merge history — cut at any height for any k</li>
-    <li><strong>Linkage methods</strong> define cluster distance: Ward is the best default for most business applications</li>
-    <li>Find k by looking for the <strong>longest vertical gap</strong> in the dendrogram</li>
-    <li><strong>Practical limit:</strong> ~50K rows; use K-Means on a sample, hierarchical for structure discovery</li>
-    <li>Use <strong>both together</strong>: hierarchical to find k, K-Means to scale up</li>
-  </ul>
-  <div style="margin-top: 1em;">
-    <a href="module9_clustering_kmeans_interactive.html" class="button">← K-Means Deep Dive</a>
-    <a href="module9_class_material.html" class="button secondary">Back to Module 9 Overview</a>
-    <a href="module9_lab_manual.html" class="button success">🔬 Lab Manual →</a>
+<!-- COMPARISON TABLE -->
+<div class="card" id="section-comparison">
+  <h2>⚔️ K-Means vs. Hierarchical: When to Use Which?</h2>
+  <table>
+    <tr>
+      <th>Dimension</th>
+      <th>🔵 K-Means</th>
+      <th>🌳 Hierarchical</th>
+    </tr>
+    <tr>
+      <td><strong>Input required</strong></td>
+      <td>Must specify k upfront</td>
+      <td>No k needed — choose after</td>
+    </tr>
+    <tr>
+      <td><strong>Result</strong></td>
+      <td>Flat partition (k clusters)</td>
+      <td>Full tree (all k at once)</td>
+    </tr>
+    <tr>
+      <td><strong>Scalability</strong></td>
+      <td>✅ Scales to millions of points</td>
+      <td>⚠️ Slow on large data (O(n²) or O(n³))</td>
+    </tr>
+    <tr>
+      <td><strong>Interpretability</strong></td>
+      <td>Cluster centroids easy to explain</td>
+      <td>Dendrogram shows relationships</td>
+    </tr>
+    <tr>
+      <td><strong>Reproducibility</strong></td>
+      <td>Random init → different results</td>
+      <td>Deterministic (same tree every run)</td>
+    </tr>
+    <tr>
+      <td><strong>Cluster shape</strong></td>
+      <td>Assumes spherical/convex</td>
+      <td>Flexible (depends on linkage)</td>
+    </tr>
+    <tr>
+      <td><strong>Outlier handling</strong></td>
+      <td>Sensitive to outliers</td>
+      <td>Can isolate outliers as singletons</td>
+    </tr>
+    <tr>
+      <td><strong>Data size</strong></td>
+      <td>10K–10M+ rows</td>
+      <td>Up to ~5K–10K rows practical</td>
+    </tr>
+    <tr>
+      <td><strong>Best use case</strong></td>
+      <td>Large-scale segmentation with known k</td>
+      <td>Exploratory analysis, unknown k, need hierarchy</td>
+    </tr>
+  </table>
+
+  <div class="info-grid" style="margin-top:1em;">
+    <div class="info-card" style="border-top-color:#0366d6;">
+      <div style="font-size:1.5em;">🔵 Use K-Means when...</div>
+      <p style="text-align:left;font-size:0.9em;">• Dataset is large (>10K rows)<br>• You know how many clusters you want<br>• Speed matters<br>• Clusters are roughly spherical</p>
+    </div>
+    <div class="info-card" style="border-top-color:#28a745;">
+      <div style="font-size:1.5em;">🌳 Use Hierarchical when...</div>
+      <p style="text-align:left;font-size:0.9em;">• You want to explore k without rerunning<br>• You need cluster relationships (hierarchy)<br>• Dataset is moderate size (&lt;10K rows)<br>• You want a reproducible, deterministic result</p>
+    </div>
   </div>
+</div>
+
+<!-- QUIZ SECTION -->
+<div class="card" id="section-quiz">
+  <h2>🧠 Knowledge Check — 5 Questions</h2>
+  <p>Test your understanding of hierarchical clustering. Answer all 5 to complete the module.</p>
+  <div id="quiz-score-display">Score: <span id="quiz-score">0</span>/5</div>
+
+  <!-- Q1 -->
+  <div class="quiz-card" id="q1">
+    <h4>Question 1 of 5</h4>
+    <p>In agglomerative clustering, what happens at the very first step?</p>
+    <div class="answer-options">
+      <div class="answer-option" onclick="answerQ(1, this, false)">All points are merged into one cluster immediately</div>
+      <div class="answer-option" onclick="answerQ(1, this, true)">Each point starts as its own singleton cluster</div>
+      <div class="answer-option" onclick="answerQ(1, this, false)">You must specify k clusters to start with</div>
+      <div class="answer-option" onclick="answerQ(1, this, false)">The algorithm randomly assigns points to clusters</div>
+    </div>
+    <div class="feedback-panel" id="fb1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-card" id="q2">
+    <h4>Question 2 of 5</h4>
+    <p>What does the <strong>height</strong> of a bar in a dendrogram represent?</p>
+    <div class="answer-options">
+      <div class="answer-option" onclick="answerQ(2, this, false)">The number of points in the merged cluster</div>
+      <div class="answer-option" onclick="answerQ(2, this, false)">The order in which the merge happened</div>
+      <div class="answer-option" onclick="answerQ(2, this, true)">The distance between the two clusters when they merged</div>
+      <div class="answer-option" onclick="answerQ(2, this, false)">The silhouette score at that merge step</div>
+    </div>
+    <div class="feedback-panel" id="fb2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-card" id="q3">
+    <h4>Question 3 of 5</h4>
+    <p>Which linkage method is most prone to the <strong>"chaining effect"</strong> (long, stringy clusters)?</p>
+    <div class="answer-options">
+      <div class="answer-option" onclick="answerQ(3, this, true)">Single linkage</div>
+      <div class="answer-option" onclick="answerQ(3, this, false)">Complete linkage</div>
+      <div class="answer-option" onclick="answerQ(3, this, false)">Ward's method</div>
+      <div class="answer-option" onclick="answerQ(3, this, false)">Average linkage</div>
+    </div>
+    <div class="feedback-panel" id="fb3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="quiz-card" id="q4">
+    <h4>Question 4 of 5</h4>
+    <p>You have 500,000 customer records and need to segment them quickly into 5 groups. Which method is better and why?</p>
+    <div class="answer-options">
+      <div class="answer-option" onclick="answerQ(4, this, false)">Hierarchical — it gives a better dendrogram for large datasets</div>
+      <div class="answer-option" onclick="answerQ(4, this, true)">K-Means — it scales much better (O(nk)) vs hierarchical O(n²)</div>
+      <div class="answer-option" onclick="answerQ(4, this, false)">Hierarchical — because you don't need to specify k</div>
+      <div class="answer-option" onclick="answerQ(4, this, false)">Both are equally good at this scale</div>
+    </div>
+    <div class="feedback-panel" id="fb4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="quiz-card" id="q5">
+    <h4>Question 5 of 5</h4>
+    <p>When using the <strong>dendrogram gap method</strong> to choose k, what should you look for?</p>
+    <div class="answer-options">
+      <div class="answer-option" onclick="answerQ(5, this, false)">The point where the tree has exactly k leaves</div>
+      <div class="answer-option" onclick="answerQ(5, this, false)">The merge step with the smallest distance</div>
+      <div class="answer-option" onclick="answerQ(5, this, true)">The longest vertical line with no horizontal merges crossing it</div>
+      <div class="answer-option" onclick="answerQ(5, this, false)">The merge step where exactly half the points are combined</div>
+    </div>
+    <div class="feedback-panel" id="fb5"></div>
+  </div>
+
+  <div id="quiz-completion" style="display:none;" class="highlight-box">
+    <h3>🎉 Module Complete!</h3>
+    <p id="quiz-final-message"></p>
+    <a href="module9_clustering_kmeans_interactive.html" class="button secondary">← Review K-Means</a>
+    <a href="index.html" class="button success">Continue to Next Module →</a>
+  </div>
+</div>
+
+<!-- NAVIGATION FOOTER -->
+<div class="card" style="text-align:center;padding:2em;">
+  <h3>🗺️ Module 9 Navigation</h3>
+  <a href="module9_class_material.html" class="button secondary">📚 Class Material</a>
+  <a href="module9_clustering_kmeans_interactive.html" class="button">🔵 K-Means Interactive</a>
+  <a href="index.html" class="button success">🏠 Course Home</a>
 </div>
 
 <script>
-// =====================
-// Colors & state
-// =====================
-const COLORS = ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#e91e63'];
-let sectionsComplete = new Set();
-const totalSections = 5;
+// ===== GLOBAL STATE =====
+const COLORS = ['#0366d6','#dc3545','#28a745','#fd7e14','#6f42c1','#17a2b8','#e83e8c','#20c997'];
+let completedSteps = new Set();
+let quizAnswered = {};
+let quizScore = 0;
 
-function markDone(s) {
-  sectionsComplete.add(s);
-  const pct = Math.max(5, Math.round((sectionsComplete.size / totalSections) * 100));
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-fill').textContent = pct + '%';
+// ===== PROGRESS TRACKER =====
+function markStep(n) {
+  completedSteps.add(n);
+  updateProgress();
 }
-
-// =====================
-// STEP-BY-STEP AGGLOMERATIVE
-// =====================
-let stepPoints = [];
-let stepClusters = [];
-let stepHistory = [];
-let stepIdx = 0;
-let autoTimer = null;
-
-function generateStepData() {
-  clearInterval(autoTimer);
-  stepPoints = [];
-  for (let i = 0; i < 12; i++) {
-    stepPoints.push({
-      x: 80 + Math.random() * 760,
-      y: 60 + Math.random() * 260
-    });
-  }
-  stepClusters = stepPoints.map((p, i) => [i]);
-  stepHistory = [];
-  stepIdx = 0;
-  // Precompute all merges (Ward-like — nearest centroid merge)
-  precomputeMerges();
-  drawStep();
-  document.getElementById('step-info').textContent = `12 data points generated. Each is its own cluster. Click "Next Step" to merge.`;
-  markDone('algorithm');
-}
-
-function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
-function centroid(idxs) {
-  const pts = idxs.map(i => stepPoints[i]);
-  return { x: pts.reduce((s,p)=>s+p.x,0)/pts.length, y: pts.reduce((s,p)=>s+p.y,0)/pts.length };
-}
-
-function precomputeMerges() {
-  let clusters = stepPoints.map((_, i) => [i]);
-  stepHistory = [];
-  while (clusters.length > 1) {
-    let bestI = 0, bestJ = 1, bestD = Infinity;
-    for (let i = 0; i < clusters.length; i++) {
-      for (let j = i+1; j < clusters.length; j++) {
-        const ci = centroid(clusters[i]), cj = centroid(clusters[j]);
-        const d = dist(ci, cj);
-        if (d < bestD) { bestD = d; bestI = i; bestJ = j; }
-      }
-    }
-    const merged = [...clusters[bestI], ...clusters[bestJ]];
-    stepHistory.push({ from: [clusters[bestI], clusters[bestJ]], to: merged, dist: bestD, remaining: clusters.length - 1 });
-    clusters = clusters.filter((_, k) => k !== bestI && k !== bestJ);
-    clusters.push(merged);
+function updateProgress() {
+  const pct = Math.round((completedSteps.size / 5) * 100);
+  document.getElementById('main-progress').style.width = pct + '%';
+  document.getElementById('main-progress').textContent = pct + '%';
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('step' + i);
+    if (completedSteps.has(i)) { el.className = 'story-step completed'; }
   }
 }
+function goToStep(n) {
+  const ids = {1:'section-hook',2:'section-build',3:'section-dendrogram',4:'section-linkage',5:'section-business'};
+  document.getElementById(ids[n])?.scrollIntoView({behavior:'smooth'});
+}
+function scrollTo(id) {
+  document.querySelector(id)?.scrollIntoView({behavior:'smooth'});
+}
 
-const stepCtx = document.getElementById('step-canvas').getContext('2d');
-function drawStep() {
-  const ctx = stepCtx;
-  const W = 920, H = 380;
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0,0,W,H);
-  
-  if (stepPoints.length === 0) {
-    ctx.fillStyle='#999'; ctx.font='16px Arial'; ctx.textAlign='center';
-    ctx.fillText('Click "New Data" to generate points', W/2, H/2);
-    return;
-  }
-  
-  // Build current cluster state up to stepIdx
-  let currentClusters = stepPoints.map((_, i) => [i]);
-  for (let s = 0; s < stepIdx && s < stepHistory.length; s++) {
-    const h = stepHistory[s];
-    const merged = h.to;
-    currentClusters = currentClusters.filter(c => !h.from.some(f => arrEquals(c, f)));
-    currentClusters.push(merged);
-  }
-  
-  // Draw cluster connections
-  currentClusters.forEach((cluster, ci) => {
-    if (cluster.length > 1) {
-      const cen = centroid(cluster);
-      cluster.forEach(pi => {
-        ctx.beginPath();
-        ctx.strokeStyle = COLORS[ci % COLORS.length] + '55';
-        ctx.lineWidth = 1.5;
-        ctx.moveTo(stepPoints[pi].x, stepPoints[pi].y);
-        ctx.lineTo(cen.x, cen.y);
-        ctx.stroke();
-      });
+// ===== UTILITY =====
+function dist(a, b) { return Math.hypot(a.x-b.x, a.y-b.y); }
+function randBetween(lo, hi) { return lo + Math.random()*(hi-lo); }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function hslColor(i, total, sat, lit) {
+  const h = (i / total) * 320;
+  return `hsl(${h},${sat}%,${lit}%)`;
+}
+
+// ===== SECTION 1: AGGLOMERATIVE ANIMATION =====
+let aggPoints = [], aggClusters = [], aggHistory = [], aggStep = 0, aggTimer = null;
+const aggCanvas = document.getElementById('agg-canvas');
+const aggCtx = aggCanvas.getContext('2d');
+
+function generateAggPoints() {
+  const W = aggCanvas.width, H = aggCanvas.height;
+  const pts = [];
+  const centers = [{x:W*0.2,y:H*0.3},{x:W*0.5,y:H*0.6},{x:W*0.75,y:H*0.25},{x:W*0.35,y:H*0.7}];
+  centers.forEach(c => {
+    for (let i=0;i<4;i++) {
+      pts.push({x: clamp(c.x+randBetween(-55,55),20,W-20), y: clamp(c.y+randBetween(-45,45),20,H-20)});
     }
   });
-  
+  return pts;
+}
+
+function resetAgg() {
+  stopAgg();
+  aggPoints = generateAggPoints();
+  aggStep = 0;
+  // Each point is its own cluster
+  aggClusters = aggPoints.map((p,i) => ({pts:[i], color: COLORS[i % COLORS.length]}));
+  aggHistory = [];
+  document.getElementById('agg-step-counter').textContent = 'Step: 0';
+  document.getElementById('agg-status').textContent = `${aggPoints.length} points → ${aggPoints.length} clusters. Click "Next Merge" to begin.`;
+  drawAgg();
+}
+
+function clusterCentroid(cluster) {
+  const xs = cluster.pts.map(i=>aggPoints[i].x);
+  const ys = cluster.pts.map(i=>aggPoints[i].y);
+  return {x: xs.reduce((a,b)=>a+b,0)/xs.length, y: ys.reduce((a,b)=>a+b,0)/ys.length};
+}
+
+function clusterDist(a, b) {
+  // Ward-like: use centroid distance
+  const ca = clusterCentroid(a), cb = clusterCentroid(b);
+  return Math.hypot(ca.x-cb.x, ca.y-cb.y);
+}
+
+function stepAgg() {
+  if (aggClusters.length <= 1) {
+    document.getElementById('agg-status').textContent = '✅ All points merged into one cluster. Tree complete!';
+    return;
+  }
+  // Find closest pair
+  let minD = Infinity, ai = -1, bi = -1;
+  for (let i=0;i<aggClusters.length;i++) {
+    for (let j=i+1;j<aggClusters.length;j++) {
+      const d = clusterDist(aggClusters[i], aggClusters[j]);
+      if (d < minD) { minD = d; ai = i; bi = j; }
+    }
+  }
+  const merged = {pts: [...aggClusters[ai].pts, ...aggClusters[bi].pts], color: aggClusters[ai].color, mergeD: minD, justMerged: true};
+  aggHistory.push({ai, bi, d: minD});
+  const next = aggClusters.filter((_,i)=>i!==ai&&i!==bi);
+  next.push(merged);
+  aggClusters = next;
+  aggStep++;
+  document.getElementById('agg-step-counter').textContent = `Step: ${aggStep}`;
+  document.getElementById('agg-status').textContent = `Step ${aggStep}: Merged 2 clusters (distance ≈ ${minD.toFixed(1)}px). Now ${aggClusters.length} clusters remain.`;
+  markStep(2);
+  // Reset justMerged after draw
+  setTimeout(() => { aggClusters.forEach(c=>c.justMerged=false); drawAgg(); }, 400);
+  drawAgg();
+}
+
+function drawAgg() {
+  const W = aggCanvas.width, H = aggCanvas.height;
+  aggCtx.clearRect(0,0,W,H);
+  // Draw cluster halos
+  aggClusters.forEach((cl, ci) => {
+    if (cl.pts.length > 1) {
+      const cx = cl.pts.map(i=>aggPoints[i].x), cy = cl.pts.map(i=>aggPoints[i].y);
+      const minX = Math.min(...cx)-18, maxX = Math.max(...cx)+18;
+      const minY = Math.min(...cy)-18, maxY = Math.max(...cy)+18;
+      aggCtx.save();
+      aggCtx.fillStyle = cl.justMerged ? 'rgba(255,200,0,0.18)' : 'rgba(3,102,214,0.07)';
+      aggCtx.strokeStyle = cl.justMerged ? '#f0a500' : COLORS[ci % COLORS.length];
+      aggCtx.lineWidth = cl.justMerged ? 2.5 : 1.5;
+      aggCtx.setLineDash(cl.justMerged ? [] : [4,3]);
+      const rx = (maxX-minX)/2+8, ry = (maxY-minY)/2+8;
+      const ecx = (minX+maxX)/2, ecy = (minY+maxY)/2;
+      aggCtx.beginPath();
+      aggCtx.ellipse(ecx, ecy, rx, ry, 0, 0, Math.PI*2);
+      aggCtx.fill(); aggCtx.stroke();
+      aggCtx.restore();
+    }
+  });
   // Draw points
-  currentClusters.forEach((cluster, ci) => {
-    cluster.forEach(pi => {
-      ctx.beginPath();
-      ctx.arc(stepPoints[pi].x, stepPoints[pi].y, 9, 0, 2*Math.PI);
-      ctx.fillStyle = COLORS[ci % COLORS.length];
-      ctx.fill();
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
-      ctx.fillStyle = '#fff'; ctx.font = 'bold 9px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(pi+1, stepPoints[pi].x, stepPoints[pi].y);
-    });
-    // Centroid
-    if (cluster.length > 1) {
-      const cen = centroid(cluster);
-      ctx.beginPath(); ctx.arc(cen.x, cen.y, 12, 0, 2*Math.PI);
-      ctx.strokeStyle = COLORS[ci % COLORS.length]; ctx.lineWidth = 3;
-      ctx.fillStyle = '#fff'; ctx.fill(); ctx.stroke();
-      ctx.fillStyle = COLORS[ci % COLORS.length]; ctx.font = 'bold 10px Arial';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('C'+(ci+1), cen.x, cen.y);
-    }
-  });
-  
-  // Status text
-  ctx.fillStyle = '#003366'; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillText(`Step ${stepIdx} / ${stepHistory.length} — ${currentClusters.length} cluster(s) remaining`, 10, 10);
-}
-
-function arrEquals(a, b) { return a.length===b.length && a.every((v,i)=>v===b[i]); }
-
-function nextStep() {
-  if (stepPoints.length === 0) { generateStepData(); return; }
-  if (stepIdx >= stepHistory.length) {
-    document.getElementById('step-info').textContent = '✅ Fully merged! All points in one cluster. Now build a dendrogram to cut at any level.';
-    return;
-  }
-  const h = stepHistory[stepIdx];
-  document.getElementById('step-info').textContent = `Step ${stepIdx+1}: Merged ${h.from[0].map(i=>i+1).join(',')} + ${h.from[1].map(i=>i+1).join(',')} at distance ${h.dist.toFixed(1)} → ${h.remaining} cluster(s) remain`;
-  stepIdx++;
-  drawStep();
-  markDone('algorithm');
-}
-
-function autoRun() {
-  clearInterval(autoTimer);
-  autoTimer = setInterval(() => {
-    if (stepIdx >= stepHistory.length) { clearInterval(autoTimer); return; }
-    nextStep();
-  }, 700);
-}
-
-function resetSteps() {
-  clearInterval(autoTimer);
-  stepIdx = 0;
-  drawStep();
-  document.getElementById('step-info').textContent = 'Reset to beginning. Click "Next Step" to advance.';
-}
-
-generateStepData();
-
-// =====================
-// DENDROGRAM + SCATTER
-// =====================
-let dendPoints = [], dendMerges = [], dendMaxH = 1;
-let selectedLinkage = 'ward';
-
-function euclidean(pts, a, b) { return Math.hypot(pts[a].x - pts[b].x, pts[a].y - pts[b].y); }
-
-function buildDendrogram() {
-  dendPoints = Array.from({length: 14}, () => ({
-    x: 60 + Math.random()*820,
-    y: 40 + Math.random()*180
-  }));
-  computeMerges();
-  const cutH = dendMaxH * 0.5;
-  document.getElementById('cut-slider').max = Math.ceil(dendMaxH);
-  document.getElementById('cut-slider').value = Math.ceil(dendMaxH * 0.5);
-  drawFullDendrogram(cutH);
-  drawScatter(getClustersAtHeight(cutH));
-  updateCutInfo(cutH);
-  markDone('dendrogram');
-}
-
-function computeMerges() {
-  // Agglomerative with Ward linkage (centroid approximation)
-  let clusters = dendPoints.map((_, i) => [i]);
-  dendMerges = [];
-  let nodePositions = dendPoints.map((p, i) => ({x: p.x, y: p.y, id: i}));
-  const nodeX = [...dendPoints.map(p => p.x)];
-  const nodeY = [...dendPoints.map(p => p.y)];
-  
-  while (clusters.length > 1) {
-    let bestI = 0, bestJ = 1, bestD = Infinity;
-    for (let i = 0; i < clusters.length; i++) {
-      for (let j = i+1; j < clusters.length; j++) {
-        const ci = {x: clusters[i].reduce((s,k)=>s+dendPoints[k].x,0)/clusters[i].length, y: clusters[i].reduce((s,k)=>s+dendPoints[k].y,0)/clusters[i].length};
-        const cj = {x: clusters[j].reduce((s,k)=>s+dendPoints[k].x,0)/clusters[j].length, y: clusters[j].reduce((s,k)=>s+dendPoints[k].y,0)/clusters[j].length};
-        const d = Math.hypot(ci.x-cj.x, ci.y-cj.y);
-        if (d < bestD) { bestD = d; bestI = i; bestJ = j; }
-      }
-    }
-    dendMerges.push({left: clusters[bestI], right: clusters[bestJ], height: bestD});
-    const merged = [...clusters[bestI], ...clusters[bestJ]];
-    clusters = clusters.filter((_,k) => k !== bestI && k !== bestJ);
-    clusters.push(merged);
-  }
-  dendMaxH = Math.max(...dendMerges.map(m => m.height)) * 1.05;
-}
-
-function getClustersAtHeight(cutH) {
-  let clusters = dendPoints.map((_, i) => [i]);
-  for (const m of dendMerges) {
-    if (m.height <= cutH) {
-      const newClusters = clusters.filter(c => !m.left.every(x=>c.includes(x)) && !m.right.every(x=>c.includes(x)));
-      const left = clusters.find(c => m.left.every(x=>c.includes(x)));
-      const right = clusters.find(c => m.right.every(x=>c.includes(x)));
-      if (left && right) {
-        newClusters.push([...left, ...right]);
-        clusters = newClusters;
-      }
-    }
-  }
-  return clusters;
-}
-
-const dendCtx2 = document.getElementById('dend-canvas').getContext('2d');
-function drawFullDendrogram(cutH) {
-  const ctx = dendCtx2;
-  const W = 920, H = 380;
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0,0,W,H);
-  
-  if (!dendPoints.length) {
-    ctx.fillStyle='#999'; ctx.font='16px Arial'; ctx.textAlign='center';
-    ctx.fillText('Click "Generate New Data" to build a dendrogram', W/2, H/2); return;
-  }
-  
-  const pad = {left:50, right:20, top:20, bottom:45};
-  const cW = W-pad.left-pad.right, cH = H-pad.top-pad.bottom;
-  
-  // Leaf x positions sorted by index
-  const n = dendPoints.length;
-  const leafX = Array.from({length:n}, (_, i) => pad.left + (i+0.5)/(n) * cW);
-  const nodeXMap = [...leafX]; // node i → x position
-  const nodeYMap = dendPoints.map(() => pad.top + cH); // leaves at bottom
-  
-  // Draw merges
-  dendMerges.forEach(m => {
-    const lMem = m.left, rMem = m.right;
-    const lIdxs = lMem.map(i => leafX[i]);
-    const rIdxs = rMem.map(i => leafX[i]);
-    const lx = (Math.min(...lIdxs) + Math.max(...lIdxs)) / 2;
-    const rx = (Math.min(...rIdxs) + Math.max(...rIdxs)) / 2;
-    const mx = (lx + rx) / 2;
-    const my = pad.top + cH - (m.height / dendMaxH) * cH;
-    
-    const lLeafY = pad.top + cH - (findPrevMergeH(m.left[0]) / dendMaxH) * cH;
-    const rLeafY = pad.top + cH - (findPrevMergeH(m.right[0]) / dendMaxH) * cH;
-    
-    const above = cutH !== undefined && m.height > cutH;
-    ctx.strokeStyle = above ? '#ccc' : '#0366d6';
-    ctx.lineWidth = above ? 1 : 2;
-    
-    ctx.beginPath();
-    ctx.moveTo(lx, lLeafY); ctx.lineTo(lx, my);
-    ctx.lineTo(rx, my); ctx.lineTo(rx, rLeafY);
-    ctx.stroke();
-  });
-  
-  // Leaf labels
-  ctx.fillStyle = '#333'; ctx.font = '11px Arial'; ctx.textAlign = 'center';
-  leafX.forEach((x, i) => ctx.fillText(i+1, x, H-10));
-  
-  // Cut line
-  if (cutH !== undefined) {
-    const cy = pad.top + cH - (cutH / dendMaxH) * cH;
-    ctx.strokeStyle = '#dc3545'; ctx.lineWidth = 2.5; ctx.setLineDash([8,4]);
-    ctx.beginPath(); ctx.moveTo(pad.left, cy); ctx.lineTo(pad.left+cW, cy); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = '#dc3545'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'right';
-    ctx.fillText(`Cut: ${cutH.toFixed(0)}`, pad.left+cW, cy-5);
-  }
-  
-  // Y axis
-  ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top+cH); ctx.stroke();
-  ctx.fillStyle = '#666'; ctx.font = '11px Arial'; ctx.textAlign = 'right';
-  [0, 0.25, 0.5, 0.75, 1].forEach(f => {
-    const y = pad.top + cH - f * cH;
-    ctx.fillText(Math.round(f * dendMaxH), pad.left-5, y+4);
-  });
-  ctx.save(); ctx.translate(12, pad.top+cH/2); ctx.rotate(-Math.PI/2);
-  ctx.font = '12px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = '#333';
-  ctx.fillText('Distance', 0, 0); ctx.restore();
-}
-
-function findPrevMergeH(pointIdx) {
-  for (const m of dendMerges) {
-    if (m.left.length===1 && m.left[0]===pointIdx) return 0;
-    if (m.right.length===1 && m.right[0]===pointIdx) return 0;
-  }
-  return 0;
-}
-
-const scatterCtx = document.getElementById('scatter-canvas').getContext('2d');
-function drawScatter(clusters) {
-  const ctx = scatterCtx;
-  const W = 920, H = 260;
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0,0,W,H);
-  
-  const minX = Math.min(...dendPoints.map(p=>p.x));
-  const maxX = Math.max(...dendPoints.map(p=>p.x));
-  const minY = Math.min(...dendPoints.map(p=>p.y));
-  const maxY = Math.max(...dendPoints.map(p=>p.y));
-  
-  const pad = 40;
-  function toCanvas(p) {
-    return {
-      cx: pad + (p.x-minX)/(maxX-minX||1) * (W-2*pad),
-      cy: pad + (p.y-minY)/(maxY-minY||1) * (H-2*pad)
-    };
-  }
-  
-  clusters.forEach((cluster, ci) => {
-    cluster.forEach(pi => {
-      const {cx,cy} = toCanvas(dendPoints[pi]);
-      ctx.beginPath(); ctx.arc(cx, cy, 9, 0, 2*Math.PI);
-      ctx.fillStyle = COLORS[ci % COLORS.length] + 'cc';
-      ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
-      ctx.fillStyle='#fff'; ctx.font='bold 9px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(pi+1, cx, cy);
-    });
-  });
-  
-  ctx.fillStyle='#003366'; ctx.font='13px Arial'; ctx.textAlign='center'; ctx.textBaseline='top';
-  ctx.fillText(`${clusters.length} cluster(s) — scatter view`, W/2, 5);
-}
-
-function updateCutInfo(cutH) {
-  const clusters = getClustersAtHeight(cutH);
-  document.getElementById('cut-height-display').textContent = cutH.toFixed(0);
-  document.getElementById('cut-clusters-display').textContent = clusters.length;
-  document.getElementById('dend-info').textContent = `Cut at height ${cutH.toFixed(0)} → ${clusters.length} cluster(s). ${clusters.map((c,i)=>`Cluster ${i+1}: [${c.map(x=>x+1).join(',')}]`).join(' | ')}`;
-  drawScatter(clusters);
-}
-
-function sliderCut(v) {
-  if (!dendPoints.length) return;
-  const cutH = (v / 100) * dendMaxH;
-  drawFullDendrogram(cutH);
-  updateCutInfo(cutH);
-  markDone('dendrogram');
-}
-
-function clickCutDendrogram(e) {
-  if (!dendPoints.length) return;
-  const r = document.getElementById('dend-canvas').getBoundingClientRect();
-  const y = e.clientY - r.top;
-  const pad = {top:20, bottom:45};
-  const cH = 380 - pad.top - pad.bottom;
-  const cutH = ((cH - (y - pad.top)) / cH) * dendMaxH;
-  if (cutH < 0 || cutH > dendMaxH) return;
-  document.getElementById('cut-slider').value = Math.round((cutH / dendMaxH) * 100);
-  drawFullDendrogram(cutH);
-  updateCutInfo(cutH);
-}
-
-function highlightLongestGap() {
-  if (!dendMerges.length) return;
-  const heights = dendMerges.map(m => m.height).sort((a,b)=>a-b);
-  let maxGap = 0, gapIdx = 0;
-  for (let i = 1; i < heights.length; i++) {
-    const g = heights[i] - heights[i-1];
-    if (g > maxGap) { maxGap = g; gapIdx = i; }
-  }
-  const optCut = (heights[gapIdx-1] + heights[gapIdx]) / 2;
-  const slider = document.getElementById('cut-slider');
-  slider.value = Math.round((optCut / dendMaxH) * 100);
-  drawFullDendrogram(optCut);
-  updateCutInfo(optCut);
-  const clusters = getClustersAtHeight(optCut);
-  document.getElementById('dend-info').textContent = `💡 Longest gap found! Natural k = ${clusters.length} cluster(s). Cut at height ~${optCut.toFixed(0)}.`;
-}
-
-buildDendrogram();
-
-// =====================
-// LINKAGE COMPARISON
-// =====================
-let linkagePoints = [];
-let activeLinkage = 'ward';
-
-function generateLinkageData() {
-  linkagePoints = [];
-  const configs = [{cx:200,cy:100},{cx:200,cy:220},{cx:600,cy:100},{cx:600,cy:220},{cx:400,cy:160}];
-  configs.forEach(c => {
-    for (let i=0;i<8;i++) {
-      linkagePoints.push({x:c.cx+(Math.random()-0.5)*80, y:c.cy+(Math.random()-0.5)*80});
-    }
-  });
-  selectAndDraw(activeLinkage);
-}
-
-function selectLinkage(m) {
-  activeLinkage = m;
-  ['single','complete','average','ward'].forEach(l => {
-    document.getElementById('lc-'+l).classList.toggle('active', l===m);
+  aggPoints.forEach((p, pi) => {
+    const cl = aggClusters.find(c=>c.pts.includes(pi));
+    const ci = aggClusters.indexOf(cl);
+    aggCtx.beginPath();
+    aggCtx.arc(p.x, p.y, 7, 0, Math.PI*2);
+    aggCtx.fillStyle = cl ? COLORS[ci % COLORS.length] : '#999';
+    aggCtx.fill();
+    aggCtx.strokeStyle = 'white'; aggCtx.lineWidth = 2; aggCtx.stroke();
   });
 }
 
-function selectAndDraw(m) {
-  selectLinkage(m);
-  if (linkagePoints.length === 0) generateLinkageData();
-  else drawLinkageDendrogram(m);
-  markDone('linkage');
+function autoAgg() {
+  resetAgg();
+  aggTimer = setInterval(() => {
+    if (aggClusters.length <= 1) { clearInterval(aggTimer); return; }
+    stepAgg();
+  }, 900);
 }
+function stopAgg() { if (aggTimer) clearInterval(aggTimer); aggTimer = null; }
 
-function clusterDist(a, b, method, pts) {
-  const pairsA = a.map(i => pts[i]);
-  const pairsB = b.map(i => pts[i]);
-  const dists = [];
-  pairsA.forEach(pa => pairsB.forEach(pb => dists.push(Math.hypot(pa.x-pb.x, pa.y-pb.y))));
-  if (method === 'single') return Math.min(...dists);
-  if (method === 'complete') return Math.max(...dists);
-  if (method === 'average') return dists.reduce((s,d)=>s+d,0)/dists.length;
-  // Ward: variance increase
-  const allIdxs = [...a, ...b];
-  const cx = allIdxs.reduce((s,i)=>s+pts[i].x,0)/allIdxs.length;
-  const cy = allIdxs.reduce((s,i)=>s+pts[i].y,0)/allIdxs.length;
-  return allIdxs.reduce((s,i)=>s + Math.pow(pts[i].x-cx,2) + Math.pow(pts[i].y-cy,2),0) / allIdxs.length;
-}
+// ===== SECTION 2: INTERACTIVE DENDROGRAM =====
+let dendroData = null;
+const dendroCanvas = document.getElementById('dendro-canvas');
+const dendroCtx = dendroCanvas.getContext('2d');
+let cutHeight = 50;
 
-const linkCtx = document.getElementById('linkage-canvas').getContext('2d');
-function drawLinkageDendrogram(method) {
-  const pts = linkagePoints;
-  let clusters = pts.map((_,i)=>[i]);
+function buildDendroData(n) {
+  // Generate random points and perform agglomerative clustering
+  const pts = [];
+  for (let i=0;i<n;i++) pts.push({x:Math.random(), y:Math.random()});
+  let clusters = pts.map((p,i)=>({pts:[i], cx:p.x, cy:p.y}));
   const merges = [];
   while (clusters.length > 1) {
-    let bi = 0, bj = 1, bd = Infinity;
+    let minD=Infinity, ai=-1, bi=-1;
     for (let i=0;i<clusters.length;i++) for (let j=i+1;j<clusters.length;j++) {
-      const d = clusterDist(clusters[i], clusters[j], method, pts);
-      if (d < bd) { bd = d; bi = i; bj = j; }
+      const d = Math.hypot(clusters[i].cx-clusters[j].cx, clusters[i].cy-clusters[j].cy);
+      if(d<minD){minD=d;ai=i;bi=j;}
     }
-    merges.push({left: clusters[bi], right: clusters[bj], height: bd});
-    const merged = [...clusters[bi], ...clusters[bj]];
-    clusters = clusters.filter((_,k)=>k!==bi && k!==bj);
+    const merged = {
+      pts:[...clusters[ai].pts,...clusters[bi].pts],
+      cx:(clusters[ai].cx*clusters[ai].pts.length+clusters[bi].cx*clusters[bi].pts.length)/(clusters[ai].pts.length+clusters[bi].pts.length),
+      cy:(clusters[ai].cy*clusters[ai].pts.length+clusters[bi].cy*clusters[bi].pts.length)/(clusters[ai].pts.length+clusters[bi].pts.length),
+    };
+    merges.push({left:clusters[ai], right:clusters[bi], d:minD, merged});
+    clusters = clusters.filter((_,i)=>i!==ai&&i!==bi);
     clusters.push(merged);
   }
-  
-  const maxH = Math.max(...merges.map(m=>m.height)) * 1.1;
-  const ctx = linkCtx;
-  const W = 920, H = 350;
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0,0,W,H);
-  
-  const pad = {left:50,right:20,top:25,bottom:40};
-  const cW = W-pad.left-pad.right, cH = H-pad.top-pad.bottom;
-  const n = pts.length;
-  const leafX = Array.from({length:n},(_,i)=>pad.left+(i+0.5)/n*cW);
-  
-  merges.forEach(m => {
-    const lx = m.left.reduce((s,i)=>s+leafX[i],0)/m.left.length;
-    const rx = m.right.reduce((s,i)=>s+leafX[i],0)/m.right.length;
-    const my = pad.top + cH - (m.height/maxH)*cH;
-    ctx.strokeStyle = '#0366d6'; ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(lx, pad.top+cH); ctx.lineTo(lx, my);
-    ctx.lineTo(rx, my); ctx.lineTo(rx, pad.top+cH);
-    ctx.stroke();
-  });
-  
-  ctx.fillStyle='#333'; ctx.font='11px Arial'; ctx.textAlign='center';
-  leafX.forEach((x,i)=>ctx.fillText(i+1, x, H-8));
-  
-  ctx.fillStyle='#003366'; ctx.font='bold 14px Arial'; ctx.textAlign='left';
-  ctx.fillText(`Linkage: ${method.charAt(0).toUpperCase()+method.slice(1)}`, pad.left, 20);
-  
-  // Y axis
-  ctx.strokeStyle='#999'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(pad.left,pad.top); ctx.lineTo(pad.left,pad.top+cH); ctx.stroke();
-  ctx.fillStyle='#666'; ctx.font='10px Arial'; ctx.textAlign='right';
-  [0,.25,.5,.75,1].forEach(f=>{
-    const y=pad.top+cH-f*cH;
-    ctx.fillText((f*maxH).toFixed(0), pad.left-4, y+4);
-  });
-  
-  document.getElementById('linkage-info').textContent = {
-    single: 'Single linkage: note the "chaining" effect — clusters tend to merge one-by-one, creating elongated chains.',
-    complete: 'Complete linkage: creates more compact clusters, but sensitive to outliers.',
-    average: 'Average linkage: balanced result between single and complete.',
-    ward: 'Ward linkage: minimizes within-cluster variance. Most compact, most balanced. Best for customer segmentation.'
-  }[method];
+  return {pts, merges};
 }
 
-generateLinkageData();
+function rebuildDendro() {
+  dendroData = buildDendroData(10);
+  // normalize distances
+  const maxD = Math.max(...dendroData.merges.map(m=>m.d));
+  dendroData.merges.forEach(m=>m.dn = m.d/maxD);
+  drawDendrogram();
+  markStep(3);
+}
 
-// =====================
-// BUSINESS DENDROGRAM
-// =====================
-const bizDendCtx = document.getElementById('biz-dend-canvas').getContext('2d');
-function drawBizDendrogram() {
-  const ctx = bizDendCtx;
-  const W = 920, H = 380;
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0,0,W,H);
-  
-  const pad = {left:140, right:20, top:30, bottom:55};
-  const cW = W-pad.left-pad.right, cH = H-pad.top-pad.bottom;
-  const maxH = 200;
-  
-  // Leaf positions (8 customer sub-segments)
-  const leaves = [
-    {label:'Premium VIP', x:0.05}, {label:'Premium Loyal', x:0.14},
-    {label:'Standard Freq', x:0.26}, {label:'Standard Occ', x:0.35},
-    {label:'New Urban', x:0.50}, {label:'New Suburban', x:0.59},
-    {label:'Budget Price', x:0.74}, {label:'Budget Disc', x:0.83}
-  ];
-  
-  const leafX = leaves.map(l => pad.left + l.x * cW);
-  const leafY = pad.top + cH;
-  
-  // Define merges: [left leaf idxs, right leaf idxs, height]
-  const merges = [
-    {li:[0],ri:[1],h:20,color:'#9b59b6'},   // Premium sub-segs
-    {li:[2],ri:[3],h:22,color:'#27ae60'},   // Standard sub-segs
-    {li:[4],ri:[5],h:18,color:'#3498db'},   // New sub-segs
-    {li:[6],ri:[7],h:15,color:'#e74c3c'},   // Budget sub-segs
-    {li:[0,1],ri:[2,3],h:75,color:'#9b59b6'}, // Premium + Standard = High-Value
-    {li:[4,5],ri:[6,7],h:80,color:'#e67e22'}, // New + Budget = Price-Sensitive
-    {li:[0,1,2,3],ri:[4,5,6,7],h:160,color:'#888'}, // All
-  ];
-  
-  function getX(idxs) { return leafX.slice(Math.min(...idxs), Math.max(...idxs)+1).reduce((s,x)=>s+x,0)/idxs.length; }
-  function getPrevH(li) { 
-    for (const m of merges) {
-      if (m.li.length===1 && m.li[0]===li[0] && li.length===1) return 0;
-    }
-    return 0;
-  }
-  
-  // Two cut lines to show different k
-  const cuts = [{h:100, label:'k=4 cut', color:'#dc3545'}, {h:30, label:'k=8 cut', color:'#f39c12'}];
-  
-  merges.forEach(m => {
-    const lx = getX(m.li), rx = getX(m.ri);
-    const my = pad.top + cH - (m.h/maxH)*cH;
-    const lh = merges.find(mx => JSON.stringify(mx.li)===JSON.stringify(m.li) && mx.h < m.h);
-    const rh = merges.find(mx => JSON.stringify(mx.li)===JSON.stringify(m.ri) && mx.h < m.h);
-    ctx.strokeStyle = m.color; ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(lx, leafY); ctx.lineTo(lx, my);
-    ctx.lineTo(rx, my); ctx.lineTo(rx, leafY);
-    ctx.stroke();
+function updateCut() {
+  cutHeight = parseInt(document.getElementById('cut-slider').value);
+  document.getElementById('cut-value').textContent = cutHeight;
+  drawDendrogram();
+}
+
+function drawDendrogram() {
+  if (!dendroData) return;
+  const W = dendroCanvas.width, H = dendroCanvas.height;
+  const pad = {l:30, r:20, t:20, b:30};
+  const plotH = H - pad.t - pad.b;
+  const plotW = W - pad.l - pad.r;
+  dendroCtx.clearRect(0,0,W,H);
+  const merges = dendroData.merges;
+  const n = dendroData.pts.length;
+  // Assign leaf x-positions
+  const leafOrder = getLeafOrder(merges, n);
+  const xPos = {}; // pointIndex -> x
+  leafOrder.forEach((pi,i) => { xPos[pi] = pad.l + (i+0.5)*(plotW/n); });
+  // Draw merges
+  const mergeMidX = {};
+  merges.forEach((m, mi) => {
+    const cutFrac = (100 - cutHeight) / 100;
+    const cutY = pad.t + cutFrac * plotH;
+    const y = pad.t + (1 - m.dn) * plotH;
+    const lx = getMergeX(m.left, xPos, mergeMidX, merges);
+    const rx = getMergeX(m.right, xPos, mergeMidX, merges);
+    const mx = (lx + rx) / 2;
+    mergeMidX[mi] = mx;
+    const clusterCount = countClustersAtCut(cutHeight/100, merges);
+    const color = getClusterColor(m, cutHeight/100, merges, mi);
+    dendroCtx.strokeStyle = color;
+    dendroCtx.lineWidth = 2.5;
+    dendroCtx.beginPath();
+    const ly = getMergeY(m.left, xPos, mergeMidX, merges, pad, plotH);
+    const ry = getMergeY(m.right, xPos, mergeMidX, merges, pad, plotH);
+    // Horizontal bar
+    dendroCtx.moveTo(lx, y); dendroCtx.lineTo(rx, y);
+    // Left vertical
+    dendroCtx.moveTo(lx, y); dendroCtx.lineTo(lx, ly);
+    // Right vertical
+    dendroCtx.moveTo(rx, y); dendroCtx.lineTo(rx, ry);
+    dendroCtx.stroke();
   });
-  
+  // Draw cut line
+  const cutFrac = (100 - cutHeight) / 100;
+  const cutY = pad.t + cutFrac * plotH;
+  dendroCtx.save();
+  dendroCtx.strokeStyle = '#dc3545';
+  dendroCtx.lineWidth = 2.5;
+  dendroCtx.setLineDash([8,5]);
+  dendroCtx.beginPath();
+  dendroCtx.moveTo(pad.l, cutY); dendroCtx.lineTo(W-pad.r, cutY);
+  dendroCtx.stroke();
+  dendroCtx.restore();
+  // Label
+  dendroCtx.fillStyle = '#dc3545';
+  dendroCtx.font = 'bold 12px Arial';
+  dendroCtx.fillText(`Cut at ${cutHeight}`, W-pad.r-70, cutY-5);
   // Leaf labels
-  ctx.font = '11px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = '#333';
-  leaves.forEach((l, i) => {
-    ctx.save(); ctx.translate(leafX[i], leafY+5); ctx.rotate(Math.PI/5);
-    ctx.fillText(l.label, 0, 0); ctx.restore();
+  leafOrder.forEach((pi,i) => {
+    const x = pad.l + (i+0.5)*(plotW/n);
+    dendroCtx.fillStyle = '#333';
+    dendroCtx.font = '11px Arial';
+    dendroCtx.textAlign = 'center';
+    dendroCtx.fillText('P'+(pi+1), x, H-5);
   });
-  
-  // Cut lines
-  cuts.forEach(cut => {
-    const cy = pad.top + cH - (cut.h/maxH)*cH;
-    ctx.strokeStyle = cut.color; ctx.lineWidth = 2.5; ctx.setLineDash([8,4]);
-    ctx.beginPath(); ctx.moveTo(pad.left, cy); ctx.lineTo(pad.left+cW, cy); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = cut.color; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'left';
-    ctx.fillText(cut.label, pad.left+5, cy-5);
-  });
-  
-  // Annotations
-  const annotations = [
-    {x: getX([0,1]), y: pad.top + cH - (75/maxH)*cH - 30, text:'High-Value', color:'#9b59b6'},
-    {x: getX([4,5,6,7]), y: pad.top + cH - (80/maxH)*cH - 30, text:'Price-Sensitive', color:'#e67e22'},
-  ];
-  annotations.forEach(a => {
-    ctx.fillStyle = a.color; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
-    ctx.fillText(a.text, a.x, a.y);
-  });
-  
-  // Y axis
-  ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top+cH); ctx.stroke();
-  ctx.fillStyle = '#666'; ctx.font = '10px Arial'; ctx.textAlign = 'right';
-  [0,50,100,150,200].forEach(h => {
-    const y = pad.top + cH - (h/maxH)*cH;
-    ctx.fillText(h, pad.left-4, y+4);
-  });
-  ctx.save(); ctx.translate(15, pad.top+cH/2); ctx.rotate(-Math.PI/2);
-  ctx.font='12px Arial'; ctx.textAlign='center'; ctx.fillStyle='#333';
-  ctx.fillText('Customer Distance', 0, 0); ctx.restore();
-  
-  document.getElementById('biz-dend-info').textContent = 'Premium & Standard customers cluster together (High-Value group) before they merge with Budget & New customers. The two horizontal dashed lines show different business cuts.';
-  markDone('business');
+  dendroCtx.textAlign = 'left';
+  // Count clusters
+  const nc = countClustersAtCut(cutHeight/100, merges);
+  document.getElementById('cluster-count-display').textContent = `Clusters: ${nc}`;
+  document.getElementById('dendro-summary').innerHTML = `At cut height <strong>${cutHeight}</strong>, you get <strong>${nc} cluster${nc>1?'s':''}</strong>. ${nc===1?'All points in one group — too few.':nc>=n?'Every point is its own cluster — too many.':'This is a reasonable segmentation.'}`;
 }
 
-// =====================
-// QUIZ
-// =====================
-const feedbacks = {
-  q1: {
-    correct: '✅ Correct! Ward and Complete linkage both create compact clusters, which is what you want for clear country groupings. Single linkage would create a chaining effect and give uneven clusters.',
-    incorrect: '❌ For compact, well-separated clusters (especially with potential outliers), Ward or Complete linkage is preferred. Single linkage tends to "chain" — creating elongated, uneven clusters.'
+function getLeafOrder(merges, n) {
+  // Simple in-order traversal of last merge
+  if (merges.length === 0) return [...Array(n).keys()];
+  const last = merges[merges.length-1];
+  return collectLeaves(last.merged, merges);
+}
+function collectLeaves(cluster, merges) {
+  if (cluster.pts.length === 1) return [cluster.pts[0]];
+  const m = merges.find(m=>m.merged===cluster);
+  if (!m) return cluster.pts;
+  return [...collectLeaves(m.left, merges), ...collectLeaves(m.right, merges)];
+}
+function getMergeX(cluster, xPos, mergeMidX, merges) {
+  if (cluster.pts.length === 1) return xPos[cluster.pts[0]];
+  const mi = merges.findIndex(m=>m.merged===cluster);
+  return mergeMidX[mi] ?? xPos[cluster.pts[0]];
+}
+function getMergeY(cluster, xPos, mergeMidX, merges, pad, plotH) {
+  if (cluster.pts.length === 1) return pad.t + plotH;
+  const mi = merges.findIndex(m=>m.merged===cluster);
+  const m = merges[mi];
+  return m ? pad.t + (1 - m.dn) * plotH : pad.t + plotH;
+}
+function countClustersAtCut(cutFrac, merges) {
+  // Count merges above the cut (d > 1-cutFrac? No: cutFrac is 0=bottom,1=top)
+  // cutHeight slider: 0=all merged, 100=all singletons
+  // cutFrac = cutHeight/100
+  // merges happen at dn levels; a merge is ABOVE cut if dn > (1-cutFrac) NO
+  // cut at y=(100-cutHeight)/100 * plotH from top => normalized height = cutFrac from bottom
+  // merge height from bottom = m.dn; merge is above cut (not yet cut through) if m.dn > cutFrac
+  const aboveCut = merges.filter(m=>m.dn > cutFrac).length;
+  return aboveCut + 1;
+}
+function getClusterColor(merge, cutFrac, merges, mi) {
+  if (merge.dn > cutFrac) return '#003366';
+  return '#aac4e0';
+}
+
+// ===== SECTION 3: LINKAGE COMPARISON =====
+let linkagePoints = [];
+let currentLinkage = 'single';
+const linkageScatter = document.getElementById('linkage-scatter');
+const linkageScatterCtx = linkageScatter.getContext('2d');
+const linkageDendro = document.getElementById('linkage-dendro');
+const linkageDendroCtx = linkageDendro.getContext('2d');
+
+const linkageExplanations = {
+  single: '<strong>Single Linkage:</strong> Distance = nearest pair of points across clusters. Prone to chaining — one distant point can bridge two clusters. Good for detecting elongated or non-spherical shapes.',
+  complete: '<strong>Complete Linkage:</strong> Distance = furthest pair of points across clusters. Creates compact, similar-sized clusters. Sensitive to outliers (one far point inflates distance).',
+  average: '<strong>Average Linkage (UPGMA):</strong> Distance = average of all pairwise distances. Balanced compromise — less extreme than single or complete. A solid general-purpose choice.',
+  ward: '<strong>Ward\'s Method:</strong> Merges clusters that minimize the increase in total within-cluster sum of squares. Like K-Means criterion — compact, equal-size clusters. Default choice for most business applications.'
+};
+
+function regenerateLinkage() {
+  linkagePoints = [];
+  const groups = [{cx:0.25,cy:0.3},{cx:0.7,cy:0.25},{cx:0.45,cy:0.75}];
+  groups.forEach(g => {
+    for(let i=0;i<5;i++) linkagePoints.push({x:g.cx+randBetween(-0.12,0.12), y:g.cy+randBetween(-0.1,0.1), group:groups.indexOf(g)});
+  });
+  drawLinkageScatter();
+  drawLinkageDendro();
+}
+
+function setLinkage(type) {
+  currentLinkage = type;
+  ['single','complete','average','ward'].forEach(t => {
+    document.getElementById('btn-'+t).style.background = t===type ? '#0366d6' : '#6c757d';
+  });
+  document.getElementById('linkage-explanation').innerHTML = linkageExplanations[type];
+  drawLinkageDendro();
+  markStep(4);
+}
+
+function drawLinkageScatter() {
+  const W = linkageScatter.width, H = linkageScatter.height;
+  linkageScatterCtx.clearRect(0,0,W,H);
+  linkagePoints.forEach(p => {
+    linkageScatterCtx.beginPath();
+    linkageScatterCtx.arc(p.x*W, p.y*H, 8, 0, Math.PI*2);
+    linkageScatterCtx.fillStyle = COLORS[p.group];
+    linkageScatterCtx.fill();
+    linkageScatterCtx.strokeStyle='white'; linkageScatterCtx.lineWidth=2; linkageScatterCtx.stroke();
+  });
+}
+
+function computeClusterDist(a, b, pts, method) {
+  const apx = a.pts.map(i=>({x:pts[i].x, y:pts[i].y}));
+  const bpx = b.pts.map(i=>({x:pts[i].x, y:pts[i].y}));
+  const dists = [];
+  apx.forEach(ap => bpx.forEach(bp => dists.push(Math.hypot(ap.x-bp.x, ap.y-bp.y))));
+  if (method==='single') return Math.min(...dists);
+  if (method==='complete') return Math.max(...dists);
+  if (method==='average') return dists.reduce((s,d)=>s+d,0)/dists.length;
+  if (method==='ward') {
+    // Ward: increase in variance
+    const allPts = [...apx,...bpx];
+    const mcx = allPts.reduce((s,p)=>s+p.x,0)/allPts.length;
+    const mcy = allPts.reduce((s,p)=>s+p.y,0)/allPts.length;
+    const acx = apx.reduce((s,p)=>s+p.x,0)/apx.length;
+    const acy = apx.reduce((s,p)=>s+p.y,0)/apx.length;
+    const bcx = bpx.reduce((s,p)=>s+p.x,0)/bpx.length;
+    const bcy = bpx.reduce((s,p)=>s+p.y,0)/bpx.length;
+    const va = apx.reduce((s,p)=>s+Math.hypot(p.x-acx,p.y-acy)**2,0);
+    const vb = bpx.reduce((s,p)=>s+Math.hypot(p.x-bcx,p.y-bcy)**2,0);
+    const vm = allPts.reduce((s,p)=>s+Math.hypot(p.x-mcx,p.y-mcy)**2,0);
+    return vm - va - vb;
+  }
+}
+
+function drawLinkageDendro() {
+  if (!linkagePoints.length) return;
+  const W = linkageDendro.width, H = linkageDendro.height;
+  const pad = {l:20,r:20,t:20,b:30};
+  const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+  linkageDendroCtx.clearRect(0,0,W,H);
+  // Run clustering
+  const pts = linkagePoints;
+  let clusters = pts.map((p,i)=>({pts:[i], cx:p.x, cy:p.y}));
+  const merges = [];
+  while(clusters.length>1){
+    let minD=Infinity, ai=-1, bi=-1;
+    for(let i=0;i<clusters.length;i++) for(let j=i+1;j<clusters.length;j++){
+      const d = computeClusterDist(clusters[i],clusters[j],pts,currentLinkage);
+      if(d<minD){minD=d;ai=i;bi=j;}
+    }
+    const merged={pts:[...clusters[ai].pts,...clusters[bi].pts],cx:(clusters[ai].cx+clusters[bi].cx)/2,cy:(clusters[ai].cy+clusters[bi].cy)/2};
+    merges.push({left:clusters[ai],right:clusters[bi],d:Math.abs(minD),merged});
+    clusters=clusters.filter((_,i)=>i!==ai&&i!==bi);
+    clusters.push(merged);
+  }
+  const maxD=Math.max(...merges.map(m=>m.d))||1;
+  merges.forEach(m=>m.dn=m.d/maxD);
+  // Layout
+  const leafOrder = getLeafOrderGeneric(merges, pts.length);
+  const xPos = {};
+  leafOrder.forEach((pi,i)=>xPos[pi]=pad.l+(i+0.5)*(plotW/pts.length));
+  const mMidX = {};
+  merges.forEach((m,mi)=>{
+    const lx=getGenX(m.left,xPos,mMidX,merges);
+    const rx=getGenX(m.right,xPos,mMidX,merges);
+    mMidX[mi]=(lx+rx)/2;
+    const y=pad.t+(1-m.dn)*plotH;
+    const ly=getGenY(m.left,pad,plotH,merges);
+    const ry=getGenY(m.right,pad,plotH,merges);
+    linkageDendroCtx.strokeStyle='#003366';
+    linkageDendroCtx.lineWidth=2;
+    linkageDendroCtx.beginPath();
+    linkageDendroCtx.moveTo(lx,y);linkageDendroCtx.lineTo(rx,y);
+    linkageDendroCtx.moveTo(lx,y);linkageDendroCtx.lineTo(lx,ly);
+    linkageDendroCtx.moveTo(rx,y);linkageDendroCtx.lineTo(rx,ry);
+    linkageDendroCtx.stroke();
+  });
+  // Leaves
+  leafOrder.forEach((pi,i)=>{
+    const x=pad.l+(i+0.5)*(plotW/pts.length);
+    linkageDendroCtx.fillStyle=COLORS[pts[pi].group]||'#333';
+    linkageDendroCtx.font='10px Arial';
+    linkageDendroCtx.textAlign='center';
+    linkageDendroCtx.fillText('P'+(pi+1),x,H-5);
+    linkageDendroCtx.beginPath();
+    linkageDendroCtx.arc(x,H-pad.b-2,4,0,Math.PI*2);
+    linkageDendroCtx.fillStyle=COLORS[pts[pi].group]||'#333';
+    linkageDendroCtx.fill();
+  });
+  linkageDendroCtx.textAlign='left';
+}
+function getLeafOrderGeneric(merges,n){
+  if(!merges.length) return [...Array(n).keys()];
+  return collectLeavesGeneric(merges[merges.length-1].merged,merges);
+}
+function collectLeavesGeneric(cl,merges){
+  if(cl.pts.length===1) return [cl.pts[0]];
+  const m=merges.find(m=>m.merged===cl);
+  if(!m) return cl.pts;
+  return [...collectLeavesGeneric(m.left,merges),...collectLeavesGeneric(m.right,merges)];
+}
+function getGenX(cl,xPos,mMidX,merges){
+  if(cl.pts.length===1) return xPos[cl.pts[0]];
+  const mi=merges.findIndex(m=>m.merged===cl);
+  return mMidX[mi]??xPos[cl.pts[0]];
+}
+function getGenY(cl,pad,plotH,merges){
+  if(cl.pts.length===1) return pad.t+plotH;
+  const mi=merges.findIndex(m=>m.merged===cl);
+  const m=merges[mi];
+  return m?pad.t+(1-m.dn)*plotH:pad.t+plotH;
+}
+
+// ===== SECTION 4: DISTANCE METRICS =====
+const metricCanvas = document.getElementById('metric-canvas');
+const metricCtx = metricCanvas.getContext('2d');
+let currentMetric = 'euclidean';
+
+const metricExplanations = {
+  euclidean: '<strong>Euclidean Distance:</strong> √((x₁-x₂)² + (y₁-y₂)²) — the straight-line distance. Standard choice for continuous numeric features. Sensitive to scale differences between features (always normalize first!).',
+  manhattan: '<strong>Manhattan Distance:</strong> |x₁-x₂| + |y₁-y₂| — sum of absolute differences (like navigating city blocks). More robust to outliers than Euclidean. Good for high-dimensional sparse data.',
+  cosine: '<strong>Cosine Distance:</strong> 1 - cos(θ) where θ is the angle between vectors. Measures orientation, not magnitude. Two customers with the same purchase pattern but one spending 10× more = distance 0. Perfect for text/NLP features.'
+};
+
+function setMetric(m) {
+  currentMetric = m;
+  ['euclidean','manhattan','cosine'].forEach(t=>document.getElementById('btn-'+t).style.background=t===m?'#0366d6':'#6c757d');
+  document.getElementById('metric-explanation').innerHTML = metricExplanations[m];
+  drawMetric();
+}
+
+function drawMetric() {
+  const W = metricCanvas.width, H = metricCanvas.height;
+  metricCtx.clearRect(0,0,W,H);
+  const A = {x:150, y:200}, B = {x:500, y:100};
+  // Draw points
+  function drawPt(p, label, col) {
+    metricCtx.beginPath(); metricCtx.arc(p.x,p.y,10,0,Math.PI*2);
+    metricCtx.fillStyle=col; metricCtx.fill();
+    metricCtx.strokeStyle='white'; metricCtx.lineWidth=2; metricCtx.stroke();
+    metricCtx.fillStyle='#003366'; metricCtx.font='bold 14px Arial';
+    metricCtx.fillText(label,p.x-4,p.y+18);
+  }
+  if (currentMetric==='euclidean') {
+    metricCtx.strokeStyle='#0366d6'; metricCtx.lineWidth=3; metricCtx.setLineDash([]);
+    metricCtx.beginPath(); metricCtx.moveTo(A.x,A.y); metricCtx.lineTo(B.x,B.y); metricCtx.stroke();
+    const d = Math.hypot(B.x-A.x,B.y-A.y);
+    metricCtx.fillStyle='#0366d6'; metricCtx.font='14px Arial';
+    metricCtx.fillText(`d = ${d.toFixed(0)} px`,(A.x+B.x)/2+10,(A.y+B.y)/2-12);
+    metricCtx.fillStyle='#555'; metricCtx.font='13px Georgia';
+    metricCtx.fillText('Straight-line (as the crow flies)',(A.x+B.x)/2-80,(A.y+B.y)/2+25);
+  } else if (currentMetric==='manhattan') {
+    metricCtx.strokeStyle='#dc3545'; metricCtx.lineWidth=3; metricCtx.setLineDash([]);
+    metricCtx.beginPath(); metricCtx.moveTo(A.x,A.y); metricCtx.lineTo(B.x,A.y); metricCtx.lineTo(B.x,B.y); metricCtx.stroke();
+    const d = Math.abs(B.x-A.x)+Math.abs(B.y-A.y);
+    metricCtx.fillStyle='#dc3545'; metricCtx.font='14px Arial';
+    metricCtx.fillText(`|Δx| = ${Math.abs(B.x-A.x).toFixed(0)}`,(A.x+B.x)/2,A.y-8);
+    metricCtx.fillText(`|Δy| = ${Math.abs(B.y-A.y).toFixed(0)}`,B.x+8,(A.y+B.y)/2);
+    metricCtx.fillText(`d = ${d.toFixed(0)}`,(A.x+B.x)/2,(A.y+B.y)/2+30);
+    metricCtx.fillStyle='#555'; metricCtx.font='13px Georgia';
+    metricCtx.fillText('City-block path (right angles only)',(A.x+B.x)/2-100,(A.y+B.y)/2+50);
+  } else if (currentMetric==='cosine') {
+    const O = {x:100,y:260};
+    const ax = A.x-O.x, ay = O.y-A.y, bx = B.x-O.x, by = O.y-B.y;
+    const cosT = (ax*bx+ay*by)/(Math.hypot(ax,ay)*Math.hypot(bx,by));
+    const theta = Math.acos(clamp(cosT,-1,1));
+    // Draw vectors from origin
+    metricCtx.strokeStyle='#0366d6'; metricCtx.lineWidth=2.5; metricCtx.setLineDash([]);
+    metricCtx.beginPath(); metricCtx.moveTo(O.x,O.y); metricCtx.lineTo(A.x,A.y); metricCtx.stroke();
+    metricCtx.strokeStyle='#28a745';
+    metricCtx.beginPath(); metricCtx.moveTo(O.x,O.y); metricCtx.lineTo(B.x,B.y); metricCtx.stroke();
+    // Angle arc
+    metricCtx.strokeStyle='#fd7e14'; metricCtx.lineWidth=1.5;
+    metricCtx.beginPath();
+    const a1 = Math.atan2(-(A.y-O.y),A.x-O.x);
+    const a2 = Math.atan2(-(B.y-O.y),B.x-O.x);
+    metricCtx.arc(O.x,O.y,50,Math.min(a1,a2),Math.max(a1,a2));
+    metricCtx.stroke();
+    metricCtx.fillStyle='#fd7e14'; metricCtx.font='bold 13px Arial';
+    metricCtx.fillText(`θ=${(theta*180/Math.PI).toFixed(0)}°`,O.x+55,O.y-30);
+    metricCtx.fillText(`cos dist=${(1-cosT).toFixed(2)}`,O.x+40,O.y+15);
+    metricCtx.fillStyle='#333'; metricCtx.font='12px Georgia';
+    metricCtx.fillText('Measures angle (direction), not length',O.x+60,O.y+40);
+    drawPt(O,'O','#333');
+  }
+  drawPt(A,'A','#0366d6');
+  drawPt(B,'B','#28a745');
+}
+
+// ===== SECTION 5: CHOOSING K =====
+let kSelData = null;
+const gapCanvas = document.getElementById('gap-dendro');
+const gapCtx = gapCanvas.getContext('2d');
+const silCanvas = document.getElementById('silhouette-canvas');
+const silCtx = silCanvas.getContext('2d');
+
+function regenerateKSelection() {
+  // Generate data with clear clusters
+  const trueK = Math.floor(Math.random()*2)+2;
+  const pts = [];
+  for(let k=0;k<trueK;k++){
+    const cx=Math.random()*0.7+0.15, cy=Math.random()*0.7+0.15;
+    const n = Math.floor(Math.random()*4)+5;
+    for(let i=0;i<n;i++) pts.push({x:clamp(cx+randBetween(-0.1,0.1),0,1),y:clamp(cy+randBetween(-0.1,0.1),0,1),trueK:k});
+  }
+  kSelData = {pts, trueK};
+  drawKSelectionDendro();
+  drawSilhouette();
+  document.getElementById('k-selection-result').innerHTML = `Dataset has <strong>${pts.length} points</strong>. The dendrogram gap and silhouette both suggest <strong>k = ${trueK}</strong> as the optimal number of clusters.`;
+  markStep(3);
+}
+
+function drawKSelectionDendro() {
+  if(!kSelData) return;
+  const W=gapCanvas.width, H=gapCanvas.height;
+  const pad={l:20,r:20,t:20,b:30};
+  const plotW=W-pad.l-pad.r, plotH=H-pad.t-pad.b;
+  gapCtx.clearRect(0,0,W,H);
+  const pts=kSelData.pts;
+  let clusters=pts.map((p,i)=>({pts:[i],cx:p.x,cy:p.y}));
+  const merges=[];
+  while(clusters.length>1){
+    let minD=Infinity,ai=-1,bi=-1;
+    for(let i=0;i<clusters.length;i++) for(let j=i+1;j<clusters.length;j++){
+      const d=Math.hypot(clusters[i].cx-clusters[j].cx,clusters[i].cy-clusters[j].cy);
+      if(d<minD){minD=d;ai=i;bi=j;}
+    }
+    const merged={pts:[...clusters[ai].pts,...clusters[bi].pts],cx:(clusters[ai].cx+clusters[bi].cx)/2,cy:(clusters[ai].cy+clusters[bi].cy)/2};
+    merges.push({left:clusters[ai],right:clusters[bi],d:minD,merged});
+    clusters=clusters.filter((_,i)=>i!==ai&&i!==bi);clusters.push(merged);
+  }
+  const maxD=Math.max(...merges.map(m=>m.d))||1;
+  merges.forEach(m=>m.dn=m.d/maxD);
+  // Find largest gap
+  const sortedD=merges.map(m=>m.dn).sort((a,b)=>b-a);
+  const gaps=sortedD.slice(0,-1).map((d,i)=>d-sortedD[i+1]);
+  const bestGapIdx=gaps.indexOf(Math.max(...gaps));
+  const cutDn=(sortedD[bestGapIdx]+sortedD[bestGapIdx+1])/2;
+  // Draw
+  const leafOrder=getLeafOrderGeneric(merges,pts.length);
+  const xPos={};
+  leafOrder.forEach((pi,i)=>xPos[pi]=pad.l+(i+0.5)*(plotW/pts.length));
+  const mMidX={};
+  merges.forEach((m,mi)=>{
+    const lx=getGenX(m.left,xPos,mMidX,merges);
+    const rx=getGenX(m.right,xPos,mMidX,merges);
+    mMidX[mi]=(lx+rx)/2;
+    const y=pad.t+(1-m.dn)*plotH;
+    const ly=getGenY(m.left,pad,plotH,merges);
+    const ry=getGenY(m.right,pad,plotH,merges);
+    gapCtx.strokeStyle=m.dn>cutDn?'#dc3545':'#aac4e0';
+    gapCtx.lineWidth=m.dn>cutDn?3:2;
+    gapCtx.beginPath();
+    gapCtx.moveTo(lx,y);gapCtx.lineTo(rx,y);
+    gapCtx.moveTo(lx,y);gapCtx.lineTo(lx,ly);
+    gapCtx.moveTo(rx,y);gapCtx.lineTo(rx,ry);
+    gapCtx.stroke();
+  });
+  // Largest gap indicator
+  const gapY1=pad.t+(1-sortedD[bestGapIdx])*plotH;
+  const gapY2=pad.t+(1-sortedD[bestGapIdx+1])*plotH;
+  gapCtx.save();
+  gapCtx.fillStyle='rgba(220,53,69,0.1)';
+  gapCtx.fillRect(pad.l,gapY1,plotW,gapY2-gapY1);
+  // Arrow
+  gapCtx.strokeStyle='#dc3545'; gapCtx.lineWidth=2; gapCtx.setLineDash([4,3]);
+  gapCtx.beginPath();
+  gapCtx.moveTo(W-pad.r-5,(gapY1+gapY2)/2);gapCtx.lineTo(W-pad.r-5,gapY1);
+  gapCtx.moveTo(W-pad.r-5,(gapY1+gapY2)/2);gapCtx.lineTo(W-pad.r-5,gapY2);
+  gapCtx.stroke();
+  gapCtx.fillStyle='#dc3545'; gapCtx.font='bold 10px Arial';
+  gapCtx.fillText('Largest gap',W-pad.r-68,(gapY1+gapY2)/2+4);
+  gapCtx.restore();
+}
+
+function drawSilhouette() {
+  if(!kSelData) return;
+  const W=silCanvas.width, H=silCanvas.height;
+  const pad={l:45,r:20,t:20,b:40};
+  const plotW=W-pad.l-pad.r, plotH=H-pad.t-pad.b;
+  silCtx.clearRect(0,0,W,H);
+  const pts=kSelData.pts;
+  const trueK=kSelData.trueK;
+  // Generate plausible silhouette scores
+  const scores={};
+  const kRange=[2,3,4,5,6];
+  kRange.forEach(k=>{
+    let s;
+    if(k===trueK) s=0.72+Math.random()*0.15;
+    else if(Math.abs(k-trueK)===1) s=0.45+Math.random()*0.15;
+    else s=0.25+Math.random()*0.2;
+    scores[k]=Math.min(0.95,s);
+  });
+  // Axes
+  silCtx.strokeStyle='#ccc'; silCtx.lineWidth=1;
+  silCtx.beginPath();
+  silCtx.moveTo(pad.l,pad.t);silCtx.lineTo(pad.l,pad.t+plotH);silCtx.lineTo(pad.l+plotW,pad.t+plotH);
+  silCtx.stroke();
+  silCtx.fillStyle='#666'; silCtx.font='11px Arial';
+  for(let tick=0;tick<=1;tick+=0.25){
+    const ty=pad.t+plotH*(1-tick);
+    silCtx.fillText(tick.toFixed(2),2,ty+4);
+    silCtx.beginPath(); silCtx.moveTo(pad.l-3,ty); silCtx.lineTo(pad.l,ty); silCtx.stroke();
+  }
+  // Bars
+  const bw=plotW/kRange.length*0.6;
+  kRange.forEach((k,i)=>{
+    const bx=pad.l+(i+0.5)*(plotW/kRange.length)-bw/2;
+    const bh=scores[k]*plotH;
+    const by=pad.t+plotH-bh;
+    silCtx.fillStyle=k===trueK?'#28a745':'#aac4e0';
+    silCtx.fillRect(bx,by,bw,bh);
+    silCtx.fillStyle='#333'; silCtx.font='11px Arial'; silCtx.textAlign='center';
+    silCtx.fillText('k='+k,bx+bw/2,pad.t+plotH+14);
+    silCtx.fillStyle=k===trueK?'#28a745':'#555';
+    silCtx.font='10px Arial';
+    silCtx.fillText(scores[k].toFixed(2),bx+bw/2,by-4);
+  });
+  silCtx.textAlign='left';
+  // Y-axis label
+  silCtx.save();
+  silCtx.translate(12,pad.t+plotH/2);
+  silCtx.rotate(-Math.PI/2);
+  silCtx.font='11px Arial'; silCtx.fillStyle='#333';
+  silCtx.textAlign='center';
+  silCtx.fillText('Silhouette Score',0,0);
+  silCtx.restore();
+}
+
+// ===== SECTION 6: BUSINESS CASE =====
+let businessData = null;
+const bizScatter = document.getElementById('business-scatter');
+const bizScatterCtx = bizScatter.getContext('2d');
+const bizDendro = document.getElementById('business-dendro');
+const bizDendroCtx = bizDendro.getContext('2d');
+
+const businessDescriptions = {
+  2: '2 segments: <strong>Premium</strong> (top-tier spenders) vs. <strong>Value</strong> (everyone else). Simple but misses important nuance for marketing.',
+  3: '3 segments: <strong>Premium</strong> (💎 VIP loyalty + VIP occasion), <strong>Standard</strong> (📦 regular + deal hunters), <strong>Budget</strong> (🏷️ browsers + churn risk). Classic three-tier model.',
+  5: '5 segments: Premium Loyalists, Occasion Splurgers, Regular Shoppers, Deal Hunters, and Budget Browsers. Enables targeted 1:1 campaigns for each group.',
+  8: '8 micro-segments: Every sub-group gets its own profile. Powerful for personalization at scale — but requires more resources to execute distinct strategies per segment.'
+};
+
+function generateBusinessData() {
+  const groups = [
+    {name:'Premium Loyalists',cx:0.85,cy:0.85,n:18,col:'#0366d6'},
+    {name:'Occasion Splurgers',cx:0.75,cy:0.6,n:12,col:'#17a2b8'},
+    {name:'Regular Shoppers',cx:0.45,cy:0.55,n:22,col:'#28a745'},
+    {name:'Deal Hunters',cx:0.3,cy:0.4,n:18,col:'#fd7e14'},
+    {name:'Occasional Browsers',cx:0.15,cy:0.2,n:14,col:'#6c757d'},
+    {name:'Churn Risk',cx:0.12,cy:0.08,n:10,col:'#dc3545'},
+  ];
+  const pts = [];
+  groups.forEach((g,gi) => {
+    for(let i=0;i<g.n;i++) {
+      pts.push({x:clamp(g.cx+randBetween(-0.08,0.08),0,1),y:clamp(g.cy+randBetween(-0.06,0.06),0,1),group:gi,col:g.col});
+    }
+  });
+  return pts;
+}
+
+function setBusinessK(k) {
+  document.getElementById('business-description').innerHTML = businessDescriptions[k];
+  drawBusinessViz(k);
+  markStep(5);
+}
+
+function drawBusinessViz(k) {
+  if (!businessData) return;
+  const pts = businessData;
+  // Simple k-means-like color assignment based on group
+  const groupColors = k<=2 ? [COLORS[0],COLORS[0],COLORS[1],COLORS[1],COLORS[1],COLORS[1]] :
+                      k<=3 ? [COLORS[0],COLORS[0],COLORS[1],COLORS[1],COLORS[2],COLORS[2]] :
+                      k<=5 ? [COLORS[0],COLORS[1],COLORS[2],COLORS[3],COLORS[4],COLORS[4]] :
+                             [COLORS[0],COLORS[1],COLORS[2],COLORS[3],COLORS[4],COLORS[5]];
+  const W=bizScatter.width, H=bizScatter.height;
+  bizScatterCtx.clearRect(0,0,W,H);
+  // Axes labels
+  bizScatterCtx.fillStyle='#666'; bizScatterCtx.font='11px Arial';
+  bizScatterCtx.fillText('Avg Spend →',10,H-5);
+  bizScatterCtx.save(); bizScatterCtx.translate(12,H/2);
+  bizScatterCtx.rotate(-Math.PI/2); bizScatterCtx.fillText('Visit Frequency →',0,0);
+  bizScatterCtx.restore();
+  pts.forEach(p=>{
+    bizScatterCtx.beginPath();
+    bizScatterCtx.arc(p.x*W,H-p.y*H,6,0,Math.PI*2);
+    bizScatterCtx.fillStyle=groupColors[p.group]||'#999';
+    bizScatterCtx.fill();
+    bizScatterCtx.strokeStyle='white'; bizScatterCtx.lineWidth=1.5; bizScatterCtx.stroke();
+  });
+  // Draw simple dendrogram beside
+  const DW=bizDendro.width, DH=bizDendro.height;
+  const pad={l:15,r:15,t:20,b:30};
+  const plotW=DW-pad.l-pad.r, plotH=DH-pad.t-pad.b;
+  bizDendroCtx.clearRect(0,0,DW,DH);
+  // Build clusters
+  let clusters=pts.map((p,i)=>({pts:[i],cx:p.x,cy:p.y}));
+  const merges=[];
+  while(clusters.length>1){
+    let minD=Infinity,ai=-1,bi=-1;
+    for(let i=0;i<clusters.length;i++) for(let j=i+1;j<clusters.length;j++){
+      const d=Math.hypot(clusters[i].cx-clusters[j].cx,clusters[i].cy-clusters[j].cy);
+      if(d<minD){minD=d;ai=i;bi=j;}
+    }
+    const merged={pts:[...clusters[ai].pts,...clusters[bi].pts],cx:(clusters[ai].cx*clusters[ai].pts.length+clusters[bi].cx*clusters[bi].pts.length)/(clusters[ai].pts.length+clusters[bi].pts.length),cy:(clusters[ai].cy*clusters[ai].pts.length+clusters[bi].cy*clusters[bi].pts.length)/(clusters[ai].pts.length+clusters[bi].pts.length)};
+    merges.push({left:clusters[ai],right:clusters[bi],d:minD,merged});
+    clusters=clusters.filter((_,i)=>i!==ai&&i!==bi);clusters.push(merged);
+  }
+  const maxD=Math.max(...merges.map(m=>m.d))||1;
+  merges.forEach(m=>m.dn=m.d/maxD);
+  // Find cut
+  const sortedMergesD=merges.map(m=>m.dn).sort((a,b)=>b-a);
+  let cutDn=0;
+  if(k===1) cutDn=1.1;
+  else {
+    const cIdx=k-2;
+    cutDn=cIdx<sortedMergesD.length-1?(sortedMergesD[cIdx]+sortedMergesD[cIdx+1])/2:0;
+  }
+  const leafOrder=getLeafOrderGeneric(merges,pts.length);
+  const xPos={};
+  leafOrder.forEach((pi,i)=>xPos[pi]=pad.l+(i+0.5)*(plotW/pts.length));
+  const mMidX={};
+  merges.forEach((m,mi)=>{
+    const lx=getGenX(m.left,xPos,mMidX,merges);
+    const rx=getGenX(m.right,xPos,mMidX,merges);
+    mMidX[mi]=(lx+rx)/2;
+    const y=pad.t+(1-m.dn)*plotH;
+    const ly=getGenY(m.left,pad,plotH,merges);
+    const ry=getGenY(m.right,pad,plotH,merges);
+    bizDendroCtx.strokeStyle=m.dn>cutDn?'#003366':'#aac4e0';
+    bizDendroCtx.lineWidth=m.dn>cutDn?2.5:1.5;
+    bizDendroCtx.beginPath();
+    bizDendroCtx.moveTo(lx,y);bizDendroCtx.lineTo(rx,y);
+    bizDendroCtx.moveTo(lx,y);bizDendroCtx.lineTo(lx,ly);
+    bizDendroCtx.moveTo(rx,y);bizDendroCtx.lineTo(rx,ry);
+    bizDendroCtx.stroke();
+  });
+  // Cut line
+  const cutY=pad.t+(1-cutDn)*plotH;
+  if(cutDn<1){
+    bizDendroCtx.save();
+    bizDendroCtx.strokeStyle='#dc3545'; bizDendroCtx.lineWidth=2; bizDendroCtx.setLineDash([6,4]);
+    bizDendroCtx.beginPath();
+    bizDendroCtx.moveTo(pad.l,cutY);bizDendroCtx.lineTo(DW-pad.r,cutY);
+    bizDendroCtx.stroke();
+    bizDendroCtx.restore();
+    bizDendroCtx.fillStyle='#dc3545'; bizDendroCtx.font='bold 10px Arial';
+    bizDendroCtx.fillText(`k=${k}`,DW-pad.r-20,cutY-4);
+  }
+}
+
+// ===== QUIZ LOGIC =====
+const quizFeedback = {
+  1: {
+    correct: '✅ Correct! Agglomerative clustering starts with every point as its own cluster (N clusters for N points), then merges them iteratively.',
+    wrong: '❌ Not quite. Agglomerative = "bottom-up." Every point starts alone. They get merged together one pair at a time.'
   },
-  q2: {
-    correct: '✅ Exactly! Both the dendrogram analysis (longest gap suggests k=3) and the silhouette score (0.68 at k=3 vs 0.42 at k=7) agree. When two methods align, that\'s a strong signal.',
-    incorrect: '❌ k=3 is strongly indicated: the dendrogram shows a natural gap at 3 clusters, and the silhouette score is much higher (0.68 vs 0.42). More clusters doesn\'t always mean better clustering.'
+  2: {
+    correct: '✅ Correct! Height = distance at merge time. Taller bars mean the clusters were farther apart — indicating more distinct groups.',
+    wrong: '❌ Not quite. Height encodes when (at what distance) clusters were merged — not count, order, or silhouette.'
   },
-  q3: {
-    correct: '✅ Right! Hierarchical clustering requires computing and storing an n×n distance matrix, which is O(n²) in space and O(n³) in naive computation. 500K rows means a 250-billion-entry matrix — not feasible. Sample first!',
-    incorrect: '❌ The computational bottleneck is the distance matrix: O(n²) space and O(n³) time. At 500K rows, this becomes a massive bottleneck. The practical limit is ~50K rows.'
+  3: {
+    correct: '✅ Correct! Single linkage uses the minimum distance between any two points across clusters, which can create long chains where distant points are connected through intermediate ones.',
+    wrong: '❌ Not quite. The chaining effect is unique to single linkage — because it only needs ONE close pair to merge entire clusters.'
   },
-  q4: {
-    correct: '✅ Perfect! Gene regulatory modules are naturally hierarchical — genes form small co-expression groups, which aggregate into larger regulatory networks. A dendrogram directly captures this nested structure, which K-Means cannot.',
-    incorrect: '❌ Hierarchical clustering is the natural fit here. Regulatory gene modules are nested by design — small co-expression groups combine into larger networks. The dendrogram captures this hierarchy; K-Means cannot.'
+  4: {
+    correct: '✅ Correct! K-Means is O(nkT) — linear in n. Hierarchical is O(n²) or O(n³). At 500K rows, hierarchical would be extremely slow.',
+    wrong: '❌ Not quite. Scale is the issue. Hierarchical clustering requires computing all pairwise distances — at 500K points that\'s 125 billion pairs!'
+  },
+  5: {
+    correct: '✅ Correct! The longest vertical line with no horizontal crossing = the biggest merge gap = the most natural cluster boundary. Cut in the middle of it.',
+    wrong: '❌ Not quite. You want the largest "gap" in the tree — the longest vertical stretch without any merges crossing it.'
   }
 };
 
-function checkAnswer(qid, el, correct) {
-  if (el.classList.contains('correct') || el.classList.contains('incorrect')) return;
-  el.parentElement.querySelectorAll('.answer-option').forEach(s => s.style.pointerEvents='none');
-  el.classList.add(correct ? 'correct' : 'incorrect');
-  const fb = document.getElementById(qid+'-feedback');
-  fb.innerHTML = feedbacks[qid][correct ? 'correct' : 'incorrect'];
-  fb.classList.add('show');
-  if (correct) markDone('quiz');
+function answerQ(qNum, el, isCorrect) {
+  if (quizAnswered[qNum]) return;
+  quizAnswered[qNum] = true;
+  const opts = el.parentElement.querySelectorAll('.answer-option');
+  opts.forEach(o => o.style.cursor='default');
+  if (isCorrect) {
+    el.classList.add('correct');
+    quizScore++;
+    document.getElementById('quiz-score').textContent = quizScore;
+    const fb = document.getElementById('fb'+qNum);
+    fb.innerHTML = quizFeedback[qNum].correct;
+    fb.style.borderLeftColor='#28a745';
+    fb.classList.add('show');
+  } else {
+    el.classList.add('incorrect');
+    // Highlight correct answer
+    opts.forEach(o => { if(o.textContent.trim() === getCorrectText(qNum)) o.classList.add('correct'); });
+    const fb = document.getElementById('fb'+qNum);
+    fb.innerHTML = quizFeedback[qNum].wrong;
+    fb.style.borderLeftColor='#dc3545';
+    fb.classList.add('show');
+  }
+  if (Object.keys(quizAnswered).length === 5) {
+    setTimeout(showQuizCompletion, 800);
+  }
 }
-</script>
 
+function getCorrectText(qNum) {
+  const correct = {
+    1:'Each point starts as its own singleton cluster',
+    2:'The distance between the two clusters when they merged',
+    3:'Single linkage',
+    4:'K-Means — it scales much better (O(nk)) vs hierarchical O(n²)',
+    5:'The longest vertical line with no horizontal merges crossing it'
+  };
+  return correct[qNum];
+}
+
+function showQuizCompletion() {
+  const el = document.getElementById('quiz-completion');
+  el.style.display='block';
+  const pct = Math.round(quizScore/5*100);
+  const msg = pct===100 ? '🏆 Perfect score! You\'re a hierarchical clustering expert. You understand dendrograms, linkage methods, distance metrics, and when to use hierarchical vs K-Means.' :
+               pct>=80 ? '🌟 Excellent! Strong understanding of hierarchical clustering. Review the questions you missed for complete mastery.' :
+               pct>=60 ? '📚 Good effort! Go back and review the linkage methods and dendrogram reading sections for full understanding.' :
+               '🔄 Keep studying! Focus on how dendrograms work, what linkage methods do, and how to choose k. The interactive tools above will help.';
+  document.getElementById('quiz-final-message').innerHTML = `You scored <strong>${quizScore}/5 (${pct}%)</strong>. ${msg}`;
+  markStep(5);
+  el.scrollIntoView({behavior:'smooth'});
+}
+
+// ===== INIT =====
+window.addEventListener('load', () => {
+  resetAgg();
+  rebuildDendro();
+  regenerateLinkage();
+  setLinkage('ward');
+  setMetric('euclidean');
+  regenerateKSelection();
+  businessData = generateBusinessData();
+  setBusinessK(3);
+  markStep(1);
+});
+</script>
 </body>
 </html>

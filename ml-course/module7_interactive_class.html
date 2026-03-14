@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module 7: Interactive Class - Dimensionality Reduction | Chenhao Zhou</title>
+<style>
+body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 970px; margin: auto; padding: 2rem; line-height: 1.7; }
+nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #e1e4e8; }
+nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; font-family: 'Helvetica Neue', Arial, sans-serif; }
+nav a:hover { color: #003366; }
+h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+h1 { font-size: 2.2em; margin-bottom: 0.3em; }
+.card { background: #fff; padding: 1.5em; margin: 1.2em 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.09); }
+.interactive-section { background: linear-gradient(135deg, #667eea18 0%, #764ba218 100%); padding: 2em; margin: 2.5em 0; border-radius: 14px; border: 1px solid #d0d7de; }
+.button { display: inline-block; padding: 0.75em 1.5em; background: #003366; color: white; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; transition: all 0.3s ease; margin: 0.4em 0.4em 0.4em 0; font-weight: bold; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
+.button.secondary { background: #6c757d; }
+.button.success { background: #28a745; }
+.button.warning { background: #e88c00; color: white; }
+.button.sm { padding: 0.4em 1em; font-size: 0.9em; }
+.slider-container { margin: 1.2em 0; }
+.slider-label { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: bold; color: #003366; margin-bottom: 0.4em; display: flex; justify-content: space-between; align-items: center; }
+.slider { width: 100%; height: 8px; border-radius: 4px; background: #dde1e7; outline: none; -webkit-appearance: none; cursor: pointer; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #003366; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(0,51,102,0.3); }
+.slider::-webkit-slider-thumb:hover { transform: scale(1.25); background: #0366d6; }
+canvas { display: block; border-radius: 8px; }
+.canvas-wrapper { background: white; border: 2px solid #dde1e7; border-radius: 10px; padding: 1em; margin: 1em 0; text-align: center; position: relative; }
+.canvas-caption { font-size: 0.88em; color: #666; font-style: italic; margin-top: 0.5em; }
+
+/* Progress Tracker */
+.story-progress { display: flex; justify-content: space-between; margin: 2.5em 0 1em; position: relative; }
+.story-progress::before { content: ""; position: absolute; top: 20px; left: 5%; right: 5%; height: 3px; background: #e1e4e8; z-index: 0; }
+.story-step { background: white; border: 3px solid #e1e4e8; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 0.9em; position: relative; z-index: 1; cursor: pointer; transition: all 0.35s ease; flex-direction: column; }
+.story-step span.label { position: absolute; top: 48px; font-size: 0.72em; white-space: nowrap; color: #555; font-weight: normal; }
+.story-step.completed { background: #28a745; color: white; border-color: #28a745; }
+.story-step.active { background: #003366; color: white; border-color: #003366; transform: scale(1.2); }
+.progress-bar { height: 14px; background: #e9ecef; border-radius: 8px; margin: 1em 0 2em; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #003366 0%, #0366d6 100%); border-radius: 8px; transition: width 0.8s ease; }
+
+/* Quiz */
+.quiz-card { background: linear-gradient(135deg, #fff 0%, #f0f4ff 100%); border: 2px solid #003366; border-radius: 12px; padding: 1.8em; margin: 1.8em 0; position: relative; overflow: hidden; }
+.quiz-card::before { content: "?"; position: absolute; top: -15px; right: -15px; font-size: 110px; color: rgba(3,51,102,0.04); font-weight: bold; }
+.quiz-card h3 { margin-top: 0; color: #003366; }
+.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9em; margin: 1.2em 0; }
+.answer-option { padding: 0.9em 1em; background: white; border: 2px solid #dde1e7; border-radius: 8px; cursor: pointer; transition: all 0.25s ease; font-family: Georgia, serif; font-size: 0.97em; text-align: left; }
+.answer-option:hover { border-color: #003366; background: #f0f4ff; }
+.answer-option.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+.answer-option.incorrect { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+.answer-option.disabled { cursor: default; pointer-events: none; }
+.feedback-panel { background: #f0f7ff; border-left: 5px solid #003366; padding: 1.2em 1.5em; margin: 1em 0; border-radius: 6px; display: none; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.feedback-panel.show { display: block; animation: fadeSlide 0.4s ease; }
+@keyframes fadeSlide { from { opacity:0; transform: translateY(-10px); } to { opacity:1; transform: translateY(0); } }
+
+/* Impact box */
+.impact-display { background: linear-gradient(135deg, #003366 0%, #0366d6 100%); border-radius: 14px; padding: 2em; margin: 2em 0; text-align: center; color: white; }
+.impact-display h2 { color: white; margin-top: 0; }
+.impact-row { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 1em; margin-top: 1em; }
+.impact-stat { background: rgba(255,255,255,0.12); border-radius: 10px; padding: 1em 1.5em; min-width: 120px; }
+.impact-number { font-size: 2.2em; font-weight: bold; }
+.impact-label { font-size: 0.88em; opacity: 0.9; }
+
+/* Side by side */
+.side-by-side { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin: 1.2em 0; }
+@media (max-width: 680px) { .side-by-side { grid-template-columns: 1fr; } .answer-options { grid-template-columns: 1fr; } }
+
+/* Autoencoder animation */
+.ae-container { background: white; border: 2px solid #dde1e7; border-radius: 12px; padding: 1.5em; margin: 1em 0; position: relative; overflow: hidden; }
+.ae-canvas-wrapper { text-align: center; position: relative; }
+
+/* Tooltip */
+.tooltip { position: absolute; background: #003366; color: white; padding: 8px 12px; border-radius: 6px; font-size: 0.82em; pointer-events: none; display: none; font-family: 'Helvetica Neue', Arial, sans-serif; z-index: 200; white-space: nowrap; }
+
+/* Info box */
+.info-box { background: #e8f4fd; border-left: 4px solid #0366d6; padding: 1em 1.3em; border-radius: 6px; margin: 1em 0; font-size: 0.96em; }
+.info-box strong { color: #003366; }
+.warn-box { background: #fff8e1; border-left: 4px solid #e88c00; padding: 1em 1.3em; border-radius: 6px; margin: 1em 0; font-size: 0.96em; }
+
+.section-tag { display: inline-block; background: #003366; color: white; padding: 0.2em 0.8em; border-radius: 20px; font-size: 0.8em; font-family: 'Helvetica Neue', Arial, sans-serif; margin-bottom: 0.5em; letter-spacing: 0.05em; text-transform: uppercase; }
+
+.shimmer { position: relative; overflow: hidden; }
+.shimmer::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); animation: shimmer 2.5s infinite; }
+@keyframes shimmer { to { left: 120%; } }
+
+.quiz-score { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 1.1em; color: #003366; font-weight: bold; }
+footer { text-align: center; color: #888; font-size: 0.88em; margin-top: 3em; padding-top: 2em; border-top: 1px solid #e1e4e8; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html">🏠 Course Home</a>
+  <a href="module7-class-notes.html">📚 Class Notes</a>
+  <a href="module7_lab_manual.html">🔬 Lab Manual</a>
+  <a href="module7_interactive_class.html">⚡ Interactive</a>
+</nav>
+
+<!-- HEADER -->
+<h1>📉 Module 7: Dimensionality Reduction</h1>
+<p style="color:#555; font-size:1.1em; font-style:italic;">From Curse to Clarity — PCA, t-SNE, and Autoencoders</p>
+
+<!-- PROGRESS TRACKER -->
+<div class="story-progress">
+  <div class="story-step active" id="step-1" onclick="jumpStep(1)">1<span class="label">Hook</span></div>
+  <div class="story-step" id="step-2" onclick="jumpStep(2)">2<span class="label">PCA</span></div>
+  <div class="story-step" id="step-3" onclick="jumpStep(3)">3<span class="label">t-SNE</span></div>
+  <div class="story-step" id="step-4" onclick="jumpStep(4)">4<span class="label">Autoencoders</span></div>
+  <div class="story-step" id="step-5" onclick="jumpStep(5)">5<span class="label">Quiz</span></div>
+</div>
+<div class="progress-bar"><div class="progress-fill shimmer" id="main-progress" style="width:10%"></div></div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 1: OPENING HOOK                           -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div id="section-1">
+<div class="card">
+  <span class="section-tag">Opening Hook</span>
+  <h2 style="margin-top:0.3em;">Your dataset has 500 features. Training takes 3 hours. Can we keep the signal but lose the noise?</h2>
+  <p>You've collected customer transaction data across 500 product categories. Your model trains for 3 hours per run, validation metrics are inconsistent, and performance degrades — the dreaded <em>curse of dimensionality</em>. You can't just delete columns — each feature might carry signal. What do you do?</p>
+  <p>Today we answer: <strong>how do we compress high-dimensional data into a compact representation that preserves what matters most?</strong></p>
+  <div class="impact-display">
+    <h2>Why Dimensionality Reduction?</h2>
+    <div class="impact-row">
+      <div class="impact-stat"><div class="impact-number">500→20</div><div class="impact-label">Features reduced</div></div>
+      <div class="impact-stat"><div class="impact-number">9× faster</div><div class="impact-label">Training speedup</div></div>
+      <div class="impact-stat"><div class="impact-number">+12%</div><div class="impact-label">Accuracy gain</div></div>
+      <div class="impact-stat"><div class="impact-number">2D</div><div class="impact-label">Visualization possible</div></div>
+    </div>
+  </div>
+  <div class="info-box"><strong>Three methods we'll cover:</strong> (1) <strong>PCA</strong> — linear projection that maximizes variance; (2) <strong>t-SNE</strong> — non-linear embedding for visualization; (3) <strong>Autoencoders</strong> — neural network compression for non-linear structure.</div>
+  <button class="button success" onclick="markStep(1); scrollTo('section-2')">Let's Dive In →</button>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 2: PCA                                    -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div id="section-2">
+<div class="interactive-section">
+  <span class="section-tag">PCA Visualization</span>
+  <h2 style="margin-top:0.5em;">Principal Component Analysis</h2>
+  <p>PCA finds the directions (principal components) of maximum variance in your data. The first PC captures the most variance, the second the next most (orthogonal to the first), and so on.</p>
+
+  <div class="canvas-wrapper">
+    <canvas id="pcaCanvas" width="700" height="360" style="cursor:crosshair; max-width:100%;"></canvas>
+    <div class="canvas-caption">🖱️ Click and drag to rotate the principal component axes. Watch how the projected spread changes.</div>
+    <div id="pcaInfo" style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:0.93em; margin-top:0.5em; color:#003366; font-weight:bold;"></div>
+  </div>
+
+  <div class="slider-container">
+    <div class="slider-label"><span>Rotation angle of PC1</span><span id="angleVal">0°</span></div>
+    <input type="range" class="slider" id="pcaAngle" min="0" max="180" value="0" oninput="updatePCAAngle(this.value)">
+  </div>
+
+  <div class="side-by-side">
+    <div class="card" style="margin:0;">
+      <h4 style="margin-top:0;">Original Data Cloud</h4>
+      <canvas id="origCanvas" width="300" height="220" style="max-width:100%;"></canvas>
+      <div class="canvas-caption">All 2D variance preserved</div>
+    </div>
+    <div class="card" style="margin:0;">
+      <h4 style="margin-top:0;">Projected onto PC1</h4>
+      <canvas id="projCanvas" width="300" height="220" style="max-width:100%;"></canvas>
+      <div class="canvas-caption" id="infoLoss">Information retained: <strong>—</strong></div>
+    </div>
+  </div>
+
+  <div class="warn-box">💡 <strong>Key Insight:</strong> When you project from 2D to 1D you always lose some information. PCA chooses the projection axis that <em>minimizes</em> that loss.</div>
+</div>
+
+<!-- VARIANCE EXPLAINED -->
+<div class="interactive-section">
+  <span class="section-tag">Variance Explained</span>
+  <h2 style="margin-top:0.5em;">The Elbow: How Many Components Do You Need?</h2>
+  <p>Move the slider to add more components. Watch the cumulative explained variance rise. The <em>elbow</em> in the curve tells you the sweet spot — after that, extra components add little signal.</p>
+
+  <div class="slider-container">
+    <div class="slider-label"><span># Principal Components</span><span id="nCompVal" style="font-size:1.1em;">5</span></div>
+    <input type="range" class="slider" id="nComp" min="1" max="20" value="5" oninput="updateVarianceChart(this.value)">
+  </div>
+
+  <div class="canvas-wrapper">
+    <canvas id="varianceCanvas" width="680" height="300" style="max-width:100%;"></canvas>
+    <div class="canvas-caption">Cumulative variance explained — look for the "elbow" to find the optimal number of components</div>
+  </div>
+  <div id="varianceSummary" style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:0.95em; color:#003366; margin-top:0.5em;"></div>
+</div>
+
+<!-- EIGENVALUES -->
+<div class="interactive-section">
+  <span class="section-tag">Eigenvalue Interpretation</span>
+  <h2 style="margin-top:0.5em;">Eigenvalues: Who's Pulling the Weight?</h2>
+  <p>Each principal component has an associated <em>eigenvalue</em> — the amount of variance it captures. Hover over each bar to see the top feature loadings for that component.</p>
+
+  <div class="canvas-wrapper" style="position:relative;">
+    <canvas id="eigenCanvas" width="680" height="280" style="max-width:100%; cursor:pointer;"></canvas>
+    <div class="tooltip" id="eigenTooltip"></div>
+    <div class="canvas-caption">Hover bars to see feature loadings for each principal component</div>
+  </div>
+
+  <div class="info-box">
+    <strong>Rule of Thumb (Kaiser Criterion):</strong> Keep components with eigenvalue &gt; 1.0 — they explain more variance than a single original feature. Components to the right of the <span style="color:#dc3545; font-weight:bold;">red line</span> can usually be dropped.
+  </div>
+  <button class="button sm" onclick="markStep(2); scrollTo('section-3')">Next: t-SNE →</button>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 3: t-SNE & COMPARISON                     -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div id="section-3">
+<div class="interactive-section">
+  <span class="section-tag">t-SNE</span>
+  <h2 style="margin-top:0.5em;">t-SNE: When Linear Isn't Enough</h2>
+  <p>PCA is linear — it can't unroll a Swiss roll or separate interleaved spirals. <em>t-distributed Stochastic Neighbor Embedding</em> (t-SNE) preserves local neighborhood structure, making clusters visible that PCA misses. The <strong>perplexity</strong> parameter controls how many neighbors each point considers.</p>
+
+  <div class="slider-container">
+    <div class="slider-label"><span>Perplexity (neighbor scale)</span><span id="perpVal">15</span></div>
+    <input type="range" class="slider" id="perplexity" min="5" max="50" value="15" oninput="updateTSNE(this.value)">
+  </div>
+
+  <div class="canvas-wrapper">
+    <canvas id="tsneCanvas" width="680" height="360" style="max-width:100%;"></canvas>
+    <div class="canvas-caption">t-SNE projection — colors represent 4 distinct clusters in the original high-dimensional space</div>
+  </div>
+
+  <div class="warn-box">⚠️ <strong>t-SNE Cautions:</strong> Distances between clusters are <em>not</em> meaningful — only within-cluster structure is reliable. Use t-SNE for visualization, not as input to downstream models. Random seed matters!</div>
+</div>
+
+<!-- PCA vs t-SNE COMPARISON -->
+<div class="interactive-section">
+  <span class="section-tag">PCA vs t-SNE</span>
+  <h2 style="margin-top:0.5em;">Side-by-Side: What Each Method Sees</h2>
+  <p>The same dataset embedded two ways. PCA preserves global geometry; t-SNE reveals local cluster structure. Neither is "better" — they answer different questions.</p>
+
+  <div class="side-by-side">
+    <div class="canvas-wrapper" style="margin:0;">
+      <h4 style="margin:0.3em 0; font-family:'Helvetica Neue',Arial,sans-serif; color:#003366;">PCA</h4>
+      <canvas id="pcaCompCanvas" width="310" height="280" style="max-width:100%;"></canvas>
+      <div class="canvas-caption">✅ Global structure intact<br>❌ Overlapping clusters</div>
+    </div>
+    <div class="canvas-wrapper" style="margin:0;">
+      <h4 style="margin:0.3em 0; font-family:'Helvetica Neue',Arial,sans-serif; color:#003366;">t-SNE</h4>
+      <canvas id="tsneCompCanvas" width="310" height="280" style="max-width:100%;"></canvas>
+      <div class="canvas-caption">✅ Clear cluster separation<br>❌ Distances not meaningful</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1em;">
+    <h4 style="margin-top:0;">When to use each:</h4>
+    <table style="width:100%; border-collapse:collapse; font-size:0.93em;">
+      <tr style="background:#003366; color:white;">
+        <th style="padding:0.6em 1em; text-align:left;">Criterion</th>
+        <th style="padding:0.6em 1em;">PCA</th>
+        <th style="padding:0.6em 1em;">t-SNE</th>
+      </tr>
+      <tr style="background:#f8f9fa;">
+        <td style="padding:0.6em 1em;">Interpretability</td>
+        <td style="padding:0.6em 1em; text-align:center;">✅ High</td>
+        <td style="padding:0.6em 1em; text-align:center;">⚠️ Low</td>
+      </tr>
+      <tr>
+        <td style="padding:0.6em 1em;">Captures non-linearity</td>
+        <td style="padding:0.6em 1em; text-align:center;">❌ No</td>
+        <td style="padding:0.6em 1em; text-align:center;">✅ Yes</td>
+      </tr>
+      <tr style="background:#f8f9fa;">
+        <td style="padding:0.6em 1em;">Use as model input</td>
+        <td style="padding:0.6em 1em; text-align:center;">✅ Yes</td>
+        <td style="padding:0.6em 1em; text-align:center;">❌ Usually no</td>
+      </tr>
+      <tr>
+        <td style="padding:0.6em 1em;">Deterministic</td>
+        <td style="padding:0.6em 1em; text-align:center;">✅ Yes</td>
+        <td style="padding:0.6em 1em; text-align:center;">❌ No</td>
+      </tr>
+      <tr style="background:#f8f9fa;">
+        <td style="padding:0.6em 1em;">Speed on large data</td>
+        <td style="padding:0.6em 1em; text-align:center;">✅ Fast</td>
+        <td style="padding:0.6em 1em; text-align:center;">❌ Slow O(n²)</td>
+      </tr>
+    </table>
+  </div>
+  <button class="button sm" onclick="markStep(3); scrollTo('section-4')">Next: Autoencoders →</button>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 4: AUTOENCODERS + BUSINESS APPS           -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div id="section-4">
+<div class="interactive-section">
+  <span class="section-tag">Autoencoders</span>
+  <h2 style="margin-top:0.5em;">Autoencoders: Neural Network Compression</h2>
+  <p>An autoencoder is a neural network trained to reproduce its input. By forcing data through a narrow <em>bottleneck</em> layer, the network must learn a compact representation. Unlike PCA, the encoder can capture non-linear structure.</p>
+
+  <div class="ae-container">
+    <div class="ae-canvas-wrapper">
+      <canvas id="aeCanvas" width="680" height="300" style="max-width:100%;"></canvas>
+    </div>
+    <div class="canvas-caption" style="text-align:center; margin-top:0.5em;">Animated: data flows from input → encoder → bottleneck → decoder → reconstruction. Watch the signal travel!</div>
+    <div style="text-align:center; margin-top:0.8em;">
+      <button class="button sm" onclick="toggleAEAnimation()">⏸ Pause / ▶ Resume</button>
+      <button class="button sm secondary" onclick="resetAEAnimation()">↺ Restart</button>
+    </div>
+  </div>
+
+  <div class="side-by-side">
+    <div class="info-box">
+      <strong>Encoder:</strong> Compresses input features (e.g., 784 → 256 → 64 → 10 neurons). Each layer learns increasingly abstract representations.
+    </div>
+    <div class="info-box">
+      <strong>Decoder:</strong> Reconstructs the original input from the bottleneck (e.g., 10 → 64 → 256 → 784). Reconstruction error drives training.
+    </div>
+  </div>
+
+  <div class="warn-box">🧠 <strong>Autoencoder vs PCA:</strong> PCA finds a linear subspace; autoencoders learn non-linear manifolds. Autoencoders are more powerful but require more data and tuning. A linear autoencoder with no activation functions is mathematically equivalent to PCA!</div>
+</div>
+
+<!-- BUSINESS APPLICATIONS -->
+<div class="interactive-section">
+  <span class="section-tag">Business Applications</span>
+  <h2 style="margin-top:0.5em;">Real-World Impact</h2>
+
+  <!-- IMAGE COMPRESSION DEMO -->
+  <div class="card">
+    <h3 style="margin-top:0;">📸 Image Compression with PCA</h3>
+    <p>Drag the slider to add more principal components. See how image quality improves as you retain more variance.</p>
+    <div class="slider-container">
+      <div class="slider-label"><span>Number of PCA components</span><span id="imgCompVal">10</span></div>
+      <input type="range" class="slider" id="imgComp" min="1" max="50" value="10" oninput="updateImageCompression(this.value)">
+    </div>
+    <div class="side-by-side">
+      <div class="canvas-wrapper" style="margin:0;">
+        <h4 style="margin:0.3em 0; font-size:0.95em; font-family:'Helvetica Neue',Arial,sans-serif;">Original</h4>
+        <canvas id="origImgCanvas" width="280" height="280" style="max-width:100%;"></canvas>
+        <div class="canvas-caption">100% of variance (100 components)</div>
+      </div>
+      <div class="canvas-wrapper" style="margin:0;">
+        <h4 style="margin:0.3em 0; font-size:0.95em; font-family:'Helvetica Neue',Arial,sans-serif;">PCA Reconstruction</h4>
+        <canvas id="compImgCanvas" width="280" height="280" style="max-width:100%;"></canvas>
+        <div class="canvas-caption" id="compressionStats">Variance retained: <strong>—</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER REDUCTION -->
+  <div class="card">
+    <h3 style="margin-top:0;">👥 Customer Feature Reduction</h3>
+    <p>A retail company has 500 customer features (purchase history, browsing, demographics...). PCA can collapse these into interpretable composite dimensions.</p>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:1em; margin-top:1em;">
+      <div style="background:#f0f4ff; border-radius:10px; padding:1em; text-align:center; border:2px solid #003366;">
+        <div style="font-size:1.8em; font-weight:bold; color:#003366;">PC1</div>
+        <div style="font-size:0.85em; margin-top:0.3em; color:#555;">Purchasing Power<br><em>income, cart size, returns</em></div>
+        <div style="font-size:0.78em; color:#888; margin-top:0.3em;">38% variance</div>
+      </div>
+      <div style="background:#f0f4ff; border-radius:10px; padding:1em; text-align:center; border:2px solid #003366;">
+        <div style="font-size:1.8em; font-weight:bold; color:#003366;">PC2</div>
+        <div style="font-size:0.85em; margin-top:0.3em; color:#555;">Digital Engagement<br><em>clicks, reviews, email opens</em></div>
+        <div style="font-size:0.78em; color:#888; margin-top:0.3em;">22% variance</div>
+      </div>
+      <div style="background:#f0f4ff; border-radius:10px; padding:1em; text-align:center; border:2px solid #003366;">
+        <div style="font-size:1.8em; font-weight:bold; color:#003366;">PC3</div>
+        <div style="font-size:0.85em; margin-top:0.3em; color:#555;">Loyalty Recency<br><em>visit frequency, churn risk</em></div>
+        <div style="font-size:0.78em; color:#888; margin-top:0.3em;">15% variance</div>
+      </div>
+      <div style="background:#fff8e1; border-radius:10px; padding:1em; text-align:center; border:2px dashed #e88c00;">
+        <div style="font-size:1.8em; font-weight:bold; color:#e88c00;">PC4–500</div>
+        <div style="font-size:0.85em; margin-top:0.3em; color:#555;">Noise / redundant<br><em>drop these!</em></div>
+        <div style="font-size:0.78em; color:#888; margin-top:0.3em;">25% variance</div>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:1em;"><strong>Outcome:</strong> Training time drops from 3 hours to 18 minutes. Model accuracy improves by 8% because noise features no longer distract the learner.</div>
+  </div>
+  <button class="button sm" onclick="markStep(4); scrollTo('section-5')">Next: Quiz →</button>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 5: QUIZ                                   -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div id="section-5">
+<div class="interactive-section">
+  <span class="section-tag">Knowledge Check</span>
+  <h2 style="margin-top:0.5em;">🧠 Five Quick Questions</h2>
+  <p>Test your understanding. Select an answer to reveal instant feedback.</p>
+  <div class="quiz-score">Score: <span id="quizScore">0</span> / 5</div>
+
+  <!-- Q1 -->
+  <div class="quiz-card">
+    <h3>Q1. When does PCA fail to find meaningful structure?</h3>
+    <div class="answer-options" id="q1-options">
+      <div class="answer-option" onclick="checkAnswer(1,'a')">A. When the dataset has too many rows</div>
+      <div class="answer-option" onclick="checkAnswer(1,'b')">B. When relationships between features are non-linear</div>
+      <div class="answer-option" onclick="checkAnswer(1,'c')">C. When the data has more than 100 features</div>
+      <div class="answer-option" onclick="checkAnswer(1,'d')">D. When you center-scale the features first</div>
+    </div>
+    <div class="feedback-panel" id="q1-feedback"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-card">
+    <h3>Q2. A scree plot shows eigenvalues 8.2, 4.1, 3.9, 0.6, 0.4, 0.3… How many components should you keep?</h3>
+    <div class="answer-options" id="q2-options">
+      <div class="answer-option" onclick="checkAnswer(2,'a')">A. All 6 — more is always better</div>
+      <div class="answer-option" onclick="checkAnswer(2,'b')">B. 1 — the first component explains most variance</div>
+      <div class="answer-option" onclick="checkAnswer(2,'c')">C. 3 — there's a clear elbow after the 3rd component</div>
+      <div class="answer-option" onclick="checkAnswer(2,'d')">D. 5 — keep everything above 0.5</div>
+    </div>
+    <div class="feedback-panel" id="q2-feedback"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-card">
+    <h3>Q3. You increase t-SNE's perplexity from 5 to 50. What do you expect to see?</h3>
+    <div class="answer-options" id="q3-options">
+      <div class="answer-option" onclick="checkAnswer(3,'a')">A. Clusters shrink and become denser</div>
+      <div class="answer-option" onclick="checkAnswer(3,'b')">B. Clusters merge and local structure becomes less sharp</div>
+      <div class="answer-option" onclick="checkAnswer(3,'c')">C. The number of clusters doubles</div>
+      <div class="answer-option" onclick="checkAnswer(3,'d')">D. Distance between clusters becomes meaningful</div>
+    </div>
+    <div class="feedback-panel" id="q3-feedback"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="quiz-card">
+    <h3>Q4. An autoencoder's bottleneck layer has 10 neurons. The input has 784 dimensions. What is the compression ratio?</h3>
+    <div class="answer-options" id="q4-options">
+      <div class="answer-option" onclick="checkAnswer(4,'a')">A. 10:1</div>
+      <div class="answer-option" onclick="checkAnswer(4,'b')">B. 78.4:1</div>
+      <div class="answer-option" onclick="checkAnswer(4,'c')">C. 784:10, approximately 78× compression</div>
+      <div class="answer-option" onclick="checkAnswer(4,'d')">D. The ratio depends on the decoder, not the bottleneck</div>
+    </div>
+    <div class="feedback-panel" id="q4-feedback"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="quiz-card">
+    <h3>Q5. You want to use reduced features as input to a logistic regression model. Which method is most appropriate?</h3>
+    <div class="answer-options" id="q5-options">
+      <div class="answer-option" onclick="checkAnswer(5,'a')">A. t-SNE, because it separates clusters visually</div>
+      <div class="answer-option" onclick="checkAnswer(5,'b')">B. PCA, because it produces stable, deterministic, interpretable components</div>
+      <div class="answer-option" onclick="checkAnswer(5,'c')">C. t-SNE with perplexity=30 is standard practice</div>
+      <div class="answer-option" onclick="checkAnswer(5,'d')">D. Autoencoders only — linear methods are outdated</div>
+    </div>
+    <div class="feedback-panel" id="q5-feedback"></div>
+  </div>
+
+  <div id="quizComplete" style="display:none;" class="impact-display">
+    <h2 style="color:white;">🎉 Module Complete!</h2>
+    <p style="opacity:0.9;">You've mastered the core ideas of dimensionality reduction. Head to the lab to implement PCA and t-SNE in Python.</p>
+    <a href="module7_lab_manual.html" class="button success" style="text-decoration:none;">🔬 Open Lab Manual →</a>
+    <a href="module7-class-notes.html" class="button secondary" style="text-decoration:none;">📚 Review Notes</a>
+  </div>
+</div>
+</div>
+
+<!-- NAV FOOTER -->
+<div class="card" style="text-align:center; margin-top:2em;">
+  <h3 style="margin-top:0;">Navigate This Module</h3>
+  <a href="module7-class-notes.html" class="button">📚 Class Notes</a>
+  <a href="module7_lab_manual.html" class="button secondary">🔬 Lab Manual</a>
+  <a href="index.html" class="button" style="background:#555;">🏠 Course Index</a>
+</div>
+
+<footer>
+  Chenhao Zhou · Machine Learning Course · Module 7: Dimensionality Reduction<br>
+  Georgia, Rutgers Business School
+</footer>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                        -->
+<!-- ═══════════════════════════════════════════════════ -->
+<script>
+// ─── Utilities ───────────────────────────────────────
+function scrollTo(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function markStep(n) {
+  document.getElementById('step-' + n).classList.remove('active');
+  document.getElementById('step-' + n).classList.add('completed');
+  const next = document.getElementById('step-' + (n+1));
+  if (next) { next.classList.add('active'); next.classList.remove('completed'); }
+  const pct = Math.min(100, n * 20 + 10);
+  document.getElementById('main-progress').style.width = pct + '%';
+}
+function jumpStep(n) {
+  scrollTo('section-' + n);
+}
+
+// ─── Data Generation ──────────────────────────────────
+const N = 120;
+let rng = (function() {
+  let s = 42;
+  return function() { s = (s * 16807 + 0) % 2147483647; return (s - 1) / 2147483646; };
+})();
+
+function resetRng() {
+  let s = 42;
+  rng = (function(seed) {
+    let st = seed;
+    return function() { st = (st * 16807 + 0) % 2147483647; return (st - 1) / 2147483646; };
+  })(42);
+}
+
+resetRng();
+
+// Generate correlated 2D data cloud with natural PC direction ~35 degrees
+function generateDataCloud() {
+  resetRng();
+  const pts = [];
+  const angle = 35 * Math.PI / 180;
+  for (let i = 0; i < N; i++) {
+    const u1 = rng(), u2 = rng();
+    const z1 = Math.sqrt(-2*Math.log(u1+1e-9)) * Math.cos(2*Math.PI*u2);
+    const z2 = Math.sqrt(-2*Math.log(u1+1e-9)) * Math.sin(2*Math.PI*u2);
+    const x = z1 * 2.5 + z2 * 0.4;
+    const y = z1 * 1.2 + z2 * 0.8;
+    pts.push({ x, y });
+  }
+  return pts;
+}
+
+const dataCloud = generateDataCloud();
+
+// ─── PCA Canvas ────────────────────────────────────────
+const pcaCanvas = document.getElementById('pcaCanvas');
+const pcaCtx = pcaCanvas.getContext('2d');
+let pcaAngleDeg = 0;
+
+function computeVarianceAlongAngle(pts, angle) {
+  const cos = Math.cos(angle), sin = Math.sin(angle);
+  const projs = pts.map(p => p.x * cos + p.y * sin);
+  const mean = projs.reduce((a,b) => a+b, 0) / projs.length;
+  const variance = projs.reduce((s, v) => s + (v-mean)**2, 0) / projs.length;
+  return variance;
+}
+
+function totalVariance(pts) {
+  const mx = pts.reduce((s,p) => s+p.x, 0) / pts.length;
+  const my = pts.reduce((s,p) => s+p.y, 0) / pts.length;
+  return pts.reduce((s,p) => s + (p.x-mx)**2 + (p.y-my)**2, 0) / pts.length;
+}
+
+function drawPCA(angleDeg) {
+  const W = pcaCanvas.width, H = pcaCanvas.height;
+  const cx = W/2, cy = H/2;
+  const scale = 38;
+  const angle = angleDeg * Math.PI / 180;
+  const angle2 = angle + Math.PI/2;
+
+  pcaCtx.clearRect(0, 0, W, H);
+  pcaCtx.fillStyle = '#fafcff';
+  pcaCtx.fillRect(0, 0, W, H);
+
+  // Grid
+  pcaCtx.strokeStyle = '#eee';
+  pcaCtx.lineWidth = 1;
+  for (let x = 0; x <= W; x += 40) { pcaCtx.beginPath(); pcaCtx.moveTo(x,0); pcaCtx.lineTo(x,H); pcaCtx.stroke(); }
+  for (let y = 0; y <= H; y += 40) { pcaCtx.beginPath(); pcaCtx.moveTo(0,y); pcaCtx.lineTo(W,y); pcaCtx.stroke(); }
+
+  // Axes
+  pcaCtx.strokeStyle = '#ccc';
+  pcaCtx.lineWidth = 1.5;
+  pcaCtx.beginPath(); pcaCtx.moveTo(0,cy); pcaCtx.lineTo(W,cy); pcaCtx.stroke();
+  pcaCtx.beginPath(); pcaCtx.moveTo(cx,0); pcaCtx.lineTo(cx,H); pcaCtx.stroke();
+
+  // Compute projections
+  const cos1 = Math.cos(angle), sin1 = Math.sin(angle);
+  const cos2 = Math.cos(angle2), sin2 = Math.sin(angle2);
+
+  // Projection shadows on PC1
+  dataCloud.forEach(p => {
+    const proj1 = p.x * cos1 + p.y * sin1;
+    const px = cx + proj1 * cos1 * scale;
+    const py = cy - proj1 * sin1 * scale;
+    pcaCtx.strokeStyle = 'rgba(3,102,214,0.15)';
+    pcaCtx.lineWidth = 0.8;
+    pcaCtx.beginPath();
+    pcaCtx.moveTo(cx + p.x*scale, cy - p.y*scale);
+    pcaCtx.lineTo(px, py);
+    pcaCtx.stroke();
+    // Projected point on PC1
+    pcaCtx.fillStyle = 'rgba(3,102,214,0.45)';
+    pcaCtx.beginPath();
+    pcaCtx.arc(px, py, 3, 0, Math.PI*2);
+    pcaCtx.fill();
+  });
+
+  // Data points
+  dataCloud.forEach(p => {
+    pcaCtx.fillStyle = '#003366';
+    pcaCtx.beginPath();
+    pcaCtx.arc(cx + p.x*scale, cy - p.y*scale, 4, 0, Math.PI*2);
+    pcaCtx.fill();
+  });
+
+  // PC1 axis
+  const len = 220;
+  pcaCtx.strokeStyle = '#e63946';
+  pcaCtx.lineWidth = 3;
+  pcaCtx.beginPath();
+  pcaCtx.moveTo(cx - len*cos1, cy + len*sin1);
+  pcaCtx.lineTo(cx + len*cos1, cy - len*sin1);
+  pcaCtx.stroke();
+
+  // Arrow head
+  const ax = cx + len*cos1, ay = cy - len*sin1;
+  pcaCtx.fillStyle = '#e63946';
+  pcaCtx.beginPath();
+  pcaCtx.moveTo(ax, ay);
+  pcaCtx.lineTo(ax - 12*cos1 + 6*sin1, ay + 12*sin1 + 6*cos1);
+  pcaCtx.lineTo(ax - 12*cos1 - 6*sin1, ay + 12*sin1 - 6*cos1);
+  pcaCtx.fill();
+
+  // PC1 label
+  pcaCtx.fillStyle = '#e63946';
+  pcaCtx.font = 'bold 14px Helvetica Neue';
+  pcaCtx.fillText('PC1', ax + 10, ay - 5);
+
+  // PC2 axis
+  pcaCtx.strokeStyle = '#2a9d8f';
+  pcaCtx.lineWidth = 2;
+  pcaCtx.setLineDash([6,4]);
+  pcaCtx.beginPath();
+  pcaCtx.moveTo(cx - 120*cos2, cy + 120*sin2);
+  pcaCtx.lineTo(cx + 120*cos2, cy - 120*sin2);
+  pcaCtx.stroke();
+  pcaCtx.setLineDash([]);
+  pcaCtx.fillStyle = '#2a9d8f';
+  pcaCtx.font = 'bold 13px Helvetica Neue';
+  pcaCtx.fillText('PC2', cx + 125*cos2 + 5, cy - 125*sin2 + 4);
+
+  // Variance info
+  const varPC1 = computeVarianceAlongAngle(dataCloud, angle);
+  const totalVar = totalVariance(dataCloud);
+  const pct = (varPC1 / totalVar * 100).toFixed(1);
+  document.getElementById('pcaInfo').textContent = `PC1 captures ${pct}% of total variance at ${angleDeg}°`;
+}
+
+function updatePCAAngle(val) {
+  pcaAngleDeg = parseInt(val);
+  document.getElementById('angleVal').textContent = pcaAngleDeg + '°';
+  drawPCA(pcaAngleDeg);
+  drawProjection(pcaAngleDeg);
+}
+
+// Original vs Projected canvases
+function drawOriginal() {
+  const c = document.getElementById('origCanvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height, cx = W/2, cy = H/2, sc = 25;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#fafcff';
+  ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+  for(let x=0;x<=W;x+=30){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=30){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  dataCloud.forEach(p => {
+    ctx.fillStyle = '#003366';
+    ctx.beginPath();
+    ctx.arc(cx+p.x*sc, cy-p.y*sc, 3.5, 0, Math.PI*2);
+    ctx.fill();
+  });
+}
+
+function drawProjection(angleDeg) {
+  const c = document.getElementById('projCanvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height, cx = W/2, cy = H/2, sc = 25;
+  const angle = angleDeg * Math.PI / 180;
+  const cos1 = Math.cos(angle), sin1 = Math.sin(angle);
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#fafcff'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+  for(let x=0;x<=W;x+=30){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=30){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  const projs = dataCloud.map(p => p.x*cos1 + p.y*sin1);
+  // Draw on the 1D line (horizontal)
+  const lineY = cy;
+  ctx.strokeStyle = '#e63946'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(20, lineY); ctx.lineTo(W-20, lineY); ctx.stroke();
+  projs.forEach(pr => {
+    ctx.fillStyle = 'rgba(230,57,70,0.7)';
+    ctx.beginPath();
+    ctx.arc(cx + pr*sc, lineY, 4, 0, Math.PI*2);
+    ctx.fill();
+  });
+
+  const varPC1 = computeVarianceAlongAngle(dataCloud, angle);
+  const totalVar = totalVariance(dataCloud);
+  const retained = (varPC1 / totalVar * 100).toFixed(1);
+  document.getElementById('infoLoss').innerHTML = `Information retained: <strong>${retained}%</strong>`;
+}
+
+// ─── Variance Chart ────────────────────────────────────
+const eigenvalues = [8.2, 5.1, 3.8, 2.9, 2.1, 1.6, 1.3, 1.05, 0.88, 0.74,
+                     0.62, 0.51, 0.43, 0.36, 0.29, 0.23, 0.18, 0.14, 0.10, 0.07];
+const totalEigSum = eigenvalues.reduce((a,b)=>a+b,0);
+
+function updateVarianceChart(val) {
+  const n = parseInt(val);
+  document.getElementById('nCompVal').textContent = n;
+  drawVarianceChart(n);
+}
+
+function drawVarianceChart(nSelected) {
+  const c = document.getElementById('varianceCanvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = { left: 55, right: 20, top: 30, bottom: 45 };
+  const cW = W - pad.left - pad.right, cH = H - pad.top - pad.bottom;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#fafcff'; ctx.fillRect(0,0,W,H);
+
+  // Compute cumulative
+  const cumVar = [];
+  let cum = 0;
+  eigenvalues.forEach(e => { cum += e/totalEigSum*100; cumVar.push(cum); });
+
+  const barW = cW / eigenvalues.length;
+
+  // Individual bars
+  eigenvalues.forEach((e, i) => {
+    const barH = (e / totalEigSum * 100) / 100 * cH;
+    const x = pad.left + i * barW;
+    const y = pad.top + cH - barH;
+    ctx.fillStyle = i < nSelected ? '#003366' : '#d0d7de';
+    ctx.fillRect(x+2, y, barW-4, barH);
+  });
+
+  // Cumulative line
+  ctx.strokeStyle = '#e63946';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  cumVar.forEach((cv, i) => {
+    const x = pad.left + i * barW + barW/2;
+    const y = pad.top + cH - (cv/100)*cH;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Dots on cumulative
+  cumVar.forEach((cv, i) => {
+    const x = pad.left + i * barW + barW/2;
+    const y = pad.top + cH - (cv/100)*cH;
+    ctx.fillStyle = i < nSelected ? '#e63946' : '#aaa';
+    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+  });
+
+  // Selected marker
+  if (nSelected >= 1 && nSelected <= 20) {
+    const selX = pad.left + (nSelected-1) * barW + barW/2;
+    const selY = pad.top + cH - (cumVar[nSelected-1]/100)*cH;
+    ctx.strokeStyle = '#e63946'; ctx.lineWidth = 1.5; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(selX, pad.top); ctx.lineTo(selX, pad.top+cH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#e63946';
+    ctx.font = 'bold 12px Helvetica Neue';
+    ctx.fillText(cumVar[nSelected-1].toFixed(1)+'%', selX+4, selY-6);
+  }
+
+  // Y-axis labels
+  ctx.fillStyle = '#555'; ctx.font = '11px Helvetica Neue'; ctx.textAlign = 'right';
+  for (let pct = 0; pct <= 100; pct += 20) {
+    const y = pad.top + cH - (pct/100)*cH;
+    ctx.fillText(pct+'%', pad.left-5, y+4);
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left+cW, y); ctx.stroke();
+  }
+  ctx.textAlign = 'center';
+  // X-axis labels
+  for (let i=0; i<20; i+=4) {
+    ctx.fillStyle = '#555'; ctx.font = '11px Helvetica Neue';
+    ctx.fillText(i+1, pad.left + i*barW + barW/2, pad.top+cH+18);
+  }
+  ctx.fillStyle = '#333'; ctx.font = 'bold 12px Helvetica Neue';
+  ctx.fillText('Number of Components', pad.left + cW/2, H-6);
+
+  // Legend
+  ctx.fillStyle = '#003366'; ctx.fillRect(pad.left, 8, 14, 12);
+  ctx.fillStyle = '#333'; ctx.font = '11px Helvetica Neue'; ctx.textAlign = 'left';
+  ctx.fillText('Individual variance', pad.left+18, 19);
+  ctx.strokeStyle = '#e63946'; ctx.lineWidth = 2; ctx.beginPath();
+  ctx.moveTo(pad.left+130, 14); ctx.lineTo(pad.left+150, 14); ctx.stroke();
+  ctx.fillText('Cumulative variance', pad.left+155, 19);
+
+  const cv = cumVar[nSelected-1];
+  document.getElementById('varianceSummary').textContent =
+    `${nSelected} component${nSelected>1?'s':''} explain ${cv.toFixed(1)}% of total variance. ${cv >= 80 ? '✅ Good compression!' : cv >= 60 ? '⚠️ Consider adding more components.' : '❌ Too much information lost.'}`;
+}
+
+// ─── Eigenvalue Bar Chart ──────────────────────────────
+const eigenLabels = [
+  'Revenue trend', 'Session time', 'Cart size', 'Return rate', 'Email open',
+  'Age proxy', 'Location', 'Device', 'Referral src', 'Wishlist size',
+  'Promo use', 'Review count', 'Days since', 'Cat preference', 'Avg rating',
+  'Payment method', 'Loyalty tier', 'Weekend shop', 'App vs web', 'Peak hour'
+];
+
+// Feature loading matrix (simplified, 3 top per component)
+const topLoadings = [
+  ['Revenue trend (0.82)', 'Cart size (0.71)', 'Avg rating (0.63)'],
+  ['Session time (0.79)', 'Wishlist size (0.68)', 'App vs web (0.55)'],
+  ['Return rate (0.84)', 'Promo use (0.72)', 'Loyalty tier (0.61)'],
+  ['Age proxy (0.76)', 'Weekend shop (0.67)', 'Email open (0.54)'],
+  ['Location (0.81)', 'Peak hour (0.69)', 'Device (0.58)'],
+  ['Days since (0.77)', 'Cat preference (0.65)', 'Review count (0.52)'],
+  ['Email open (0.73)', 'Referral src (0.62)', 'Age proxy (0.48)'],
+  ['Promo use (0.79)', 'App vs web (0.68)', 'Session time (0.45)'],
+  ['Loyalty tier (0.81)', 'Return rate (0.62)', 'Cart size (0.41)'],
+  ['Payment method (0.74)', 'Days since (0.59)', 'Revenue trend (0.38)'],
+];
+
+function drawEigenChart() {
+  const c = document.getElementById('eigenCanvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = { left: 50, right: 20, top: 25, bottom: 40 };
+  const cW = W - pad.left - pad.right, cH = H - pad.top - pad.bottom;
+  const nShow = 15;
+  const maxEig = eigenvalues[0];
+  const barW = cW / nShow;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#fafcff'; ctx.fillRect(0,0,W,H);
+
+  eigenvalues.slice(0, nShow).forEach((e, i) => {
+    const barH = (e / maxEig) * cH;
+    const x = pad.left + i * barW;
+    const y = pad.top + cH - barH;
+    const isAbove1 = e >= 1.0;
+    ctx.fillStyle = isAbove1 ? '#003366' : '#a0aec0';
+    ctx.fillRect(x+3, y, barW-6, barH);
+    // Label
+    ctx.fillStyle = '#555'; ctx.font = '10px Helvetica Neue'; ctx.textAlign = 'center';
+    ctx.fillText('PC'+(i+1), x+barW/2, pad.top+cH+16);
+    ctx.fillStyle = '#333'; ctx.font = '10px Helvetica Neue';
+    if (e >= 1.0) { ctx.fillStyle = '#003366'; ctx.font = 'bold 10px Helvetica Neue'; }
+    ctx.fillText(e.toFixed(1), x+barW/2, y-4);
+  });
+
+  // Kaiser line at eigenvalue=1
+  const kaiserY = pad.top + cH - (1.0/maxEig)*cH;
+  ctx.strokeStyle = '#dc3545'; ctx.lineWidth = 2; ctx.setLineDash([5,5]);
+  ctx.beginPath(); ctx.moveTo(pad.left, kaiserY); ctx.lineTo(pad.left+cW, kaiserY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#dc3545'; ctx.font = 'bold 11px Helvetica Neue'; ctx.textAlign = 'right';
+  ctx.fillText('Kaiser line (λ=1)', pad.left+cW, kaiserY-4);
+
+  // Y-axis
+  ctx.textAlign = 'right'; ctx.fillStyle = '#555'; ctx.font = '11px Helvetica Neue';
+  [0,2,4,6,8].forEach(v => {
+    if (v <= maxEig) {
+      const y = pad.top + cH - (v/maxEig)*cH;
+      ctx.fillText(v, pad.left-5, y+4);
+      ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(pad.left+cW,y); ctx.stroke();
+    }
+  });
+  ctx.fillStyle = '#333'; ctx.font = 'bold 12px Helvetica Neue'; ctx.textAlign = 'center';
+  ctx.fillText('Eigenvalue (λ)', 14, pad.top+cH/2);
+}
+
+// Tooltip on eigenvalue chart
+const eigenCanvas = document.getElementById('eigenCanvas');
+const eigenTooltip = document.getElementById('eigenTooltip');
+eigenCanvas.addEventListener('mousemove', function(e) {
+  const rect = eigenCanvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (eigenCanvas.width / rect.width);
+  const pad = { left: 50, right: 20, top: 25, bottom: 40 };
+  const cW = eigenCanvas.width - pad.left - pad.right;
+  const nShow = 15, barW = cW / nShow;
+  const idx = Math.floor((mx - pad.left) / barW);
+  if (idx >= 0 && idx < nShow) {
+    const loadings = topLoadings[idx] || [];
+    eigenTooltip.innerHTML = `<strong>PC${idx+1}</strong> (λ=${eigenvalues[idx]})<br>Top loadings:<br>` + loadings.map(l => '• ' + l).join('<br>');
+    eigenTooltip.style.display = 'block';
+    eigenTooltip.style.left = Math.min(e.clientX - rect.left + 12, rect.width - 200) + 'px';
+    eigenTooltip.style.top = (e.clientY - rect.top - 30) + 'px';
+  } else {
+    eigenTooltip.style.display = 'none';
+  }
+});
+eigenCanvas.addEventListener('mouseleave', () => { eigenTooltip.style.display = 'none'; });
+
+// ─── t-SNE Simulation ─────────────────────────────────
+function generateTSNEClusters(perplexity) {
+  const seed = 7919;
+  let st = seed;
+  function rand() { st = (st * 16807) % 2147483647; return (st-1)/2147483646; }
+
+  const clusters = [
+    { cx: -2.5, cy: 2.0, spread: 0.6, color: '#e63946', n: 30 },
+    { cx: 2.8, cy: 1.5, spread: 0.7, color: '#0366d6', n: 30 },
+    { cx: 0.2, cy: -2.8, spread: 0.65, color: '#2a9d8f', n: 30 },
+    { cx: -1.8, cy: -1.6, spread: 0.55, color: '#e9c46a', n: 30 },
+  ];
+
+  // Perplexity effect: higher perplexity → clusters merge (pull centers together)
+  const mergeFactor = (perplexity - 5) / 45 * 0.6; // 0 at perp=5, 0.6 at perp=50
+
+  const pts = [];
+  clusters.forEach(cl => {
+    for (let i = 0; i < cl.n; i++) {
+      const u1 = rand(), u2 = rand();
+      const z1 = Math.sqrt(-2*Math.log(u1+1e-9))*Math.cos(2*Math.PI*u2);
+      const z2 = Math.sqrt(-2*Math.log(u1+1e-9))*Math.sin(2*Math.PI*u2);
+      const effectiveSpread = cl.spread + mergeFactor * 1.2;
+      const effectiveCx = cl.cx * (1 - mergeFactor * 0.5);
+      const effectiveCy = cl.cy * (1 - mergeFactor * 0.5);
+      pts.push({ x: effectiveCx + z1*effectiveSpread, y: effectiveCy + z2*effectiveSpread, color: cl.color });
+    }
+  });
+  return pts;
+}
+
+function drawTSNE(perplexity, canvasId) {
+  const c = document.getElementById(canvasId);
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height, cx = W/2, cy = H/2, sc = 40;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#fafcff'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+  for(let x=0;x<=W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  const pts = generateTSNEClusters(perplexity);
+  pts.forEach(p => {
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(cx + p.x*sc, cy - p.y*sc, 5, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Legend
+  const colors = ['#e63946','#0366d6','#2a9d8f','#e9c46a'];
+  const labels = ['Cluster A','Cluster B','Cluster C','Cluster D'];
+  colors.forEach((col, i) => {
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(15, 18+i*20, 6, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#333'; ctx.font = '11px Helvetica Neue'; ctx.textAlign = 'left';
+    ctx.fillText(labels[i], 26, 22+i*20);
+  });
+  ctx.textAlign = 'center';
+  if (canvasId === 'tsneCanvas') {
+    ctx.fillStyle = '#555'; ctx.font = 'italic 11px Georgia';
+    ctx.fillText(`Perplexity = ${perplexity}`, W/2, H-8);
+  }
+}
+
+function updateTSNE(val) {
+  const perp = parseInt(val);
+  document.getElementById('perpVal').textContent = perp;
+  drawTSNE(perp, 'tsneCanvas');
+}
+
+// PCA comparison canvas (draws cloud with colored clusters, slightly overlapping)
+function drawPCAComp() {
+  const c = document.getElementById('pcaCompCanvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height, cx = W/2, cy = H/2, sc = 30;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#fafcff'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+  for(let x=0;x<=W;x+=35){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=35){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  // PCA projects onto a linear direction, clusters overlap more
+  const clusters = [
+    { cx:-1.8, cy:2.5, sx:1.2, sy:0.5, color:'#e63946', n:30 },
+    { cx:2.0, cy:1.0, sx:1.1, sy:0.6, color:'#0366d6', n:30 },
+    { cx:0.5, cy:-2.0, sx:1.3, sy:0.55, color:'#2a9d8f', n:30 },
+    { cx:-1.2, cy:-1.0, sx:1.0, sy:0.65, color:'#e9c46a', n:30 },
+  ];
+  let st2 = 12345;
+  function r2() { st2=(st2*16807)%2147483647; return (st2-1)/2147483646; }
+  clusters.forEach(cl => {
+    for (let i=0;i<cl.n;i++) {
+      const z1=Math.sqrt(-2*Math.log(r2()+1e-9))*Math.cos(2*Math.PI*r2());
+      const z2=Math.sqrt(-2*Math.log(r2()+1e-9))*Math.sin(2*Math.PI*r2());
+      ctx.fillStyle = cl.color; ctx.globalAlpha = 0.7;
+      ctx.beginPath();
+      ctx.arc(cx+(cl.cx+z1*cl.sx)*sc, cy-(cl.cy+z2*cl.sy)*sc, 4, 0, Math.PI*2);
+      ctx.fill();
+    }
+  });
+  ctx.globalAlpha = 1;
+
+  // PC1 line
+  ctx.strokeStyle = '#e63946'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(10,cy+30); ctx.lineTo(W-10,cy-30); ctx.stroke();
+  ctx.fillStyle='#e63946'; ctx.font='bold 12px Helvetica Neue'; ctx.textAlign='right';
+  ctx.fillText('PC1→',W-5, cy-35);
+  ctx.textAlign='center';
+}
+
+// ─── Autoencoder Animation ─────────────────────────────
+const aeCanvas = document.getElementById('aeCanvas');
+const aeCtx = aeCanvas.getContext('2d');
+let aeAnimId = null;
+let aePhase = 0;
+let aePaused = false;
+
+const aeLayers = [
+  { label: 'Input', neurons: 8, x: 60 },
+  { label: '256', neurons: 6, x: 180 },
+  { label: '64', neurons: 4, x: 300 },
+  { label: '10\n(Bottleneck)', neurons: 2, x: 420 },
+  { label: '64', neurons: 4, x: 540 },
+  { label: '256', neurons: 6, x: 660 },
+  { label: 'Output', neurons: 8, x: 780 },
+];
+
+function getNeuronPositions(layer, H) {
+  const n = layer.neurons;
+  const spacing = Math.min(38, (H - 60) / n);
+  const totalH = spacing * (n - 1);
+  const startY = (H - totalH) / 2;
+  return Array.from({ length: n }, (_, i) => ({ x: layer.x, y: startY + i * spacing }));
+}
+
+function drawAE(phase) {
+  const W = aeCanvas.width, H = aeCanvas.height;
+  aeCtx.clearRect(0, 0, W, H);
+  aeCtx.fillStyle = '#fafcff'; aeCtx.fillRect(0, 0, W, H);
+
+  // Background zones
+  const encGrad = aeCtx.createLinearGradient(40, 0, 420, 0);
+  encGrad.addColorStop(0, 'rgba(0,51,102,0.04)');
+  encGrad.addColorStop(1, 'rgba(0,51,102,0.10)');
+  aeCtx.fillStyle = encGrad;
+  aeCtx.fillRect(40, 20, 400, H-40);
+
+  const decGrad = aeCtx.createLinearGradient(420, 0, W-40, 0);
+  decGrad.addColorStop(0, 'rgba(42,157,143,0.10)');
+  decGrad.addColorStop(1, 'rgba(42,157,143,0.04)');
+  aeCtx.fillStyle = decGrad;
+  aeCtx.fillRect(420, 20, W-460, H-40);
+
+  // Zone labels
+  aeCtx.font = 'bold 12px Helvetica Neue'; aeCtx.textAlign = 'center';
+  aeCtx.fillStyle = 'rgba(0,51,102,0.5)';
+  aeCtx.fillText('ENCODER', 230, H-8);
+  aeCtx.fillStyle = 'rgba(42,157,143,0.5)';
+  aeCtx.fillText('DECODER', 610, H-8);
+
+  const allPositions = aeLayers.map(l => getNeuronPositions(l, H));
+
+  // Draw connections
+  aeLayers.forEach((layer, li) => {
+    if (li === aeLayers.length - 1) return;
+    const fromPos = allPositions[li];
+    const toPos = allPositions[li + 1];
+    const isActive = (phase % aeLayers.length) === li;
+    fromPos.forEach(fp => {
+      toPos.forEach(tp => {
+        aeCtx.beginPath();
+        aeCtx.moveTo(fp.x, fp.y);
+        aeCtx.lineTo(tp.x, tp.y);
+        aeCtx.strokeStyle = isActive ? 'rgba(230,57,70,0.55)' : 'rgba(180,180,180,0.25)';
+        aeCtx.lineWidth = isActive ? 1.5 : 0.7;
+        aeCtx.stroke();
+      });
+    });
+  });
+
+  // Draw neurons
+  aeLayers.forEach((layer, li) => {
+    const positions = allPositions[li];
+    const isActive = (phase % aeLayers.length) === li;
+    const isBn = li === 3;
+    positions.forEach(pos => {
+      const grad = aeCtx.createRadialGradient(pos.x-4, pos.y-4, 2, pos.x, pos.y, isBn ? 14 : 10);
+      if (isActive) {
+        grad.addColorStop(0, '#ff9a9e');
+        grad.addColorStop(1, '#e63946');
+      } else if (isBn) {
+        grad.addColorStop(0, '#ffd166');
+        grad.addColorStop(1, '#e88c00');
+      } else {
+        grad.addColorStop(0, '#6bc5e3');
+        grad.addColorStop(1, '#003366');
+      }
+      aeCtx.fillStyle = grad;
+      aeCtx.beginPath();
+      aeCtx.arc(pos.x, pos.y, isBn ? 14 : 10, 0, Math.PI*2);
+      aeCtx.fill();
+      aeCtx.strokeStyle = 'rgba(255,255,255,0.4)'; aeCtx.lineWidth = 2;
+      aeCtx.stroke();
+    });
+
+    // Layer label
+    const labelY = positions[positions.length-1].y + 24;
+    aeCtx.fillStyle = isBn ? '#e88c00' : '#003366';
+    aeCtx.font = isBn ? 'bold 10px Helvetica Neue' : '10px Helvetica Neue';
+    aeCtx.textAlign = 'center';
+    const lines = layer.label.split('\n');
+    lines.forEach((ln, i) => aeCtx.fillText(ln, layer.x, labelY + i*13));
+
+    // Traveling signal
+    if ((phase % aeLayers.length) === li && li < aeLayers.length-1) {
+      const t = (phase % 1) || (phase - Math.floor(phase));
+      const from = allPositions[li][0];
+      const to = allPositions[li+1][0];
+      const sx = from.x + (to.x - from.x) * 0;
+      const sy = from.y;
+      aeCtx.fillStyle = 'rgba(230,57,70,0.9)';
+      aeCtx.beginPath();
+      aeCtx.arc(sx, sy, 6, 0, Math.PI*2);
+      aeCtx.fill();
+    }
+  });
+}
+
+function aeStep() {
+  if (!aePaused) {
+    aePhase = (aePhase + 0.06) % aeLayers.length;
+    drawAE(aePhase);
+  }
+  aeAnimId = requestAnimationFrame(aeStep);
+}
+
+function toggleAEAnimation() { aePaused = !aePaused; }
+function resetAEAnimation() { aePhase = 0; aePaused = false; }
+
+// ─── Image Compression Demo ────────────────────────────
+function drawFaceImage(ctx, W, H, nComp) {
+  // Simulate a stylized face using geometric shapes + noise level based on nComp
+  ctx.clearRect(0,0,W,H);
+  const quality = Math.min(1, nComp / 50);
+  const quality2 = quality * quality;
+
+  // Background
+  ctx.fillStyle = `hsl(220, ${Math.round(20*quality)}%, ${Math.round(92+5*quality)}%)`;
+  ctx.fillRect(0,0,W,H);
+
+  // Noise (reduced with more components)
+  if (quality < 0.99) {
+    for (let i = 0; i < (1-quality) * 800; i++) {
+      const nx = Math.random()*W, ny = Math.random()*H;
+      ctx.fillStyle = `rgba(${Math.random()>0.5?50:200},${Math.random()>0.5?50:200},${Math.random()>0.5?50:200},0.3)`;
+      ctx.fillRect(nx, ny, 4, 4);
+    }
+  }
+
+  ctx.save();
+  ctx.globalAlpha = 0.3 + quality * 0.7;
+
+  // Face circle
+  ctx.fillStyle = '#f4c78a';
+  ctx.beginPath(); ctx.arc(W/2, H/2-10, 80*quality+30*(1-quality), 0, Math.PI*2); ctx.fill();
+  if (quality > 0.3) {
+    ctx.strokeStyle = '#c8956a'; ctx.lineWidth = 2*quality;
+    ctx.stroke();
+  }
+  // Eyes
+  if (quality > 0.25) {
+    ctx.fillStyle = '#4a3728';
+    const eyeSize = 10*quality+3;
+    ctx.beginPath(); ctx.arc(W/2-25, H/2-20, eyeSize, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(W/2+25, H/2-20, eyeSize, 0, Math.PI*2); ctx.fill();
+  }
+  // Smile
+  if (quality > 0.4) {
+    ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 2.5*quality;
+    ctx.beginPath(); ctx.arc(W/2, H/2, 35, 0.2*Math.PI, 0.8*Math.PI); ctx.stroke();
+  }
+  // Hair
+  if (quality > 0.5) {
+    ctx.fillStyle = '#4a3728';
+    ctx.beginPath();
+    ctx.arc(W/2, H/2-10, 82, Math.PI+0.3, 2*Math.PI-0.3); ctx.fill();
+  }
+  // Nose
+  if (quality > 0.6) {
+    ctx.strokeStyle = '#c8956a'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(W/2-5, H/2-5); ctx.lineTo(W/2, H/2+5); ctx.lineTo(W/2+5, H/2-5); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function updateImageCompression(val) {
+  const n = parseInt(val);
+  document.getElementById('imgCompVal').textContent = n;
+  const ctx = document.getElementById('compImgCanvas').getContext('2d');
+  const W = 280, H = 280;
+  drawFaceImage(ctx, W, H, n);
+  const varRetained = Math.min(99.9, (n / 50) * 85 + 15).toFixed(1);
+  document.getElementById('compressionStats').innerHTML =
+    `Variance retained: <strong>${varRetained}%</strong> | Components: ${n}/50 | Compression: ${(50/n).toFixed(1)}×`;
+}
+
+function drawOriginalFace() {
+  const ctx = document.getElementById('origImgCanvas').getContext('2d');
+  drawFaceImage(ctx, 280, 280, 50);
+}
+
+// ─── Quiz Logic ───────────────────────────────────────
+const answers = {
+  1: { correct: 'b', explanation: 'Correct! PCA is a <em>linear</em> method — it can only find linear projections. When features interact non-linearly (e.g., clusters on a curved manifold), PCA misses the structure. Use t-SNE or autoencoders instead.' },
+  2: { correct: 'c', explanation: 'Correct! The "elbow" is clearly after PC3. The drop from 3.9 to 0.6 is sharp, indicating the first 3 components capture most signal. The Kaiser criterion (eigenvalue > 1) also supports keeping 3.' },
+  3: { correct: 'b', explanation: 'Correct! Higher perplexity means each point considers more neighbors, making the algorithm think more "globally." Clusters tend to merge or become less distinct — you lose local detail.' },
+  4: { correct: 'c', explanation: 'Correct! Compression ratio = 784 / 10 ≈ 78.4×. The bottleneck layer size determines compression — it must encode all salient information in just 10 values.' },
+  5: { correct: 'b', explanation: 'Correct! PCA components are stable, deterministic, and interpretable, making them valid as model inputs. t-SNE is non-deterministic and its distances are not preserved, making it unsuitable as upstream features for classifiers.' },
+};
+
+let quizScoreCount = 0;
+
+function checkAnswer(qNum, choice) {
+  const ans = answers[qNum];
+  if (!ans) return;
+  const opts = document.querySelectorAll(`#q${qNum}-options .answer-option`);
+  if (opts[0].classList.contains('disabled')) return; // already answered
+
+  opts.forEach(opt => opt.classList.add('disabled'));
+  const letters = ['a','b','c','d'];
+  opts.forEach((opt, i) => {
+    if (letters[i] === ans.correct) { opt.classList.add('correct'); }
+    else if (letters[i] === choice && choice !== ans.correct) { opt.classList.add('incorrect'); }
+  });
+
+  const fb = document.getElementById(`q${qNum}-feedback`);
+  const isRight = choice === ans.correct;
+  if (isRight) { quizScoreCount++; document.getElementById('quizScore').textContent = quizScoreCount; }
+  fb.innerHTML = `${isRight ? '✅ <strong>Correct!</strong>' : '❌ <strong>Not quite.</strong>'} ${ans.explanation}`;
+  fb.style.borderLeftColor = isRight ? '#28a745' : '#dc3545';
+  fb.style.background = isRight ? '#f0fff4' : '#fff5f5';
+  fb.classList.add('show');
+
+  if (quizScoreCount === 5) {
+    setTimeout(() => {
+      document.getElementById('quizComplete').style.display = 'block';
+      markStep(5);
+      document.getElementById('quizComplete').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 600);
+  }
+}
+
+// ─── Initialize Everything ─────────────────────────────
+window.addEventListener('load', function() {
+  // PCA
+  drawPCA(0);
+  drawOriginal();
+  drawProjection(0);
+
+  // Variance chart
+  updateVarianceChart(5);
+
+  // Eigenvalue chart
+  drawEigenChart();
+
+  // t-SNE
+  drawTSNE(15, 'tsneCanvas');
+
+  // Comparison
+  drawPCAComp();
+  drawTSNE(15, 'tsneCompCanvas');
+
+  // Autoencoder
+  aeStep();
+
+  // Image compression
+  drawOriginalFace();
+  updateImageCompression(10);
+});
+
+// Handle canvas resize for PCA drag
+let isDragging = false;
+pcaCanvas.addEventListener('mousedown', function(e) { isDragging = true; });
+pcaCanvas.addEventListener('mousemove', function(e) {
+  if (!isDragging) return;
+  const rect = pcaCanvas.getBoundingClientRect();
+  const cx = rect.width / 2, cy = rect.height / 2;
+  const mx = e.clientX - rect.left - cx;
+  const my = cy - (e.clientY - rect.top);
+  let angleDeg = Math.round(Math.atan2(my, mx) * 180 / Math.PI);
+  if (angleDeg < 0) angleDeg += 180;
+  document.getElementById('pcaAngle').value = angleDeg;
+  document.getElementById('angleVal').textContent = angleDeg + '°';
+  drawPCA(angleDeg);
+  drawProjection(angleDeg);
+});
+document.addEventListener('mouseup', function() { isDragging = false; });
+</script>
+</body>
+</html>

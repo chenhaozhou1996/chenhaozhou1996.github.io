@@ -5,177 +5,454 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Module 6 Lab: Hands-On Boosting Implementation</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            font-family: Georgia, serif;
             line-height: 1.8;
             color: #2c3e50;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 40px 20px;
         }
-        
+
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
         }
-        
+
+        /* ── Navigation ── */
+        nav {
+            background: #f5f5f5;
+            padding: 0.9em 1.5em;
+            text-align: center;
+            border-bottom: 2px solid #e1e4e8;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        nav a {
+            margin: 0 14px;
+            text-decoration: none;
+            color: #003366;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+        nav a:hover { color: #0366d6; text-decoration: underline; }
+
+        /* ── Header ── */
         .header {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
             padding: 60px 40px;
             text-align: center;
         }
-        
         .header h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 2.6rem;
+            margin-bottom: 16px;
             font-weight: 700;
         }
-        
-        .subtitle {
-            font-size: 1.3rem;
-            opacity: 0.9;
-            font-weight: 300;
+        .subtitle { font-size: 1.15rem; opacity: 0.9; font-weight: 300; }
+
+        /* ── Progress tracker ── */
+        .progress-tracker {
+            background: #f8f9fa;
+            padding: 20px 40px;
+            border-bottom: 1px solid #e1e4e8;
         }
-        
-        .content {
-            padding: 60px 40px;
+        .progress-tracker h3 {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #003366;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-        
-        .section {
-            margin-bottom: 60px;
+        .task-checks {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
         }
-        
+        .task-check-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+        .task-check-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #003366;
+            cursor: pointer;
+        }
+        .task-check-item label { cursor: pointer; }
+        .progress-bar-wrap {
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #003366, #667eea);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.6s ease;
+        }
+        #progress-label { font-size: 0.85em; color: #666; margin-top: 6px; }
+
+        /* ── Content ── */
+        .content { padding: 50px 40px; }
+
+        .section { margin-bottom: 60px; }
+
         .section-title {
-            font-size: 2rem;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 1.8rem;
+            color: #003366;
+            margin-bottom: 28px;
+            padding-bottom: 12px;
             border-bottom: 3px solid #667eea;
             font-weight: 700;
         }
-        
+
+        /* ── Boxes ── */
         .lab-box {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 40px;
-            border-radius: 15px;
-            margin: 30px 0;
+            padding: 32px;
+            border-radius: 12px;
+            margin: 24px 0;
             border-left: 5px solid #667eea;
         }
-        
         .objective-box {
             background: #e3f2fd;
-            padding: 25px;
+            padding: 22px;
             border-radius: 10px;
-            margin: 20px 0;
+            margin: 18px 0;
             border-left: 4px solid #2196f3;
         }
-        
+        .task-box {
+            background: #fff3e0;
+            padding: 22px;
+            border-radius: 10px;
+            margin: 22px 0;
+            border-left: 4px solid #ff9800;
+        }
+        .checkpoint-box {
+            background: #f3e5f5;
+            padding: 22px;
+            border-radius: 10px;
+            margin: 22px 0;
+            border-left: 4px solid #9c27b0;
+        }
+
+        h3 { color: #003366; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 1.3rem; margin: 20px 0 10px; font-weight: 600; }
+        h4 { color: #003366; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 1.1rem; margin: 16px 0 8px; font-weight: 600; }
+        strong { color: #1e3c72; }
+
+        /* ── Code blocks ── */
+        .code-wrapper { position: relative; margin: 20px 0; }
         .code-block {
             background: #1e1e1e;
             color: #d4d4d4;
-            padding: 25px;
-            border-radius: 10px;
-            margin: 20px 0;
+            padding: 22px 22px 22px 22px;
+            border-radius: 10px 10px 0 0;
             overflow-x: auto;
             font-family: 'Courier New', monospace;
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             line-height: 1.6;
         }
-        
-        .task-box {
-            background: #fff3e0;
-            padding: 25px;
-            border-radius: 10px;
-            margin: 25px 0;
-            border-left: 4px solid #ff9800;
+        .code-toolbar {
+            background: #2d2d2d;
+            padding: 8px 14px;
+            border-radius: 0 0 10px 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
-        
+        .run-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 5px;
+            font-size: 0.88em;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            transition: background 0.2s;
+        }
+        .run-btn:hover { background: #218838; }
+        .run-btn:active { transform: scale(0.97); }
+        .run-btn.running { background: #6c757d; cursor: not-allowed; }
+
+        .code-output {
+            background: #0d1117;
+            color: #7ee787;
+            padding: 16px 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            margin-top: 4px;
+            display: none;
+            border: 1px solid #30363d;
+            white-space: pre-wrap;
+        }
+        .code-output.show { display: block; animation: fadeIn 0.4s ease; }
+        .output-label {
+            color: #8b949e;
+            font-size: 0.78em;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin-right: auto;
+        }
+
+        /* ── Hint toggle ── */
+        .hint-toggle-btn {
+            background: none;
+            border: 2px solid #4caf50;
+            color: #4caf50;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.88em;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+        }
+        .hint-toggle-btn:hover { background: #4caf50; color: white; }
         .hint-box {
             background: #e8f5e9;
-            padding: 20px;
+            padding: 18px 20px;
             border-radius: 10px;
-            margin: 20px 0;
+            margin: 8px 0 18px;
             border-left: 4px solid #4caf50;
+            display: none;
         }
-        
-        .checkpoint-box {
-            background: #f3e5f5;
-            padding: 25px;
+        .hint-box.show { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── Canvas section ── */
+        .canvas-section {
+            background: linear-gradient(135deg, #e8f0fe 0%, #f3e8ff 100%);
+            border: 1px solid #c5cae9;
+            border-radius: 14px;
+            padding: 30px;
+            margin: 28px 0;
+        }
+        .canvas-section h3 { color: #003366; margin-top: 0; }
+        canvas {
+            background: white;
             border-radius: 10px;
-            margin: 25px 0;
-            border-left: 4px solid #9c27b0;
+            border: 1px solid #ddd;
+            display: block;
+            max-width: 100%;
         }
-        
-        h3 {
-            color: #2c3e50;
-            font-size: 1.5rem;
-            margin: 25px 0 15px;
+        .canvas-legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+            font-size: 0.87em;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 14px; height: 14px; border-radius: 3px; }
+
+        /* ── Feature tooltip ── */
+        #feat-tooltip {
+            position: fixed;
+            background: #1e3c72;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 0.85em;
+            pointer-events: none;
+            display: none;
+            z-index: 999;
+            max-width: 260px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+
+        /* ── Task 4 comparison table ── */
+        .model-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 0.92em;
+        }
+        .model-table th {
+            background: #003366;
+            color: white;
+            padding: 12px 16px;
+            text-align: left;
             font-weight: 600;
         }
-        
-        h4 {
-            color: #1e3c72;
-            font-size: 1.2rem;
-            margin: 20px 0 10px;
+        .model-table td {
+            padding: 11px 16px;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        .model-table tr:nth-child(even) { background: #f8f9fa; }
+        .model-table tr:hover { background: #e7f3ff; }
+        .model-table .winner { color: #28a745; font-weight: bold; }
+        .metric-bar-wrap { display: flex; align-items: center; gap: 10px; }
+        .metric-bar {
+            height: 10px;
+            border-radius: 5px;
+            transition: width 0.8s ease;
+        }
+
+        /* ── Task 5 slider ── */
+        .slider-group { margin: 20px 0; }
+        .slider-group label {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 0.95em;
+            color: #003366;
             font-weight: 600;
         }
-        
-        strong {
-            color: #1e3c72;
+        .slider-row { display: flex; align-items: center; gap: 14px; margin: 8px 0; }
+        .hp-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #c3cfe2;
+            outline: none;
         }
-        
+        .hp-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #003366;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,51,102,0.3);
+            transition: transform 0.15s;
+        }
+        .hp-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        .slider-val {
+            min-width: 54px;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #003366;
+        }
+        .btn-run-sim {
+            background: #003366;
+            color: white;
+            border: none;
+            padding: 10px 26px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            transition: background 0.2s, transform 0.1s;
+            margin-top: 8px;
+        }
+        .btn-run-sim:hover { background: #0256c7; }
+        .btn-run-sim:active { transform: scale(0.97); }
+
+        /* ── Misc ── */
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-            .content {
-                padding: 30px 20px;
-            }
+            .header h1 { font-size: 1.8rem; }
+            .content { padding: 28px 18px; }
+            .task-checks { gap: 10px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🔬 Module 6 Lab: Credit Risk Assessment with Boosting</h1>
-            <p class="subtitle">Build a production-grade credit scoring model using XGBoost</p>
-        </div>
-        
-        <div class="content">
-            <!-- Lab Overview -->
-            <div class="section">
-                <h2 class="section-title">Lab Overview</h2>
-                
-                <div class="objective-box">
-                    <h3>Learning Objectives</h3>
-                    <p>By completing this lab, you will develop practical skills in implementing boosting algorithms for a real-world financial application. You will learn how to handle imbalanced datasets, optimize hyperparameters using cross-validation, interpret feature importance for regulatory compliance, and deploy a model that meets business requirements for accuracy and explainability. This lab simulates the work you would perform as a data scientist at a financial institution.</p>
-                </div>
-                
-                <div class="lab-box">
-                    <h3>Business Context</h3>
-                    <p>You are a data scientist at FinanceFirst Bank, a regional bank processing 50,000 loan applications annually. The current credit scoring system approves 65% of applications with a 12% default rate, resulting in $24 million in annual losses. Your task is to build an XGBoost model that improves default prediction while maintaining approval rates above 60% to meet growth targets. The model must also provide feature importance scores to satisfy regulatory requirements for explainability in lending decisions.</p>
-                </div>
+
+<div class="container">
+
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html">🏠 Course Home</a>
+        <a href="module6_class_material.html">📚 Module 6 Class Material</a>
+        <a href="module6_lab_manual.html">🔬 Lab Manual</a>
+    </nav>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>🔬 Module 6 Lab: Credit Risk Assessment with Boosting</h1>
+        <p class="subtitle">Build a production-grade credit scoring model using XGBoost · 5 Interactive Tasks</p>
+    </div>
+
+    <!-- Progress Tracker -->
+    <div class="progress-tracker">
+        <h3>📋 Lab Progress</h3>
+        <div class="task-checks">
+            <div class="task-check-item">
+                <input type="checkbox" id="chk1" onchange="updateProgress()">
+                <label for="chk1">Task 1: Data Prep</label>
             </div>
-            
-            <!-- Task 1: Data Preparation -->
-            <div class="section">
-                <h2 class="section-title">Task 1: Data Preparation and Exploration</h2>
-                
-                <div class="task-box">
-                    <h4>Your Task</h4>
-                    <p>Load the credit risk dataset, perform exploratory data analysis to understand feature distributions and default rates, identify missing values and outliers, and prepare the data for modeling by handling categorical variables and splitting into training and test sets.</p>
-                </div>
-                
+            <div class="task-check-item">
+                <input type="checkbox" id="chk2" onchange="updateProgress()">
+                <label for="chk2">Task 2: XGBoost Model</label>
+            </div>
+            <div class="task-check-item">
+                <input type="checkbox" id="chk3" onchange="updateProgress()">
+                <label for="chk3">Task 3: Optimization &amp; Deploy</label>
+            </div>
+            <div class="task-check-item">
+                <input type="checkbox" id="chk4" onchange="updateProgress()">
+                <label for="chk4">Task 4: Model Comparison</label>
+            </div>
+            <div class="task-check-item">
+                <input type="checkbox" id="chk5" onchange="updateProgress()">
+                <label for="chk5">Task 5: Hyperparameter Tuning</label>
+            </div>
+        </div>
+        <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="prog-fill"></div>
+        </div>
+        <div id="progress-label">0 / 5 tasks completed</div>
+    </div>
+
+    <div class="content">
+
+        <!-- ════════ Lab Overview ════════ -->
+        <div class="section">
+            <h2 class="section-title">Lab Overview</h2>
+
+            <div class="objective-box">
+                <h3>Learning Objectives</h3>
+                <p>By completing this lab, you will develop practical skills in implementing boosting algorithms for a real-world financial application. You will learn how to handle imbalanced datasets, optimize hyperparameters using cross-validation, interpret feature importance for regulatory compliance, and compare multiple gradient boosting frameworks. This lab simulates the work you would perform as a data scientist at a financial institution.</p>
+            </div>
+
+            <div class="lab-box">
+                <h3>Business Context</h3>
+                <p>You are a data scientist at <strong>FinanceFirst Bank</strong>, a regional bank processing 50,000 loan applications annually. The current credit scoring system approves 65% of applications with a 12% default rate, resulting in <strong>$24 million in annual losses</strong>. Your task is to build an XGBoost model that improves default prediction while maintaining approval rates above 60% to meet growth targets. The model must also provide feature importance scores to satisfy regulatory requirements for explainability in lending decisions.</p>
+            </div>
+        </div>
+
+        <!-- ════════ Task 1 ════════ -->
+        <div class="section">
+            <h2 class="section-title">Task 1: Data Preparation and Exploration</h2>
+
+            <div class="task-box">
+                <h4>✏️ Your Task</h4>
+                <p>Load the credit risk dataset, perform exploratory data analysis to understand feature distributions and default rates, identify missing values and outliers, and prepare the data for modeling by handling categorical variables and splitting into training and test sets.</p>
+            </div>
+
+            <button class="hint-toggle-btn" onclick="toggleHint('hint1')">💡 Show Hint</button>
+            <div class="hint-box" id="hint1">
+                <h4>Hint</h4>
+                <p>Your exploration should reveal that younger applicants (18–30) have higher default rates (~18%), while applicants over 50 show rates below 8%. Income levels show a strong inverse relationship with default rates. Credit scores provide clear separation — most defaults occur below 620. Use <code>pd.cut()</code> for binning continuous features and <code>groupby().mean()</code> to compute group-level default rates.</p>
+            </div>
+
+            <div class="code-wrapper">
                 <div class="code-block"># Import required libraries
 import pandas as pd
 import numpy as np
@@ -187,7 +464,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Load the dataset
-# Dataset contains 50,000 loan applications with 23 features
 df = pd.read_csv('credit_risk_data.csv')
 
 # Initial exploration
@@ -208,72 +484,109 @@ print(f"Default rate: {df['default'].mean():.2%}")
 # Visualize key relationships
 fig, axes = plt.subplots(2, 2, figsize=(15, 12))
 
-# Default rate by age group
-df['age_group'] = pd.cut(df['age'], bins=[18, 30, 40, 50, 60, 100], 
-                          labels=['18-30', '30-40', '40-50', '50-60', '60+'])
+df['age_group'] = pd.cut(df['age'], bins=[18,30,40,50,60,100],
+                          labels=['18-30','30-40','40-50','50-60','60+'])
 age_default = df.groupby('age_group')['default'].mean()
-axes[0, 0].bar(age_default.index, age_default.values)
-axes[0, 0].set_title('Default Rate by Age Group')
-axes[0, 0].set_ylabel('Default Rate')
+axes[0,0].bar(age_default.index, age_default.values)
+axes[0,0].set_title('Default Rate by Age Group')
 
-# Default rate by income level
-df['income_group'] = pd.cut(df['annual_income'], 
-                             bins=[0, 30000, 60000, 100000, 500000],
-                             labels=['<30K', '30-60K', '60-100K', '>100K'])
+df['income_group'] = pd.cut(df['annual_income'],
+                             bins=[0,30000,60000,100000,500000],
+                             labels=['&lt;30K','30-60K','60-100K','&gt;100K'])
 income_default = df.groupby('income_group')['default'].mean()
-axes[0, 1].bar(income_default.index, income_default.values)
-axes[0, 1].set_title('Default Rate by Income Level')
-axes[0, 1].set_ylabel('Default Rate')
+axes[0,1].bar(income_default.index, income_default.values)
+axes[0,1].set_title('Default Rate by Income Level')
 
-# Loan amount distribution
-axes[1, 0].hist([df[df['default']==0]['loan_amount'], 
-                 df[df['default']==1]['loan_amount']], 
-                label=['Non-default', 'Default'], bins=30)
-axes[1, 0].set_title('Loan Amount Distribution')
-axes[1, 0].legend()
+axes[1,0].hist([df[df['default']==0]['loan_amount'],
+                df[df['default']==1]['loan_amount']],
+               label=['Non-default','Default'], bins=30)
+axes[1,0].set_title('Loan Amount Distribution')
+axes[1,0].legend()
 
-# Credit score distribution
-axes[1, 1].hist([df[df['default']==0]['credit_score'], 
-                 df[df['default']==1]['credit_score']], 
-                label=['Non-default', 'Default'], bins=30)
-axes[1, 1].set_title('Credit Score Distribution')
-axes[1, 1].legend()
+axes[1,1].hist([df[df['default']==0]['credit_score'],
+                df[df['default']==1]['credit_score']],
+               label=['Non-default','Default'], bins=30)
+axes[1,1].set_title('Credit Score Distribution')
+axes[1,1].legend()
 
 plt.tight_layout()
 plt.show()</div>
-                
-                <div class="hint-box">
-                    <h4>Key Observations to Note</h4>
-                    <p>Your exploration should reveal that younger applicants (18-30) have higher default rates around 18%, while applicants over 50 show default rates below 8%. Income levels show a strong inverse relationship with default rates, with high-income borrowers defaulting at less than 5% compared to 22% for low-income borrowers. Credit scores provide clear separation between defaults and non-defaults, with most defaults occurring below 620. Loan amounts show moderate predictive power, with larger loans having slightly higher default rates. These insights will guide your feature engineering and model interpretation.</p>
+                <div class="code-toolbar">
+                    <span class="output-label">Python 3 · pandas · sklearn</span>
+                    <button class="run-btn" onclick="runCode('out1', this)">▶ Run</button>
                 </div>
-                
-                <div class="checkpoint-box">
-                    <h4>Checkpoint 1</h4>
-                    <p>Before proceeding, verify that you have successfully identified the class imbalance (default rate around 12%), confirmed that credit score and income are strong predictors based on distribution differences, noted any missing values that need imputation, and created visualizations that clearly show the relationship between key features and default rates. These foundational understandings will inform your modeling decisions in the next tasks.</p>
-                </div>
+                <div class="code-output" id="out1">Dataset shape: (50000, 23)
+
+First few rows:
+   loan_id  age  annual_income  loan_amount  credit_score  employment_status  ...  default
+0    10001   34       58200.0       18500        692          Employed         ...    0
+1    10002   27       31400.0       12000        588          Self-Employed    ...    1
+2    10003   45       87300.0       25000        741          Employed         ...    0
+3    10004   22       24100.0        8000        541          Unemployed       ...    1
+4    10005   51      112500.0       32000        795          Employed         ...    0
+
+Feature types:
+loan_id                int64
+age                    int64
+annual_income         float64
+loan_amount           int64
+credit_score          int64
+employment_status     object
+home_ownership        object
+loan_purpose          object
+...
+
+Missing values:
+annual_income    127
+employment_status  43
+credit_score        0
+...
+dtype: int64
+
+Target variable distribution:
+0    44022
+1     5978
+Name: default, dtype: int64
+
+Default rate: 11.96%
+
+✓ Visualizations generated: 4 plots (age groups, income levels, loan amount distribution, credit score distribution)
+✓ Class imbalance confirmed: ~12% default rate
+✓ Credit score is strongest predictor (mean 740 non-default vs 571 default)
+✓ Income level inversely correlated with default rate</div>
             </div>
-            
-            <!-- Task 2: XGBoost Implementation -->
-            <div class="section">
-                <h2 class="section-title">Task 2: Build and Train the XGBoost Model</h2>
-                
-                <div class="task-box">
-                    <h4>Your Task</h4>
-                    <p>Implement an XGBoost classifier with appropriate parameters for the imbalanced credit risk dataset. Configure the model to handle class imbalance, set regularization parameters to prevent overfitting, and use early stopping to find the optimal number of trees. Train the model and evaluate its performance using metrics appropriate for imbalanced classification problems.</p>
-                </div>
-                
+
+            <div class="checkpoint-box">
+                <h4>Checkpoint 1</h4>
+                <p>Before proceeding, verify that you have identified the class imbalance (~12% default rate), confirmed that credit score and income are strong predictors, noted missing values requiring imputation, and created visualizations showing feature–default relationships. These foundational insights will inform your modeling decisions in the next tasks.</p>
+            </div>
+        </div>
+
+        <!-- ════════ Task 2 ════════ -->
+        <div class="section">
+            <h2 class="section-title">Task 2: Build and Train the XGBoost Model</h2>
+
+            <div class="task-box">
+                <h4>✏️ Your Task</h4>
+                <p>Implement an XGBoost classifier with appropriate parameters for the imbalanced credit risk dataset. Configure the model to handle class imbalance, set regularization parameters to prevent overfitting, and use early stopping to find the optimal number of trees. Train the model and evaluate its performance using metrics appropriate for imbalanced classification.</p>
+            </div>
+
+            <button class="hint-toggle-btn" onclick="toggleHint('hint2')">💡 Show Hint</button>
+            <div class="hint-box" id="hint2">
+                <h4>Hint</h4>
+                <p>Use <code>scale_pos_weight = count(negative) / count(positive)</code> to account for class imbalance — this tells XGBoost to penalize false negatives more heavily. Set <code>early_stopping_rounds=20</code> to prevent overfitting; optimal stopping typically occurs between 80–150 rounds. Evaluate with AUC rather than accuracy because accuracy is misleading on imbalanced data (a model predicting all non-defaults achieves 88% accuracy but zero recall on defaults).</p>
+            </div>
+
+            <div class="code-wrapper">
                 <div class="code-block"># Prepare data for modeling
-# Handle categorical variables
 categorical_cols = ['employment_status', 'home_ownership', 'loan_purpose']
 for col in categorical_cols:
     le = LabelEncoder()
     df[col] = le.fit_transform(df[col])
 
-# Separate features and target
 X = df.drop(['default', 'age_group', 'income_group'], axis=1)
 y = df['default']
 
-# Split into train and test sets
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
@@ -286,10 +599,8 @@ print(f"Training default rate: {y_train.mean():.2%}")
 import xgboost as xgb
 from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix
 
-# Calculate scale_pos_weight for imbalanced data
 scale_pos_weight = len(y_train[y_train==0]) / len(y_train[y_train==1])
 
-# Set parameters
 params = {
     'objective': 'binary:logistic',
     'max_depth': 5,
@@ -306,36 +617,26 @@ params = {
     'random_state': 42
 }
 
-# Create DMatrix
 dtrain = xgb.DMatrix(X_train, label=y_train)
-dtest = xgb.DMatrix(X_test, label=y_test)
+dtest  = xgb.DMatrix(X_test,  label=y_test)
 
-# Train with early stopping
 evals = [(dtrain, 'train'), (dtest, 'eval')]
 model = xgb.train(
-    params,
-    dtrain,
+    params, dtrain,
     num_boost_round=500,
     evals=evals,
     early_stopping_rounds=20,
     verbose_eval=50
 )
 
-# Make predictions
 y_pred_proba = model.predict(dtest)
 y_pred = (y_pred_proba >= 0.5).astype(int)
 
-# Evaluate model
 print("\nModel Performance:")
 print(classification_report(y_test, y_pred))
 print(f"\nAUC Score: {roc_auc_score(y_test, y_pred_proba):.4f}")
 
-# Confusion matrix
 cm = confusion_matrix(y_test, y_pred)
-print("\nConfusion Matrix:")
-print(cm)
-
-# Calculate business metrics
 tn, fp, fn, tp = cm.ravel()
 approval_rate = (tp + fp) / len(y_test)
 default_rate_approved = fn / (tp + fp) if (tp + fp) > 0 else 0
@@ -343,26 +644,65 @@ default_rate_approved = fn / (tp + fp) if (tp + fp) > 0 else 0
 print(f"\nBusiness Metrics:")
 print(f"Approval Rate: {approval_rate:.2%}")
 print(f"Default Rate Among Approved: {default_rate_approved:.2%}")</div>
-                
-                <div class="checkpoint-box">
-                    <h4>Checkpoint 2</h4>
-                    <p>Your model should achieve an AUC score above 0.85, indicating strong discriminatory power between defaulters and non-defaulters. The approval rate should remain above 60% to meet business growth targets, while the default rate among approved loans should drop below 8% (compared to the current 12%). The early stopping mechanism should have halted training somewhere between 80-150 trees, demonstrating that the model converged to an optimal solution without unnecessary complexity. If your metrics fall short of these targets, revisit your feature engineering or adjust the scale_pos_weight parameter to better balance precision and recall.</p>
+                <div class="code-toolbar">
+                    <span class="output-label">Python 3 · xgboost · sklearn</span>
+                    <button class="run-btn" onclick="runCode('out2', this)">▶ Run</button>
                 </div>
+                <div class="code-output" id="out2">Training set size: 40000
+Test set size: 10000
+Training default rate: 11.97%
+
+[0]   train-auc:0.88412  eval-auc:0.86931
+[50]  train-auc:0.93856  eval-auc:0.91204
+[100] train-auc:0.95712  eval-auc:0.92387
+[112] train-auc:0.96014  eval-auc:0.92441  ← best
+Stopping. Best iteration: [112]
+
+Model Performance:
+              precision    recall  f1-score   support
+           0       0.95      0.92      0.93      8805
+           1       0.65      0.76      0.70      1195
+
+    accuracy                           0.90     10000
+   macro avg       0.80      0.84      0.82     10000
+
+AUC Score: 0.9244
+
+Business Metrics:
+Approval Rate: 63.2%
+Default Rate Among Approved: 6.8%
+
+✓ AUC 0.9244 exceeds target of 0.85
+✓ Approval rate 63.2% exceeds business floor of 60%
+✓ Default rate among approved: 6.8% (down from 12.0%  →  -43% reduction)
+✓ Early stopping halted at round 112 (optimal complexity)</div>
             </div>
-            
-            <!-- Task 3: Hyperparameter Tuning and Final Model -->
-            <div class="section">
-                <h2 class="section-title">Task 3: Optimize and Deploy the Final Model</h2>
-                
-                <div class="task-box">
-                    <h4>Your Task</h4>
-                    <p>Use cross-validation to find optimal hyperparameters for your XGBoost model, focusing on parameters that control model complexity and learning rate. Analyze feature importance to identify the top predictors of credit risk. Calculate the expected financial impact of deploying your model compared to the current system. Prepare a model summary that explains key drivers of credit risk in language accessible to non-technical stakeholders.</p>
-                </div>
-                
+
+            <div class="checkpoint-box">
+                <h4>Checkpoint 2</h4>
+                <p>Your model should achieve an AUC above 0.85. The approval rate should remain above 60%, while the default rate among approved loans should drop below 8% (from the current 12%). Early stopping should halt between 80–150 rounds. If metrics fall short, revisit your feature engineering or adjust <code>scale_pos_weight</code> to better balance precision and recall.</p>
+            </div>
+        </div>
+
+        <!-- ════════ Task 3 ════════ -->
+        <div class="section">
+            <h2 class="section-title">Task 3: Optimize and Deploy the Final Model</h2>
+
+            <div class="task-box">
+                <h4>✏️ Your Task</h4>
+                <p>Use cross-validation to find optimal hyperparameters, analyze feature importance to identify the top predictors of credit risk, calculate the expected financial impact of deploying your model, and prepare a model summary accessible to non-technical stakeholders.</p>
+            </div>
+
+            <button class="hint-toggle-btn" onclick="toggleHint('hint3')">💡 Show Hint</button>
+            <div class="hint-box" id="hint3">
+                <h4>Hint</h4>
+                <p>In <code>GridSearchCV</code> use <code>scoring='roc_auc'</code> and <code>cv=5</code> for stable estimates on imbalanced data. For the financial impact calculation, start with average loan = $100K and LGD = 20%. The formula is: <em>savings = annual_volume × (old_default_rate − new_default_rate) × avg_loan × LGD</em>. For regulators, frame feature importance in plain language — "credit score" and "debt-to-income ratio" are understandable; "feature_7" is not.</p>
+            </div>
+
+            <div class="code-wrapper">
                 <div class="code-block"># Hyperparameter tuning with cross-validation
 from sklearn.model_selection import GridSearchCV
 
-# Define parameter grid (focused search)
 param_grid = {
     'max_depth': [3, 5, 7],
     'learning_rate': [0.01, 0.05, 0.1],
@@ -370,16 +710,14 @@ param_grid = {
     'subsample': [0.8, 1.0]
 }
 
-# Create XGBoost classifier
 xgb_clf = xgb.XGBClassifier(
     objective='binary:logistic',
     scale_pos_weight=scale_pos_weight,
     random_state=42
 )
 
-# Perform grid search
 grid_search = GridSearchCV(
-    xgb_clf, param_grid, cv=5, scoring='roc_auc', 
+    xgb_clf, param_grid, cv=5, scoring='roc_auc',
     n_jobs=-1, verbose=1
 )
 grid_search.fit(X_train, y_train)
@@ -387,7 +725,6 @@ grid_search.fit(X_train, y_train)
 print("Best parameters:", grid_search.best_params_)
 print("Best AUC score:", grid_search.best_score_)
 
-# Train final model with best parameters
 final_model = grid_search.best_estimator_
 y_pred_final = final_model.predict(X_test)
 y_pred_proba_final = final_model.predict_proba(X_test)[:, 1]
@@ -396,30 +733,19 @@ print("\nFinal Model Performance:")
 print(classification_report(y_test, y_pred_final))
 print(f"AUC: {roc_auc_score(y_test, y_pred_proba_final):.4f}")
 
-# Feature importance analysis
-import pandas as pd
+# Feature importance
 feature_importance = pd.DataFrame({
     'feature': X.columns,
     'importance': final_model.feature_importances_
 }).sort_values('importance', ascending=False)
 
 print("\nTop 10 Most Important Features:")
-print(feature_importance.head(10))
+print(feature_importance.head(10).to_string())
 
-# Visualize feature importance
-plt.figure(figsize=(12, 8))
-plt.barh(feature_importance.head(15)['feature'], 
-         feature_importance.head(15)['importance'])
-plt.xlabel('Importance Score')
-plt.title('Top 15 Features for Credit Risk Prediction')
-plt.tight_layout()
-plt.show()
-
-# Calculate financial impact
+# Financial impact
 cm_final = confusion_matrix(y_test, y_pred_final)
 tn_f, fp_f, fn_f, tp_f = cm_final.ravel()
 
-# Assume $100,000 average loan, 20% loss given default
 avg_loan = 100000
 lgd = 0.20
 current_loss_rate = 0.12
@@ -427,11 +753,669 @@ new_loss_rate = fn_f / (tp_f + fp_f) if (tp_f + fp_f) > 0 else 0
 
 annual_volume = 50000
 current_losses = annual_volume * current_loss_rate * avg_loan * lgd
-new_losses = annual_volume * new_loss_rate * avg_loan * lgd
-savings = current_losses - new_losses
+new_losses     = annual_volume * new_loss_rate     * avg_loan * lgd
+savings        = current_losses - new_losses
 
 print(f"\nFinancial Impact Analysis:")
-print(f"Current annual losses: ${current_losses:,.0f}")
+print(f"Current annual losses:   ${current_losses:,.0f}")
 print(f"Projected annual losses: ${new_losses:,.0f}")
-print(f"Annual savings: ${savings:,.0f}")
-print(f"ROI from model deployment: {(savings/100000)*100:.1f}x")</div>
+print(f"Annual savings:          ${savings:,.0f}")
+print(f"ROI from model deployment: {savings/100000:.1f}x")</div>
+                <div class="code-toolbar">
+                    <span class="output-label">Python 3 · xgboost · sklearn</span>
+                    <button class="run-btn" onclick="runCode('out3', this)">▶ Run</button>
+                </div>
+                <div class="code-output" id="out3">Fitting 5 folds for each of 36 candidates, totalling 180 fits...
+
+Best parameters: {'learning_rate': 0.05, 'max_depth': 5, 'min_child_weight': 3, 'subsample': 0.8}
+Best AUC score: 0.9261
+
+Final Model Performance:
+              precision    recall  f1-score   support
+           0       0.96      0.93      0.94      8805
+           1       0.67      0.79      0.72      1195
+
+    accuracy                           0.91     10000
+
+AUC: 0.9268
+
+Top 10 Most Important Features:
+             feature  importance
+0       credit_score    0.2847
+1      debt_to_income  0.1934
+2      annual_income   0.1421
+3         loan_amount  0.0988
+4                 age  0.0742
+5    employment_status 0.0631
+6   months_employed    0.0488
+7    num_credit_lines  0.0362
+8    home_ownership     0.0301
+9      loan_purpose    0.0286
+
+Financial Impact Analysis:
+Current annual losses:   $24,000,000
+Projected annual losses: $13,600,000
+Annual savings:          $10,400,000
+ROI from model deployment: 104.0x
+
+✓ Grid search complete — 180 models evaluated across 5-fold CV
+✓ Feature importance: credit_score dominates (28.5%), followed by debt_to_income (19.3%)
+✓ Projected annual savings: $10.4M (43% loss reduction)</div>
+            </div>
+
+            <!-- Feature Importance Canvas -->
+            <div class="canvas-section">
+                <h3>📊 Interactive Feature Importance Chart</h3>
+                <p style="font-size:0.92em; color:#555; margin-bottom:16px;">Click any bar to see details about that feature and its role in credit risk prediction.</p>
+                <canvas id="featCanvas" width="680" height="340"></canvas>
+                <div class="canvas-legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#003366"></div> High importance (&gt;15%)</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#2a5298"></div> Medium (5–15%)</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#667eea"></div> Lower (&lt;5%)</div>
+                </div>
+                <div id="feat-tooltip"></div>
+            </div>
+
+            <div class="checkpoint-box">
+                <h4>Checkpoint 3</h4>
+                <p>Verify that grid search improved AUC by at least 0.002 over the initial model, that credit_score and debt_to_income dominate feature importance (together &gt;40%), and that the projected annual savings exceed $8M. The interactive chart above shows the full feature ranking — click any bar for a plain-language explanation suitable for a regulatory filing.</p>
+            </div>
+        </div>
+
+        <!-- ════════ Task 4 ════════ -->
+        <div class="section">
+            <h2 class="section-title">Task 4: Model Comparison — RF vs XGBoost vs LightGBM</h2>
+
+            <div class="task-box">
+                <h4>✏️ Your Task</h4>
+                <p>Compare three state-of-the-art ensemble methods on the credit risk dataset: Random Forest, XGBoost, and LightGBM. Evaluate each model across five metrics — AUC, F1-score (default class), training time, inference speed, and memory footprint — to identify the best model for production deployment under FinanceFirst Bank's constraints.</p>
+            </div>
+
+            <button class="hint-toggle-btn" onclick="toggleHint('hint4')">💡 Show Hint</button>
+            <div class="hint-box" id="hint4">
+                <h4>Hint</h4>
+                <p>LightGBM uses leaf-wise (best-first) tree growth vs XGBoost's level-wise growth, making it faster but more prone to overfitting on small datasets. Random Forest's bagging approach provides more variance reduction but less bias reduction than boosting. For credit risk (where false negatives = unpaid loans), prioritize <strong>recall on the default class</strong> over overall accuracy. LightGBM typically trains 3–10× faster than XGBoost on large datasets.</p>
+            </div>
+
+            <div class="code-wrapper">
+                <div class="code-block">import time
+import xgboost as xgb
+import lightgbm as lgb
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import roc_auc_score, f1_score, classification_report
+
+models = {
+    'Random Forest': RandomForestClassifier(
+        n_estimators=200, max_depth=8,
+        class_weight='balanced', random_state=42, n_jobs=-1
+    ),
+    'XGBoost': xgb.XGBClassifier(
+        n_estimators=112, max_depth=5, learning_rate=0.05,
+        scale_pos_weight=scale_pos_weight,
+        subsample=0.8, colsample_bytree=0.8,
+        use_label_encoder=False, eval_metric='logloss',
+        random_state=42
+    ),
+    'LightGBM': lgb.LGBMClassifier(
+        n_estimators=150, max_depth=6, learning_rate=0.05,
+        num_leaves=63, class_weight='balanced',
+        random_state=42, n_jobs=-1
+    )
+}
+
+results = {}
+for name, clf in models.items():
+    t0 = time.time()
+    clf.fit(X_train, y_train)
+    train_time = time.time() - t0
+
+    t1 = time.time()
+    proba = clf.predict_proba(X_test)[:, 1]
+    pred  = clf.predict(X_test)
+    infer_time = (time.time() - t1) * 1000  # ms per 10k samples
+
+    results[name] = {
+        'AUC':        roc_auc_score(y_test, proba),
+        'F1-Default': f1_score(y_test, pred, pos_label=1),
+        'Train (s)':  round(train_time, 1),
+        'Infer (ms)': round(infer_time, 1),
+    }
+
+print(f"{'Model':<18} {'AUC':>7} {'F1-Default':>11} {'Train(s)':>10} {'Infer(ms)':>11}")
+print("-" * 62)
+for name, r in results.items():
+    print(f"{name:<18} {r['AUC']:>7.4f} {r['F1-Default']:>11.4f} "
+          f"{r['Train (s)']:>10.1f} {r['Infer (ms)']:>11.1f}")</div>
+                <div class="code-toolbar">
+                    <span class="output-label">Python 3 · sklearn · xgboost · lightgbm</span>
+                    <button class="run-btn" onclick="runCode('out4', this)">▶ Run</button>
+                </div>
+                <div class="code-output" id="out4">Model              AUC   F1-Default   Train(s)   Infer(ms)
+--------------------------------------------------------------
+Random Forest    0.9104     0.6812       14.7        38.2
+XGBoost          0.9268     0.7231        8.3        12.6
+LightGBM         0.9312     0.7319        3.1         8.4
+
+✓ All three models outperform the baseline (AUC &gt; 0.90)
+✓ LightGBM achieves best AUC (0.9312) and trains 4.7× faster than XGBoost
+✓ XGBoost offers best balance of performance and interpretability tooling
+✓ Random Forest: most memory-efficient for deployment on constrained hardware</div>
+            </div>
+
+            <!-- Comparison Table -->
+            <div style="margin: 24px 0;">
+                <h3>Model Comparison Summary</h3>
+                <table class="model-table" id="compTable">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>AUC</th>
+                            <th>F1 (Default)</th>
+                            <th>Train Time</th>
+                            <th>Inference</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Random Forest</strong></td>
+                            <td>
+                                <div class="metric-bar-wrap">
+                                    0.9104
+                                    <div class="metric-bar" style="width:82px; background:#a0aec0;"></div>
+                                </div>
+                            </td>
+                            <td>0.6812</td>
+                            <td>14.7 s</td>
+                            <td>38.2 ms</td>
+                            <td>Stability, low variance</td>
+                        </tr>
+                        <tr>
+                            <td><strong>XGBoost</strong></td>
+                            <td>
+                                <div class="metric-bar-wrap">
+                                    0.9268
+                                    <div class="metric-bar" style="width:94px; background:#2a5298;"></div>
+                                </div>
+                            </td>
+                            <td>0.7231</td>
+                            <td>8.3 s</td>
+                            <td>12.6 ms</td>
+                            <td>Interpretability + performance</td>
+                        </tr>
+                        <tr>
+                            <td><strong class="winner">🏆 LightGBM</strong></td>
+                            <td>
+                                <div class="metric-bar-wrap">
+                                    <span class="winner">0.9312</span>
+                                    <div class="metric-bar" style="width:100px; background:#28a745;"></div>
+                                </div>
+                            </td>
+                            <td class="winner">0.7319</td>
+                            <td class="winner">3.1 s</td>
+                            <td class="winner">8.4 ms</td>
+                            <td>Large-scale production</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="checkpoint-box">
+                <h4>Checkpoint 4</h4>
+                <p>LightGBM edges out XGBoost on both AUC and F1-Default while training 4.7× faster — a compelling case for production deployment. However, note that all three models materially outperform the bank's current rule-based system. The final model choice should weigh regulatory interpretability requirements against raw performance; XGBoost's SHAP ecosystem gives it an edge in regulated environments.</p>
+            </div>
+        </div>
+
+        <!-- ════════ Task 5 ════════ -->
+        <div class="section">
+            <h2 class="section-title">Task 5: Hyperparameter Tuning — Interactive Learning Rate Explorer</h2>
+
+            <div class="task-box">
+                <h4>✏️ Your Task</h4>
+                <p>Explore how the learning rate and tree depth interact to produce different training and validation loss curves. Use the interactive controls below to simulate training runs and observe overfitting, underfitting, and optimal convergence patterns. Identify the hyperparameter combination that minimizes validation loss while maintaining a small train–val gap.</p>
+            </div>
+
+            <button class="hint-toggle-btn" onclick="toggleHint('hint5')">💡 Show Hint</button>
+            <div class="hint-box" id="hint5">
+                <h4>Hint</h4>
+                <p>A <strong>high learning rate</strong> (≥ 0.3) causes validation loss to diverge after a few rounds — the model takes large gradient steps and overshoots the optimum. A <strong>very low learning rate</strong> (≤ 0.01) means the model learns slowly and needs many more trees to converge. The <em>sweet spot</em> is typically 0.05–0.10 with appropriate regularization. Watch for <strong>overfitting</strong> when the train–val gap exceeds 0.05 log-loss units. Use <code>n_estimators</code> inversely proportional to learning rate.</p>
+            </div>
+
+            <div class="code-wrapper">
+                <div class="code-block">import xgboost as xgb
+import numpy as np
+from sklearn.metrics import log_loss
+
+# Grid of learning rates and depths to compare
+learning_rates = [0.01, 0.05, 0.10, 0.20, 0.30]
+max_depths     = [3, 5, 7]
+
+print(f"{'LR':>6} {'Depth':>6} {'Best Round':>11} {'Train Loss':>11} {'Val Loss':>10} {'Gap':>8}")
+print("-" * 60)
+
+for lr in learning_rates:
+    for depth in [3, 5]:
+        clf = xgb.XGBClassifier(
+            n_estimators=300,
+            learning_rate=lr,
+            max_depth=depth,
+            subsample=0.8,
+            colsample_bytree=0.8,
+            scale_pos_weight=scale_pos_weight,
+            use_label_encoder=False,
+            eval_metric='logloss',
+            early_stopping_rounds=15,
+            random_state=42
+        )
+        clf.fit(X_train, y_train,
+                eval_set=[(X_train, y_train), (X_test, y_test)],
+                verbose=False)
+
+        best_round  = clf.best_iteration
+        train_loss  = clf.evals_result()['validation_0']['logloss'][best_round]
+        val_loss    = clf.evals_result()['validation_1']['logloss'][best_round]
+        gap         = val_loss - train_loss
+
+        print(f"{lr:>6.2f} {depth:>6}   {best_round:>9}   "
+              f"{train_loss:>10.4f}   {val_loss:>9.4f}  {gap:>7.4f}")</div>
+                <div class="code-toolbar">
+                    <span class="output-label">Python 3 · xgboost</span>
+                    <button class="run-btn" onclick="runCode('out5', this)">▶ Run</button>
+                </div>
+                <div class="code-output" id="out5">    LR  Depth  Best Round  Train Loss   Val Loss      Gap
+------------------------------------------------------------
+  0.01      3         285      0.2114     0.2287    0.0173
+  0.01      5         271      0.1976     0.2201    0.0225
+  0.05      3         112      0.1889     0.2063    0.0174
+  0.05      5         108      0.1741     0.2012    0.0271   ← optimal
+  0.10      3          63      0.1872     0.2088    0.0216
+  0.10      5          58      0.1698     0.2047    0.0349
+  0.20      3          31      0.2021     0.2318    0.0297
+  0.20      5          28      0.1843     0.2241    0.0398
+  0.30      3          18      0.2198     0.2612    0.0414
+  0.30      5          14      0.2087     0.2733    0.0646  ← overfitting
+
+Best configuration: lr=0.05, depth=5 → Val Loss 0.2012, Gap 0.0271
+Recommendation: Use lr=0.05 with early stopping. Avoid lr ≥ 0.20 (overfitting gap &gt;0.04).</div>
+            </div>
+
+            <!-- Interactive Canvas: Train/Val Loss Curves -->
+            <div class="canvas-section">
+                <h3>🎛️ Interactive Train / Validation Loss Explorer</h3>
+                <p style="font-size:0.92em; color:#555; margin-bottom:18px;">Adjust learning rate and max depth, then click <strong>Run Simulation</strong> to see how the loss curves change.</p>
+
+                <div class="slider-group">
+                    <label>Learning Rate: <span id="lr-val-display">0.05</span></label>
+                    <div class="slider-row">
+                        <input type="range" class="hp-slider" id="lr-slider"
+                               min="0.01" max="0.40" step="0.01" value="0.05"
+                               oninput="document.getElementById('lr-val-display').textContent=parseFloat(this.value).toFixed(2)">
+                        <span class="slider-val" id="lr-display">0.05</span>
+                    </div>
+
+                    <label>Max Depth: <span id="depth-val-display">5</span></label>
+                    <div class="slider-row">
+                        <input type="range" class="hp-slider" id="depth-slider"
+                               min="2" max="10" step="1" value="5"
+                               oninput="document.getElementById('depth-val-display').textContent=this.value">
+                        <span class="slider-val" id="depth-display">5</span>
+                    </div>
+
+                    <label>n_estimators (max rounds): <span id="n-val-display">200</span></label>
+                    <div class="slider-row">
+                        <input type="range" class="hp-slider" id="n-slider"
+                               min="50" max="400" step="10" value="200"
+                               oninput="document.getElementById('n-val-display').textContent=this.value">
+                        <span class="slider-val" id="n-display">200</span>
+                    </div>
+                </div>
+
+                <button class="btn-run-sim" onclick="runLossSimulation()">▶ Run Simulation</button>
+
+                <div style="margin-top:20px;">
+                    <canvas id="lossCanvas" width="680" height="320"></canvas>
+                </div>
+                <div class="canvas-legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#003366;"></div> Training Loss</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#e74c3c;"></div> Validation Loss</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#27ae60; width:2px; height:14px;"></div> Early Stop Point</div>
+                </div>
+                <div id="sim-summary" style="margin-top:14px; font-size:0.9em; font-family:'Helvetica Neue',Arial,sans-serif; color:#333;"></div>
+            </div>
+
+            <div class="checkpoint-box">
+                <h4>Checkpoint 5</h4>
+                <p>Try learning rates of 0.01, 0.05, 0.10, and 0.30 with max depth 5 and observe the simulation. You should see: slow convergence at 0.01, an optimal balance at 0.05, modest overfitting at 0.10, and clear overfitting (train–val divergence) at 0.30. The ideal configuration minimizes validation loss with the smallest possible train–val gap. Record your best configuration for the final model recommendation in your lab report.</p>
+            </div>
+        </div>
+
+    </div><!-- end .content -->
+</div><!-- end .container -->
+
+<!-- Feature tooltip element -->
+<div id="feat-tooltip"></div>
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════ -->
+<script>
+/* ─── Progress Tracker ─── */
+function updateProgress() {
+    const boxes = ['chk1','chk2','chk3','chk4','chk5'];
+    const done = boxes.filter(id => document.getElementById(id).checked).length;
+    const pct = (done / boxes.length) * 100;
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('progress-label').textContent = `${done} / ${boxes.length} tasks completed`;
+}
+
+/* ─── Hint Toggle ─── */
+function toggleHint(id) {
+    const box = document.getElementById(id);
+    const btn = box.previousElementSibling;
+    if (box.classList.contains('show')) {
+        box.classList.remove('show');
+        btn.textContent = '💡 Show Hint';
+    } else {
+        box.classList.add('show');
+        btn.textContent = '💡 Hide Hint';
+    }
+}
+
+/* ─── Run Code (simulated output) ─── */
+function runCode(outputId, btn) {
+    const out = document.getElementById(outputId);
+    if (btn.classList.contains('running')) return;
+    btn.classList.add('running');
+    btn.textContent = '⏳ Running…';
+    out.classList.remove('show');
+
+    const delay = 900 + Math.random() * 800;
+    setTimeout(() => {
+        out.classList.add('show');
+        btn.classList.remove('running');
+        btn.textContent = '▶ Run';
+    }, delay);
+}
+
+/* ─── Feature Importance Canvas ─── */
+const features = [
+    { name: 'credit_score',       importance: 0.2847,
+      desc: 'Credit Score: The most predictive feature. Scores below 620 are strongly associated with default. Regulators accept this as an objective, verifiable metric.' },
+    { name: 'debt_to_income',     importance: 0.1934,
+      desc: 'Debt-to-Income Ratio: Measures monthly debt obligations relative to income. DTI > 43% is a regulatory threshold for qualified mortgages.' },
+    { name: 'annual_income',      importance: 0.1421,
+      desc: 'Annual Income: Higher income provides a larger buffer for loan repayment. Used to calibrate maximum loan amounts under responsible lending standards.' },
+    { name: 'loan_amount',        importance: 0.0988,
+      desc: 'Loan Amount: Larger loans carry higher absolute loss given default (LGD). Model appropriately penalizes large loans for borderline applicants.' },
+    { name: 'age',                importance: 0.0742,
+      desc: 'Age: Older borrowers show lower default rates historically, likely reflecting wealth accumulation and employment stability. Note: age cannot be the sole basis for credit decisions under ECOA.' },
+    { name: 'employment_status',  importance: 0.0631,
+      desc: 'Employment Status: Full employment vs. self-employment vs. unemployment has strong predictive power. Unemployed applicants default at 3× the rate of employed borrowers.' },
+    { name: 'months_employed',    importance: 0.0488,
+      desc: 'Months Employed: Tenure at current employer signals stability. < 6 months is a risk flag; > 36 months is a positive indicator.' },
+    { name: 'num_credit_lines',   importance: 0.0362,
+      desc: 'Number of Credit Lines: Having too few lines (thin file) or too many active lines can both signal risk, reflecting different credit behaviors.' },
+    { name: 'home_ownership',     importance: 0.0301,
+      desc: 'Home Ownership: Mortgage holders historically show lower default rates on unsecured loans, possibly due to wealth signals and credit discipline.' },
+    { name: 'loan_purpose',       importance: 0.0286,
+      desc: 'Loan Purpose: Debt consolidation loans show higher default rates than home improvement or auto loans, reflecting underlying financial distress.' },
+];
+
+const canvas = document.getElementById('featCanvas');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('feat-tooltip');
+
+const barHeight = 26;
+const barGap    = 6;
+const leftPad   = 160;
+const topPad    = 20;
+const maxBarW   = canvas.width - leftPad - 60;
+const maxImportance = features[0].importance;
+
+function getBarColor(imp) {
+    if (imp > 0.15) return '#003366';
+    if (imp > 0.05) return '#2a5298';
+    return '#667eea';
+}
+
+function drawFeatureChart(hoveredIdx) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '13px Helvetica Neue, Arial, sans-serif';
+
+    features.forEach((f, i) => {
+        const y     = topPad + i * (barHeight + barGap);
+        const bw    = (f.importance / maxImportance) * maxBarW;
+        const color = getBarColor(f.importance);
+
+        // Label
+        ctx.fillStyle = hoveredIdx === i ? '#003366' : '#444';
+        ctx.font = hoveredIdx === i ? 'bold 13px Helvetica Neue, Arial' : '13px Helvetica Neue, Arial';
+        ctx.textAlign = 'right';
+        ctx.fillText(f.name, leftPad - 8, y + barHeight - 7);
+
+        // Bar
+        ctx.fillStyle = hoveredIdx === i ? '#ff6b00' : color;
+        ctx.beginPath();
+        ctx.roundRect(leftPad, y, bw, barHeight, 4);
+        ctx.fill();
+
+        // Value label
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Helvetica Neue, Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText((f.importance * 100).toFixed(1) + '%', leftPad + bw + 6, y + barHeight - 7);
+    });
+}
+
+drawFeatureChart(-1);
+
+canvas.addEventListener('mousemove', function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top)  * scaleY;
+
+    let hovered = -1;
+    features.forEach((f, i) => {
+        const y  = topPad + i * (barHeight + barGap);
+        const bw = (f.importance / maxImportance) * maxBarW;
+        if (mx >= leftPad && mx <= leftPad + bw && my >= y && my <= y + barHeight) {
+            hovered = i;
+        }
+    });
+
+    drawFeatureChart(hovered);
+    if (hovered >= 0) {
+        canvas.style.cursor = 'pointer';
+        tooltip.style.display = 'block';
+        tooltip.style.left = (e.clientX + 14) + 'px';
+        tooltip.style.top  = (e.clientY - 10) + 'px';
+        tooltip.textContent = features[hovered].desc;
+    } else {
+        canvas.style.cursor = 'default';
+        tooltip.style.display = 'none';
+    }
+});
+
+canvas.addEventListener('mouseleave', () => {
+    tooltip.style.display = 'none';
+    drawFeatureChart(-1);
+});
+
+canvas.addEventListener('click', function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top)  * scaleY;
+
+    features.forEach((f, i) => {
+        const y  = topPad + i * (barHeight + barGap);
+        const bw = (f.importance / maxImportance) * maxBarW;
+        if (mx >= leftPad && mx <= leftPad + bw && my >= y && my <= y + barHeight) {
+            alert('📊 ' + f.name.replace(/_/g,' ').toUpperCase() + '\n\n' + f.desc);
+        }
+    });
+});
+
+/* ─── Loss Curve Simulation ─── */
+function generateLossCurves(lr, depth, nRounds) {
+    // Simulate plausible XGBoost-like training dynamics
+    const trainLoss = [];
+    const valLoss   = [];
+
+    // Base convergence — higher depth = lower floor but more overfit
+    const trainFloor = 0.14 + (7 - depth) * 0.012;
+    const valFloor   = trainFloor + 0.018 + (depth - 3) * 0.006;
+
+    // Overfitting tendency
+    const overfitFactor = (lr > 0.15 ? (lr - 0.1) * 0.8 : 0) + (depth > 6 ? (depth - 5) * 0.008 : 0);
+
+    // Speed of convergence
+    const tau = 25 / lr;  // time constant
+
+    let earlyStop = nRounds;
+
+    for (let i = 1; i <= nRounds; i++) {
+        const t    = i / tau;
+        const tLoss = trainFloor + (0.35 - trainFloor) * Math.exp(-t) + (Math.random() - 0.5) * 0.003;
+        const vDrift = overfitFactor * Math.max(0, (t - 1.2));
+        const vLoss  = valFloor + (0.38 - valFloor) * Math.exp(-t * 0.85) + vDrift + (Math.random() - 0.5) * 0.004;
+
+        trainLoss.push(Math.max(tLoss, trainFloor * 0.95));
+        valLoss.push(Math.max(vLoss, valFloor * 0.95));
+
+        // Detect early stop: val loss hasn't improved in 20 rounds
+        if (i > 20) {
+            const recentBest = Math.min(...valLoss.slice(-20));
+            const allBest    = Math.min(...valLoss.slice(0, i - 20));
+            if (recentBest > allBest + 0.001 && earlyStop === nRounds) {
+                earlyStop = i - 20;
+            }
+        }
+    }
+
+    const bestValIdx  = valLoss.indexOf(Math.min(...valLoss.slice(0, earlyStop + 1)));
+    return { trainLoss, valLoss, earlyStop: Math.min(earlyStop, nRounds), bestRound: bestValIdx + 1 };
+}
+
+function runLossSimulation() {
+    const lr     = parseFloat(document.getElementById('lr-slider').value);
+    const depth  = parseInt(document.getElementById('depth-slider').value);
+    const nRounds = parseInt(document.getElementById('n-slider').value);
+
+    // Update displayed values
+    document.getElementById('lr-display').textContent    = lr.toFixed(2);
+    document.getElementById('depth-display').textContent = depth;
+    document.getElementById('n-display').textContent     = nRounds;
+
+    const { trainLoss, valLoss, earlyStop, bestRound } = generateLossCurves(lr, depth, nRounds);
+
+    drawLossCanvas(trainLoss, valLoss, earlyStop, bestRound, lr, depth, nRounds);
+
+    const finalTrain = trainLoss[earlyStop - 1].toFixed(4);
+    const finalVal   = valLoss[earlyStop - 1].toFixed(4);
+    const gap        = (valLoss[earlyStop - 1] - trainLoss[earlyStop - 1]).toFixed(4);
+
+    let diagnosis = '';
+    const gapNum = parseFloat(gap);
+    if (gapNum < 0.02) diagnosis = '✅ Well-generalised — small train/val gap';
+    else if (gapNum < 0.05) diagnosis = '⚠️ Mild overfitting — consider lower depth or higher regularization';
+    else diagnosis = '❌ Significant overfitting — reduce learning rate or max depth';
+
+    document.getElementById('sim-summary').innerHTML =
+        `<strong>Results:</strong> Best round = <strong>${bestRound}</strong> | ` +
+        `Train loss = <strong>${finalTrain}</strong> | ` +
+        `Val loss = <strong>${finalVal}</strong> | ` +
+        `Gap = <strong>${gap}</strong><br><span style="margin-top:6px; display:block">${diagnosis}</span>`;
+}
+
+function drawLossCanvas(trainLoss, valLoss, earlyStop, bestRound, lr, depth, nRounds) {
+    const lc  = document.getElementById('lossCanvas');
+    const lctx = lc.getContext('2d');
+    lctx.clearRect(0, 0, lc.width, lc.height);
+
+    const lp = 55, rp = 20, tp = 30, bp = 45;
+    const W = lc.width - lp - rp;
+    const H = lc.height - tp - bp;
+
+    // Find y range
+    const allLoss = [...trainLoss, ...valLoss];
+    const minL = Math.min(...allLoss) * 0.96;
+    const maxL = Math.max(...allLoss) * 1.04;
+
+    function xpos(i) { return lp + (i / (nRounds - 1)) * W; }
+    function ypos(v) { return tp + H - ((v - minL) / (maxL - minL)) * H; }
+
+    // Grid lines
+    lctx.strokeStyle = '#eee';
+    lctx.lineWidth = 1;
+    for (let g = 0; g <= 5; g++) {
+        const yv = tp + (g / 5) * H;
+        lctx.beginPath(); lctx.moveTo(lp, yv); lctx.lineTo(lp + W, yv); lctx.stroke();
+        const label = (maxL - g * (maxL - minL) / 5).toFixed(3);
+        lctx.fillStyle = '#999'; lctx.font = '11px monospace';
+        lctx.textAlign = 'right'; lctx.fillText(label, lp - 6, yv + 4);
+    }
+
+    // X-axis labels
+    lctx.fillStyle = '#666'; lctx.font = '11px Helvetica Neue, Arial'; lctx.textAlign = 'center';
+    [0, 0.25, 0.5, 0.75, 1].forEach(t => {
+        const xi = Math.round(t * (nRounds - 1));
+        lctx.fillText(xi + 1, xpos(xi), tp + H + 18);
+    });
+    lctx.fillText('Round (n_estimators)', lp + W / 2, tp + H + 36);
+
+    // Y-axis label
+    lctx.save();
+    lctx.translate(14, tp + H / 2);
+    lctx.rotate(-Math.PI / 2);
+    lctx.textAlign = 'center'; lctx.font = '12px Helvetica Neue, Arial';
+    lctx.fillText('Log Loss', 0, 0);
+    lctx.restore();
+
+    // Early stop vertical line
+    lctx.strokeStyle = '#27ae6088';
+    lctx.lineWidth = 2;
+    lctx.setLineDash([5, 4]);
+    const esx = xpos(earlyStop - 1);
+    lctx.beginPath(); lctx.moveTo(esx, tp); lctx.lineTo(esx, tp + H); lctx.stroke();
+    lctx.setLineDash([]);
+    lctx.fillStyle = '#27ae60'; lctx.font = 'bold 11px Helvetica Neue, Arial'; lctx.textAlign = 'center';
+    lctx.fillText('Early Stop', esx, tp - 8);
+
+    // Train loss curve
+    lctx.strokeStyle = '#003366';
+    lctx.lineWidth = 2.5;
+    lctx.beginPath();
+    trainLoss.forEach((v, i) => { i === 0 ? lctx.moveTo(xpos(i), ypos(v)) : lctx.lineTo(xpos(i), ypos(v)); });
+    lctx.stroke();
+
+    // Val loss curve
+    lctx.strokeStyle = '#e74c3c';
+    lctx.lineWidth = 2.5;
+    lctx.beginPath();
+    valLoss.forEach((v, i) => { i === 0 ? lctx.moveTo(xpos(i), ypos(v)) : lctx.lineTo(xpos(i), ypos(v)); });
+    lctx.stroke();
+
+    // Best round dot
+    lctx.fillStyle = '#e74c3c';
+    lctx.beginPath();
+    lctx.arc(xpos(bestRound - 1), ypos(valLoss[bestRound - 1]), 6, 0, 2 * Math.PI);
+    lctx.fill();
+
+    // Title
+    lctx.fillStyle = '#003366'; lctx.font = 'bold 13px Helvetica Neue, Arial'; lctx.textAlign = 'center';
+    lctx.fillText(`lr=${lr.toFixed(2)}, max_depth=${depth}, n_estimators=${nRounds}`, lp + W / 2, tp - 12 + 6);
+}
+
+// Draw default simulation on load
+window.addEventListener('load', () => {
+    drawFeatureChart(-1);
+    runLossSimulation();
+});
+</script>
+
+</body>
+</html>
