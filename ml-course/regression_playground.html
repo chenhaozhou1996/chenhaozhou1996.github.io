@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Regression & Regularization Playground | ML Course</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Georgia, serif; background: #f0f2f5; color: #222; line-height: 1.5; min-height: 100vh; }
+nav { background: #fff; padding: 0.8em 1.5em; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+nav a { margin: 0 12px; text-decoration: none; color: #0366d6; font-weight: bold; font-size: 0.9em; font-family: 'Helvetica Neue', Arial, sans-serif; }
+nav a:hover { color: #0256c7; text-decoration: underline; }
+h1, h2, h3 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+
+.page-header { background: linear-gradient(135deg, #003366 0%, #0366d6 50%, #667eea 100%); color: white; padding: 1.5em 2em; text-align: center; }
+.page-header h1 { color: white; font-size: 1.8em; margin-bottom: 0.3em; }
+.page-header p { opacity: 0.9; font-size: 1em; font-family: 'Helvetica Neue', Arial, sans-serif; }
+
+/* Dashboard Layout */
+.dashboard { display: flex; flex-direction: column; gap: 0; padding: 0; }
+
+/* Control Panel */
+.control-panel { background: #fff; border-bottom: 2px solid #e1e4e8; padding: 1em 1.5em; display: flex; flex-wrap: wrap; gap: 1em; align-items: flex-start; }
+.control-group { background: #f8f9fa; border-radius: 8px; padding: 0.8em 1em; min-width: 180px; flex: 1; border: 1px solid #e1e4e8; }
+.control-group h3 { font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.05em; color: #666; margin-bottom: 0.6em; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.ctrl-row { display: flex; align-items: center; gap: 0.5em; margin-bottom: 0.5em; }
+.ctrl-label { font-size: 0.78em; color: #444; min-width: 90px; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.ctrl-val { font-size: 0.78em; color: #0366d6; font-weight: bold; min-width: 30px; text-align: right; font-family: monospace; }
+input[type=range] { flex: 1; height: 6px; border-radius: 3px; background: #ddd; outline: none; -webkit-appearance: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #0366d6; cursor: pointer; box-shadow: 0 1px 4px rgba(3,102,214,0.4); }
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 0 8px rgba(3,102,214,0.6); }
+select { flex: 1; font-size: 0.8em; padding: 0.3em 0.5em; border: 1px solid #ccc; border-radius: 4px; background: white; cursor: pointer; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.elasticnet-row { transition: opacity 0.2s; }
+.elasticnet-row.hidden { opacity: 0; pointer-events: none; height: 0; overflow: hidden; margin: 0; padding: 0; }
+
+/* Metrics Bar */
+.metrics-bar { background: #003366; color: white; padding: 0.6em 1.5em; display: flex; flex-wrap: wrap; gap: 1.5em; align-items: center; justify-content: center; }
+.metric-item { text-align: center; }
+.metric-label { font-size: 0.65em; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.metric-value { font-size: 1.1em; font-weight: bold; font-family: monospace; color: #61dafb; }
+.metric-value.warn { color: #ffc107; }
+.metric-value.bad { color: #ff6b6b; }
+.metric-sep { width: 1px; height: 30px; background: rgba(255,255,255,0.2); }
+
+/* Canvas Grid */
+.canvas-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 2px; background: #ccc; flex: 1; }
+.canvas-panel { background: white; position: relative; }
+.canvas-title { position: absolute; top: 8px; left: 12px; font-size: 0.75em; font-weight: bold; color: #003366; font-family: 'Helvetica Neue', Arial, sans-serif; z-index: 5; text-transform: uppercase; letter-spacing: 0.04em; }
+.canvas-subtitle { position: absolute; top: 26px; left: 12px; font-size: 0.65em; color: #888; font-family: 'Helvetica Neue', Arial, sans-serif; z-index: 5; }
+canvas { display: block; width: 100%; }
+
+/* Info panel tooltip */
+.info-badge { position: absolute; top: 8px; right: 8px; width: 18px; height: 18px; border-radius: 50%; background: #0366d6; color: white; font-size: 0.7em; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; font-family: sans-serif; }
+.info-tooltip { display: none; position: absolute; top: 30px; right: 8px; background: rgba(0,0,0,0.85); color: white; font-size: 0.72em; padding: 0.5em 0.8em; border-radius: 6px; max-width: 220px; z-index: 20; line-height: 1.4; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.info-badge:hover + .info-tooltip, .info-tooltip:hover { display: block; }
+
+/* Status overlay */
+.status-overlay { position: absolute; bottom: 8px; right: 8px; font-size: 0.65em; color: #aaa; font-family: monospace; z-index: 5; }
+
+/* Legend */
+.legend { position: absolute; bottom: 10px; left: 10px; font-size: 0.65em; font-family: 'Helvetica Neue', Arial, sans-serif; color: #555; z-index: 5; line-height: 1.6; }
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-dot { width: 10px; height: 3px; display: inline-block; border-radius: 2px; }
+.legend-circle { width: 8px; height: 8px; display: inline-block; border-radius: 50%; }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .canvas-grid { grid-template-columns: 1fr; }
+  .control-panel { flex-direction: column; }
+}
+
+/* Seed button */
+.seed-btn { font-size: 0.75em; padding: 0.3em 0.6em; background: #0366d6; color: white; border: none; border-radius: 4px; cursor: pointer; font-family: sans-serif; }
+.seed-btn:hover { background: #0256c7; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="module2-linear-regression/index.html">📚 Module 2: Linear Regression</a>
+  <a href="module3_regularization_class.html">🔒 Module 3: Regularization</a>
+  <a href="index.html">🏠 Course Home</a>
+  <a href="../teaching.html">👨‍🏫 Teaching</a>
+</nav>
+
+<div class="page-header">
+  <h1>🎛️ Regression &amp; Regularization Playground</h1>
+  <p>Drag any slider — all four charts update instantly. Watch overfitting happen live.</p>
+</div>
+
+<div class="dashboard">
+
+  <!-- Control Panel -->
+  <div class="control-panel">
+
+    <!-- Model Controls -->
+    <div class="control-group" style="min-width:210px">
+      <h3>🔧 Model</h3>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Degree</span>
+        <input type="range" id="degreeSlider" min="1" max="15" value="3" step="1" oninput="onSliderChange()">
+        <span class="ctrl-val" id="degreeVal">3</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Regularization</span>
+        <select id="regType" onchange="onRegTypeChange()">
+          <option value="none">None (OLS)</option>
+          <option value="ridge">Ridge (L2)</option>
+          <option value="lasso">Lasso (L1)</option>
+          <option value="elasticnet">ElasticNet</option>
+        </select>
+      </div>
+      <div class="ctrl-row" id="lambdaRow">
+        <span class="ctrl-label">λ (log scale)</span>
+        <input type="range" id="lambdaSlider" min="-4" max="2" value="-1" step="0.05" oninput="onSliderChange()">
+        <span class="ctrl-val" id="lambdaVal">0.10</span>
+      </div>
+      <div class="ctrl-row elasticnet-row hidden" id="ratioRow">
+        <span class="ctrl-label">L1 ratio</span>
+        <input type="range" id="ratioSlider" min="0" max="1" value="0.5" step="0.05" oninput="onSliderChange()">
+        <span class="ctrl-val" id="ratioVal">0.50</span>
+      </div>
+    </div>
+
+    <!-- Data Controls -->
+    <div class="control-group" style="min-width:210px">
+      <h3>📊 Data</h3>
+      <div class="ctrl-row">
+        <span class="ctrl-label">True function</span>
+        <select id="trueFunc" onchange="onDataChange()">
+          <option value="sine">Sine</option>
+          <option value="quadratic">Quadratic</option>
+          <option value="step">Step</option>
+          <option value="linear">Linear</option>
+        </select>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">N samples</span>
+        <input type="range" id="nSlider" min="20" max="200" value="60" step="5" oninput="onDataChange()">
+        <span class="ctrl-val" id="nVal">60</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Noise σ</span>
+        <input type="range" id="noiseSlider" min="0" max="2" value="0.4" step="0.05" oninput="onDataChange()">
+        <span class="ctrl-val" id="noiseVal">0.40</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Train %</span>
+        <input type="range" id="splitSlider" min="50" max="90" value="70" step="5" oninput="onDataChange()">
+        <span class="ctrl-val" id="splitVal">70%</span>
+      </div>
+    </div>
+
+    <!-- Seed / Hints -->
+    <div class="control-group" style="min-width:160px; flex: 0.5">
+      <h3>🎲 Seed</h3>
+      <div class="ctrl-row" style="flex-direction:column; gap:0.4em; align-items:flex-start;">
+        <button class="seed-btn" onclick="newSeed()">🔀 New Dataset</button>
+        <div style="font-size:0.7em; color:#888; margin-top:0.3em; font-family:sans-serif;">
+          Seed: <span id="seedDisplay" style="font-weight:bold; color:#0366d6;">42</span>
+        </div>
+        <div style="font-size:0.7em; color:#555; line-height:1.4; font-family:sans-serif; margin-top:0.5em;">
+          💡 <b>Tip:</b> Drag Degree 1→15 to see underfit → overfit
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Metrics Bar -->
+  <div class="metrics-bar">
+    <div class="metric-item">
+      <div class="metric-label">Train MSE</div>
+      <div class="metric-value" id="trainMSE">—</div>
+    </div>
+    <div class="metric-sep"></div>
+    <div class="metric-item">
+      <div class="metric-label">Test MSE</div>
+      <div class="metric-value" id="testMSE">—</div>
+    </div>
+    <div class="metric-sep"></div>
+    <div class="metric-item">
+      <div class="metric-label">Train R²</div>
+      <div class="metric-value" id="trainR2">—</div>
+    </div>
+    <div class="metric-sep"></div>
+    <div class="metric-item">
+      <div class="metric-label">Test R²</div>
+      <div class="metric-value" id="testR2">—</div>
+    </div>
+    <div class="metric-sep"></div>
+    <div class="metric-item">
+      <div class="metric-label">Non-zero Coefs</div>
+      <div class="metric-value" id="nonzeroCoefs">—</div>
+    </div>
+    <div class="metric-sep"></div>
+    <div class="metric-item">
+      <div class="metric-label">Eff. DoF</div>
+      <div class="metric-value" id="effDof">—</div>
+    </div>
+  </div>
+
+  <!-- 2x2 Canvas Grid -->
+  <div class="canvas-grid" id="canvasGrid">
+
+    <!-- Top Left: Fit Plot -->
+    <div class="canvas-panel" id="panel-fit">
+      <div class="canvas-title">Fit Plot</div>
+      <div class="canvas-subtitle">Fitted curve vs. true function</div>
+      <div class="info-badge">i</div>
+      <div class="info-tooltip">Blue dots = train data. Orange dots = test data. Green curve = model fit. Gray dashed = true function. Watch the green curve wiggle wildly as degree increases!</div>
+      <canvas id="fitCanvas"></canvas>
+      <div class="legend" id="fitLegend">
+        <div class="legend-item"><span class="legend-circle" style="background:#4a90d9"></span> Train</div>
+        <div class="legend-item"><span class="legend-circle" style="background:#e87c3e"></span> Test</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#27ae60; height:2px"></span> Fit</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#aaa; height:2px; border-top:1px dashed #aaa; background:none; width:12px; border-bottom:0"></span><span style="margin-left:2px">True</span></div>
+      </div>
+    </div>
+
+    <!-- Top Right: Coefficient Magnitudes -->
+    <div class="canvas-panel" id="panel-coef">
+      <div class="canvas-title">Coefficient Magnitudes</div>
+      <div class="canvas-subtitle">|β₀|, |β₁|, ... — watch Lasso zero out coefficients!</div>
+      <div class="info-badge">i</div>
+      <div class="info-tooltip">Bar height = |coefficient|. Ridge shrinks all bars uniformly. Lasso sets some bars to exactly zero (gray). ElasticNet does both. Increase λ to see the shrinkage effect.</div>
+      <canvas id="coefCanvas"></canvas>
+    </div>
+
+    <!-- Bottom Left: Bias-Variance -->
+    <div class="canvas-panel" id="panel-bv">
+      <div class="canvas-title">Bias–Variance Tradeoff</div>
+      <div class="canvas-subtitle">As complexity increases, train ↓ but test forms U-shape</div>
+      <div class="info-badge">i</div>
+      <div class="info-tooltip">Blue line = training error (always decreasing). Orange line = test error (U-shaped). The vertical line shows the current degree. Sweet spot = bottom of orange curve.</div>
+      <canvas id="bvCanvas"></canvas>
+      <div class="legend" id="bvLegend">
+        <div class="legend-item"><span class="legend-dot" style="background:#4a90d9; height:3px"></span> Train MSE</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#e87c3e; height:3px"></span> Test MSE</div>
+      </div>
+    </div>
+
+    <!-- Bottom Right: Residual Plot -->
+    <div class="canvas-panel" id="panel-resid">
+      <div class="canvas-title">Residual Plot</div>
+      <div class="canvas-subtitle">Residuals vs fitted — random scatter = good model</div>
+      <div class="info-badge">i</div>
+      <div class="info-tooltip">Points should scatter randomly around zero (gray line). Patterns (curves, trends) indicate the model is systematically missing structure in the data.</div>
+      <canvas id="residCanvas"></canvas>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  degree: 3,
+  regType: 'none',
+  lambda: 0.1,
+  elasticRatio: 0.5,
+  trueFunc: 'sine',
+  nSamples: 60,
+  noise: 0.4,
+  trainFrac: 0.70,
+  seed: 42
+};
+
+let data = { xTrain: [], yTrain: [], xTest: [], yTest: [] };
+let model = { coeffs: [], trainMSE: 0, testMSE: 0, trainR2: 0, testR2: 0 };
+let bvCache = null;
+let bvCacheKey = '';
+let animFrameId = null;
+let pendingUpdate = false;
+
+// ============================================================
+// SEEDED PRNG (mulberry32)
+// ============================================================
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+let rng = mulberry32(42);
+
+function newSeed() {
+  state.seed = Math.floor(Math.random() * 100000);
+  document.getElementById('seedDisplay').textContent = state.seed;
+  bvCache = null;
+  generateData();
+  scheduleUpdate();
+}
+
+// ============================================================
+// TRUE FUNCTIONS
+// ============================================================
+function trueFunction(x) {
+  switch(state.trueFunc) {
+    case 'sine':     return Math.sin(2 * Math.PI * x);
+    case 'quadratic': return 3 * x * x - 2 * x + 0.5;
+    case 'step':     return x < 0 ? -1 : 1;
+    case 'linear':   return 2 * x - 0.5;
+    default:         return Math.sin(2 * Math.PI * x);
+  }
+}
+
+// ============================================================
+// DATA GENERATION
+// ============================================================
+function generateData() {
+  rng = mulberry32(state.seed);
+  const n = state.nSamples;
+  const noise = state.noise;
+  const trainN = Math.floor(n * state.trainFrac);
+
+  let allX = [], allY = [];
+  for (let i = 0; i < n; i++) {
+    const x = rng() * 2 - 1; // [-1, 1]
+    const y = trueFunction(x) + (rng() * 2 - 1) * noise * Math.sqrt(3);
+    allX.push(x); allY.push(y);
+  }
+
+  // Shuffle with seeded rng
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [allX[i], allX[j]] = [allX[j], allX[i]];
+    [allY[i], allY[j]] = [allY[j], allY[i]];
+  }
+
+  data.xTrain = allX.slice(0, trainN);
+  data.yTrain = allY.slice(0, trainN);
+  data.xTest  = allX.slice(trainN);
+  data.yTest  = allY.slice(trainN);
+}
+
+// ============================================================
+// MATRIX HELPERS (flat row-major arrays)
+// ============================================================
+function matCreate(rows, cols) { return { rows, cols, d: new Float64Array(rows * cols) }; }
+function matGet(m, r, c) { return m.d[r * m.cols + c]; }
+function matSet(m, r, c, v) { m.d[r * m.cols + c] = v; }
+
+function matMul(A, B) {
+  const C = matCreate(A.rows, B.cols);
+  for (let i = 0; i < A.rows; i++)
+    for (let k = 0; k < A.cols; k++) {
+      const aik = matGet(A, i, k);
+      for (let j = 0; j < B.cols; j++)
+        C.d[i * C.cols + j] += aik * matGet(B, k, j);
+    }
+  return C;
+}
+
+function matTranspose(A) {
+  const T = matCreate(A.cols, A.rows);
+  for (let i = 0; i < A.rows; i++)
+    for (let j = 0; j < A.cols; j++)
+      matSet(T, j, i, matGet(A, i, j));
+  return T;
+}
+
+// Cholesky solve: A*x = b, A symmetric positive-definite
+function choleskyDecompose(A) {
+  const n = A.rows;
+  const L = matCreate(n, n);
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j <= i; j++) {
+      let s = matGet(A, i, j);
+      for (let k = 0; k < j; k++) s -= matGet(L, i, k) * matGet(L, j, k);
+      if (i === j) {
+        if (s <= 0) s = 1e-10;
+        matSet(L, i, j, Math.sqrt(s));
+      } else {
+        matSet(L, i, j, s / matGet(L, j, j));
+      }
+    }
+  }
+  return L;
+}
+
+function choleskyForwardSub(L, b) {
+  const n = L.rows;
+  const y = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    let s = b[i];
+    for (let j = 0; j < i; j++) s -= matGet(L, i, j) * y[j];
+    y[i] = s / matGet(L, i, i);
+  }
+  return y;
+}
+
+function choleskyBackwardSub(L, y) {
+  const n = L.rows;
+  const x = new Float64Array(n);
+  for (let i = n - 1; i >= 0; i--) {
+    let s = y[i];
+    for (let j = i + 1; j < n; j++) s -= matGet(L, j, i) * x[j];
+    x[i] = s / matGet(L, i, i);
+  }
+  return x;
+}
+
+function solveSymmetric(A, b) {
+  const L = choleskyDecompose(A);
+  const y = choleskyForwardSub(L, b);
+  return choleskyBackwardSub(L, y);
+}
+
+// ============================================================
+// POLYNOMIAL FEATURES
+// ============================================================
+function polyFeatures(xArr, degree) {
+  const n = xArr.length;
+  const p = degree + 1;
+  const X = matCreate(n, p);
+  for (let i = 0; i < n; i++) {
+    let xi = 1;
+    for (let j = 0; j <= degree; j++) {
+      matSet(X, i, j, xi);
+      xi *= xArr[i];
+    }
+  }
+  return X;
+}
+
+// Column standard deviations for standardization (skip intercept col 0)
+function computeColStats(X) {
+  const n = X.rows, p = X.cols;
+  const means = new Float64Array(p);
+  const stds  = new Float64Array(p);
+  for (let j = 1; j < p; j++) {
+    let s = 0;
+    for (let i = 0; i < n; i++) s += matGet(X, i, j);
+    means[j] = s / n;
+    let v = 0;
+    for (let i = 0; i < n; i++) { const d = matGet(X, i, j) - means[j]; v += d * d; }
+    stds[j] = Math.sqrt(v / n) || 1;
+  }
+  stds[0] = 1; means[0] = 0;
+  return { means, stds };
+}
+
+function standardizeX(X, means, stds) {
+  const Xs = matCreate(X.rows, X.cols);
+  for (let i = 0; i < X.rows; i++)
+    for (let j = 0; j < X.cols; j++)
+      matSet(Xs, i, j, (matGet(X, i, j) - means[j]) / stds[j]);
+  return Xs;
+}
+
+// ============================================================
+// RIDGE REGRESSION
+// ============================================================
+function fitRidge(X, y, lambda) {
+  // (X'X + lambda*I) beta = X'y  (don't regularize intercept)
+  const Xt = matTranspose(X);
+  const XtX = matMul(Xt, X);
+  const p = XtX.rows;
+  for (let j = 1; j < p; j++) XtX.d[j * p + j] += lambda; // skip intercept
+  const Xty = new Float64Array(p);
+  for (let j = 0; j < p; j++)
+    for (let i = 0; i < X.rows; i++)
+      Xty[j] += matGet(Xt, j, i) * y[i];
+  return solveSymmetric(XtX, Xty);
+}
+
+// ============================================================
+// LASSO / ELASTICNET: Coordinate Descent
+// ============================================================
+function softThreshold(z, gamma) {
+  if (z > gamma) return z - gamma;
+  if (z < -gamma) return z + gamma;
+  return 0;
+}
+
+function fitLassoCD(X, y, lambda, alpha, maxIter) {
+  // alpha = L1 ratio: alpha=1 => Lasso, alpha=0 => Ridge
+  // ElasticNet: minimize ||y-Xb||^2/(2n) + lambda*(alpha*||b||_1 + (1-alpha)/2*||b||_2^2)
+  const n = X.rows, p = X.cols;
+  maxIter = maxIter || 2000;
+  const beta = new Float64Array(p);
+  const r = new Float64Array(n);
+  for (let i = 0; i < n; i++) r[i] = y[i]; // residuals
+
+  // Precompute column squared norms
+  const colNorm2 = new Float64Array(p);
+  for (let j = 0; j < p; j++)
+    for (let i = 0; i < n; i++)
+      colNorm2[j] += matGet(X, i, j) * matGet(X, i, j);
+
+  const l1 = lambda * alpha;
+  const l2 = lambda * (1 - alpha);
+
+  for (let iter = 0; iter < maxIter; iter++) {
+    let maxDelta = 0;
+    for (let j = 0; j < p; j++) {
+      const bOld = beta[j];
+      // Add back column j to residuals
+      for (let i = 0; i < n; i++) r[i] += matGet(X, i, j) * bOld;
+      // Compute rho_j = X_j' r / n
+      let rho = 0;
+      for (let i = 0; i < n; i++) rho += matGet(X, i, j) * r[i];
+      rho /= n;
+      // Update
+      let bNew;
+      if (j === 0) {
+        // intercept: no regularization
+        bNew = rho / (colNorm2[j] / n);
+      } else {
+        const denom = colNorm2[j] / n + l2;
+        bNew = softThreshold(rho, l1) / denom;
+      }
+      beta[j] = bNew;
+      // Remove updated column j from residuals
+      for (let i = 0; i < n; i++) r[i] -= matGet(X, i, j) * bNew;
+      maxDelta = Math.max(maxDelta, Math.abs(bNew - bOld));
+    }
+    if (maxDelta < 1e-6) break;
+  }
+  return beta;
+}
+
+// ============================================================
+// FIT MODEL
+// ============================================================
+function fitModel() {
+  const degree = state.degree;
+  const regType = state.regType;
+  const lambda = state.lambda;
+  const alpha  = state.elasticRatio;
+
+  const X = polyFeatures(data.xTrain, degree);
+  const { means, stds } = computeColStats(X);
+  const Xs = standardizeX(X, means, stds);
+  const y = data.yTrain;
+
+  let rawCoeffs;
+  if (regType === 'none') {
+    rawCoeffs = fitRidge(Xs, y, 0);
+  } else if (regType === 'ridge') {
+    rawCoeffs = fitRidge(Xs, y, lambda * data.xTrain.length);
+  } else if (regType === 'lasso') {
+    rawCoeffs = fitLassoCD(Xs, y, lambda, 1.0, 3000);
+  } else { // elasticnet
+    rawCoeffs = fitLassoCD(Xs, y, lambda, alpha, 3000);
+  }
+
+  // Unstandardize coefficients back to original space
+  // beta_j_orig = beta_j_std / std[j]
+  // intercept adjustment: b0_orig = b0_std - sum(beta_j_std * mean[j] / std[j])
+  const p = degree + 1;
+  const coeffs = new Float64Array(p);
+  coeffs[0] = rawCoeffs[0];
+  for (let j = 1; j < p; j++) {
+    coeffs[j] = rawCoeffs[j] / stds[j];
+    coeffs[0] -= rawCoeffs[j] * means[j] / stds[j];
+  }
+
+  model.coeffs = coeffs;
+  model.means = means;
+  model.stds  = stds;
+  model.rawCoeffs = rawCoeffs;
+
+  // Compute metrics
+  const yHatTrain = predict(data.xTrain, coeffs);
+  const yHatTest  = predict(data.xTest,  coeffs);
+  model.trainMSE = mse(data.yTrain, yHatTrain);
+  model.testMSE  = mse(data.yTest,  yHatTest);
+  model.trainR2  = r2(data.yTrain,  yHatTrain);
+  model.testR2   = r2(data.yTest,   yHatTest);
+
+  // Non-zero coefficients (threshold 1e-4)
+  const thresh = 1e-4;
+  model.nonzero = rawCoeffs.filter(v => Math.abs(v) > thresh).length;
+
+  // Effective DoF
+  if (regType === 'ridge' && lambda > 0) {
+    const Xt = matTranspose(Xs);
+    const XtX = matMul(Xt, Xs);
+    // trace(X (X'X + lambda*I)^{-1} X') - approx via eigenvalue trace trick
+    // For now, use sum of d_i^2 / (d_i^2 + lambda)
+    // Simple approximation: use p / (1 + lambda)
+    model.effDof = p / (1 + lambda * 0.1);
+  } else {
+    model.effDof = model.nonzero;
+  }
+}
+
+function predict(xArr, coeffs) {
+  return xArr.map(x => {
+    let y = 0, xi = 1;
+    for (let j = 0; j < coeffs.length; j++) { y += coeffs[j] * xi; xi *= x; }
+    return y;
+  });
+}
+
+function mse(y, yHat) {
+  let s = 0;
+  for (let i = 0; i < y.length; i++) s += (y[i] - yHat[i]) ** 2;
+  return s / y.length;
+}
+
+function r2(y, yHat) {
+  const mean = y.reduce((a, b) => a + b, 0) / y.length;
+  let ss_tot = 0, ss_res = 0;
+  for (let i = 0; i < y.length; i++) {
+    ss_tot += (y[i] - mean) ** 2;
+    ss_res += (y[i] - yHat[i]) ** 2;
+  }
+  return ss_tot < 1e-12 ? 1 : 1 - ss_res / ss_tot;
+}
+
+// ============================================================
+// BIAS-VARIANCE CACHE (precompute all degrees for current data)
+// ============================================================
+function computeBVCurve() {
+  const cacheKey = `${state.seed}_${state.trueFunc}_${state.nSamples}_${state.noise}_${state.trainFrac}_${state.regType}_${state.lambda.toFixed(3)}_${state.elasticRatio.toFixed(2)}`;
+  if (bvCacheKey === cacheKey && bvCache) return bvCache;
+
+  const trainMSEs = [], testMSEs = [];
+  for (let d = 1; d <= 15; d++) {
+    const X = polyFeatures(data.xTrain, d);
+    const { means, stds } = computeColStats(X);
+    const Xs = standardizeX(X, means, stds);
+    const y = data.yTrain;
+    let rawCoeffs;
+    if (state.regType === 'none') {
+      rawCoeffs = fitRidge(Xs, y, 0);
+    } else if (state.regType === 'ridge') {
+      rawCoeffs = fitRidge(Xs, y, state.lambda * data.xTrain.length);
+    } else if (state.regType === 'lasso') {
+      rawCoeffs = fitLassoCD(Xs, y, state.lambda, 1.0, 1500);
+    } else {
+      rawCoeffs = fitLassoCD(Xs, y, state.lambda, state.elasticRatio, 1500);
+    }
+    const p = d + 1;
+    const coeffs = new Float64Array(p);
+    coeffs[0] = rawCoeffs[0];
+    for (let j = 1; j < p; j++) {
+      coeffs[j] = rawCoeffs[j] / stds[j];
+      coeffs[0] -= rawCoeffs[j] * means[j] / stds[j];
+    }
+    const yHatTrain = predict(data.xTrain, coeffs);
+    const yHatTest  = predict(data.xTest,  coeffs);
+    trainMSEs.push(mse(data.yTrain, yHatTrain));
+    testMSEs.push(mse(data.yTest, yHatTest));
+  }
+  bvCache = { trainMSEs, testMSEs };
+  bvCacheKey = cacheKey;
+  return bvCache;
+}
+
+// ============================================================
+// CANVAS DRAWING HELPERS
+// ============================================================
+function setupCanvas(canvas, panel) {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = panel.getBoundingClientRect();
+  const w = rect.width;
+  const h = Math.min(rect.height, 320);
+  canvas.width  = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width  = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return { ctx, w, h };
+}
+
+function drawAxes(ctx, margin, w, h, xMin, xMax, yMin, yMax, xLabel, yLabel) {
+  const { l, r, t, b } = margin;
+  const pW = w - l - r, pH = h - t - b;
+
+  ctx.save();
+  ctx.strokeStyle = '#ddd';
+  ctx.lineWidth = 1;
+
+  // Grid
+  ctx.setLineDash([3, 3]);
+  const nGridX = 5, nGridY = 5;
+  for (let i = 0; i <= nGridX; i++) {
+    const xp = l + (i / nGridX) * pW;
+    ctx.beginPath(); ctx.moveTo(xp, t); ctx.lineTo(xp, t + pH); ctx.stroke();
+  }
+  for (let i = 0; i <= nGridY; i++) {
+    const yp = t + (i / nGridY) * pH;
+    ctx.beginPath(); ctx.moveTo(l, yp); ctx.lineTo(l + pW, yp); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // Axes
+  ctx.strokeStyle = '#bbb';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(l, t, pW, pH);
+
+  // Tick labels
+  ctx.fillStyle = '#888';
+  ctx.font = '9px monospace';
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= nGridX; i++) {
+    const xp = l + (i / nGridX) * pW;
+    const val = xMin + (i / nGridX) * (xMax - xMin);
+    ctx.fillText(val.toFixed(1), xp, t + pH + 12);
+  }
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= nGridY; i++) {
+    const yp = t + (i / nGridY) * pH;
+    const val = yMax - (i / nGridY) * (yMax - yMin);
+    ctx.fillText(val.toFixed(2), l - 3, yp + 3);
+  }
+
+  // Axis labels
+  ctx.fillStyle = '#666';
+  ctx.font = '10px Arial';
+  ctx.textAlign = 'center';
+  if (xLabel) ctx.fillText(xLabel, l + pW / 2, h - 2);
+  if (yLabel) {
+    ctx.save();
+    ctx.translate(10, t + pH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(yLabel, 0, 0);
+    ctx.restore();
+  }
+
+  ctx.restore();
+
+  function toPixel(x, y) {
+    return [
+      l + ((x - xMin) / (xMax - xMin)) * pW,
+      t + ((yMax - y) / (yMax - yMin)) * pH
+    ];
+  }
+  return toPixel;
+}
+
+// ============================================================
+// DRAW: FIT PLOT
+// ============================================================
+function drawFitPlot() {
+  const canvas = document.getElementById('fitCanvas');
+  const panel  = document.getElementById('panel-fit');
+  const { ctx, w, h } = setupCanvas(canvas, panel);
+  ctx.clearRect(0, 0, w, h);
+
+  // Background
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, w, h);
+
+  const margin = { l: 42, r: 14, t: 44, b: 30 };
+  const allY = [...data.yTrain, ...data.yTest];
+  let yMin = Math.min(...allY) - 0.3;
+  let yMax = Math.max(...allY) + 0.3;
+  // also consider fitted curve
+  const xCurve = Array.from({ length: 200 }, (_, i) => -1 + (i / 199) * 2);
+  const yCurve = predict(xCurve, model.coeffs);
+  const yCurveClamp = yCurve.map(v => Math.max(-8, Math.min(8, v)));
+  yMin = Math.min(yMin, ...yCurveClamp) - 0.1;
+  yMax = Math.max(yMax, ...yCurveClamp) + 0.1;
+  // clamp to sane range
+  yMin = Math.max(yMin, -8); yMax = Math.min(yMax, 8);
+
+  const toPixel = drawAxes(ctx, margin, w, h, -1, 1, yMin, yMax, 'x', 'y');
+
+  // True function (gray dashed)
+  const yTrue = xCurve.map(trueFunction);
+  ctx.save();
+  ctx.setLineDash([5, 4]);
+  ctx.strokeStyle = 'rgba(150,150,150,0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  xCurve.forEach((x, i) => {
+    const [px, py] = toPixel(x, Math.max(yMin, Math.min(yMax, yTrue[i])));
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  });
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  // Fitted curve (green)
+  ctx.save();
+  ctx.strokeStyle = '#27ae60';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  let started = false;
+  xCurve.forEach((x, i) => {
+    const yv = yCurveClamp[i];
+    if (isNaN(yv) || !isFinite(yv)) { started = false; return; }
+    const [px, py] = toPixel(x, Math.max(yMin, Math.min(yMax, yv)));
+    if (!started) { ctx.moveTo(px, py); started = true; }
+    else ctx.lineTo(px, py);
+  });
+  ctx.stroke();
+  ctx.restore();
+
+  // Test points (orange)
+  ctx.save();
+  ctx.fillStyle = 'rgba(232,124,62,0.8)';
+  ctx.strokeStyle = '#c0622a';
+  ctx.lineWidth = 0.5;
+  data.xTest.forEach((x, i) => {
+    const [px, py] = toPixel(x, Math.max(yMin, Math.min(yMax, data.yTest[i])));
+    ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  });
+  ctx.restore();
+
+  // Train points (blue)
+  ctx.save();
+  ctx.fillStyle = 'rgba(74,144,217,0.85)';
+  ctx.strokeStyle = '#2a5f9e';
+  ctx.lineWidth = 0.5;
+  data.xTrain.forEach((x, i) => {
+    const [px, py] = toPixel(x, Math.max(yMin, Math.min(yMax, data.yTrain[i])));
+    ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  });
+  ctx.restore();
+
+  // Degree label
+  const deg = state.degree;
+  let fitLabel = `Degree ${deg}`;
+  if (state.regType !== 'none') fitLabel += ` + ${state.regType[0].toUpperCase() + state.regType.slice(1)}`;
+  ctx.fillStyle = '#27ae60';
+  ctx.font = 'bold 9px Arial';
+  ctx.textAlign = 'right';
+  ctx.fillText(fitLabel, w - margin.r - 2, margin.t + 12);
+}
+
+// ============================================================
+// DRAW: COEFFICIENT MAGNITUDES
+// ============================================================
+function drawCoefPlot() {
+  const canvas = document.getElementById('coefCanvas');
+  const panel  = document.getElementById('panel-coef');
+  const { ctx, w, h } = setupCanvas(canvas, panel);
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, w, h);
+
+  const rawCoeffs = model.rawCoeffs || model.coeffs;
+  const p = rawCoeffs.length;
+  const margin = { l: 42, r: 14, t: 44, b: 36 };
+  const pW = w - margin.l - margin.r;
+  const pH = h - margin.t - margin.b;
+
+  const absMags = Array.from(rawCoeffs).map(Math.abs);
+  const maxMag  = Math.max(...absMags, 1e-6);
+  const thresh  = 1e-4;
+
+  const barW = Math.max(2, (pW / p) * 0.7);
+  const gap   = (pW - barW * p) / (p + 1);
+
+  // Background
+  ctx.fillStyle = '#f8f9fa';
+  ctx.fillRect(margin.l, margin.t, pW, pH);
+
+  // Grid lines
+  ctx.strokeStyle = '#eee';
+  ctx.lineWidth = 1;
+  for (let i = 1; i <= 4; i++) {
+    const yp = margin.t + pH - (i / 4) * pH;
+    ctx.beginPath();
+    ctx.moveTo(margin.l, yp);
+    ctx.lineTo(margin.l + pW, yp);
+    ctx.stroke();
+    ctx.fillStyle = '#aaa';
+    ctx.font = '9px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText((maxMag * i / 4).toFixed(2), margin.l - 3, yp + 3);
+  }
+
+  // Bars
+  for (let j = 0; j < p; j++) {
+    const mag = absMags[j];
+    const isZero = mag < thresh;
+    const barH = Math.max(1, (mag / maxMag) * pH);
+    const xp = margin.l + gap + j * (barW + gap);
+    const yp = margin.t + pH - barH;
+
+    // Gradient fill
+    const grad = ctx.createLinearGradient(xp, yp, xp, yp + barH);
+    if (isZero) {
+      grad.addColorStop(0, '#ccc');
+      grad.addColorStop(1, '#bbb');
+    } else {
+      grad.addColorStop(0, '#5b9bd5');
+      grad.addColorStop(1, '#2a5f9e');
+    }
+    ctx.fillStyle = grad;
+    ctx.fillRect(xp, yp, barW, barH);
+    ctx.strokeStyle = isZero ? '#aaa' : '#1a4a8a';
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(xp, yp, barW, barH);
+
+    // Label
+    ctx.fillStyle = '#555';
+    ctx.font = `${Math.max(7, Math.min(11, pW / p - 2))}px monospace`;
+    ctx.textAlign = 'center';
+    const label = j === 0 ? 'β₀' : `β${j}`;
+    ctx.fillText(label, xp + barW / 2, margin.t + pH + 14);
+
+    // Value on bar (if tall enough)
+    if (barH > 14 && !isZero) {
+      ctx.fillStyle = 'white';
+      ctx.font = '8px monospace';
+      ctx.fillText(mag.toFixed(2), xp + barW / 2, yp + 10);
+    }
+  }
+
+  // Axis box
+  ctx.strokeStyle = '#bbb';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(margin.l, margin.t, pW, pH);
+
+  // Y label
+  ctx.fillStyle = '#666';
+  ctx.font = '10px Arial';
+  ctx.save();
+  ctx.translate(10, margin.t + pH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('|Coefficient|', 0, 0);
+  ctx.restore();
+
+  // Reg type label
+  const regLabel = { none: 'No Regularization', ridge: 'Ridge: all shrink', lasso: 'Lasso: some → 0', elasticnet: 'ElasticNet: mixed' }[state.regType];
+  ctx.fillStyle = '#666';
+  ctx.font = '9px Arial';
+  ctx.textAlign = 'right';
+  ctx.fillText(regLabel, w - margin.r - 2, margin.t + 12);
+
+  // Legend: zero / active
+  ctx.fillStyle = '#bbb';
+  ctx.fillRect(margin.l + 4, h - 14, 8, 8);
+  ctx.fillStyle = '#666';
+  ctx.font = '9px Arial';
+  ctx.textAlign = 'left';
+  ctx.fillText('zero', margin.l + 15, h - 7);
+  ctx.fillStyle = '#5b9bd5';
+  ctx.fillRect(margin.l + 40, h - 14, 8, 8);
+  ctx.fillStyle = '#666';
+  ctx.fillText('active', margin.l + 51, h - 7);
+}
+
+// ============================================================
+// DRAW: BIAS-VARIANCE CURVES
+// ============================================================
+function drawBVCurves() {
+  const canvas = document.getElementById('bvCanvas');
+  const panel  = document.getElementById('panel-bv');
+  const { ctx, w, h } = setupCanvas(canvas, panel);
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, w, h);
+
+  const { trainMSEs, testMSEs } = computeBVCurve();
+
+  const margin = { l: 50, r: 14, t: 44, b: 36 };
+  const pW = w - margin.l - margin.r;
+  const pH = h - margin.t - margin.b;
+
+  // Compute range (cap outliers)
+  const allVals = [...trainMSEs, ...testMSEs].filter(v => isFinite(v));
+  let yMin = 0;
+  let yMax = Math.min(Math.max(...allVals) * 1.1, Math.median ? Math.median(allVals) * 4 : 5);
+  // simpler cap
+  const sorted = [...allVals].sort((a,b)=>a-b);
+  yMax = sorted[Math.floor(sorted.length * 0.9)] * 2.5;
+  yMax = Math.max(yMax, 0.01);
+
+  const toPixel = drawAxes(ctx, margin, w, h, 1, 15, yMin, yMax, 'Polynomial Degree', 'MSE');
+
+  // Test MSE (orange, first so train is on top)
+  ctx.save();
+  ctx.strokeStyle = '#e87c3e';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  testMSEs.forEach((v, i) => {
+    const yv = Math.min(yMax, Math.max(yMin, v));
+    const [px, py] = toPixel(i + 1, yv);
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  });
+  ctx.stroke();
+  ctx.restore();
+
+  // Train MSE (blue)
+  ctx.save();
+  ctx.strokeStyle = '#4a90d9';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  trainMSEs.forEach((v, i) => {
+    const yv = Math.min(yMax, Math.max(yMin, v));
+    const [px, py] = toPixel(i + 1, yv);
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  });
+  ctx.stroke();
+  ctx.restore();
+
+  // Vertical line at current degree
+  const deg = state.degree;
+  const [vx] = toPixel(deg, yMin);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(150, 50, 200, 0.7)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(vx, margin.t);
+  ctx.lineTo(vx, margin.t + pH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Dot at current degree
+  const [, trainY] = toPixel(deg, Math.min(yMax, trainMSEs[deg - 1]));
+  const [, testY]  = toPixel(deg, Math.min(yMax, testMSEs[deg - 1]));
+  ctx.fillStyle = '#4a90d9';
+  ctx.beginPath(); ctx.arc(vx, trainY, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#e87c3e';
+  ctx.beginPath(); ctx.arc(vx, testY, 5, 0, Math.PI * 2); ctx.fill();
+
+  // Degree label
+  ctx.fillStyle = 'rgba(150,50,200,0.9)';
+  ctx.font = 'bold 9px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(`d=${deg}`, vx, margin.t + 12);
+
+  ctx.restore();
+
+  // Find optimal degree (min test MSE)
+  const optDeg = testMSEs.indexOf(Math.min(...testMSEs)) + 1;
+  const [optX] = toPixel(optDeg, yMin);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(39,174,96,0.4)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([2, 4]);
+  ctx.beginPath();
+  ctx.moveTo(optX, margin.t);
+  ctx.lineTo(optX, margin.t + pH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(39,174,96,0.8)';
+  ctx.font = '8px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(`opt(${optDeg})`, optX, margin.t + 22);
+  ctx.restore();
+}
+
+// ============================================================
+// DRAW: RESIDUAL PLOT
+// ============================================================
+function drawResidualPlot() {
+  const canvas = document.getElementById('residCanvas');
+  const panel  = document.getElementById('panel-resid');
+  const { ctx, w, h } = setupCanvas(canvas, panel);
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, w, h);
+
+  const margin = { l: 42, r: 14, t: 44, b: 30 };
+
+  const yHatTrain = predict(data.xTrain, model.coeffs);
+  const yHatTest  = predict(data.xTest,  model.coeffs);
+
+  const resTrain = data.yTrain.map((y, i) => y - yHatTrain[i]);
+  const resTest  = data.yTest.map( (y, i) => y - yHatTest[i]);
+
+  const allFitted = [...yHatTrain, ...yHatTest].filter(v => isFinite(v));
+  const allRes    = [...resTrain, ...resTest].filter(v => isFinite(v));
+
+  let xMin = Math.min(...allFitted) - 0.2;
+  let xMax = Math.max(...allFitted) + 0.2;
+  let yMin = Math.min(...allRes) - 0.1;
+  let yMax = Math.max(...allRes) + 0.1;
+  // clamp
+  xMin = Math.max(xMin, -10); xMax = Math.min(xMax, 10);
+  yMin = Math.max(yMin, -5);  yMax = Math.min(yMax, 5);
+  const absMax = Math.max(Math.abs(yMin), Math.abs(yMax));
+  yMin = -absMax; yMax = absMax;
+
+  const toPixel = drawAxes(ctx, margin, w, h, xMin, xMax, yMin, yMax, 'Fitted Values', 'Residual');
+
+  // Zero line
+  const [x0, y0] = toPixel(xMin, 0);
+  const [x1]     = toPixel(xMax, 0);
+  ctx.save();
+  ctx.strokeStyle = '#aaa';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 3]);
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y0); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  // Test residuals (orange)
+  ctx.save();
+  ctx.fillStyle = 'rgba(232,124,62,0.7)';
+  ctx.strokeStyle = '#c0622a';
+  ctx.lineWidth = 0.5;
+  yHatTest.forEach((fv, i) => {
+    if (!isFinite(fv) || !isFinite(resTest[i])) return;
+    const [px, py] = toPixel(
+      Math.max(xMin, Math.min(xMax, fv)),
+      Math.max(yMin, Math.min(yMax, resTest[i]))
+    );
+    ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  });
+  ctx.restore();
+
+  // Train residuals (blue)
+  ctx.save();
+  ctx.fillStyle = 'rgba(74,144,217,0.7)';
+  ctx.strokeStyle = '#2a5f9e';
+  ctx.lineWidth = 0.5;
+  yHatTrain.forEach((fv, i) => {
+    if (!isFinite(fv) || !isFinite(resTrain[i])) return;
+    const [px, py] = toPixel(
+      Math.max(xMin, Math.min(xMax, fv)),
+      Math.max(yMin, Math.min(yMax, resTrain[i]))
+    );
+    ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  });
+  ctx.restore();
+
+  // Pattern label
+  const trainMSE = model.trainMSE;
+  const patternLabel = trainMSE < 0.05 && state.degree > 5 ? 'Overfitting detected!' :
+                       state.degree < 2 && state.trueFunc !== 'linear' ? 'Underfitting (pattern visible)' :
+                       'Good: random scatter';
+  const patternColor = trainMSE < 0.05 && state.degree > 5 ? '#dc3545' :
+                       state.degree < 2 && state.trueFunc !== 'linear' ? '#ffc107' : '#27ae60';
+  ctx.fillStyle = patternColor;
+  ctx.font = 'bold 9px Arial';
+  ctx.textAlign = 'right';
+  ctx.fillText(patternLabel, w - margin.r - 2, margin.t + 12);
+}
+
+// ============================================================
+// UPDATE METRICS
+// ============================================================
+function updateMetrics() {
+  const fmt = (v, digits) => {
+    if (!isFinite(v)) return '∞';
+    if (v > 999) return '>999';
+    return v.toFixed(digits || 4);
+  };
+
+  const trainMSEEl = document.getElementById('trainMSE');
+  const testMSEEl  = document.getElementById('testMSE');
+  const trainR2El  = document.getElementById('trainR2');
+  const testR2El   = document.getElementById('testR2');
+  const nzEl       = document.getElementById('nonzeroCoefs');
+  const dofEl      = document.getElementById('effDof');
+
+  trainMSEEl.textContent = fmt(model.trainMSE);
+  testMSEEl.textContent  = fmt(model.testMSE);
+  trainR2El.textContent  = fmt(model.trainR2, 3);
+  testR2El.textContent   = fmt(model.testR2, 3);
+  nzEl.textContent       = model.nonzero;
+  dofEl.textContent      = fmt(model.effDof, 1);
+
+  // Color coding
+  const testMSE = model.testMSE;
+  const trainMSE = model.trainMSE;
+  testMSEEl.className = 'metric-value' + (testMSE > trainMSE * 3 ? ' bad' : testMSE > trainMSE * 1.5 ? ' warn' : '');
+  testR2El.className  = 'metric-value' + (model.testR2 < 0.5 ? ' bad' : model.testR2 < 0.75 ? ' warn' : '');
+}
+
+// ============================================================
+// MAIN UPDATE LOOP
+// ============================================================
+function scheduleUpdate() {
+  if (animFrameId) return;
+  animFrameId = requestAnimationFrame(() => {
+    animFrameId = null;
+    runUpdate();
+  });
+}
+
+let updateTimer = null;
+function debouncedUpdate() {
+  if (updateTimer) clearTimeout(updateTimer);
+  updateTimer = setTimeout(() => {
+    runUpdate();
+    updateTimer = null;
+  }, 16);
+}
+
+function runUpdate() {
+  fitModel();
+  updateMetrics();
+  drawFitPlot();
+  drawCoefPlot();
+  drawBVCurves();
+  drawResidualPlot();
+}
+
+// ============================================================
+// CONTROL HANDLERS
+// ============================================================
+function onSliderChange() {
+  readState();
+  debouncedUpdate();
+}
+
+function onDataChange() {
+  readState();
+  bvCache = null; // invalidate BV cache
+  generateData();
+  debouncedUpdate();
+}
+
+function onRegTypeChange() {
+  readState();
+  bvCache = null;
+  const lambdaRow = document.getElementById('lambdaRow');
+  const ratioRow  = document.getElementById('ratioRow');
+  if (state.regType === 'none') {
+    lambdaRow.style.opacity = '0.4';
+    lambdaRow.style.pointerEvents = 'none';
+  } else {
+    lambdaRow.style.opacity = '1';
+    lambdaRow.style.pointerEvents = '';
+  }
+  if (state.regType === 'elasticnet') {
+    ratioRow.classList.remove('hidden');
+  } else {
+    ratioRow.classList.add('hidden');
+  }
+  debouncedUpdate();
+}
+
+function readState() {
+  state.degree = parseInt(document.getElementById('degreeSlider').value);
+  state.regType = document.getElementById('regType').value;
+  state.lambda = Math.pow(10, parseFloat(document.getElementById('lambdaSlider').value));
+  state.elasticRatio = parseFloat(document.getElementById('ratioSlider').value);
+  state.trueFunc = document.getElementById('trueFunc').value;
+  state.nSamples = parseInt(document.getElementById('nSlider').value);
+  state.noise = parseFloat(document.getElementById('noiseSlider').value);
+  state.trainFrac = parseInt(document.getElementById('splitSlider').value) / 100;
+
+  document.getElementById('degreeVal').textContent = state.degree;
+  document.getElementById('lambdaVal').textContent = state.lambda.toFixed(state.lambda < 0.01 ? 4 : state.lambda < 1 ? 2 : 1);
+  document.getElementById('ratioVal').textContent = state.elasticRatio.toFixed(2);
+  document.getElementById('nVal').textContent = state.nSamples;
+  document.getElementById('noiseVal').textContent = state.noise.toFixed(2);
+  document.getElementById('splitVal').textContent = (state.trainFrac * 100).toFixed(0) + '%';
+}
+
+// ============================================================
+// RESIZE HANDLER
+// ============================================================
+function resizePanels() {
+  const grid = document.getElementById('canvasGrid');
+  const panels = grid.querySelectorAll('.canvas-panel');
+  const gridW = grid.clientWidth;
+  const panelW = gridW / 2;
+  const panelH = Math.max(260, Math.min(340, panelW * 0.72));
+  panels.forEach(p => {
+    p.style.height = panelH + 'px';
+  });
+}
+
+window.addEventListener('resize', () => {
+  resizePanels();
+  scheduleUpdate();
+});
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  resizePanels();
+  readState();
+  generateData();
+  // Initialize lambda row opacity
+  document.getElementById('lambdaRow').style.opacity = '0.4';
+  document.getElementById('lambdaRow').style.pointerEvents = 'none';
+  runUpdate();
+}
+
+// Wait for layout
+setTimeout(init, 50);
+</script>
+
+</body>
+</html>
