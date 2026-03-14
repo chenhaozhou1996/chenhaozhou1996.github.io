@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cash Conversion Cycle (CCC) Interactive Model</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8f9fa;color:#333;padding:20px}
+.header{text-align:center;padding:20px;background:linear-gradient(135deg,#cc0000,#8b0000);color:#fff;border-radius:12px;margin-bottom:24px}
+.header h1{font-size:1.8em;margin-bottom:4px}
+.header p{opacity:0.9;font-size:0.95em}
+.container{max-width:1100px;margin:0 auto}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.card h3{color:#cc0000;margin-bottom:12px;font-size:1.1em}
+.slider-group{margin-bottom:16px}
+.slider-group label{display:flex;justify-content:space-between;margin-bottom:6px;font-size:0.9em;font-weight:500}
+.slider-group label span{color:#cc0000;font-weight:700}
+input[type=range]{width:100%;accent-color:#cc0000}
+.ccc-visual{display:flex;align-items:center;justify-content:center;gap:0;margin:20px 0;flex-wrap:wrap}
+.phase{text-align:center;padding:12px 16px;border-radius:8px;min-width:120px;position:relative}
+.phase .days{font-size:2em;font-weight:700}
+.phase .label{font-size:0.8em;margin-top:4px}
+.phase-dio{background:#e3f2fd;color:#1565c0}
+.phase-dso{background:#e8f5e9;color:#2e7d32}
+.phase-dpo{background:#fff3e0;color:#e65100}
+.phase-ccc{background:#fce4ec;color:#c62828}
+.arrow{font-size:1.5em;color:#999;padding:0 4px}
+.formula{text-align:center;font-size:1.1em;padding:16px;background:#f5f5f5;border-radius:8px;margin:16px 0}
+.formula b{color:#cc0000}
+.insight{padding:14px;border-left:4px solid #cc0000;background:#fff5f5;border-radius:0 8px 8px 0;margin-top:12px;font-size:0.9em;line-height:1.5}
+.metric-row{display:flex;gap:12px;margin-top:12px}
+.metric{flex:1;text-align:center;padding:10px;background:#f8f9fa;border-radius:8px}
+.metric .val{font-size:1.4em;font-weight:700;color:#cc0000}
+.metric .lbl{font-size:0.75em;color:#666;margin-top:2px}
+canvas{max-height:280px}
+.footer{text-align:center;margin-top:20px;font-size:0.8em;color:#999}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>💰 Cash Conversion Cycle (CCC)</h1>
+<p>How long does it take to convert inventory investments into cash from sales?</p>
+</div>
+
+<div class="grid">
+<div class="card">
+<h3>📊 Adjust Parameters</h3>
+<div class="slider-group">
+<label>Days Inventory Outstanding (DIO) <span id="dioVal">45</span> days</label>
+<input type="range" id="dio" min="10" max="120" value="45" oninput="update()">
+</div>
+<div class="slider-group">
+<label>Days Sales Outstanding (DSO) <span id="dsoVal">30</span> days</label>
+<input type="range" id="dso" min="5" max="90" value="30" oninput="update()">
+</div>
+<div class="slider-group">
+<label>Days Payable Outstanding (DPO) <span id="dpoVal">35</span> days</label>
+<input type="range" id="dpo" min="5" max="90" value="35" oninput="update()">
+</div>
+<div class="slider-group">
+<label>Annual Revenue ($M) <span id="revVal">100</span></label>
+<input type="range" id="rev" min="10" max="500" value="100" oninput="update()">
+</div>
+<div class="slider-group">
+<label>Cost of Capital (%) <span id="waccVal">8</span>%</label>
+<input type="range" id="wacc" min="2" max="20" value="8" oninput="update()">
+</div>
+
+<div class="formula">CCC = <b>DIO</b> + <b>DSO</b> − <b>DPO</b> = <b id="cccFormula">45 + 30 − 35 = 40 days</b></div>
+</div>
+
+<div class="card">
+<h3>📈 CCC Timeline</h3>
+<div class="ccc-visual">
+<div class="phase phase-dio"><div class="days" id="dioBox">45</div><div class="label">DIO<br>(Inventory)</div></div>
+<div class="arrow">+</div>
+<div class="phase phase-dso"><div class="days" id="dsoBox">30</div><div class="label">DSO<br>(Receivables)</div></div>
+<div class="arrow">−</div>
+<div class="phase phase-dpo"><div class="days" id="dpoBox">35</div><div class="label">DPO<br>(Payables)</div></div>
+<div class="arrow">=</div>
+<div class="phase phase-ccc"><div class="days" id="cccBox">40</div><div class="label">CCC<br>(Cash Cycle)</div></div>
+</div>
+
+<div class="metric-row">
+<div class="metric"><div class="val" id="wcNeed">$0M</div><div class="lbl">Working Capital Required</div></div>
+<div class="metric"><div class="val" id="wcCost">$0K</div><div class="lbl">Annual Financing Cost</div></div>
+<div class="metric"><div class="val" id="turnover">0x</div><div class="lbl">Cash Turnover</div></div>
+</div>
+
+<div class="insight" id="insight">Adjust the sliders to see how each component affects your cash conversion cycle and working capital needs.</div>
+</div>
+</div>
+
+<div class="grid">
+<div class="card">
+<h3>📉 Sensitivity: CCC vs Working Capital Cost</h3>
+<canvas id="chart1"></canvas>
+</div>
+<div class="card">
+<h3>🏭 Industry Benchmarks</h3>
+<canvas id="chart2"></canvas>
+</div>
+</div>
+
+<div class="footer">Supply Chain Finance Teaching Tool | Chenhao Zhou | Boston University Metropolitan College</div>
+</div>
+
+<script>
+let chart1, chart2;
+
+function update() {
+  const dio = +document.getElementById('dio').value;
+  const dso = +document.getElementById('dso').value;
+  const dpo = +document.getElementById('dpo').value;
+  const rev = +document.getElementById('rev').value;
+  const wacc = +document.getElementById('wacc').value;
+  const ccc = dio + dso - dpo;
+
+  document.getElementById('dioVal').textContent = dio;
+  document.getElementById('dsoVal').textContent = dso;
+  document.getElementById('dpoVal').textContent = dpo;
+  document.getElementById('revVal').textContent = rev;
+  document.getElementById('waccVal').textContent = wacc;
+
+  document.getElementById('dioBox').textContent = dio;
+  document.getElementById('dsoBox').textContent = dso;
+  document.getElementById('dpoBox').textContent = dpo;
+  document.getElementById('cccBox').textContent = ccc;
+  document.getElementById('cccFormula').textContent = `${dio} + ${dso} − ${dpo} = ${ccc} days`;
+
+  const dailyRev = rev / 365;
+  const wcNeed = (ccc * dailyRev).toFixed(1);
+  const wcCost = (wcNeed * wacc / 100).toFixed(0);
+  const turnover = ccc > 0 ? (365 / ccc).toFixed(1) : '∞';
+
+  document.getElementById('wcNeed').textContent = `$${wcNeed}M`;
+  document.getElementById('wcCost').textContent = `$${(wcCost * 1000).toLocaleString()}K`;
+  document.getElementById('turnover').textContent = `${turnover}x`;
+
+  let insight = '';
+  if (ccc < 0) insight = '🟢 Negative CCC! You collect cash before paying suppliers. This is the Amazon/Dell model — your suppliers finance your operations.';
+  else if (ccc < 20) insight = '🟢 Excellent cash efficiency. Low working capital needs mean more cash available for growth and investment.';
+  else if (ccc < 45) insight = '🟡 Moderate CCC. Consider negotiating longer payment terms (↑DPO) or faster collections (↓DSO) to improve.';
+  else if (ccc < 80) insight = '🟠 High CCC. Significant capital is tied up. Reverse factoring or dynamic discounting could reduce financing costs.';
+  else insight = '🔴 Very high CCC. Working capital is a major drag. Prioritize inventory reduction (↓DIO) and receivables management (↓DSO).';
+  document.getElementById('insight').textContent = insight;
+
+  // Chart 1: Sensitivity
+  const cccRange = [];
+  const wcCosts = [];
+  for (let c = -20; c <= 120; c += 5) {
+    cccRange.push(c);
+    wcCosts.push((c * dailyRev * wacc / 100 * 1000).toFixed(0));
+  }
+  if (chart1) chart1.destroy();
+  chart1 = new Chart(document.getElementById('chart1'), {
+    type: 'line',
+    data: {
+      labels: cccRange,
+      datasets: [{
+        label: 'Annual Financing Cost ($K)',
+        data: wcCosts,
+        borderColor: '#cc0000',
+        backgroundColor: 'rgba(204,0,0,0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        annotation: {}
+      },
+      scales: {
+        x: { title: { display: true, text: 'CCC (days)' } },
+        y: { title: { display: true, text: 'Cost ($K/year)' } }
+      }
+    }
+  });
+
+  // Chart 2: Benchmarks
+  if (chart2) chart2.destroy();
+  const industries = ['Amazon', 'Apple', 'Walmart', 'P&G', 'Ford', 'Boeing', 'Your Firm'];
+  const benchCCC = [-33, -62, 8, 25, -25, 200, ccc];
+  const colors = benchCCC.map((v, i) => i === 6 ? '#cc0000' : '#4a90d9');
+  chart2 = new Chart(document.getElementById('chart2'), {
+    type: 'bar',
+    data: {
+      labels: industries,
+      datasets: [{ label: 'CCC (days)', data: benchCCC, backgroundColor: colors, borderRadius: 4 }]
+    },
+    options: {
+      responsive: true,
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { title: { display: true, text: 'CCC (days)' }, grid: { color: '#eee' } }
+      }
+    }
+  });
+}
+
+update();
+</script>
+</body>
+</html>

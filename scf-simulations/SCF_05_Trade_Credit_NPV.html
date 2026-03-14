@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Trade Credit Terms: NPV Analysis</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8f9fa;color:#333;padding:20px}
+.header{text-align:center;padding:20px;background:linear-gradient(135deg,#e65100,#bf360c);color:#fff;border-radius:12px;margin-bottom:24px}
+.header h1{font-size:1.7em;margin-bottom:4px}.header p{opacity:.9;font-size:.95em}
+.container{max-width:1100px;margin:0 auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card h3{color:#e65100;margin-bottom:12px;font-size:1.1em}
+label{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.9em;font-weight:500}
+label span{color:#e65100;font-weight:700}input[type=range]{width:100%;accent-color:#e65100;margin-bottom:14px}
+.term-box{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.term-btn{padding:8px 14px;border:2px solid #e65100;border-radius:6px;cursor:pointer;font-size:.85em;background:#fff;color:#e65100;font-weight:600;transition:.2s}
+.term-btn.active,.term-btn:hover{background:#e65100;color:#fff}
+.result-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+.res{text-align:center;padding:12px;border-radius:8px;background:#fff3e0}
+.res .v{font-size:1.4em;font-weight:700;color:#e65100}.res .l{font-size:.75em;color:#666;margin-top:2px}
+.decision{padding:16px;border-radius:8px;text-align:center;font-size:1em;font-weight:600;margin-top:12px}
+.take{background:#e8f5e9;color:#2e7d32}.skip{background:#ffebee;color:#c62828}
+canvas{max-height:270px}
+.insight{padding:14px;border-left:4px solid #e65100;background:#fff3e0;border-radius:0 8px 8px 0;margin-top:12px;font-size:.9em;line-height:1.5}
+.footer{text-align:center;margin-top:20px;font-size:.8em;color:#999}
+</style></head><body>
+<div class="container">
+<div class="header"><h1>📄 Trade Credit Terms: Should You Take the Discount?</h1><p>Analyze "2/10 net 30" and similar terms — what's the implied cost of skipping the discount?</p></div>
+<div class="grid">
+<div class="card">
+<h3>📝 Common Trade Credit Terms</h3>
+<div class="term-box">
+<div class="term-btn active" onclick="setTerm(2,10,30)">2/10 net 30</div>
+<div class="term-btn" onclick="setTerm(1,10,30)">1/10 net 30</div>
+<div class="term-btn" onclick="setTerm(2,10,60)">2/10 net 60</div>
+<div class="term-btn" onclick="setTerm(3,15,45)">3/15 net 45</div>
+<div class="term-btn" onclick="setTerm(2,10,45)">2/10 net 45</div>
+</div>
+<h3>⚙️ Custom Terms</h3>
+<label>Discount (%) <span id="dV">2</span></label>
+<input type="range" id="disc" min="0.5" max="5" step="0.25" value="2" oninput="calc()">
+<label>Discount Period (days) <span id="dpV">10</span></label>
+<input type="range" id="dp" min="5" max="30" value="10" oninput="calc()">
+<label>Net Period (days) <span id="npV">30</span></label>
+<input type="range" id="np" min="15" max="120" value="30" oninput="calc()">
+<label>Invoice Amount ($K) <span id="invV">100</span></label>
+<input type="range" id="inv" min="10" max="500" step="10" value="100" oninput="calc()">
+<label>Your Borrowing Rate (%) <span id="brV">8</span></label>
+<input type="range" id="br" min="1" max="25" value="8" oninput="calc()">
+
+<div class="result-grid">
+<div class="res"><div class="v" id="impliedRate">-</div><div class="l">Implied Annual Rate of Skipping Discount</div></div>
+<div class="res"><div class="v" id="discSave">-</div><div class="l">Discount Savings</div></div>
+<div class="res"><div class="v" id="borrowCost">-</div><div class="l">Cost to Borrow & Pay Early</div></div>
+<div class="res"><div class="v" id="netBenefit">-</div><div class="l">Net Benefit of Taking Discount</div></div>
+</div>
+<div class="decision" id="decision">-</div>
+</div>
+<div class="card">
+<h3>📊 Implied Cost Across Different Terms</h3>
+<canvas id="chart1"></canvas>
+<h3 style="margin-top:16px">💰 Break-Even Analysis</h3>
+<canvas id="chart2"></canvas>
+<div class="insight" id="insight"></div>
+</div>
+</div>
+<div class="footer">Supply Chain Finance Teaching Tool | Chenhao Zhou | Boston University Metropolitan College</div>
+</div>
+<script>
+let c1,c2;
+function setTerm(d,dp,np){
+  document.getElementById('disc').value=d;
+  document.getElementById('dp').value=dp;
+  document.getElementById('np').value=np;
+  document.querySelectorAll('.term-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  calc();
+}
+function calc(){
+  const d=+document.getElementById('disc').value;
+  const dp=+document.getElementById('dp').value;
+  const np=+document.getElementById('np').value;
+  const inv=+document.getElementById('inv').value*1000;
+  const br=+document.getElementById('br').value;
+  ['dV','dpV','npV','invV','brV'].forEach(id=>{
+    document.getElementById(id).textContent=document.getElementById(id.replace('V','')).value;
+  });
+
+  const daysForgo=np-dp;
+  const impliedRate=(d/(100-d))*(365/daysForgo)*100;
+  const discSave=inv*d/100;
+  const borrowCost=inv*(br/100)*(daysForgo/365);
+  const net=discSave-borrowCost;
+
+  document.getElementById('impliedRate').textContent=impliedRate.toFixed(1)+'%';
+  document.getElementById('discSave').textContent='$'+(discSave/1000).toFixed(2)+'K';
+  document.getElementById('borrowCost').textContent='$'+(borrowCost/1000).toFixed(2)+'K';
+  document.getElementById('netBenefit').textContent='$'+(net/1000).toFixed(2)+'K';
+
+  const dec=document.getElementById('decision');
+  if(impliedRate>br){dec.className='decision take';dec.textContent=`✅ TAKE THE DISCOUNT — Skipping costs ${impliedRate.toFixed(1)}% vs your ${br}% borrowing rate`;}
+  else{dec.className='decision skip';dec.textContent=`❌ SKIP THE DISCOUNT — Implied cost ${impliedRate.toFixed(1)}% is below your ${br}% rate`;}
+
+  // Chart 1: Common terms comparison
+  const terms=[{l:'1/10 n30',d:1,dp:10,np:30},{l:'2/10 n30',d:2,dp:10,np:30},{l:'2/10 n45',d:2,dp:10,np:45},
+    {l:'2/10 n60',d:2,dp:10,np:60},{l:'3/10 n30',d:3,dp:10,np:30},{l:'3/15 n45',d:3,dp:15,np:45},{l:`${d}/${dp} n${np}`,d,dp,np}];
+  const rates=terms.map(t=>(t.d/(100-t.d))*(365/(t.np-t.dp))*100);
+  if(c1)c1.destroy();
+  c1=new Chart(document.getElementById('chart1'),{type:'bar',data:{
+    labels:terms.map(t=>t.l),
+    datasets:[{label:'Implied Annual Rate (%)',data:rates.map(r=>r.toFixed(1)),
+      backgroundColor:rates.map(r=>r>br?'rgba(230,81,0,.7)':'rgba(46,125,50,.7)'),borderRadius:4},
+    {label:`Your Rate (${br}%)`,data:rates.map(()=>br),type:'line',borderColor:'#c62828',borderDash:[5,5],pointRadius:0}]
+  },options:{responsive:true,scales:{y:{title:{display:true,text:'Annual Rate (%)'}}}}});
+
+  // Chart 2: Break-even
+  const bRates=[];const benefits=[];
+  for(let r=1;r<=25;r++){
+    bRates.push(r);
+    benefits.push(((inv*d/100)-(inv*(r/100)*(daysForgo/365)))/1000);
+  }
+  if(c2)c2.destroy();
+  c2=new Chart(document.getElementById('chart2'),{type:'line',data:{labels:bRates,datasets:[{
+    label:'Net Benefit ($K)',data:benefits.map(b=>b.toFixed(2)),
+    borderColor:'#e65100',backgroundColor:benefits.map(b=>b>=0?'rgba(46,125,50,.15)':'rgba(198,40,40,.15)'),
+    fill:true,tension:.3,segment:{borderColor:ctx=>benefits[ctx.p0DataIndex]>=0?'#2e7d32':'#c62828'}
+  }]},options:{responsive:true,scales:{x:{title:{display:true,text:'Borrowing Rate (%)'}},y:{title:{display:true,text:'Net Benefit ($K)'}}}}});
+
+  document.getElementById('insight').textContent=`💡 The classic "2/10 net 30" translates to a ${((2/98)*(365/20)*100).toFixed(1)}% annualized rate. Most firms should take this discount — it's essentially very expensive credit if you skip it. The break-even borrowing rate for your current terms is ${impliedRate.toFixed(1)}%.`;
+}
+calc();
+</script></body></html>

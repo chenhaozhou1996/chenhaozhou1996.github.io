@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Reverse Factoring (Supply Chain Finance) Simulator</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8f9fa;color:#333;padding:20px}
+.header{text-align:center;padding:20px;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;border-radius:12px;margin-bottom:24px}
+.header h1{font-size:1.8em;margin-bottom:4px}.header p{opacity:.9;font-size:.95em}
+.container{max-width:1100px;margin:0 auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card h3{color:#1565c0;margin-bottom:12px;font-size:1.1em}
+label{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.9em;font-weight:500}
+label span{color:#1565c0;font-weight:700}input[type=range]{width:100%;accent-color:#1565c0;margin-bottom:14px}
+.flow{display:flex;flex-direction:column;gap:12px;margin:16px 0}
+.flow-step{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:.9em}
+.flow-step .icon{font-size:1.4em;min-width:30px;text-align:center}
+.f-buyer{background:#e3f2fd}.f-supplier{background:#e8f5e9}.f-bank{background:#fff3e0}.f-result{background:#fce4ec}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+.compare-box{text-align:center;padding:14px;border-radius:8px}
+.compare-box .val{font-size:1.6em;font-weight:700}.compare-box .lbl{font-size:.78em;color:#666;margin-top:2px}
+.without{background:#ffebee;color:#c62828}.with{background:#e8f5e9;color:#2e7d32}
+.insight{padding:14px;border-left:4px solid #1565c0;background:#e8eaf6;border-radius:0 8px 8px 0;margin-top:12px;font-size:.9em;line-height:1.5}
+canvas{max-height:260px}.footer{text-align:center;margin-top:20px;font-size:.8em;color:#999}
+</style></head><body>
+<div class="container">
+<div class="header"><h1>🔄 Reverse Factoring Simulator</h1><p>How does buyer-led supply chain financing benefit all three parties?</p></div>
+
+<div class="grid">
+<div class="card">
+<h3>⚙️ Deal Parameters</h3>
+<label>Invoice Amount ($K) <span id="invV">500</span></label>
+<input type="range" id="inv" min="50" max="2000" step="50" value="500" oninput="calc()">
+<label>Original Payment Terms (days) <span id="termV">60</span></label>
+<input type="range" id="term" min="30" max="120" value="60" oninput="calc()">
+<label>Supplier's Borrowing Rate (%) <span id="srV">12</span></label>
+<input type="range" id="sr" min="4" max="25" value="12" oninput="calc()">
+<label>Buyer's Credit Rating Discount Rate (%) <span id="brV">4</span></label>
+<input type="range" id="br" min="1" max="10" value="4" oninput="calc()">
+<label>Early Payment Day <span id="edV">10</span></label>
+<input type="range" id="ed" min="1" max="55" value="10" oninput="calc()">
+
+<h3 style="margin-top:16px">🔁 How It Works</h3>
+<div class="flow">
+<div class="flow-step f-buyer"><span class="icon">🏢</span><b>Buyer</b> approves invoice & extends payment to bank</div>
+<div class="flow-step f-bank"><span class="icon">🏦</span><b>Bank</b> pays supplier early at buyer's low rate</div>
+<div class="flow-step f-supplier"><span class="icon">🏭</span><b>Supplier</b> gets cash on Day <span id="edFlow">10</span> instead of Day <span id="termFlow">60</span></div>
+<div class="flow-step f-result"><span class="icon">✅</span>Everyone wins: supplier gets early cash, buyer keeps terms, bank earns spread</div>
+</div>
+</div>
+
+<div class="card">
+<h3>💵 Supplier's Perspective</h3>
+<div class="compare">
+<div class="compare-box without"><div class="val" id="supWithout">$0</div><div class="lbl">Without RF: Wait <span id="w1">60</span> days or borrow at <span id="w2">12</span>%</div></div>
+<div class="compare-box with"><div class="val" id="supWith">$0</div><div class="lbl">With RF: Cash on Day <span id="w3">10</span>, cost only <span id="w4">4</span>%</div></div>
+</div>
+<div class="compare" style="margin-top:8px">
+<div class="compare-box" style="background:#f5f5f5"><div class="val" id="supSave" style="color:#2e7d32">$0</div><div class="lbl">Supplier Savings per Invoice</div></div>
+<div class="compare-box" style="background:#f5f5f5"><div class="val" id="bankSpread" style="color:#e65100">$0</div><div class="lbl">Bank's Earnings (Spread)</div></div>
+</div>
+
+<h3 style="margin-top:20px">📊 Cost Comparison Over Payment Terms</h3>
+<canvas id="chart1"></canvas>
+
+<div class="insight" id="insight">Adjust parameters to see the financial impact on all parties.</div>
+</div>
+</div>
+
+<div class="card" style="margin-bottom:20px">
+<h3>🌍 Annual Program Impact (100 invoices/year)</h3>
+<canvas id="chart2" style="max-height:220px"></canvas>
+</div>
+
+<div class="footer">Supply Chain Finance Teaching Tool | Chenhao Zhou | Boston University Metropolitan College</div>
+</div>
+
+<script>
+let c1,c2;
+function calc(){
+  const inv=+document.getElementById('inv').value;
+  const term=+document.getElementById('term').value;
+  const sr=+document.getElementById('sr').value;
+  const br=+document.getElementById('br').value;
+  const ed=+document.getElementById('ed').value;
+  ['invV','termV','srV','brV','edV'].forEach(id=>{
+    document.getElementById(id).textContent=document.getElementById(id.replace('V','')).value;
+  });
+  document.getElementById('edFlow').textContent=ed;
+  document.getElementById('termFlow').textContent=term;
+  document.getElementById('w1').textContent=term;
+  document.getElementById('w2').textContent=sr;
+  document.getElementById('w3').textContent=ed;
+  document.getElementById('w4').textContent=br;
+
+  const daysEarly=term-ed;
+  const costWithout=inv*1000*(sr/100)*(daysEarly/365);
+  const costWith=inv*1000*(br/100)*(daysEarly/365);
+  const saving=costWithout-costWith;
+  const bankEarn=costWith;
+
+  document.getElementById('supWithout').textContent='−$'+(costWithout/1000).toFixed(1)+'K';
+  document.getElementById('supWith').textContent='−$'+(costWith/1000).toFixed(1)+'K';
+  document.getElementById('supSave').textContent='$'+(saving/1000).toFixed(1)+'K';
+  document.getElementById('bankSpread').textContent='$'+(bankEarn/1000).toFixed(1)+'K';
+
+  // Chart 1: Cost comparison across days
+  const days=[];const withoutData=[];const withData=[];
+  for(let d=5;d<=term;d+=5){
+    days.push(d);
+    withoutData.push((inv*1000*(sr/100)*((term-d)/365)/1000).toFixed(2));
+    withData.push((inv*1000*(br/100)*((term-d)/365)/1000).toFixed(2));
+  }
+  if(c1)c1.destroy();
+  c1=new Chart(document.getElementById('chart1'),{type:'line',data:{labels:days,datasets:[
+    {label:'Without RF (Supplier Rate)',data:withoutData,borderColor:'#c62828',backgroundColor:'rgba(198,40,40,.1)',fill:true,tension:.3},
+    {label:'With RF (Buyer Rate)',data:withData,borderColor:'#2e7d32',backgroundColor:'rgba(46,125,50,.1)',fill:true,tension:.3}
+  ]},options:{responsive:true,scales:{x:{title:{display:true,text:'Early Payment Day'}},y:{title:{display:true,text:'Financing Cost ($K)'}}}}});
+
+  // Chart 2: Annual impact
+  if(c2)c2.destroy();
+  c2=new Chart(document.getElementById('chart2'),{type:'bar',data:{labels:['Supplier Savings','Bank Revenue','Buyer Benefit (Goodwill)'],datasets:[{
+    data:[(saving*100/1000).toFixed(0),(bankEarn*100/1000).toFixed(0),(saving*100/1000*0.3).toFixed(0)],
+    backgroundColor:['#2e7d32','#e65100','#1565c0'],borderRadius:6
+  }]},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Annual Value ($K, 100 invoices)'}}}}});
+
+  let msg='';
+  if(saving>0)msg=`💡 The supplier saves $${(saving/1000).toFixed(1)}K per invoice by using the buyer's credit rating (${br}% vs ${sr}%). Over 100 invoices/year, that's $${(saving*100/1000).toFixed(0)}K in annual savings. The bank earns a risk-free spread on the buyer's creditworthiness.`;
+  else msg='⚠️ The rates are too close for reverse factoring to add value. The supplier\'s rate needs to be meaningfully higher than the buyer\'s rate.';
+  document.getElementById('insight').textContent=msg;
+}
+calc();
+</script></body></html>

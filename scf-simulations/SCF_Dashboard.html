@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supply Chain Finance & Operations Analytics — Interactive Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f5f5f5; display: flex; justify-content: center; }
+  .wrap { width: 100%; max-width: 1200px; }
+
+  /* Header */
+  .header { background: #1a3a5c; color: white; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+  .header-logo { line-height: 1.15; }
+  .header-logo .dept { font-size: 10px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.8; }
+  .header-logo .school { font-size: 16px; font-weight: 700; }
+  .header-divider { width: 1px; height: 32px; background: rgba(255,255,255,0.3); }
+  .header-course { font-size: 12px; opacity: 0.9; line-height: 1.4; }
+  .header-course b { font-size: 14px; opacity: 1; }
+
+  /* Tabs */
+  .tabs { display: flex; background: #f0f0f0; border-bottom: 2px solid #1a3a5c; }
+  .tab { padding: 10px 20px; font-size: 13px; font-weight: 600; color: #666; cursor: pointer; border: none; background: none; transition: all 0.2s; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+  .tab:hover { color: #1a3a5c; background: #e8e8e8; }
+  .tab.active { color: #1a3a5c; background: white; border-bottom-color: #1a3a5c; }
+
+  /* Panel */
+  .panel { display: none; padding: 12px 20px 16px; background: white; }
+  .panel.active { display: block; }
+
+  /* Two-column layout: controls left, charts right */
+  .row { display: flex; gap: 14px; align-items: flex-start; }
+  .col-ctrl { flex: 0 0 340px; }
+  .col-chart { flex: 1; min-width: 0; }
+
+  /* Stats bar */
+  .stats { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  .stat { background: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 6px; padding: 6px 10px; text-align: center; flex: 1; min-width: 100px; }
+  .stat .label { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.05em; color: #999; }
+  .stat .val { font-size: 16px; font-weight: 700; }
+  .stat .unit { font-size: 9px; color: #999; }
+  .v-navy { color: #1a3a5c; } .v-red { color: #c0392b; } .v-green { color: #1a7a3a; }
+  .v-blue { color: #2980b9; } .v-orange { color: #d35400; }
+
+  /* Controls */
+  .controls { display: flex; flex-direction: column; gap: 8px; }
+  .ctrl { display: flex; align-items: center; gap: 6px; }
+  .ctrl label { width: 130px; font-size: 11.5px; font-weight: 600; color: #333; line-height: 1.2; }
+  .ctrl label span { font-weight: 400; color: #aaa; font-size: 9.5px; display: block; }
+  .ctrl input[type=range] { flex: 1; accent-color: #1a3a5c; height: 5px; min-width: 80px; }
+  .ctrl .num { width: 60px; font-size: 12px; font-weight: 700; color: #1a3a5c; text-align: right; font-family: 'Consolas', monospace; white-space: nowrap; }
+
+  /* Charts */
+  .chart-box { border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
+  canvas { display: block; width: 100%; }
+
+  /* WC breakdown cards */
+  .wc-panel { display: flex; gap: 8px; margin-top: 8px; }
+  .wc-card { flex: 1; background: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px 10px; }
+  .wc-card h4 { font-size: 10.5px; color: #1a3a5c; margin-bottom: 4px; }
+  .wc-row { display: flex; justify-content: space-between; font-size: 11px; padding: 2px 0; }
+  .wc-row:last-child { font-weight: 700; border-top: 1px solid #ddd; padding-top: 3px; margin-top: 2px; }
+  .wc-row .wv { font-family: 'Consolas', monospace; font-size: 11px; }
+
+  /* Comparison cards for Module 2 */
+  .comp-row-3 { display: flex; gap: 8px; margin-top: 8px; }
+  .comp-card { flex: 1; background: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px 10px; }
+  .comp-card.highlight { border-color: #1a7a3a; background: #f4fcf4; }
+  .comp-card h4 { font-size: 10.5px; color: #1a3a5c; margin-bottom: 4px; }
+  .cr { display: flex; justify-content: space-between; font-size: 10.5px; padding: 1.5px 0; }
+  .cr:last-child { font-weight: 700; border-top: 1px solid #ddd; padding-top: 3px; margin-top: 2px; }
+
+  /* Run button */
+  .run-btn { padding: 7px 18px; background: #1a3a5c; color: white; border: none; border-radius: 5px; font-weight: 700; font-size: 12px; cursor: pointer; margin-top: 8px; }
+  .run-btn:hover { background: #2a5a8c; }
+
+  /* Bottom formulas section */
+  .bottom-section { padding: 12px 20px 16px; background: #fafafa; border-top: 1px solid #e0e0e0; }
+  .formula-bar { background: #f0f5fa; border: 1px solid #c8d8e8; border-radius: 6px; padding: 10px 14px; font-family: 'Georgia', serif; font-size: 13px; color: #333; line-height: 1.7; margin-bottom: 8px; }
+  .formula-bar b { color: #1a3a5c; }
+  .note { background: #f0f5fa; border-left: 3px solid #1a3a5c; padding: 8px 12px; border-radius: 3px; font-size: 11.5px; color: #444; line-height: 1.6; margin-bottom: 8px; }
+  .note b { color: #1a3a5c; }
+
+  /* Footer */
+  .footer { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-top: 1px solid #ddd; font-size: 10px; color: #999; background: #fafafa; }
+  .footer a { color: #1a3a5c; text-decoration: none; }
+
+  .section-label { font-size: 11px; font-weight: 700; color: #1a3a5c; margin: 8px 0 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="header-logo">
+      <span class="dept">Administrative Sciences</span>
+      <span class="school">Supply Chain Finance &amp; Analytics</span>
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-course">
+      <b>Interactive Operations Dashboard</b><br>
+      Working Capital · SCF Instruments · Risk Simulation
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(0)">CCC &amp; Working Capital</button>
+    <button class="tab" onclick="switchTab(1)">Dynamic Discounting &amp; Reverse Factoring</button>
+    <button class="tab" onclick="switchTab(2)">Monte Carlo Profit Risk</button>
+  </div>
+
+  <!-- ========== MODULE 1: CCC ========== -->
+  <div class="panel active" id="p0">
+    <div class="stats">
+      <div class="stat"><div class="label">CCC</div><div class="val v-navy" id="s1CCC">45</div><div class="unit">days</div></div>
+      <div class="stat"><div class="label">Operating Cycle</div><div class="val v-blue" id="s1OC">75</div><div class="unit">days</div></div>
+      <div class="stat"><div class="label">Net Working Capital</div><div class="val v-red" id="s1WC">$5.96M</div></div>
+      <div class="stat"><div class="label">Financing Cost/yr</div><div class="val v-orange" id="s1FC">$298K</div></div>
+      <div class="stat"><div class="label">1-Day CCC Saving</div><div class="val v-green" id="s1Day">$4.5K</div><div class="unit">/year</div></div>
+    </div>
+    <div class="row">
+      <div class="col-ctrl">
+        <div class="controls">
+          <div class="ctrl"><label>Annual Revenue<span>$ millions</span></label><input type="range" id="r1Rev" min="5" max="100" step="1" value="50" oninput="u1()"><div class="num" id="v1Rev">$50M</div></div>
+          <div class="ctrl"><label>COGS %<span>of revenue</span></label><input type="range" id="r1COGS" min="40" max="90" step="1" value="65" oninput="u1()"><div class="num" id="v1COGS">65%</div></div>
+          <div class="ctrl"><label>DIO<span>days inventory</span></label><input type="range" id="r1DIO" min="10" max="120" step="1" value="35" oninput="u1()"><div class="num" id="v1DIO">35d</div></div>
+          <div class="ctrl"><label>DSO<span>days sales</span></label><input type="range" id="r1DSO" min="10" max="120" step="1" value="40" oninput="u1()"><div class="num" id="v1DSO">40d</div></div>
+          <div class="ctrl"><label>DPO<span>days payable</span></label><input type="range" id="r1DPO" min="10" max="120" step="1" value="30" oninput="u1()"><div class="num" id="v1DPO">30d</div></div>
+          <div class="ctrl"><label>Cost of Capital<span>annual %</span></label><input type="range" id="r1Rate" min="2" max="15" step="0.5" value="5" oninput="u1()"><div class="num" id="v1Rate">5.0%</div></div>
+        </div>
+        <div class="wc-panel">
+          <div class="wc-card">
+            <h4>Current Assets</h4>
+            <div class="wc-row"><span>Inventory</span><span class="wv" id="w1Inv">$3.12M</span></div>
+            <div class="wc-row"><span>Accts Receivable</span><span class="wv" id="w1AR">$5.48M</span></div>
+            <div class="wc-row"><span>Total</span><span class="wv" id="w1CA">$8.60M</span></div>
+          </div>
+          <div class="wc-card">
+            <h4>Net WC</h4>
+            <div class="wc-row"><span>Accts Payable</span><span class="wv" id="w1AP">$2.67M</span></div>
+            <div class="wc-row"><span>Net WC Req.</span><span class="wv" id="w1NWC">$5.96M</span></div>
+            <div class="wc-row"><span>Fin. Cost/yr</span><span class="wv" id="w1Cost">$298K</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-chart">
+        <div class="chart-box"><canvas id="c1timeline" width="780" height="170"></canvas></div>
+        <div class="chart-box"><canvas id="c1sens" width="780" height="260"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MODULE 2: SCF ========== -->
+  <div class="panel" id="p1">
+    <div class="stats">
+      <div class="stat"><div class="label">Buyer Best Gain</div><div class="val v-green" id="s2BG">$0</div></div>
+      <div class="stat"><div class="label">Supplier Best Gain</div><div class="val v-green" id="s2SG">$0</div></div>
+      <div class="stat"><div class="label">Win-Win Surplus</div><div class="val v-navy" id="s2Sur">$0</div></div>
+      <div class="stat"><div class="label">Discount APR</div><div class="val v-orange" id="s2APR">3.0%</div></div>
+      <div class="stat"><div class="label">Arbitrage</div><div class="val v-blue" id="s2Arb">Yes</div></div>
+    </div>
+    <div class="row">
+      <div class="col-ctrl">
+        <div class="controls">
+          <div class="ctrl"><label>Invoice Amount<span>$</span></label><input type="range" id="r2Inv" min="50000" max="2000000" step="50000" value="500000" oninput="u2()"><div class="num" id="v2Inv">$500K</div></div>
+          <div class="ctrl"><label>Payment Terms<span>days</span></label><input type="range" id="r2Terms" min="30" max="120" step="5" value="60" oninput="u2()"><div class="num" id="v2Terms">60d</div></div>
+          <div class="ctrl"><label>Early Pay Day<span>days after invoice</span></label><input type="range" id="r2Early" min="5" max="45" step="1" value="10" oninput="u2()"><div class="num" id="v2Early">10d</div></div>
+          <div class="ctrl"><label>Discount APR<span>annualized %</span></label><input type="range" id="r2Disc" min="1" max="15" step="0.5" value="3" oninput="u2()"><div class="num" id="v2Disc">3.0%</div></div>
+          <div class="ctrl"><label>Buyer CoC<span>annual %</span></label><input type="range" id="r2BR" min="2" max="12" step="0.5" value="5" oninput="u2()"><div class="num" id="v2BR">5.0%</div></div>
+          <div class="ctrl"><label>Supplier CoC<span>annual %</span></label><input type="range" id="r2SR" min="4" max="20" step="0.5" value="10" oninput="u2()"><div class="num" id="v2SR">10.0%</div></div>
+          <div class="ctrl"><label>Bank Factor Rate<span>annual %</span></label><input type="range" id="r2BkR" min="1" max="10" step="0.25" value="3.5" oninput="u2()"><div class="num" id="v2BkR">3.50%</div></div>
+        </div>
+        <div class="comp-row-3">
+          <div class="comp-card" id="cc2Std">
+            <h4>Standard</h4>
+            <div class="cr"><span>Pay day</span><span id="c2sDay">60</span></div>
+            <div class="cr"><span>Supplier wait $</span><span id="c2sWait">$8.2K</span></div>
+            <div class="cr"><span>Buyer net</span><span id="c2sBN">$0</span></div>
+            <div class="cr"><span>Supplier net</span><span id="c2sSN">$0</span></div>
+          </div>
+          <div class="comp-card" id="cc2DD">
+            <h4>Dyn. Discount</h4>
+            <div class="cr"><span>Discount</span><span id="c2dDisc">$2.1K</span></div>
+            <div class="cr"><span>Buyer cost</span><span id="c2dBC">$3.4K</span></div>
+            <div class="cr"><span>Buyer net</span><span id="c2dBN">-$1.3K</span></div>
+            <div class="cr"><span>Supplier net</span><span id="c2dSN">$4.7K</span></div>
+          </div>
+          <div class="comp-card" id="cc2RF">
+            <h4>Rev. Factoring</h4>
+            <div class="cr"><span>Bank fee</span><span id="c2rFee">$2.4K</span></div>
+            <div class="cr"><span>Supp. receives</span><span id="c2rSR">$497.6K</span></div>
+            <div class="cr"><span>Buyer net</span><span id="c2rBN">$0</span></div>
+            <div class="cr"><span>Supplier net</span><span id="c2rSN">$4.4K</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-chart">
+        <div class="chart-box"><canvas id="c2main" width="780" height="280"></canvas></div>
+        <div class="chart-box"><canvas id="c2sens" width="780" height="230"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MODULE 3: Monte Carlo ========== -->
+  <div class="panel" id="p2">
+    <div class="stats">
+      <div class="stat"><div class="label">E[Profit]</div><div class="val v-green" id="s3EP">$0</div></div>
+      <div class="stat"><div class="label">Profit StdDev</div><div class="val v-orange" id="s3SD">$0</div></div>
+      <div class="stat"><div class="label">VaR (5%)</div><div class="val v-red" id="s3VaR">$0</div></div>
+      <div class="stat"><div class="label">Service Level</div><div class="val v-blue" id="s3SL">0%</div></div>
+      <div class="stat"><div class="label">Optimal Q*</div><div class="val v-navy" id="s3Qs">0</div></div>
+    </div>
+    <div class="row">
+      <div class="col-ctrl">
+        <div class="controls">
+          <div class="ctrl"><label>Mean Demand<span>units</span></label><input type="range" id="r3Mu" min="100" max="2000" step="50" value="500" oninput="u3()"><div class="num" id="v3Mu">500</div></div>
+          <div class="ctrl"><label>Demand StdDev<span>units</span></label><input type="range" id="r3Sig" min="20" max="500" step="10" value="120" oninput="u3()"><div class="num" id="v3Sig">120</div></div>
+          <div class="ctrl"><label>Unit Cost<span>$/unit</span></label><input type="range" id="r3C" min="10" max="200" step="5" value="50" oninput="u3()"><div class="num" id="v3C">$50</div></div>
+          <div class="ctrl"><label>Selling Price<span>$/unit</span></label><input type="range" id="r3P" min="20" max="400" step="5" value="90" oninput="u3()"><div class="num" id="v3P">$90</div></div>
+          <div class="ctrl"><label>Salvage Value<span>$/unit unsold</span></label><input type="range" id="r3S" min="0" max="100" step="5" value="15" oninput="u3()"><div class="num" id="v3S">$15</div></div>
+          <div class="ctrl"><label>Order Qty Q<span>units</span></label><input type="range" id="r3Q" min="100" max="1500" step="10" value="500" oninput="u3()"><div class="num" id="v3Q">500</div></div>
+        </div>
+        <button class="run-btn" onclick="u3()">Re-Run 10,000 Simulations</button>
+        <span style="font-size:10px;color:#999;margin-left:8px;" id="s3Time"></span>
+      </div>
+      <div class="col-chart">
+        <div class="chart-box"><canvas id="c3hist" width="780" height="240"></canvas></div>
+        <div style="display:flex;gap:8px;">
+          <div class="chart-box" style="flex:1;"><canvas id="c3ep" width="380" height="200"></canvas></div>
+          <div class="chart-box" style="flex:1;"><canvas id="c3var" width="380" height="200"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== BOTTOM: FORMULAS & NOTES ========== -->
+  <div class="bottom-section">
+    <div id="formula0" class="formula-bar" style="display:block;">
+      <b>CCC</b> = <b>DIO</b> + <b>DSO</b> &minus; <b>DPO</b> &rarr; <span id="f1Result">CCC = 35 + 40 &minus; 30 = <b>45 days</b></span><br>
+      <b>Working Capital</b> = Inventory + AR &minus; AP &nbsp;|&nbsp; <b>Financing Cost</b> = WC &times; CoC
+    </div>
+    <div id="formula1" class="formula-bar" style="display:none;">
+      <b>Dynamic Discount:</b> d = Invoice &times; (APR/365) &times; (Terms &minus; EarlyDay)<br>
+      <b>Win-Win Condition:</b> Supplier CoC &gt; Discount APR &gt; Buyer CoC &rarr; <span id="f2Result"></span>
+    </div>
+    <div id="formula2" class="formula-bar" style="display:none;">
+      <b>Critical Ratio:</b> CR = (p&minus;c)/(p&minus;s) = <span id="f3CR"></span> &nbsp;|&nbsp;
+      <b>Q*</b> = &mu; + &sigma;&Phi;<sup>&minus;1</sup>(CR) = <span id="f3Qs"></span> &nbsp;|&nbsp;
+      <b>Sharpe</b> = E[&pi;]/&sigma;(&pi;) = <span id="f3Sh"></span>
+    </div>
+
+    <div id="note0" class="note" style="display:block;">
+      <b>Key Insight:</b> Every day of CCC reduction frees working capital equal to daily revenue. Companies with negative CCC (Amazon, Dell) generate <b>float income</b> rather than bearing financing cost. Supply chain finance programs target DPO extension without harming suppliers.
+    </div>
+    <div id="note1" class="note" style="display:none;">
+      <b>Key Insight:</b> Supply chain finance creates value through <b>credit arbitrage</b> between buyer's lower CoC and supplier's higher CoC. Dynamic discounting deploys buyer cash at returns above WACC. Reverse factoring lets suppliers access financing at the buyer's credit rating. Platforms like C2FO and Taulia implement this as real-time auctions.
+    </div>
+    <div id="note2" class="note" style="display:none;">
+      <b>Key Insight:</b> Q* maximizes expected profit but not risk-adjusted profit. A risk-averse manager may order less than Q* to reduce VaR, trading expected profit for stability. This is the inventory analog of the <b>mean-variance frontier</b> in portfolio theory. In practice, ML models (XGBoost, neural nets) predict demand distributions from features, feeding Monte Carlo for <b>data-driven inventory optimization</b>.
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Chenhao Zhou &middot; Supply Chain Finance &amp; Analytics &middot; <a href="https://chenhaozhou.me">chenhaozhou.me</a></span>
+    <span>Interactive Teaching Dashboard</span>
+  </div>
+</div>
+
+<script>
+// ========== TAB SWITCHING ==========
+let activeTab = 0;
+function switchTab(i) {
+  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', j===i));
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', j===i));
+  for (let k=0;k<3;k++) {
+    document.getElementById('formula'+k).style.display = k===i?'block':'none';
+    document.getElementById('note'+k).style.display = k===i?'block':'none';
+  }
+  activeTab = i;
+  if (i===0) u1(); else if (i===1) u2(); else u3();
+}
+
+// ========== UTILS ==========
+function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+function fmtM(n) { return Math.abs(n)>=1e6?'$'+(n/1e6).toFixed(2)+'M':'$'+(n/1000).toFixed(0)+'K'; }
+function fmtK(n) { return Math.abs(n)>=1000?'$'+(n/1000).toFixed(1)+'K':'$'+n.toFixed(0); }
+function normInv(p){if(p<=0)return-Infinity;if(p>=1)return Infinity;if(p<0.5)return-normInv(1-p);const t=Math.sqrt(-2*Math.log(1-p)),c0=2.515517,c1=0.802853,c2=0.010328,d1=1.432788,d2=0.189269,d3=0.001308;return t-(c0+c1*t+c2*t*t)/(1+d1*t+d2*t*t+d3*t*t*t);}
+function randN(mu,sig){return mu+sig*Math.sqrt(-2*Math.log(Math.random()))*Math.cos(2*Math.PI*Math.random());}
+function mean(a){let s=0;for(let i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function std(a){const m=mean(a);let s=0;for(let i=0;i<a.length;i++)s+=(a[i]-m)**2;return Math.sqrt(s/a.length);}
+function pctl(a,p){const s=Array.from(a).sort((a,b)=>a-b);return s[Math.max(0,Math.floor(p/100*s.length))];}
+
+function drawCurve(ctx,fn,xMin,xMax,toX,toY,yMax,color,w,dash){
+  ctx.strokeStyle=color;ctx.lineWidth=w;ctx.setLineDash(dash||[]);ctx.beginPath();let s=false;
+  for(let i=0;i<=500;i++){const x=xMin+(xMax-xMin)*i/500;if(x<1)continue;const c=fn(x);if(c>yMax*1.1){s=false;continue;}
+  const px=toX(x),py=toY(Math.max(0,Math.min(c,yMax)));if(!s){ctx.moveTo(px,py);s=true;}else ctx.lineTo(px,py);}
+  ctx.stroke();ctx.setLineDash([]);
+}
+
+// ========== MODULE 1: CCC ==========
+function u1(){
+  const Rev=+el('r1Rev').value,COGSp=+el('r1COGS').value,DIO=+el('r1DIO').value,DSO=+el('r1DSO').value,DPO=+el('r1DPO').value,rate=+el('r1Rate').value;
+  el('v1Rev').textContent='$'+Rev+'M';el('v1COGS').textContent=COGSp+'%';el('v1DIO').textContent=DIO+'d';el('v1DSO').textContent=DSO+'d';el('v1DPO').textContent=DPO+'d';el('v1Rate').textContent=rate.toFixed(1)+'%';
+  const COGS=Rev*1e6*COGSp/100,CCC=DIO+DSO-DPO,OC=DIO+DSO;
+  const Inv=COGS/365*DIO,AR=Rev*1e6/365*DSO,AP=COGS/365*DPO,NWC=Inv+AR-AP,FC=NWC*rate/100;
+  const daily=Rev*1e6/365,dayInt=daily*rate/100;
+  el('s1CCC').textContent=CCC;el('s1OC').textContent=OC;el('s1WC').textContent=fmtM(NWC);el('s1FC').textContent=fmtK(FC);el('s1Day').textContent=fmtK(dayInt);
+  el('w1Inv').textContent=fmtM(Inv);el('w1AR').textContent=fmtM(AR);el('w1CA').textContent=fmtM(Inv+AR);el('w1AP').textContent=fmtM(AP);el('w1NWC').textContent=fmtM(NWC);el('w1Cost').textContent=fmtK(FC);
+  el('f1Result').innerHTML=`CCC = ${DIO} + ${DSO} &minus; ${DPO} = <b>${CCC} days</b>`;
+  drawTimeline(DIO,DSO,DPO);drawSens1(Rev,DIO,DSO,DPO,rate);
+}
+function drawTimeline(DIO,DSO,DPO){
+  const cv=el('c1timeline'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  const P={l:50,r:20,t:20,b:32},pw=W-P.l-P.r,maxD=Math.max(DIO+DSO,DPO,140);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const toX=d=>P.l+(d/maxD)*pw;
+  // axis
+  ctx.strokeStyle='#ccc';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(P.l,H-P.b);ctx.lineTo(W-P.r,H-P.b);ctx.stroke();
+  ctx.fillStyle='#888';ctx.font='9px Consolas';ctx.textAlign='center';
+  for(let d=0;d<=maxD;d+=Math.ceil(maxD/7/10)*10){ctx.fillText(d,toX(d),H-P.b+12);ctx.strokeStyle='#f0f0f0';ctx.beginPath();ctx.moveTo(toX(d),P.t);ctx.lineTo(toX(d),H-P.b);ctx.stroke();}
+  ctx.fillStyle='#888';ctx.font='10px Segoe UI';ctx.textAlign='center';ctx.fillText('Days from Purchase',W/2,H-3);
+  const bH=20,g=7,y1=P.t,y2=y1+bH+g,y3=y2+bH+g;
+  ctx.fillStyle='#3498db';ctx.fillRect(toX(0),y1,toX(DIO)-toX(0),bH);
+  ctx.fillStyle='#fff';ctx.font='bold 10px Segoe UI';ctx.textAlign='center';ctx.fillText('DIO='+DIO,(toX(0)+toX(DIO))/2,y1+14);
+  ctx.fillStyle='#e67e22';ctx.fillRect(toX(DIO),y2,toX(DIO+DSO)-toX(DIO),bH);
+  ctx.fillStyle='#fff';ctx.fillText('DSO='+DSO,(toX(DIO)+toX(DIO+DSO))/2,y2+14);
+  ctx.fillStyle='#1a7a3a';ctx.fillRect(toX(0),y3,toX(DPO)-toX(0),bH);
+  ctx.fillStyle='#fff';ctx.fillText('DPO='+DPO,(toX(0)+toX(DPO))/2,y3+14);
+  const CCC=DIO+DSO-DPO;
+  if(CCC>0){const x1=toX(DPO),x2=toX(DIO+DSO),bY=y3+bH+4;
+    ctx.strokeStyle='#c0392b';ctx.lineWidth=2;ctx.setLineDash([5,3]);ctx.beginPath();ctx.moveTo(x1,bY);ctx.lineTo(x1,bY+8);ctx.lineTo(x2,bY+8);ctx.lineTo(x2,bY);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#c0392b';ctx.font='bold 11px Segoe UI';ctx.fillText('CCC = '+CCC+' days',(x1+x2)/2,bY+20);
+  }else{ctx.fillStyle='#1a7a3a';ctx.font='bold 11px Segoe UI';ctx.textAlign='center';ctx.fillText('CCC = '+CCC+' days (float!)',W/2,y3+bH+20);}
+  ctx.fillStyle='#555';ctx.font='9px Segoe UI';ctx.textAlign='right';ctx.fillText('Inventory',P.l-3,y1+14);ctx.fillText('Receivables',P.l-3,y2+14);ctx.fillText('Payables',P.l-3,y3+14);
+}
+function drawSens1(Rev,DIO,DSO,DPO,rate){
+  const cv=el('c1sens'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  const P={l:62,r:16,t:16,b:36},pw=W-P.l-P.r,ph=H-P.t-P.b;
+  const xMin=-30,xMax=150,ds=Rev*1e6/365;
+  const yMax=Math.ceil(xMax*ds*rate/100/1e5)*1e5,yMin=Math.floor(xMin*ds*rate/100/1e5)*1e5;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const toX=d=>P.l+(d-xMin)/(xMax-xMin)*pw,toY=c=>P.t+ph-(c-yMin)/(yMax-yMin)*ph;
+  // grid
+  ctx.strokeStyle='#f0f0f0';ctx.lineWidth=1;
+  const ys=Math.max(50000,Math.ceil((yMax-yMin)/5/50000)*50000);
+  for(let v=yMin;v<=yMax;v+=ys){ctx.beginPath();ctx.moveTo(P.l,toY(v));ctx.lineTo(W-P.r,toY(v));ctx.stroke();}
+  for(let d=xMin;d<=xMax;d+=20){ctx.beginPath();ctx.moveTo(toX(d),P.t);ctx.lineTo(toX(d),H-P.b);ctx.stroke();}
+  if(yMin<0&&yMax>0){ctx.strokeStyle='#bbb';ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(P.l,toY(0));ctx.lineTo(W-P.r,toY(0));ctx.stroke();ctx.setLineDash([]);}
+  ctx.strokeStyle='#999';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(P.l,P.t);ctx.lineTo(P.l,H-P.b);ctx.lineTo(W-P.r,H-P.b);ctx.stroke();
+  ctx.fillStyle='#888';ctx.font='9px Consolas';ctx.textAlign='center';
+  for(let d=xMin;d<=xMax;d+=20)ctx.fillText(d,toX(d),H-P.b+12);
+  ctx.textAlign='right';for(let v=yMin;v<=yMax;v+=ys)ctx.fillText('$'+fmt(v/1000)+'K',P.l-5,toY(v)+3);
+  ctx.fillStyle='#888';ctx.font='10px Segoe UI';ctx.textAlign='center';ctx.fillText('Cash Conversion Cycle (days)',W/2,H-3);
+  ctx.save();ctx.translate(10,H/2);ctx.rotate(-Math.PI/2);ctx.fillText('Annual Financing Cost ($)',0,0);ctx.restore();
+  // line
+  ctx.strokeStyle='#1a3a5c';ctx.lineWidth=2.5;ctx.beginPath();let st=false;
+  for(let i=0;i<=500;i++){const d=xMin+(xMax-xMin)*i/500,c=d*ds*rate/100,x=toX(d),y=toY(c);if(!st){ctx.moveTo(x,y);st=true;}else ctx.lineTo(x,y);}ctx.stroke();
+  // green zone
+  if(xMin<0){ctx.fillStyle='rgba(26,122,58,0.06)';ctx.fillRect(toX(xMin),P.t,toX(0)-toX(xMin),ph);ctx.fillStyle='#1a7a3a';ctx.font='9px Segoe UI';ctx.textAlign='center';ctx.fillText('Float Zone',(toX(xMin)+toX(0))/2,P.t+12);}
+  // marker
+  const ccc=DIO+DSO-DPO,cc=ccc*ds*rate/100;
+  if(ccc>=xMin&&ccc<=xMax){ctx.setLineDash([5,3]);ctx.strokeStyle='#c0392b';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(toX(ccc),toY(yMin));ctx.lineTo(toX(ccc),toY(cc));ctx.stroke();ctx.beginPath();ctx.moveTo(toX(xMin),toY(cc));ctx.lineTo(toX(ccc),toY(cc));ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#c0392b';ctx.beginPath();ctx.arc(toX(ccc),toY(cc),6,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(toX(ccc),toY(cc),2.5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#c0392b';ctx.font='bold 11px Segoe UI';ctx.textAlign='left';ctx.fillText('CCC='+ccc+'d  Cost='+fmtK(cc),toX(ccc)+10,toY(cc)-6);}
+}
+
+// ========== MODULE 2: SCF ==========
+function u2(){
+  const inv=+el('r2Inv').value,terms=+el('r2Terms').value,early=Math.min(+el('r2Early').value,terms-5),dAPR=+el('r2Disc').value,bR=+el('r2BR').value,sR=+el('r2SR').value,bkR=+el('r2BkR').value;
+  el('v2Inv').textContent=fmtK(inv);el('v2Terms').textContent=terms+'d';el('v2Early').textContent=early+'d';el('v2Disc').textContent=dAPR.toFixed(1)+'%';el('v2BR').textContent=bR.toFixed(1)+'%';el('v2SR').textContent=sR.toFixed(1)+'%';el('v2BkR').textContent=bkR.toFixed(1)+'%';
+  const acc=terms-early;
+  const ddDisc=inv*(dAPR/100)*acc/365,ddBOC=inv*(bR/100)*acc/365,ddSWS=inv*(sR/100)*acc/365;
+  const ddBN=ddDisc-ddBOC,ddSN=ddSWS-ddDisc;
+  const rfFee=inv*(bkR/100)*acc/365,rfSWS=inv*(sR/100)*acc/365,rfSN=rfSWS-rfFee;
+  const sWait=inv*(sR/100)*terms/365;
+  const bestB=Math.max(0,ddBN),bestS=Math.max(ddSN,rfSN);
+  el('s2BG').textContent=fmtK(bestB);el('s2SG').textContent=fmtK(bestS);el('s2Sur').textContent=fmtK(bestB+bestS);el('s2APR').textContent=dAPR.toFixed(1)+'%';
+  el('s2Arb').textContent=(sR>dAPR&&dAPR>bR)?'Yes ✓':'No ✗';el('s2Arb').className='val '+(sR>dAPR&&dAPR>bR?'v-green':'v-red');
+  el('c2sDay').textContent=terms;el('c2sWait').textContent=fmtK(sWait);el('c2sBN').textContent='$0';el('c2sSN').textContent='$0';
+  el('c2dDisc').textContent=fmtK(ddDisc);el('c2dBC').textContent=fmtK(ddBOC);el('c2dBN').textContent=fmtK(ddBN);el('c2dSN').textContent=fmtK(ddSN);
+  el('c2rFee').textContent=fmtK(rfFee);el('c2rSR').textContent=fmtK(inv-rfFee);el('c2rBN').textContent='$0';el('c2rSN').textContent=fmtK(rfSN);
+  const tDD=ddBN+ddSN,tRF=rfSN;el('cc2Std').className='comp-card';el('cc2DD').className='comp-card';el('cc2RF').className='comp-card';
+  if(tDD>=tRF&&tDD>0)el('cc2DD').className='comp-card highlight';else if(tRF>0)el('cc2RF').className='comp-card highlight';
+  el('f2Result').innerHTML=`${sR}% > ${dAPR}% ${dAPR>bR?'>':'≤'} ${bR}% → <b>${dAPR>bR?'Win-Win ✓':'Buyer loses ✗'}</b>`;
+  drawMain2(inv,terms,early,dAPR,bR,sR,bkR);drawSens2(inv,terms,early,dAPR,bR,sR);
+}
+function drawMain2(inv,terms,early,dAPR,bR,sR,bkR){
+  const cv=el('c2main'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  const P={l:60,r:16,t:16,b:36},pw=W-P.l-P.r,ph=H-P.t-P.b;
+  const xMin=0,xMax=Math.max(terms+10,80);
+  const maxD=inv*(20/100)*(terms)/365,yMax=Math.ceil(maxD/1000)*1000+1000;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const toX=d=>P.l+(d-xMin)/(xMax-xMin)*pw,toY=c=>P.t+ph-(c/yMax)*ph;
+  ctx.strokeStyle='#f0f0f0';ctx.lineWidth=1;const ys=Math.max(1000,Math.ceil(yMax/4/1000)*1000);
+  for(let v=0;v<=yMax;v+=ys){ctx.beginPath();ctx.moveTo(P.l,toY(v));ctx.lineTo(W-P.r,toY(v));ctx.stroke();}
+  for(let d=0;d<=xMax;d+=10){ctx.beginPath();ctx.moveTo(toX(d),P.t);ctx.lineTo(toX(d),H-P.b);ctx.stroke();}
+  ctx.strokeStyle='#999';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(P.l,P.t);ctx.lineTo(P.l,H-P.b);ctx.lineTo(W-P.r,H-P.b);ctx.stroke();
+  ctx.fillStyle='#888';ctx.font='9px Consolas';ctx.textAlign='center';for(let d=0;d<=xMax;d+=10)ctx.fillText(d,toX(d),H-P.b+12);
+  ctx.textAlign='right';for(let v=0;v<=yMax;v+=ys)ctx.fillText('$'+fmt(v),P.l-5,toY(v)+3);
+  ctx.fillStyle='#888';ctx.font='10px Segoe UI';ctx.textAlign='center';ctx.fillText('Early Payment Day',W/2,H-3);
+  const rates=[{r:sR,c:'#c0392b',l:'Supplier CoC',d:[]},{r:dAPR,c:'#1a3a5c',l:'Discount APR',d:[]},{r:bR,c:'#2980b9',l:'Buyer CoC',d:[]},{r:bkR,c:'#e67e22',l:'Bank Rate',d:[6,4]}];
+  rates.forEach(rt=>{ctx.strokeStyle=rt.c;ctx.lineWidth=2.2;ctx.setLineDash(rt.d);ctx.beginPath();let s=false;
+    for(let i=0;i<=400;i++){const day=xMin+(xMax-xMin)*i/400,ac=Math.max(0,terms-day),dc=inv*(rt.r/100)*ac/365,x=toX(day),y=toY(dc);if(!s){ctx.moveTo(x,y);s=true;}else ctx.lineTo(x,y);}ctx.stroke();ctx.setLineDash([]);});
+  // due date line
+  ctx.setLineDash([4,3]);ctx.strokeStyle='#aaa';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(toX(terms),P.t);ctx.lineTo(toX(terms),H-P.b);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#888';ctx.font='9px Segoe UI';ctx.textAlign='center';ctx.fillText('Due:'+terms+'d',toX(terms),P.t+10);
+  // marker
+  const cd=inv*(dAPR/100)*(terms-early)/365;ctx.setLineDash([4,2]);ctx.strokeStyle='#555';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(toX(early),toY(0));ctx.lineTo(toX(early),toY(cd));ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#1a3a5c';ctx.beginPath();ctx.arc(toX(early),toY(cd),5,0,Math.PI*2);ctx.fill();
+  ctx.font='bold 10px Segoe UI';ctx.textAlign='left';ctx.fillText('Day'+early+': '+fmtK(cd),toX(early)+8,toY(cd)-5);
+  // legend
+  const lx=P.l+8,ly=P.t+4;ctx.fillStyle='rgba(255,255,255,0.9)';ctx.fillRect(lx-4,ly-2,175,72);ctx.strokeStyle='#e5e5e5';ctx.lineWidth=1;ctx.strokeRect(lx-4,ly-2,175,72);
+  rates.forEach((rt,i)=>{const y=ly+8+i*16;ctx.strokeStyle=rt.c;ctx.lineWidth=2.2;ctx.setLineDash(rt.d);ctx.beginPath();ctx.moveTo(lx,y);ctx.lineTo(lx+18,y);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#444';ctx.font='9.5px Segoe UI';ctx.textAlign='left';ctx.fillText(rt.l+' ('+rt.r+'%)',lx+24,y+3);});
+}
+function drawSens2(inv,terms,early,dAPR,bR,sR){
+  const cv=el('c2sens'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  const P={l:60,r:16,t:16,b:36},pw=W-P.l-P.r,ph=H-P.t-P.b;
+  const xMin=5,xMax=terms;
+  function bBen(d){const a=Math.max(0,terms-d);return inv*(dAPR/100)*a/365-inv*(bR/100)*a/365;}
+  function sBen(d){const a=Math.max(0,terms-d);return inv*(sR/100)*a/365-inv*(dAPR/100)*a/365;}
+  const maxB=Math.max(Math.abs(sBen(xMin)),Math.abs(bBen(xMin)),1)*1.3;
+  const yMin=-maxB*0.4,yMax=maxB;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const toX=d=>P.l+(d-xMin)/(xMax-xMin)*pw,toY=c=>P.t+ph-(c-yMin)/(yMax-yMin)*ph;
+  ctx.strokeStyle='#f0f0f0';ctx.lineWidth=1;const ys=Math.max(500,Math.ceil((yMax-yMin)/4/500)*500);
+  for(let v=Math.ceil(yMin/ys)*ys;v<=yMax;v+=ys){ctx.beginPath();ctx.moveTo(P.l,toY(v));ctx.lineTo(W-P.r,toY(v));ctx.stroke();}
+  ctx.strokeStyle='#bbb';ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(P.l,toY(0));ctx.lineTo(W-P.r,toY(0));ctx.stroke();ctx.setLineDash([]);
+  ctx.strokeStyle='#999';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(P.l,P.t);ctx.lineTo(P.l,H-P.b);ctx.lineTo(W-P.r,H-P.b);ctx.stroke();
+  ctx.fillStyle='#888';ctx.font='9px Consolas';ctx.textAlign='center';
+  for(let d=xMin;d<=xMax;d+=Math.ceil((xMax-xMin)/6/5)*5)ctx.fillText(d,toX(d),H-P.b+12);
+  ctx.textAlign='right';for(let v=Math.ceil(yMin/ys)*ys;v<=yMax;v+=ys)ctx.fillText(fmtK(v),P.l-5,toY(v)+3);
+  ctx.fillStyle='#888';ctx.font='10px Segoe UI';ctx.textAlign='center';ctx.fillText('Early Payment Day',W/2,H-3);
+  [{fn:bBen,c:'#2980b9',l:'Buyer'},{fn:sBen,c:'#c0392b',l:'Supplier'}].forEach(cu=>{
+    ctx.strokeStyle=cu.c;ctx.lineWidth=2.2;ctx.beginPath();let s=false;
+    for(let i=0;i<=400;i++){const d=xMin+(xMax-xMin)*i/400,v=cu.fn(d);if(v<yMin||v>yMax){s=false;continue;}const x=toX(d),y=toY(v);if(!s){ctx.moveTo(x,y);s=true;}else ctx.lineTo(x,y);}ctx.stroke();});
+  const bb=bBen(early),sb=sBen(early);
+  [{v:bb,c:'#2980b9',l:'Buyer',a:'right',dy:-6},{v:sb,c:'#c0392b',l:'Supplier',a:'left',dy:12}].forEach(m=>{
+    ctx.fillStyle=m.c;ctx.beginPath();ctx.arc(toX(early),toY(m.v),4,0,Math.PI*2);ctx.fill();
+    ctx.font='bold 9px Segoe UI';ctx.textAlign=m.a;ctx.fillText(m.l+': '+fmtK(m.v),toX(early)+(m.a==='right'?-6:6),toY(m.v)+m.dy);});
+  const lx=W-P.r-140,ly=P.t+4;ctx.fillStyle='rgba(255,255,255,0.9)';ctx.fillRect(lx-4,ly-2,134,38);ctx.strokeStyle='#e5e5e5';ctx.lineWidth=1;ctx.strokeRect(lx-4,ly-2,134,38);
+  [{c:'#2980b9',l:'Buyer Net'},{c:'#c0392b',l:'Supplier Net'}].forEach((cu,i)=>{const y=ly+8+i*14;ctx.strokeStyle=cu.c;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(lx,y);ctx.lineTo(lx+16,y);ctx.stroke();ctx.fillStyle='#444';ctx.font='9px Segoe UI';ctx.textAlign='left';ctx.fillText(cu.l,lx+22,y+3);});
+}
+
+// ========== MODULE 3: MONTE CARLO ==========
+const N=10000;
+function u3(){
+  const t0=performance.now();
+  const mu=+el('r3Mu').value,sig=+el('r3Sig').value,c=+el('r3C').value,p=+el('r3P').value,s=+el('r3S').value,Q=+el('r3Q').value;
+  el('v3Mu').textContent=fmt(mu);el('v3Sig').textContent=fmt(sig);el('v3C').textContent='$'+fmt(c);el('v3P').textContent='$'+fmt(p);el('v3S').textContent='$'+fmt(s);el('v3Q').textContent=fmt(Q);
+  const CR=(p-c)/(p-s),Qs=Math.round(mu+sig*normInv(CR));
+  const profits=new Float64Array(N);let served=0;
+  for(let i=0;i<N;i++){const d=Math.max(0,randN(mu,sig)),sold=Math.min(Q,d),un=Math.max(0,Q-d);profits[i]=sold*p+un*s-Q*c;if(d<=Q)served++;}
+  const ep=mean(profits),sd=std(profits),v5=pctl(profits,5),sl=served/N;
+  el('s3EP').textContent=fmtK(ep);el('s3SD').textContent=fmtK(sd);el('s3VaR').textContent=fmtK(v5);el('s3SL').textContent=(sl*100).toFixed(1)+'%';el('s3Qs').textContent=fmt(Qs);
+  el('f3CR').innerHTML=`(${p}&minus;${c})/(${p}&minus;${s}) = <b>${CR.toFixed(3)}</b>`;
+  el('f3Qs').innerHTML=`<b>${Qs} units</b>`;
+  el('f3Sh').innerHTML=`<b>${(ep/sd).toFixed(2)}</b>`;
+  drawHist(profits,v5,ep);drawEP(mu,sig,c,p,s,Q);drawVaR3(mu,sig,c,p,s,Q);
+  el('s3Time').textContent=fmt(N)+' runs in '+(performance.now()-t0).toFixed(0)+'ms';
+}
+function drawHist(profits,v5,ep){
+  const cv=el('c3hist'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  const P={l:60,r:16,t:12,b:32},pw=W-P.l-P.r,ph=H-P.t-P.b;
+  const sorted=Array.from(profits).sort((a,b)=>a-b),pMin=sorted[Math.floor(N*0.005)],pMax=sorted[Math.floor(N*0.995)];
+  const bins=50,bW=(pMax-pMin)/bins,counts=new Array(bins).fill(0);
+  for(let i=0;i<N;i++){const idx=Math.min(bins-1,Math.max(0,Math.floor((profits[i]-pMin)/bW)));counts[idx]++;}
+  const mx=Math.max(...counts);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const toX=v=>P.l+(v-pMin)/(pMax-pMin)*pw,toY=c=>P.t+ph-(c/mx)*ph;
+  ctx.strokeStyle='#999';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(P.l,P.t);ctx.lineTo(P.l,H-P.b);ctx.lineTo(W-P.r,H-P.b);ctx.stroke();
+  for(let i=0;i<bins;i++){const x=toX(pMin+i*bW),w=toX(pMin+(i+1)*bW)-x,h=(counts[i]/mx)*ph,mid=pMin+(i+0.5)*bW;
+    ctx.fillStyle=mid<v5?'rgba(192,57,43,0.7)':'rgba(26,58,92,0.5)';ctx.fillRect(x,P.t+ph-h,w-1,h);}
+  ctx.strokeStyle='#c0392b';ctx.lineWidth=2;ctx.setLineDash([5,3]);ctx.beginPath();ctx.moveTo(toX(v5),P.t);ctx.lineTo(toX(v5),H-P.b);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#c0392b';ctx.font='bold 10px Segoe UI';ctx.textAlign='center';ctx.fillText('VaR(5%)='+fmtK(v5),toX(v5),P.t+10);
+  ctx.strokeStyle='#1a7a3a';ctx.lineWidth=2;ctx.setLineDash([5,3]);ctx.beginPath();ctx.moveTo(toX(ep),P.t);ctx.lineTo(toX(ep),H-P.b);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#1a7a3a';ctx.fillText('E[π]='+fmtK(ep),toX(ep),P.t+22);
+  ctx.fillStyle='#888';ctx.font='9px Consolas';ctx.textAlign='center';
+  const xs=Math.ceil((pMax-pMin)/5/1000)*1000;for(let v=Math.ceil(pMin/xs)*xs;v<=pMax;v+=xs)ctx.fillText(fmtK(v),toX(v),H-P.b+12);
+  ctx.font='10px Segoe UI';ctx.fillText('Profit ($)',W/2,H-3);
+}
+function simQ(mu,sig,c,p,s,Q){const pr=new Float64Array(1000);for(let i=0;i<1000;i++){const d=Math.max(0,randN(mu,sig));pr[i]=Math.min(Q,d)*p+Math.max(0,Q-d)*s-Q*c;}return{ep:mean(pr),v5:pctl(pr,5)};}
+function drawSmallChart(cvId,mu,sig,c,p,s,curQ,field,color,ylabel){
+  const cv=el(cvId),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  const P={l:52,r:10,t:12,b:30},pw=W-P.l-P.r,ph=H-P.t-P.b;
+  const qMin=50,qMax=Math.max(mu*2,curQ*1.5);const pts=[];
+  for(let q=qMin;q<=qMax;q+=15){const r=simQ(mu,sig,c,p,s,q);pts.push({q,v:r[field]});}
+  const vMin=Math.min(...pts.map(p=>p.v)),vMax=Math.max(...pts.map(p=>p.v)),vPad=(vMax-vMin)*0.1||1000;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const toX=q=>P.l+(q-qMin)/(qMax-qMin)*pw,toY=v=>P.t+ph-(v-(vMin-vPad))/((vMax+vPad)-(vMin-vPad))*ph;
+  if(vMin<0&&vMax>0){ctx.strokeStyle='#ccc';ctx.lineWidth=1;ctx.setLineDash([3,2]);ctx.beginPath();ctx.moveTo(P.l,toY(0));ctx.lineTo(W-P.r,toY(0));ctx.stroke();ctx.setLineDash([]);}
+  ctx.strokeStyle='#999';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(P.l,P.t);ctx.lineTo(P.l,H-P.b);ctx.lineTo(W-P.r,H-P.b);ctx.stroke();
+  ctx.strokeStyle=color;ctx.lineWidth=2.2;ctx.beginPath();pts.forEach((p,i)=>{const fn=i===0?'moveTo':'lineTo';ctx[fn](toX(p.q),toY(p.v));});ctx.stroke();
+  const cur=simQ(mu,sig,c,p,s,curQ);ctx.fillStyle='#c0392b';ctx.beginPath();ctx.arc(toX(curQ),toY(cur[field]),4,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#888';ctx.font='9px Consolas';ctx.textAlign='center';
+  for(let q=qMin;q<=qMax;q+=Math.ceil((qMax-qMin)/4/50)*50)ctx.fillText(q,toX(q),H-P.b+11);
+  ctx.font='9px Segoe UI';ctx.fillText('Q',W/2,H-3);
+  ctx.save();ctx.translate(8,H/2);ctx.rotate(-Math.PI/2);ctx.fillText(ylabel,0,0);ctx.restore();
+}
+function drawEP(mu,sig,c,p,s,Q){drawSmallChart('c3ep',mu,sig,c,p,s,Q,'ep','#1a7a3a','E[Profit]');}
+function drawVaR3(mu,sig,c,p,s,Q){drawSmallChart('c3var',mu,sig,c,p,s,Q,'v5','#c0392b','VaR(5%)');}
+
+function el(id){return document.getElementById(id);}
+
+// Init
+u1();
+</script>
+</body>
+</html>

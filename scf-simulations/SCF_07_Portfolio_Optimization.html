@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Portfolio Optimization: Efficient Frontier</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8f9fa;color:#333;padding:20px}
+.header{text-align:center;padding:20px;background:linear-gradient(135deg,#1a237e,#0d47a1);color:#fff;border-radius:12px;margin-bottom:24px}
+.header h1{font-size:1.7em;margin-bottom:4px}.header p{opacity:.9;font-size:.95em}
+.container{max-width:1100px;margin:0 auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card h3{color:#1a237e;margin-bottom:12px;font-size:1.1em}
+label{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.9em;font-weight:500}
+label span{color:#1a237e;font-weight:700}input[type=range]{width:100%;accent-color:#1a237e;margin-bottom:10px}
+.alloc{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}
+.alloc-item{padding:6px 10px;border-radius:6px;font-size:.8em;font-weight:600;text-align:center;min-width:60px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.m{text-align:center;padding:10px;background:#e8eaf6;border-radius:8px}
+.m .v{font-size:1.3em;font-weight:700;color:#1a237e}.m .l{font-size:.72em;color:#666;margin-top:2px}
+canvas{max-height:300px}
+.insight{padding:14px;border-left:4px solid #1a237e;background:#e8eaf6;border-radius:0 8px 8px 0;margin-top:12px;font-size:.9em;line-height:1.5}
+.footer{text-align:center;margin-top:20px;font-size:.8em;color:#999}
+</style></head><body>
+<div class="container">
+<div class="header"><h1>📈 Portfolio Optimization & Efficient Frontier</h1><p>Explore the risk-return tradeoff with interactive Markowitz portfolio theory</p></div>
+<div class="grid">
+<div class="card">
+<h3>📊 Asset Parameters</h3>
+<label>Stock A Return (%) <span id="r1V">12</span></label>
+<input type="range" id="r1" min="2" max="30" value="12" oninput="calc()">
+<label>Stock A Risk (σ %) <span id="s1V">20</span></label>
+<input type="range" id="s1" min="5" max="40" value="20" oninput="calc()">
+<label>Stock B Return (%) <span id="r2V">8</span></label>
+<input type="range" id="r2" min="2" max="25" value="8" oninput="calc()">
+<label>Stock B Risk (σ %) <span id="s2V">12</span></label>
+<input type="range" id="s2" min="3" max="30" value="12" oninput="calc()">
+<label>Correlation (ρ) <span id="corrV">0.3</span></label>
+<input type="range" id="corr" min="-1" max="1" step="0.05" value="0.3" oninput="calc()">
+<label>Risk-Free Rate (%) <span id="rfV">4</span></label>
+<input type="range" id="rf" min="0" max="8" step="0.5" value="4" oninput="calc()">
+<label>Your Portfolio: Weight in A (%) <span id="wV">50</span></label>
+<input type="range" id="w" min="0" max="100" value="50" oninput="calc()">
+
+<div class="alloc" id="allocBar"></div>
+<div class="metrics">
+<div class="m"><div class="v" id="pReturn">-</div><div class="l">Expected Return</div></div>
+<div class="m"><div class="v" id="pRisk">-</div><div class="l">Portfolio Risk (σ)</div></div>
+<div class="m"><div class="v" id="pSharpe">-</div><div class="l">Sharpe Ratio</div></div>
+</div>
+</div>
+<div class="card">
+<h3>🎯 Efficient Frontier</h3>
+<canvas id="chart1"></canvas>
+<div class="insight" id="insight"></div>
+</div>
+</div>
+<div class="grid">
+<div class="card"><h3>📉 Correlation Effect on Min-Variance Portfolio</h3><canvas id="chart2"></canvas></div>
+<div class="card"><h3>📊 Sharpe Ratio by Weight</h3><canvas id="chart3"></canvas></div>
+</div>
+<div class="footer">Supply Chain Finance Teaching Tool | Chenhao Zhou | Boston University Metropolitan College</div>
+</div>
+<script>
+let c1,c2,c3;
+function portRisk(w,s1,s2,corr){return Math.sqrt(w*w*s1*s1+(1-w)*(1-w)*s2*s2+2*w*(1-w)*s1*s2*corr);}
+function calc(){
+  const r1=+document.getElementById('r1').value,s1=+document.getElementById('s1').value;
+  const r2=+document.getElementById('r2').value,s2=+document.getElementById('s2').value;
+  const corr=+document.getElementById('corr').value,rf=+document.getElementById('rf').value;
+  const wA=+document.getElementById('w').value/100;
+  ['r1V','s1V','r2V','s2V','rfV'].forEach(id=>document.getElementById(id).textContent=document.getElementById(id.replace('V','')).value);
+  document.getElementById('corrV').textContent=corr.toFixed(2);
+  document.getElementById('wV').textContent=(wA*100).toFixed(0);
+
+  const pR=wA*r1+(1-wA)*r2;
+  const pS=portRisk(wA,s1/100,s2/100,corr)*100;
+  const sharpe=pS>0?(pR-rf)/pS:0;
+
+  document.getElementById('pReturn').textContent=pR.toFixed(1)+'%';
+  document.getElementById('pRisk').textContent=pS.toFixed(1)+'%';
+  document.getElementById('pSharpe').textContent=sharpe.toFixed(2);
+  document.getElementById('allocBar').innerHTML=
+    `<div class="alloc-item" style="background:#1a237e;color:#fff;flex:${wA||0.01}">A: ${(wA*100).toFixed(0)}%</div>`+
+    `<div class="alloc-item" style="background:#42a5f5;color:#fff;flex:${1-wA||0.01}">B: ${((1-wA)*100).toFixed(0)}%</div>`;
+
+  // Efficient frontier
+  const frontier=[];let minVarW=0,minVarRisk=999,maxSharpeW=0,maxSharpe=-999;
+  for(let w=0;w<=1;w+=0.01){
+    const r=w*r1+(1-w)*r2;
+    const s=portRisk(w,s1/100,s2/100,corr)*100;
+    frontier.push({x:s,y:r,w});
+    if(s<minVarRisk){minVarRisk=s;minVarW=w;}
+    const sh=s>0?(r-rf)/s:0;
+    if(sh>maxSharpe){maxSharpe=sh;maxSharpeW=w;}
+  }
+
+  if(c1)c1.destroy();
+  c1=new Chart(document.getElementById('chart1'),{type:'scatter',data:{datasets:[
+    {label:'Efficient Frontier',data:frontier,borderColor:'#1a237e',backgroundColor:'rgba(26,35,126,.1)',showLine:true,pointRadius:0,tension:.3,fill:false},
+    {label:'Your Portfolio',data:[{x:pS,y:pR}],backgroundColor:'#c62828',pointRadius:8,pointStyle:'star'},
+    {label:'Min Variance',data:[{x:minVarRisk,y:minVarW*r1+(1-minVarW)*r2}],backgroundColor:'#2e7d32',pointRadius:7},
+    {label:'Max Sharpe',data:[{x:portRisk(maxSharpeW,s1/100,s2/100,corr)*100,y:maxSharpeW*r1+(1-maxSharpeW)*r2}],backgroundColor:'#e65100',pointRadius:7},
+    {label:'Stock A',data:[{x:s1,y:r1}],backgroundColor:'#1a237e',pointRadius:6,pointStyle:'triangle'},
+    {label:'Stock B',data:[{x:s2,y:r2}],backgroundColor:'#42a5f5',pointRadius:6,pointStyle:'triangle'}
+  ]},options:{responsive:true,scales:{x:{title:{display:true,text:'Risk (σ %)'},min:0},y:{title:{display:true,text:'Expected Return (%)'}}}}});
+
+  // Chart 2: Correlation effect
+  const corrs=[-1,-0.5,0,0.3,0.5,0.8,1];
+  const minRisks=corrs.map(c=>{let mr=999;for(let w=0;w<=1;w+=0.01){const s=portRisk(w,s1/100,s2/100,c)*100;if(s<mr)mr=s;}return mr.toFixed(1);});
+  if(c2)c2.destroy();
+  c2=new Chart(document.getElementById('chart2'),{type:'bar',data:{labels:corrs.map(c=>'ρ='+c),datasets:[{
+    label:'Min Portfolio Risk (%)',data:minRisks,backgroundColor:minRisks.map((_,i)=>`rgba(26,35,126,${0.3+i*0.1})`),borderRadius:4
+  }]},options:{responsive:true,scales:{y:{title:{display:true,text:'Min Risk (σ %)'}}}}});
+
+  // Chart 3: Sharpe by weight
+  const weights=[];const sharpes=[];
+  for(let w=0;w<=100;w+=2){
+    weights.push(w);
+    const ww=w/100;const s=portRisk(ww,s1/100,s2/100,corr)*100;
+    sharpes.push(s>0?((ww*r1+(1-ww)*r2-rf)/s).toFixed(3):0);
+  }
+  if(c3)c3.destroy();
+  c3=new Chart(document.getElementById('chart3'),{type:'line',data:{labels:weights,datasets:[{
+    label:'Sharpe Ratio',data:sharpes,borderColor:'#1a237e',backgroundColor:'rgba(26,35,126,.1)',fill:true,tension:.3,pointRadius:0
+  }]},options:{responsive:true,scales:{x:{title:{display:true,text:'Weight in Stock A (%)'}},y:{title:{display:true,text:'Sharpe Ratio'}}}}});
+
+  document.getElementById('insight').textContent=`💡 With ρ=${corr.toFixed(2)}, the minimum-variance portfolio is ${(minVarW*100).toFixed(0)}% A / ${((1-minVarW)*100).toFixed(0)}% B (risk: ${minVarRisk.toFixed(1)}%). The maximum Sharpe portfolio is ${(maxSharpeW*100).toFixed(0)}% A / ${((1-maxSharpeW)*100).toFixed(0)}% B (Sharpe: ${maxSharpe.toFixed(2)}). Lower correlation = more diversification benefit.`;
+}
+calc();
+</script></body></html>

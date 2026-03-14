@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Factoring vs Reverse Factoring: Cost-Benefit Analysis</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8f9fa;color:#333;padding:20px}
+.header{text-align:center;padding:20px;background:linear-gradient(135deg,#00695c,#004d40);color:#fff;border-radius:12px;margin-bottom:24px}
+.header h1{font-size:1.7em;margin-bottom:4px}.header p{opacity:.9;font-size:.95em}
+.container{max-width:1100px;margin:0 auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card h3{color:#00695c;margin-bottom:12px;font-size:1.1em}
+label{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.9em;font-weight:500}
+label span{color:#00695c;font-weight:700}input[type=range]{width:100%;accent-color:#00695c;margin-bottom:14px}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.box{padding:16px;border-radius:10px;text-align:center}
+.box h4{margin-bottom:8px;font-size:1em}
+.box .cost{font-size:1.8em;font-weight:700;margin:8px 0}
+.box .detail{font-size:.8em;color:#555;line-height:1.6}
+.trad{background:#e0f2f1;border:2px solid #00695c}.trad .cost{color:#00695c}
+.rev{background:#e8eaf6;border:2px solid #283593}.rev h4,.rev .cost{color:#283593}
+.winner{padding:14px;border-radius:8px;text-align:center;font-size:1em;font-weight:600;margin:12px 0}
+.w-trad{background:#e0f2f1;color:#00695c}.w-rev{background:#e8eaf6;color:#283593}
+canvas{max-height:260px}
+.flow-diagram{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.flow-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;font-size:.85em}
+.f1{background:#e0f2f1}.f2{background:#e8eaf6}
+.flow-row .icon{font-size:1.2em;min-width:28px}
+.footer{text-align:center;margin-top:20px;font-size:.8em;color:#999}
+</style></head><body>
+<div class="container">
+<div class="header"><h1>🔀 Factoring vs Reverse Factoring</h1><p>Compare traditional factoring (supplier-initiated) with reverse factoring (buyer-initiated)</p></div>
+<div class="grid">
+<div class="card">
+<h3>⚙️ Parameters</h3>
+<label>Monthly Receivables ($M) <span id="recV">2</span></label>
+<input type="range" id="rec" min="0.1" max="10" step="0.1" value="2" oninput="calc()">
+<label>Payment Terms (days) <span id="termV">60</span></label>
+<input type="range" id="term" min="30" max="120" value="60" oninput="calc()">
+<label>Supplier Credit Rating <span id="scrV">BB</span></label>
+<input type="range" id="scr" min="1" max="5" value="3" oninput="calc()">
+<label>Buyer Credit Rating <span id="bcrV">A</span></label>
+<input type="range" id="bcr" min="1" max="5" value="4" oninput="calc()">
+<label>Factoring Fee (% of invoice) <span id="feeV">3</span>%</label>
+<input type="range" id="fee" min="1" max="8" step="0.5" value="3" oninput="calc()">
+<label>Advance Rate (%) <span id="advV">85</span>%</label>
+<input type="range" id="adv" min="70" max="98" value="85" oninput="calc()">
+
+<h3 style="margin-top:14px">Traditional Factoring Flow</h3>
+<div class="flow-diagram">
+<div class="flow-row f1"><span class="icon">🏭</span>Supplier sells receivable to factor at a discount</div>
+<div class="flow-row f1"><span class="icon">🏦</span>Factor advances 80-90% immediately</div>
+<div class="flow-row f1"><span class="icon">🏢</span>Buyer pays factor on due date</div>
+<div class="flow-row f1"><span class="icon">💵</span>Factor releases reserve minus fees</div>
+</div>
+<h3>Reverse Factoring Flow</h3>
+<div class="flow-diagram">
+<div class="flow-row f2"><span class="icon">🏢</span>Buyer approves invoice on platform</div>
+<div class="flow-row f2"><span class="icon">🏦</span>Bank offers early payment at buyer's rate</div>
+<div class="flow-row f2"><span class="icon">🏭</span>Supplier chooses to accept early payment</div>
+<div class="flow-row f2"><span class="icon">💵</span>Buyer pays bank on original due date</div>
+</div>
+</div>
+<div class="card">
+<h3>💰 Cost Comparison</h3>
+<div class="compare">
+<div class="box trad">
+<h4>Traditional Factoring</h4>
+<div class="cost" id="tradCost">-</div>
+<div class="detail" id="tradDetail">-</div>
+</div>
+<div class="box rev">
+<h4>Reverse Factoring</h4>
+<div class="cost" id="revCost">-</div>
+<div class="detail" id="revDetail">-</div>
+</div>
+</div>
+<div class="winner" id="winner">-</div>
+<h3>📊 Annual Cost by Invoice Volume</h3>
+<canvas id="chart1"></canvas>
+<h3 style="margin-top:16px">📈 Cost Sensitivity to Credit Rating Gap</h3>
+<canvas id="chart2"></canvas>
+</div>
+</div>
+<div class="footer">Supply Chain Finance Teaching Tool | Chenhao Zhou | Boston University Metropolitan College</div>
+</div>
+<script>
+const ratings=['CCC','B','BB','A','AA'];
+const rateMap={1:15,2:10,3:7,4:4.5,5:3};
+let c1,c2;
+function calc(){
+  const rec=+document.getElementById('rec').value*1e6;
+  const term=+document.getElementById('term').value;
+  const scr=+document.getElementById('scr').value;
+  const bcr=+document.getElementById('bcr').value;
+  const fee=+document.getElementById('fee').value;
+  const adv=+document.getElementById('adv').value;
+
+  document.getElementById('recV').textContent=document.getElementById('rec').value;
+  document.getElementById('termV').textContent=term;
+  document.getElementById('scrV').textContent=ratings[scr-1];
+  document.getElementById('bcrV').textContent=ratings[bcr-1];
+  document.getElementById('feeV').textContent=fee;
+  document.getElementById('advV').textContent=adv;
+
+  const supRate=rateMap[scr];const buyRate=rateMap[bcr];
+
+  // Traditional factoring cost (per invoice)
+  const tradFee=rec*fee/100;
+  const tradInt=rec*(adv/100)*(supRate/100)*(term/365);
+  const tradTotal=tradFee+tradInt;
+  const tradAnn=(tradTotal/rec*365/term*100);
+
+  // Reverse factoring cost (per invoice)
+  const revInt=rec*(buyRate/100)*(term/365);
+  const revTotal=revInt;
+  const revAnn=(revInt/rec*365/term*100);
+
+  document.getElementById('tradCost').textContent='$'+(tradTotal/1000).toFixed(1)+'K';
+  document.getElementById('tradDetail').innerHTML=`Fee: $${(tradFee/1000).toFixed(1)}K (${fee}%)<br>Interest: $${(tradInt/1000).toFixed(1)}K (${supRate}% rate)<br>Advance: ${adv}%<br>Effective annual: ${tradAnn.toFixed(1)}%`;
+  document.getElementById('revCost').textContent='$'+(revTotal/1000).toFixed(1)+'K';
+  document.getElementById('revDetail').innerHTML=`No fee<br>Interest: $${(revInt/1000).toFixed(1)}K (${buyRate}% rate)<br>Advance: 100%<br>Effective annual: ${revAnn.toFixed(1)}%`;
+
+  const w=document.getElementById('winner');
+  const saving=tradTotal-revTotal;
+  if(saving>0){w.className='winner w-rev';w.textContent=`🏆 Reverse factoring saves $${(saving/1000).toFixed(1)}K per invoice ($${(saving*12/1000).toFixed(0)}K/year)`;}
+  else{w.className='winner w-trad';w.textContent=`🏆 Traditional factoring is cheaper by $${(-saving/1000).toFixed(1)}K per invoice`;}
+
+  // Chart 1
+  const vols=[1,3,6,12,24,36];
+  if(c1)c1.destroy();
+  c1=new Chart(document.getElementById('chart1'),{type:'bar',data:{labels:vols.map(v=>v+'/yr'),datasets:[
+    {label:'Traditional',data:vols.map(v=>(tradTotal*v/1000).toFixed(1)),backgroundColor:'rgba(0,105,92,.6)',borderRadius:4},
+    {label:'Reverse',data:vols.map(v=>(revTotal*v/1000).toFixed(1)),backgroundColor:'rgba(40,53,147,.6)',borderRadius:4}
+  ]},options:{responsive:true,scales:{y:{title:{display:true,text:'Annual Cost ($K)'}}}}});
+
+  // Chart 2: Credit gap sensitivity
+  const gaps=[0,1,2,3,4];
+  const tradCosts=gaps.map(g=>{const r=rateMap[Math.max(1,bcr-g)]||15;return(rec*fee/100+rec*(adv/100)*(r/100)*(term/365))/1000;});
+  const revCosts=gaps.map(()=>(rec*(buyRate/100)*(term/365))/1000);
+  if(c2)c2.destroy();
+  c2=new Chart(document.getElementById('chart2'),{type:'line',data:{labels:gaps.map(g=>`${g} notch${g!==1?'es':''}`),datasets:[
+    {label:'Traditional',data:tradCosts.map(c=>c.toFixed(1)),borderColor:'#00695c',tension:.3},
+    {label:'Reverse',data:revCosts.map(c=>c.toFixed(1)),borderColor:'#283593',tension:.3}
+  ]},options:{responsive:true,scales:{x:{title:{display:true,text:'Credit Rating Gap (Supplier below Buyer)'}},y:{title:{display:true,text:'Cost per Invoice ($K)'}}}}});
+}
+calc();
+</script></body></html>

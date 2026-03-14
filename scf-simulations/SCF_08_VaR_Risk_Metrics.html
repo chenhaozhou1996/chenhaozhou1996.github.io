@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Value at Risk (VaR) & Risk Metrics</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8f9fa;color:#333;padding:20px}
+.header{text-align:center;padding:20px;background:linear-gradient(135deg,#b71c1c,#880e4f);color:#fff;border-radius:12px;margin-bottom:24px}
+.header h1{font-size:1.7em;margin-bottom:4px}.header p{opacity:.9;font-size:.95em}
+.container{max-width:1100px;margin:0 auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card h3{color:#b71c1c;margin-bottom:12px;font-size:1.1em}
+label{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.9em;font-weight:500}
+label span{color:#b71c1c;font-weight:700}input[type=range]{width:100%;accent-color:#b71c1c;margin-bottom:14px}
+.risk-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+.risk{text-align:center;padding:12px;border-radius:8px}
+.risk .v{font-size:1.4em;font-weight:700}.risk .l{font-size:.75em;color:#666;margin-top:2px}
+.r1{background:#ffebee;color:#b71c1c}.r2{background:#fce4ec;color:#880e4f}.r3{background:#f3e5f5;color:#6a1b9a}.r4{background:#e8eaf6;color:#283593}
+canvas{max-height:280px}
+.insight{padding:14px;border-left:4px solid #b71c1c;background:#ffebee;border-radius:0 8px 8px 0;margin-top:12px;font-size:.9em;line-height:1.5}
+.footer{text-align:center;margin-top:20px;font-size:.8em;color:#999}
+</style></head><body>
+<div class="container">
+<div class="header"><h1>⚠️ Value at Risk (VaR) & CVaR Calculator</h1><p>How much could you lose? Parametric, Historical, and Monte Carlo VaR methods</p></div>
+<div class="grid">
+<div class="card">
+<h3>⚙️ Portfolio Parameters</h3>
+<label>Portfolio Value ($M) <span id="pvV">10</span></label>
+<input type="range" id="pv" min="1" max="100" value="10" oninput="calc()">
+<label>Expected Daily Return (%) <span id="muV">0.04</span></label>
+<input type="range" id="mu" min="-0.1" max="0.2" step="0.01" value="0.04" oninput="calc()">
+<label>Daily Volatility (%) <span id="sigV">1.5</span></label>
+<input type="range" id="sig" min="0.5" max="5" step="0.1" value="1.5" oninput="calc()">
+<label>Confidence Level (%) <span id="clV">95</span></label>
+<input type="range" id="cl" min="90" max="99" step="0.5" value="95" oninput="calc()">
+<label>Holding Period (days) <span id="hpV">1</span></label>
+<input type="range" id="hp" min="1" max="30" value="1" oninput="calc()">
+<label>Skewness <span id="skewV">0</span></label>
+<input type="range" id="skew" min="-2" max="2" step="0.1" value="0" oninput="calc()">
+
+<div class="risk-grid">
+<div class="risk r1"><div class="v" id="varP">-</div><div class="l">Parametric VaR</div></div>
+<div class="risk r2"><div class="v" id="cvarP">-</div><div class="l">CVaR (Expected Shortfall)</div></div>
+<div class="risk r3"><div class="v" id="varMC">-</div><div class="l">Monte Carlo VaR</div></div>
+<div class="risk r4"><div class="v" id="maxDD">-</div><div class="l">Worst-Case Scenario</div></div>
+</div>
+</div>
+<div class="card">
+<h3>📊 Loss Distribution (Monte Carlo: 10,000 simulations)</h3>
+<canvas id="chart1"></canvas>
+<div class="insight" id="insight"></div>
+</div>
+</div>
+<div class="grid">
+<div class="card"><h3>📉 VaR by Confidence Level</h3><canvas id="chart2"></canvas></div>
+<div class="card"><h3>📈 VaR by Holding Period</h3><canvas id="chart3"></canvas></div>
+</div>
+<div class="footer">Supply Chain Finance Teaching Tool | Chenhao Zhou | Boston University Metropolitan College</div>
+</div>
+<script>
+let c1,c2,c3;
+function normInv(p){const a1=-3.969683028665376e1,a2=2.209460984245205e2,a3=-2.759285104469687e2,a4=1.383577518672690e2,a5=-3.066479806614716e1,a6=2.506628277459239e0;const b1=-5.447609879822406e1,b2=1.615858368580409e2,b3=-1.556989798598866e2,b4=6.680131188771972e1,b5=-1.328068155288572e1;const c1=-7.784894002430293e-3,c2=-3.223964580411365e-1,c3=-2.400758277161838e0,c4=-2.549732539343734e0,c5=4.374664141464968e0,c6=2.938163982698783e0;const d1=7.784695709041462e-3,d2=3.224671290700398e-1,d3=2.445134137142996e0,d4=3.754408661907416e0;const pLow=0.02425,pHigh=1-pLow;let q,r;if(p<pLow){q=Math.sqrt(-2*Math.log(p));return(((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6)/(((( d1*q+d2)*q+d3)*q+d4)*q+1);}if(p<=pHigh){q=p-0.5;r=q*q;return(((((a1*r+a2)*r+a3)*r+a4)*r+a5)*r+a6)*q/(((((b1*r+b2)*r+b3)*r+b4)*r+b5)*r+1);}q=Math.sqrt(-2*Math.log(1-p));return-(((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6)/((((d1*q+d2)*q+d3)*q+d4)*q+1);}
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+function calc(){
+  const pv=+document.getElementById('pv').value*1e6;
+  const mu=+document.getElementById('mu').value/100;
+  const sig=+document.getElementById('sig').value/100;
+  const cl=+document.getElementById('cl').value/100;
+  const hp=+document.getElementById('hp').value;
+  const skew=+document.getElementById('skew').value;
+
+  document.getElementById('pvV').textContent=document.getElementById('pv').value;
+  document.getElementById('muV').textContent=document.getElementById('mu').value;
+  document.getElementById('sigV').textContent=document.getElementById('sig').value;
+  document.getElementById('clV').textContent=document.getElementById('cl').value;
+  document.getElementById('hpV').textContent=hp;
+  document.getElementById('skewV').textContent=skew;
+
+  const z=normInv(cl);
+  const sqrtHP=Math.sqrt(hp);
+  const varP=pv*(mu*hp-z*sig*sqrtHP)*-1;
+  const cvarP=pv*(mu*hp-(sig*sqrtHP*Math.exp(-z*z/2)/Math.sqrt(2*Math.PI)/(1-cl)))*-1;
+
+  // Monte Carlo
+  const sims=10000;const losses=[];
+  for(let i=0;i<sims;i++){
+    let totalReturn=0;
+    for(let d=0;d<hp;d++){let r=mu+sig*randn();if(skew!==0)r+=skew*sig*0.1*(randn()*randn()-1);totalReturn+=r;}
+    losses.push(-totalReturn*pv);
+  }
+  losses.sort((a,b)=>b-a);
+  const varIdx=Math.floor(sims*(1-cl));
+  const varMC=losses[varIdx];
+  const cvarMC=losses.slice(0,varIdx).reduce((a,b)=>a+b,0)/varIdx;
+  const maxLoss=losses[0];
+
+  document.getElementById('varP').textContent='$'+(varP/1e6).toFixed(2)+'M';
+  document.getElementById('cvarP').textContent='$'+(cvarP/1e6).toFixed(2)+'M';
+  document.getElementById('varMC').textContent='$'+(varMC/1e6).toFixed(2)+'M';
+  document.getElementById('maxDD').textContent='$'+(maxLoss/1e6).toFixed(2)+'M';
+
+  // Histogram
+  const bins=40;const min=losses[losses.length-1];const max2=losses[0];const binW=(max2-min)/bins;
+  const hist=new Array(bins).fill(0);const binLabels=[];
+  for(let i=0;i<bins;i++)binLabels.push(((min+i*binW)/1e6).toFixed(2));
+  losses.forEach(l=>{const idx=Math.min(Math.floor((l-min)/binW),bins-1);hist[idx]++;});
+  const varBin=Math.floor((varMC-min)/binW);
+
+  if(c1)c1.destroy();
+  c1=new Chart(document.getElementById('chart1'),{type:'bar',data:{labels:binLabels,datasets:[{
+    data:hist,backgroundColor:hist.map((_,i)=>i>=varBin?'rgba(183,28,28,.7)':'rgba(40,53,147,.4)'),borderRadius:1
+  }]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Loss ($M)'},ticks:{maxTicksLimit:10}},y:{title:{display:true,text:'Frequency'}}}}});
+
+  // VaR by confidence
+  const cls2=[90,92.5,95,97.5,99];
+  const vars=cls2.map(c=>{const zz=normInv(c/100);return(pv*(mu*hp-zz*sig*sqrtHP)*-1/1e6).toFixed(3);});
+  if(c2)c2.destroy();
+  c2=new Chart(document.getElementById('chart2'),{type:'bar',data:{labels:cls2.map(c=>c+'%'),datasets:[{
+    label:'Parametric VaR ($M)',data:vars,backgroundColor:'rgba(183,28,28,.6)',borderRadius:4
+  }]},options:{responsive:true,scales:{y:{title:{display:true,text:'VaR ($M)'}}}}});
+
+  // VaR by holding period
+  const hps=[1,5,10,20,30];
+  const varsByHP=hps.map(h=>(pv*(mu*h-z*sig*Math.sqrt(h))*-1/1e6).toFixed(3));
+  if(c3)c3.destroy();
+  c3=new Chart(document.getElementById('chart3'),{type:'line',data:{labels:hps.map(h=>h+'d'),datasets:[{
+    label:'VaR ($M)',data:varsByHP,borderColor:'#b71c1c',backgroundColor:'rgba(183,28,28,.1)',fill:true,tension:.3
+  }]},options:{responsive:true,scales:{y:{title:{display:true,text:'VaR ($M)'}}}}});
+
+  document.getElementById('insight').textContent=`At ${(cl*100).toFixed(1)}% confidence over ${hp} day(s): there is a ${((1-cl)*100).toFixed(1)}% chance of losing more than $${(varP/1e6).toFixed(2)}M (parametric) or $${(varMC/1e6).toFixed(2)}M (Monte Carlo). CVaR tells you the average loss in the worst ${((1-cl)*100).toFixed(1)}% of scenarios: $${(cvarP/1e6).toFixed(2)}M. VaR scales with √t — a 10-day VaR ≈ √10 × 1-day VaR.`;
+}
+calc();
+</script></body></html>
