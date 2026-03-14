@@ -343,7 +343,7 @@
                         </div>
                         <div class="control-item">
                             <label>Decomposition Type</label>
-                            <select id="decompType" onchange="updateDecomposition()">
+                            <select id="decompType" oninput="updateDecomposition()">
                                 <option value="additive">Additive</option>
                                 <option value="multiplicative">Multiplicative</option>
                             </select>
@@ -397,7 +397,7 @@
                     </div>
                     <div class="control-item">
                         <label>Seasonal Period</label>
-                        <select id="seasonalPeriod" onchange="updateARIMA()">
+                        <select id="seasonalPeriod" oninput="updateARIMA()">
                             <option value="0">None</option>
                             <option value="7">Weekly</option>
                             <option value="30">Monthly</option>
@@ -526,7 +526,7 @@
                 <div class="control-panel">
                     <div class="control-item">
                         <label>SKU Category</label>
-                        <select id="categorySelect" onchange="updatePortfolio()">
+                        <select id="categorySelect" oninput="updatePortfolio()">
                             <option value="all">All Categories</option>
                             <option value="electronics">Electronics (30% of revenue)</option>
                             <option value="clothing">Clothing (25% of revenue)</option>
@@ -536,7 +536,7 @@
                     </div>
                     <div class="control-item">
                         <label>ABC Classification</label>
-                        <select id="abcSelect" onchange="updatePortfolio()">
+                        <select id="abcSelect" oninput="updatePortfolio()">
                             <option value="all">All Items</option>
                             <option value="a">A Items (80% value)</option>
                             <option value="b">B Items (15% value)</option>

@@ -893,7 +893,7 @@
                     <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:24px;">
                         <div>
                             <label style="display:block; font-weight:600; margin-bottom:8px; color:#1a1a1a;">Problem Type</label>
-                            <select id="fsType" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" onchange="updateFrameworkSelector()">
+                            <select id="fsType" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" oninput="updateFrameworkSelector()">
                                 <option value="">Select...</option>
                                 <option value="predict">Predict future outcomes</option>
                                 <option value="explain">Explain why something happened</option>
@@ -905,7 +905,7 @@
                         </div>
                         <div>
                             <label style="display:block; font-weight:600; margin-bottom:8px; color:#1a1a1a;">Data Availability</label>
-                            <select id="fsData" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" onchange="updateFrameworkSelector()">
+                            <select id="fsData" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" oninput="updateFrameworkSelector()">
                                 <option value="">Select...</option>
                                 <option value="rich">Rich labeled dataset (10K+ rows)</option>
                                 <option value="moderate">Moderate dataset (1K–10K rows)</option>
@@ -915,7 +915,7 @@
                         </div>
                         <div>
                             <label style="display:block; font-weight:600; margin-bottom:8px; color:#1a1a1a;">Interpretability Need</label>
-                            <select id="fsInterp" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" onchange="updateFrameworkSelector()">
+                            <select id="fsInterp" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" oninput="updateFrameworkSelector()">
                                 <option value="">Select...</option>
                                 <option value="high">High (regulatory / exec audience)</option>
                                 <option value="medium">Medium (data-savvy team)</option>
@@ -984,7 +984,7 @@
                             </div>
                             <div style="margin-bottom:16px;">
                                 <label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.9em;">Analytics Maturity Level</label>
-                                <select id="roiMaturity" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" onchange="calcROI()">
+                                <select id="roiMaturity" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" oninput="calcROI()">
                                     <option value="1">1 - Descriptive (Basic reporting)</option>
                                     <option value="2">2 - Diagnostic (Root cause analysis)</option>
                                     <option value="3" selected>3 - Predictive (Forecasting)</option>
@@ -994,7 +994,7 @@
                             </div>
                             <div style="margin-bottom:16px;">
                                 <label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.9em;">Primary Use Case</label>
-                                <select id="roiUseCase" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" onchange="calcROI()">
+                                <select id="roiUseCase" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" oninput="calcROI()">
                                     <option value="0.04">Customer Churn Reduction</option>
                                     <option value="0.03">Demand Forecasting</option>
                                     <option value="0.05" selected>Fraud Detection</option>

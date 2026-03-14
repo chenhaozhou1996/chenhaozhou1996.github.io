@@ -1141,7 +1141,7 @@ for i in range(3):
                             <span>Number of Clusters</span>
                             <span class="value-badge" id="clusterCount">4</span>
                         </div>
-                        <input type="range" class="slider" id="clusterSlider" min="2" max="8" value="4" onchange="updateClusters()">
+                        <input type="range" class="slider" id="clusterSlider" min="2" max="8" value="4" oninput="updateClusters()">
                     </div>
                     <div class="control-item">
                         <div class="control-label">
@@ -1149,7 +1149,7 @@ for i in range(3):
                             <span>Spending Weight</span>
                             <span class="value-badge" id="spendingWeight">1.0x</span>
                         </div>
-                        <input type="range" class="slider" id="spendingSlider" min="0" max="2" step="0.1" value="1" onchange="updateWeights()">
+                        <input type="range" class="slider" id="spendingSlider" min="0" max="2" step="0.1" value="1" oninput="updateWeights()">
                     </div>
                     <div class="control-item">
                         <div class="control-label">
@@ -1157,7 +1157,7 @@ for i in range(3):
                             <span>Frequency Weight</span>
                             <span class="value-badge" id="frequencyWeight">1.0x</span>
                         </div>
-                        <input type="range" class="slider" id="frequencySlider" min="0" max="2" step="0.1" value="1" onchange="updateWeights()">
+                        <input type="range" class="slider" id="frequencySlider" min="0" max="2" step="0.1" value="1" oninput="updateWeights()">
                     </div>
                     <div class="control-item">
                         <div class="control-label">
@@ -1165,7 +1165,7 @@ for i in range(3):
                             <span>Recency Weight</span>
                             <span class="value-badge" id="recencyWeight">1.0x</span>
                         </div>
-                        <input type="range" class="slider" id="recencySlider" min="0" max="2" step="0.1" value="1" onchange="updateWeights()">
+                        <input type="range" class="slider" id="recencySlider" min="0" max="2" step="0.1" value="1" oninput="updateWeights()">
                     </div>
                 </div>
                 
@@ -1256,7 +1256,7 @@ for i in range(3):
                             <span>VIP Retention Improvement</span>
                             <span class="value-badge" id="vipRetention">+15%</span>
                         </div>
-                        <input type="range" class="slider" id="vipSlider" min="0" max="30" value="15" onchange="calculateROI()">
+                        <input type="range" class="slider" id="vipSlider" min="0" max="30" value="15" oninput="calculateROI()">
                     </div>
                     <div class="control-item">
                         <div class="control-label">
@@ -1264,7 +1264,7 @@ for i in range(3):
                             <span>Regular Upsell Success</span>
                             <span class="value-badge" id="regularUpsell">+20%</span>
                         </div>
-                        <input type="range" class="slider" id="regularSlider" min="0" max="40" value="20" onchange="calculateROI()">
+                        <input type="range" class="slider" id="regularSlider" min="0" max="40" value="20" oninput="calculateROI()">
                     </div>
                     <div class="control-item">
                         <div class="control-label">
@@ -1272,7 +1272,7 @@ for i in range(3):
                             <span>Occasional Activation</span>
                             <span class="value-badge" id="occasionalActivation">+10%</span>
                         </div>
-                        <input type="range" class="slider" id="occasionalSlider" min="0" max="20" value="10" onchange="calculateROI()">
+                        <input type="range" class="slider" id="occasionalSlider" min="0" max="20" value="10" oninput="calculateROI()">
                     </div>
                     <div class="control-item">
                         <div class="control-label">
@@ -1280,7 +1280,7 @@ for i in range(3):
                             <span>Dormant Reactivation</span>
                             <span class="value-badge" id="dormantReactivation">+5%</span>
                         </div>
-                        <input type="range" class="slider" id="dormantSlider" min="0" max="15" value="5" onchange="calculateROI()">
+                        <input type="range" class="slider" id="dormantSlider" min="0" max="15" value="5" oninput="calculateROI()">
                     </div>
                 </div>
                 
@@ -1824,7 +1824,6 @@ print("🎯 Decision: Roll out segmented approach to all customers!")
             const button = (evt && evt.target) ? evt.target : null;
             if (!button) return;
             button.textContent = '⏳ Analyzing 2 million customers...';
-            button.disabled = true;
             
             setTimeout(() => {
                 // Show results
