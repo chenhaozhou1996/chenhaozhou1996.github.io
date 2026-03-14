@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Framework 4: Enterprise ML Integration | ML Frameworks & Applied Analytics</title>
+<style>
+/* ===== BASE STYLES (matching Course 1) ===== */
+body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 950px; margin: auto; padding: 2rem; line-height: 1.6; }
+nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #e1e4e8; }
+nav a { margin: 0 12px; text-decoration: none; color: #0366d6; font-weight: bold; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 0.9em; }
+nav a:hover { color: #003366; }
+h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+h1 { font-size: 2em; border-bottom: 3px solid #0366d6; padding-bottom: 0.5em; }
+h2 { font-size: 1.5em; margin-top: 2em; }
+h3 { font-size: 1.2em; color: #0366d6; }
+p { margin: 0.8em 0; }
+.card { background: #fff; padding: 1.5em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+
+/* ===== INTERACTIVE SECTIONS ===== */
+.interactive-section { background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); padding: 2em; margin: 2em 0; border-radius: 12px; border: 1px solid #e1e4e8; }
+.section-header { display: flex; align-items: center; gap: 0.5em; margin-bottom: 1em; }
+.section-badge { background: #003366; color: white; padding: 0.3em 0.8em; border-radius: 20px; font-size: 0.85em; font-family: 'Helvetica Neue', Arial, sans-serif; }
+
+/* ===== BUTTONS ===== */
+.button { display: inline-block; padding: 0.8em 1.5em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; transition: all 0.3s ease; margin: 0.4em 0.4em 0.4em 0; font-weight: bold; font-family: Georgia, serif; }
+.button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
+.button.secondary { background: #6c757d; }
+.button.success { background: #28a745; }
+.button.warning { background: #e6a817; color: #212529; }
+.button.danger { background: #dc3545; }
+.button.outline { background: transparent; border: 2px solid #0366d6; color: #0366d6; }
+.button.outline:hover { background: #0366d6; color: white; }
+.button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ===== INPUTS ===== */
+.input-group { margin: 1em 0; }
+.input-field { width: 100%; padding: 0.8em; margin: 0.4em 0; border: 2px solid #e1e4e8; border-radius: 6px; font-size: 1em; font-family: Georgia, serif; box-sizing: border-box; transition: border-color 0.3s; }
+.input-field:focus { outline: none; border-color: #0366d6; box-shadow: 0 0 0 3px rgba(3,102,214,0.1); }
+select.input-field { cursor: pointer; }
+.slider-container { margin: 1.2em 0; }
+.slider-label { display: flex; justify-content: space-between; font-size: 0.9em; color: #555; margin-bottom: 0.3em; }
+.slider { width: 100%; height: 8px; border-radius: 4px; background: #e1e4e8; outline: none; -webkit-appearance: none; cursor: pointer; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #0366d6; cursor: pointer; transition: all 0.2s; }
+.slider::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 0 8px rgba(3,102,214,0.5); }
+
+/* ===== QUIZ / QUESTIONS ===== */
+.quick-question { background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%); border: 2px solid #0366d6; border-radius: 10px; padding: 1.5em; margin: 2em 0; position: relative; overflow: hidden; }
+.quick-question::before { content: "?"; position: absolute; top: -20px; right: -15px; font-size: 110px; color: rgba(3,102,214,0.05); font-weight: bold; }
+.question-label { background: #0366d6; color: white; padding: 0.2em 0.7em; border-radius: 12px; font-size: 0.8em; font-family: 'Helvetica Neue', Arial, sans-serif; display: inline-block; margin-bottom: 0.7em; }
+.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin: 1em 0; }
+@media (max-width: 600px) { .answer-options { grid-template-columns: 1fr; } }
+.answer-option { padding: 0.9em 1em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.25s; text-align: left; font-family: Georgia, serif; font-size: 0.95em; }
+.answer-option:hover { border-color: #0366d6; background: #f0f7ff; }
+.answer-option.correct { background: #d4edda; border-color: #28a745; }
+.answer-option.incorrect { background: #f8d7da; border-color: #dc3545; }
+.feedback-panel { border-left: 5px solid #0366d6; padding: 1em 1.5em; margin: 1em 0; border-radius: 0 8px 8px 0; background: white; display: none; animation: slideIn 0.4s ease; }
+.feedback-panel.show { display: block; }
+.feedback-panel.correct-fb { border-left-color: #28a745; background: #f8fff9; }
+.feedback-panel.incorrect-fb { border-left-color: #dc3545; background: #fff8f8; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ===== PROGRESS TRACKER ===== */
+.story-progress { display: flex; justify-content: space-between; margin: 2em 0 1em; position: relative; }
+.story-progress::before { content: ""; position: absolute; top: 20px; left: 0; right: 0; height: 3px; background: #e1e4e8; z-index: 0; }
+.story-step { background: white; border: 3px solid #e1e4e8; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; z-index: 1; cursor: pointer; transition: all 0.3s; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.story-step:hover { transform: scale(1.1); }
+.story-step.completed { background: #28a745; color: white; border-color: #28a745; }
+.story-step.active { background: #0366d6; color: white; border-color: #0366d6; transform: scale(1.2); }
+.step-labels { display: flex; justify-content: space-between; margin-top: 0.5em; }
+.step-label { font-size: 0.72em; color: #666; text-align: center; width: 42px; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.progress-bar { height: 12px; background: #e9ecef; border-radius: 6px; margin: 0.5em 0 1.5em; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #0366d6 0%, #667eea 100%); border-radius: 6px; transition: width 0.8s ease; position: relative; overflow: hidden; }
+.progress-fill::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 2s infinite; }
+@keyframes shimmer { to { left: 100%; } }
+
+/* ===== BUSINESS IMPACT ===== */
+.impact-display { background: linear-gradient(135deg, #28a74510 0%, #20c99710 100%); border: 2px solid #28a745; border-radius: 12px; padding: 1.5em 2em; margin: 1.5em 0; }
+.impact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1em; text-align: center; }
+.impact-number { font-size: 2.2em; font-weight: bold; color: #28a745; margin: 0.1em 0; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.impact-label { color: #555; font-size: 0.85em; }
+.impact-negative { color: #dc3545; }
+
+/* ===== DATA ARCHITECTURE DIAGRAM ===== */
+.arch-diagram { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 0.5em; padding: 1.5em; background: #f8f9fa; border-radius: 10px; margin: 1em 0; overflow-x: auto; }
+.arch-node { background: white; border: 2px solid #0366d6; border-radius: 8px; padding: 0.8em; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 0.85em; font-family: 'Helvetica Neue', Arial, sans-serif; min-width: 90px; }
+.arch-node:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(3,102,214,0.2); }
+.arch-node.active-node { background: #e7f3ff; border-color: #003366; }
+.arch-node.source { border-color: #6f42c1; }
+.arch-node.lake { border-color: #0366d6; background: #f0f7ff; }
+.arch-node.warehouse { border-color: #28a745; }
+.arch-node.model { border-color: #e6a817; background: #fffbf0; }
+.arch-arrow { font-size: 1.5em; color: #999; text-align: center; }
+.arch-label { font-size: 0.75em; color: #666; margin-top: 0.3em; display: block; }
+
+/* ===== COST CALCULATOR ===== */
+.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; }
+@media (max-width: 600px) { .calc-grid { grid-template-columns: 1fr; } }
+.calc-item { background: #f8f9fa; padding: 1em; border-radius: 8px; }
+.calc-item label { font-weight: bold; font-size: 0.9em; color: #003366; display: block; margin-bottom: 0.4em; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.calc-result { background: #003366; color: white; padding: 1.5em; border-radius: 10px; margin-top: 1em; }
+.cost-line { display: flex; justify-content: space-between; padding: 0.4em 0; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 0.9em; }
+.cost-total { display: flex; justify-content: space-between; padding: 0.8em 0 0; font-weight: bold; font-size: 1.2em; }
+.savings-bar { background: #e9ecef; height: 20px; border-radius: 10px; margin: 0.5em 0; overflow: hidden; }
+.savings-fill { height: 100%; background: linear-gradient(90deg, #28a745, #20c997); border-radius: 10px; transition: width 0.5s; }
+
+/* ===== ORG CHART ===== */
+.org-chart { display: grid; gap: 0.8em; }
+.org-tier { display: flex; gap: 0.6em; flex-wrap: wrap; justify-content: center; }
+.org-box { padding: 0.6em 1em; border-radius: 6px; font-size: 0.85em; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: bold; text-align: center; cursor: grab; border: 2px solid transparent; user-select: none; }
+.org-box:active { cursor: grabbing; opacity: 0.7; }
+.role-ds { background: #e7f3ff; color: #003366; border-color: #0366d6; }
+.role-mle { background: #fff3e0; color: #6d3a00; border-color: #e6a817; }
+.role-da { background: #f0fff0; color: #1a5c1a; border-color: #28a745; }
+.role-pm { background: #fce7f3; color: #6b0036; border-color: #e91e8c; }
+.role-mlops { background: #f3e5f5; color: #4a0072; border-color: #9c27b0; }
+.structure-btn { padding: 0.5em 1em; border: 2px solid #0366d6; border-radius: 6px; background: white; color: #0366d6; cursor: pointer; font-family: Georgia, serif; transition: all 0.2s; }
+.structure-btn.active { background: #0366d6; color: white; }
+
+/* ===== STAKEHOLDER MAP ===== */
+.stakeholder-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1em; }
+@media (max-width: 600px) { .stakeholder-grid { grid-template-columns: 1fr; } }
+.stakeholder-card { border-radius: 10px; padding: 1.2em; border: 2px solid transparent; transition: all 0.2s; cursor: pointer; }
+.stakeholder-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+.stakeholder-card.skeptic { background: #fff5f5; border-color: #dc3545; }
+.stakeholder-card.champion { background: #f0fff4; border-color: #28a745; }
+.stakeholder-card.neutral { background: #fffdf0; border-color: #e6a817; }
+.stakeholder-icon { font-size: 2em; margin-bottom: 0.3em; }
+.strategy-box { background: white; border-radius: 8px; padding: 1em; margin-top: 0.5em; font-size: 0.85em; color: #555; display: none; }
+.stakeholder-card.active .strategy-box { display: block; }
+
+/* ===== SHAP DEMO ===== */
+.shap-bar { display: flex; align-items: center; gap: 0.5em; margin: 0.5em 0; }
+.shap-feature { width: 160px; font-size: 0.85em; text-align: right; color: #555; flex-shrink: 0; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.shap-viz { flex: 1; height: 28px; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; color: white; font-size: 0.8em; font-weight: bold; transition: width 0.6s; }
+.shap-pos { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+.shap-neg { background: linear-gradient(90deg, #2980b9, #1a5276); }
+.shap-value { font-size: 0.8em; color: #666; font-family: 'Helvetica Neue', Arial, sans-serif; }
+
+/* ===== BIAS SIMULATOR ===== */
+.bias-result { padding: 1em; border-radius: 8px; margin: 0.5em 0; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.bias-ok { background: #d4edda; border-left: 4px solid #28a745; }
+.bias-warn { background: #fff3cd; border-left: 4px solid #ffc107; }
+.bias-fail { background: #f8d7da; border-left: 4px solid #dc3545; }
+.metric-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6em 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9em; }
+.metric-badge { padding: 0.2em 0.6em; border-radius: 12px; font-size: 0.8em; font-weight: bold; }
+.badge-ok { background: #d4edda; color: #1a5c1a; }
+.badge-warn { background: #fff3cd; color: #7d5a00; }
+.badge-fail { background: #f8d7da; color: #7d0000; }
+
+/* ===== GDPR CHECKER ===== */
+.compliance-check { padding: 0.8em; border-radius: 6px; margin: 0.5em 0; display: flex; align-items: flex-start; gap: 0.8em; font-size: 0.9em; }
+.compliance-check.pass { background: #f0fff4; border: 1px solid #28a745; }
+.compliance-check.fail { background: #fff5f5; border: 1px solid #dc3545; }
+.compliance-check.warn { background: #fffdf0; border: 1px solid #e6a817; }
+.check-icon { font-size: 1.2em; flex-shrink: 0; }
+.check-text { flex: 1; }
+
+/* ===== CASE STUDY ===== */
+.timeline { position: relative; padding-left: 2em; }
+.timeline::before { content: ""; position: absolute; left: 0.6em; top: 0; bottom: 0; width: 2px; background: #0366d6; }
+.timeline-item { margin: 1.2em 0; position: relative; }
+.timeline-dot { position: absolute; left: -1.6em; top: 0.2em; width: 14px; height: 14px; border-radius: 50%; background: #0366d6; border: 2px solid white; box-shadow: 0 0 0 2px #0366d6; }
+.timeline-year { font-weight: bold; color: #0366d6; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 0.9em; }
+
+/* ===== TOOLTIP ===== */
+.tooltip { position: relative; cursor: help; border-bottom: 1px dashed #0366d6; color: #0366d6; }
+.tooltip::after { content: attr(data-tip); position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); background: #003366; color: white; padding: 0.5em 0.8em; border-radius: 6px; font-size: 0.8em; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 999; max-width: 250px; white-space: normal; text-align: center; }
+.tooltip:hover::after { opacity: 1; }
+
+/* ===== MISC ===== */
+.highlight-box { background: #e7f3ff; border: 1px solid #b8d4f5; border-radius: 8px; padding: 1em 1.5em; margin: 1em 0; }
+.warning-box { background: #fff8e1; border: 1px solid #ffd54f; border-radius: 8px; padding: 1em 1.5em; margin: 1em 0; }
+.key-insight { background: linear-gradient(135deg, #003366, #0366d6); color: white; padding: 1.2em 1.5em; border-radius: 10px; margin: 1.5em 0; }
+.key-insight h4 { color: #ffd700; margin: 0 0 0.5em; }
+.tag { display: inline-block; background: #e7f3ff; color: #003366; padding: 0.2em 0.6em; border-radius: 12px; font-size: 0.8em; margin: 0.2em; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: bold; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; }
+@media (max-width: 650px) { .two-col { grid-template-columns: 1fr; } }
+table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 0.9em; }
+th { background: #003366; color: white; padding: 0.7em 1em; text-align: left; font-family: 'Helvetica Neue', Arial, sans-serif; }
+td { padding: 0.6em 1em; border-bottom: 1px solid #f0f0f0; }
+tr:nth-child(even) td { background: #f8f9fa; }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <a href="framework3_mlops_deployment.html">← MLOps</a>
+  <a href="index.html">🏠 Course Home</a>
+  <a href="../ml-course/index.html">📚 Course 1</a>
+  <a href="../teaching.html">Teaching Home</a>
+</nav>
+
+<!-- Header -->
+<h1>🏢 Framework 4: Enterprise ML Integration</h1>
+<p style="color:#555; font-size:1.05em;"><span class="tag">ML Frameworks & Applied Analytics</span> <span class="tag">Production ML</span> <span class="tag">Business Strategy</span></p>
+
+<!-- Story Progress Tracker -->
+<div class="card">
+  <h3 style="margin-top:0">Your Learning Journey</h3>
+  <div class="story-progress">
+    <div class="story-step active" id="step1" onclick="goToStep(1)" title="Data Architecture">1</div>
+    <div class="story-step" id="step2" onclick="goToStep(2)" title="Governance">2</div>
+    <div class="story-step" id="step3" onclick="goToStep(3)" title="Cost Optimization">3</div>
+    <div class="story-step" id="step4" onclick="goToStep(4)" title="Team Structure">4</div>
+    <div class="story-step" id="step5" onclick="goToStep(5)" title="Change Management">5</div>
+  </div>
+  <div class="step-labels">
+    <span class="step-label">Data Arch.</span>
+    <span class="step-label">Governance</span>
+    <span class="step-label">Cost Opt.</span>
+    <span class="step-label">Team Org.</span>
+    <span class="step-label">Change Mgmt</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="overallProgress" style="width:20%"></div></div>
+  <div style="text-align:right; font-size:0.85em; color:#666" id="progressText">Step 1 of 5 — click steps to navigate</div>
+</div>
+
+<!-- Opening Hook -->
+<div class="card" style="border-left: 5px solid #dc3545; background: linear-gradient(135deg, #fff5f5, #fff);">
+  <h2 style="color:#dc3545; margin-top:0">⚠️ The $2M Question</h2>
+  <blockquote style="font-size:1.15em; font-style:italic; color:#333; border-left: 3px solid #dc3545; padding-left:1em; margin:1em 0;">
+    "The ML team built 12 models last year. Three made it to production. One generated ROI. The CTO wants to know: <strong>'Where did the $2M we spent on AI go?'</strong> You need to answer that question — and fix the problem."
+  </blockquote>
+  <p>Most AI initiatives fail not because of bad algorithms — but because of <strong>broken systems, ignored compliance, unclear ROI, and stakeholders who don't trust the models</strong>. This framework gives you the enterprise playbook to turn ML experiments into business value.</p>
+  <div class="impact-display">
+    <div class="impact-grid">
+      <div><div class="impact-number impact-negative">87%</div><div class="impact-label">of ML models never reach production</div></div>
+      <div><div class="impact-number impact-negative">$2M</div><div class="impact-label">average annual AI spend at mid-size firms</div></div>
+      <div><div class="impact-number">3.5×</div><div class="impact-label">ROI for firms with strong ML governance</div></div>
+      <div><div class="impact-number">6 mo.</div><div class="impact-label">average time to production without MLOps</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SECTION 1: DATA ARCHITECTURE ========== -->
+<div class="interactive-section" id="section1">
+  <div class="section-header">
+    <span class="section-badge">Step 1</span>
+    <h2 style="margin:0">🗄️ Enterprise Data Architecture for ML</h2>
+  </div>
+  <p>Before you build a model, you need to know <em>where your data lives</em> — and how to get it into a form models can use. Enterprise data is scattered across systems built by different teams, in different formats, over different decades.</p>
+
+  <div class="highlight-box">
+    <strong>The Core Problem:</strong> Your CRM has customer contacts. Your ERP has transaction history. Your IoT sensors have real-time behavior. Your logs have clickstream data. They're all in different formats, different update frequencies, and different governance rules. Building an ML pipeline means connecting all of them.
+  </div>
+
+  <h3>Interactive: Build Your ML Data Architecture</h3>
+  <p>Click each data source to see how it connects to the ML pipeline. Then answer the quiz below.</p>
+
+  <div style="background:white; border-radius:10px; padding:1.5em; border: 1px solid #e1e4e8;">
+    <!-- Layer 1: Sources -->
+    <div style="text-align:center; margin-bottom:0.3em; font-size:0.8em; color:#888; font-family:'Helvetica Neue',Arial,sans-serif; font-weight:bold; text-transform:uppercase; letter-spacing:1px;">DATA SOURCES</div>
+    <div style="display:flex; gap:0.6em; flex-wrap:wrap; justify-content:center; margin-bottom:0.3em;">
+      <div class="arch-node source" onclick="showSourceInfo('erp')" id="node-erp">🏭 ERP<span class="arch-label">SAP/Oracle</span></div>
+      <div class="arch-node source" onclick="showSourceInfo('crm')" id="node-crm">👥 CRM<span class="arch-label">Salesforce</span></div>
+      <div class="arch-node source" onclick="showSourceInfo('iot')" id="node-iot">📡 IoT<span class="arch-label">Sensors</span></div>
+      <div class="arch-node source" onclick="showSourceInfo('logs')" id="node-logs">📊 Logs<span class="arch-label">Web/App</span></div>
+      <div class="arch-node source" onclick="showSourceInfo('ext')" id="node-ext">🌐 External<span class="arch-label">APIs/Market</span></div>
+    </div>
+    <div style="text-align:center; font-size:1.5em; color:#0366d6; margin:0.3em 0;">↓ ETL / Streaming (Kafka, Spark, Airflow)</div>
+    <!-- Layer 2: Storage -->
+    <div style="text-align:center; margin-bottom:0.3em; font-size:0.8em; color:#888; font-family:'Helvetica Neue',Arial,sans-serif; font-weight:bold; text-transform:uppercase; letter-spacing:1px;">STORAGE LAYER</div>
+    <div style="display:flex; gap:0.6em; flex-wrap:wrap; justify-content:center; margin-bottom:0.3em;">
+      <div class="arch-node lake" onclick="showSourceInfo('lake')">🏞️ Data Lake<span class="arch-label">Raw + Processed</span></div>
+      <div class="arch-node warehouse" onclick="showSourceInfo('warehouse')">🏛️ Data Warehouse<span class="arch-label">Structured/OLAP</span></div>
+      <div class="arch-node lake" onclick="showSourceInfo('feature')">⚙️ Feature Store<span class="arch-label">Reusable Features</span></div>
+    </div>
+    <div style="text-align:center; font-size:1.5em; color:#0366d6; margin:0.3em 0;">↓ Model Training & Serving</div>
+    <!-- Layer 3: ML -->
+    <div style="text-align:center; margin-bottom:0.3em; font-size:0.8em; color:#888; font-family:'Helvetica Neue',Arial,sans-serif; font-weight:bold; text-transform:uppercase; letter-spacing:1px;">ML LAYER</div>
+    <div style="display:flex; gap:0.6em; flex-wrap:wrap; justify-content:center;">
+      <div class="arch-node model" onclick="showSourceInfo('train')">🧠 Training<span class="arch-label">Batch</span></div>
+      <div class="arch-node model" onclick="showSourceInfo('serving')">⚡ Serving<span class="arch-label">Real-time API</span></div>
+      <div class="arch-node model" onclick="showSourceInfo('monitor')">👁️ Monitoring<span class="arch-label">Drift Detection</span></div>
+    </div>
+  </div>
+
+  <div class="feedback-panel show" id="arch-info" style="border-left-color:#6f42c1; background:#faf8ff;">
+    <strong>Click any node above</strong> to learn about its role in the ML data pipeline.
+  </div>
+
+  <!-- Quiz 1 -->
+  <div class="quick-question" style="margin-top:1.5em">
+    <span class="question-label">📝 Quiz 1 of 5</span>
+    <h3 style="margin:0.5em 0">Your model needs real-time customer data to personalize product recommendations. Where does it come from?</h3>
+    <div class="answer-options">
+      <div class="answer-option" onclick="checkAnswer(this, 'q1', false)">A) Data Warehouse — SQL query on customer history</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q1', true)">B) Feature Store + Streaming layer — pre-computed features updated in near real-time</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q1', false)">C) Data Lake — pull raw logs and process on the fly</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q1', false)">D) CRM API — query Salesforce directly for each request</div>
+    </div>
+    <div class="feedback-panel" id="feedback-q1"></div>
+  </div>
+
+  <div class="key-insight">
+    <h4>💡 Key Insight: The Data Mesh vs. Data Lake Debate</h4>
+    <p><strong>Data Lake</strong>: One central repo for all data. Simple architecture, but becomes a "data swamp" without governance. Best for smaller orgs.</p>
+    <p><strong>Data Mesh</strong>: Decentralized — each business domain owns its data as a "data product." Scales better, but requires strong engineering culture. Used by Netflix, Zalando.</p>
+    <p><strong>For ML</strong>: You typically need a <em>Feature Store</em> regardless — it decouples feature computation from model training/serving and prevents training-serving skew.</p>
+  </div>
+
+  <button class="button success" onclick="completeStep(1)">✅ Mark Step 1 Complete</button>
+</div>
+
+<!-- ========== SECTION 2: GOVERNANCE ========== -->
+<div class="interactive-section" id="section2">
+  <div class="section-header">
+    <span class="section-badge">Step 2</span>
+    <h2 style="margin:0">🔒 Data Governance & Compliance</h2>
+  </div>
+  <p>Data without governance is a liability, not an asset. GDPR, CCPA, and sector-specific regulations (HIPAA, FCRA) impose strict rules on how you can collect, store, and use personal data for ML.</p>
+
+  <div class="warning-box">
+    <strong>⚖️ Real Consequence:</strong> In 2022, Clearview AI was fined €20M by Italy's DPA for using scraped facial images to train ML models without consent. Amazon was fined €746M under GDPR for advertising targeting. Governance isn't optional.
+  </div>
+
+  <h3>Interactive: GDPR Compliance Checker</h3>
+  <p>Describe a model use case and check whether it satisfies GDPR requirements.</p>
+  <div class="input-group">
+    <label style="font-weight:bold; color:#003366; display:block; margin-bottom:0.5em;">Select a Use Case:</label>
+    <select class="input-field" id="gdpr-usecase">
+      <option value="">-- Choose a use case --</option>
+      <option value="churn">Predict customer churn using purchase history</option>
+      <option value="credit">Credit risk scoring using social media data</option>
+      <option value="hiring">Resume screening for job applicants</option>
+      <option value="health">Health outcome prediction for insurance pricing</option>
+      <option value="reco">Product recommendations based on browsing behavior</option>
+      <option value="fraud">Fraud detection on payment transactions</option>
+    </select>
+    <button class="button" onclick="runGDPRCheck()" style="margin-top:0.5em">🔍 Check Compliance</button>
+  </div>
+  <div id="gdpr-result" style="display:none; margin-top:1em;"></div>
+
+  <!-- Quiz 2 -->
+  <div class="quick-question">
+    <span class="question-label">📝 Quiz 2 of 5</span>
+    <h3 style="margin:0.5em 0">Can you use customer purchase history to predict churn and take automated retention action?</h3>
+    <div class="answer-options">
+      <div class="answer-option" onclick="checkAnswer(this, 'q2', false)">A) Yes — you already have the data, so you can use it for any purpose</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q2', false)">B) No — purchase history is always too sensitive to use in ML models</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q2', true)">C) It depends — you need a lawful basis (consent or legitimate interest), purpose limitation, and human oversight for automated decisions</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q2', false)">D) Yes — as long as you anonymize the data before training</div>
+    </div>
+    <div class="feedback-panel" id="feedback-q2"></div>
+  </div>
+
+  <h3>Bias Audit Simulator</h3>
+  <p>A <span class="tooltip" data-tip="The ratio of favorable outcome rates between protected and non-protected groups. EEOC's 4/5 rule: if ratio < 0.8, there may be disparate impact.">disparate impact ratio</span> below 0.8 signals potential discriminatory bias under the <strong>EEOC 4/5 rule</strong>. Adjust the sliders to simulate a loan approval model and check for demographic bias.</p>
+
+  <div class="calc-grid">
+    <div>
+      <div class="slider-container">
+        <div class="slider-label"><span>Approval rate — Group A (reference)</span><span id="rateA-val">65%</span></div>
+        <input type="range" class="slider" id="rateA" min="10" max="95" value="65" oninput="updateBiasCalc()">
+      </div>
+      <div class="slider-container">
+        <div class="slider-label"><span>Approval rate — Group B (protected)</span><span id="rateB-val">48%</span></div>
+        <input type="range" class="slider" id="rateB" min="10" max="95" value="48" oninput="updateBiasCalc()">
+      </div>
+      <div class="slider-container">
+        <div class="slider-label"><span>Model accuracy (overall)</span><span id="accuracy-val">82%</span></div>
+        <input type="range" class="slider" id="accuracy" min="50" max="99" value="82" oninput="updateBiasCalc()">
+      </div>
+    </div>
+    <div id="bias-results" style="background:#f8f9fa; border-radius:8px; padding:1em;">
+      <div style="font-weight:bold; color:#003366; margin-bottom:0.5em; font-family:'Helvetica Neue',Arial,sans-serif;">Audit Results</div>
+      <div class="metric-row">Disparate Impact Ratio <span id="dir-val" class="metric-badge badge-warn">0.74</span></div>
+      <div class="metric-row">Statistical Parity Diff. <span id="spd-val" class="metric-badge badge-warn">-17pp</span></div>
+      <div class="metric-row">EEOC 4/5 Rule <span id="eeoc-val" class="metric-badge badge-warn">⚠️ CAUTION</span></div>
+      <div class="metric-row">Overall Accuracy <span id="acc-display" class="metric-badge badge-ok">82%</span></div>
+      <div id="bias-recommendation" class="bias-result bias-warn" style="margin-top:0.8em; font-size:0.85em;">
+        ⚠️ Disparate impact detected. Consider: re-weighting training data, fairness constraints in model training, or removing proxies for protected attributes.
+      </div>
+    </div>
+  </div>
+
+  <button class="button success" onclick="completeStep(2)">✅ Mark Step 2 Complete</button>
+</div>
+
+<!-- ========== SECTION 3: COST OPTIMIZATION ========== -->
+<div class="interactive-section" id="section3">
+  <div class="section-header">
+    <span class="section-badge">Step 3</span>
+    <h2 style="margin:0">💰 Cost Optimization & Resource Management</h2>
+  </div>
+  <p>ML infrastructure costs are easy to underestimate and hard to control. A model that costs $50K/year to run but generates $40K in value is destroying shareholder wealth. You need to track, forecast, and optimize.</p>
+
+  <h3>ML Infrastructure Cost Calculator</h3>
+  <p>Adjust the parameters to estimate your annual ML infrastructure costs and ROI.</p>
+
+  <div class="calc-grid">
+    <div>
+      <div class="calc-item">
+        <label>GPU Hours per Month (training)</label>
+        <div class="slider-label"><span>0</span><span id="gpu-val">200 hrs</span><span>1000</span></div>
+        <input type="range" class="slider" id="gpu-hours" min="0" max="1000" value="200" oninput="updateCostCalc()">
+        <div style="font-size:0.8em; color:#888; margin-top:0.3em;">A100 GPU ~$3/hr on AWS, $1.2/hr spot</div>
+      </div>
+      <div class="calc-item" style="margin-top:0.8em">
+        <label>Storage (TB)</label>
+        <div class="slider-label"><span>0</span><span id="storage-val">5 TB</span><span>100</span></div>
+        <input type="range" class="slider" id="storage-tb" min="0" max="100" value="5" oninput="updateCostCalc()">
+        <div style="font-size:0.8em; color:#888; margin-top:0.3em;">S3/GCS ~$23/TB/month</div>
+      </div>
+      <div class="calc-item" style="margin-top:0.8em">
+        <label>API Calls per Month (inference)</label>
+        <div class="slider-label"><span>0</span><span id="api-val">500K</span><span>10M</span></div>
+        <input type="range" class="slider" id="api-calls" min="0" max="10000" value="500" oninput="updateCostCalc()">
+        <div style="font-size:0.8em; color:#888; margin-top:0.3em;">(in thousands) ~$0.0005 per call</div>
+      </div>
+      <div class="calc-item" style="margin-top:0.8em">
+        <label>Data Science Team (FTE)</label>
+        <div class="slider-label"><span>0</span><span id="team-val">3 FTEs</span><span>20</span></div>
+        <input type="range" class="slider" id="team-size" min="0" max="20" value="3" oninput="updateCostCalc()">
+        <div style="font-size:0.8em; color:#888; margin-top:0.3em;">~$150K avg fully-loaded salary</div>
+      </div>
+    </div>
+    <div>
+      <div class="calc-result" id="cost-result">
+        <div style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:0.85em; text-transform:uppercase; letter-spacing:1px; opacity:0.7; margin-bottom:0.5em;">Annual Cost Breakdown</div>
+        <div class="cost-line"><span>GPU Compute</span><span id="gpu-cost">$144,000</span></div>
+        <div class="cost-line"><span>Storage</span><span id="storage-cost">$1,380</span></div>
+        <div class="cost-line"><span>API Inference</span><span id="api-cost">$3,000</span></div>
+        <div class="cost-line"><span>Team Salaries</span><span id="team-cost">$450,000</span></div>
+        <div class="cost-total"><span>Total Annual</span><span id="total-cost">$598,380</span></div>
+      </div>
+      <div class="calc-result" style="background:#1a5c1a; margin-top:0.8em;">
+        <div style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:0.85em; text-transform:uppercase; letter-spacing:1px; opacity:0.7; margin-bottom:0.5em;">ROI Calculator</div>
+        <div class="cost-line"><span>Business Value Generated</span><span id="biz-value">$1,200,000</span></div>
+        <div class="cost-line"><span>Total ML Cost</span><span id="roi-cost">$598,380</span></div>
+        <div class="cost-total"><span>Net ROI</span><span id="net-roi">+$601,620 (100%)</span></div>
+      </div>
+      <div style="margin-top:0.8em;">
+        <label style="font-weight:bold; font-size:0.9em; color:#003366; font-family:'Helvetica Neue',Arial,sans-serif;">Annual Business Value ($K): <span id="biz-input-val">1,200</span></label>
+        <input type="range" class="slider" id="biz-value-slider" min="0" max="10000" value="1200" oninput="updateCostCalc()" style="margin-top:0.4em">
+      </div>
+    </div>
+  </div>
+
+  <h3>Cost Reduction Levers</h3>
+  <p>Toggle each optimization strategy to see potential cost savings.</p>
+  <div style="background:#f8f9fa; border-radius:10px; padding:1.5em;">
+    <div class="metric-row" style="padding:0.8em 0;">
+      <div>
+        <strong>Spot Instances</strong>
+        <div style="font-size:0.85em; color:#666; margin-top:0.2em;">Use preemptible GPU instances for training jobs (up to 70% cheaper)</div>
+        <div class="savings-bar"><div class="savings-fill" id="spot-bar" style="width:0%"></div></div>
+      </div>
+      <button class="button outline" id="spot-btn" onclick="toggleSaving('spot', 0.35, this)" style="margin-left:1em; flex-shrink:0;">Enable</button>
+    </div>
+    <div class="metric-row" style="padding:0.8em 0;">
+      <div>
+        <strong>Model Compression</strong>
+        <div style="font-size:0.85em; color:#666; margin-top:0.2em;">Quantization + pruning reduces model size 4–8×, cutting inference costs 60–80%</div>
+        <div class="savings-bar"><div class="savings-fill" id="compress-bar" style="width:0%"></div></div>
+      </div>
+      <button class="button outline" id="compress-btn" onclick="toggleSaving('compress', 0.12, this)" style="margin-left:1em; flex-shrink:0;">Enable</button>
+    </div>
+    <div class="metric-row" style="padding:0.8em 0; border:none;">
+      <div>
+        <strong>Prediction Caching</strong>
+        <div style="font-size:0.85em; color:#666; margin-top:0.2em;">Cache frequent predictions — reduce API calls by 40–60% for repetitive queries</div>
+        <div class="savings-bar"><div class="savings-fill" id="cache-bar" style="width:0%"></div></div>
+      </div>
+      <button class="button outline" id="cache-btn" onclick="toggleSaving('cache', 0.08, this)" style="margin-left:1em; flex-shrink:0;">Enable</button>
+    </div>
+    <div class="impact-display" style="margin-top:1em; padding:1em;">
+      <div class="impact-grid">
+        <div><div class="impact-number" id="total-savings-pct">0%</div><div class="impact-label">Total Cost Reduction</div></div>
+        <div><div class="impact-number" id="new-annual-cost">$598K</div><div class="impact-label">Optimized Annual Cost</div></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="button success" onclick="completeStep(3)">✅ Mark Step 3 Complete</button>
+</div>
+
+<!-- ========== SECTION 4: TEAM ORGANIZATION ========== -->
+<div class="interactive-section" id="section4">
+  <div class="section-header">
+    <span class="section-badge">Step 4</span>
+    <h2 style="margin:0">👥 ML Team Organization & Workflows</h2>
+  </div>
+  <p>How you <em>organize</em> the ML team determines how fast you ship, how much business impact you generate, and whether the models anyone actually uses. There's no one-size-fits-all answer — it depends on company size, maturity, and strategic goals.</p>
+
+  <h3>Three ML Team Structures</h3>
+  <div style="display:flex; gap:0.8em; flex-wrap:wrap; margin-bottom:1.5em;">
+    <button class="structure-btn active" id="struct-centralized" onclick="showStructure('centralized')">🏛️ Centralized CoE</button>
+    <button class="structure-btn" id="struct-embedded" onclick="showStructure('embedded')">🔗 Embedded</button>
+    <button class="structure-btn" id="struct-hub" onclick="showStructure('hub')">⭐ Hub-and-Spoke</button>
+  </div>
+
+  <div id="structure-display" style="background:white; border:2px solid #e1e4e8; border-radius:10px; padding:1.5em; min-height:280px;">
+    <div id="struct-centralized-content">
+      <div class="two-col">
+        <div>
+          <h4 style="margin-top:0; color:#003366">🏛️ Centralized Center of Excellence</h4>
+          <p style="font-size:0.9em;">All ML roles report to a single ML/Data Science team. Business units submit "project requests."</p>
+          <div class="org-chart">
+            <div class="org-tier"><div class="org-box role-pm">VP of AI/ML</div></div>
+            <div class="org-tier">
+              <div class="org-box role-mle">ML Eng. Lead</div>
+              <div class="org-box role-ds">DS Lead</div>
+              <div class="org-box role-mlops">MLOps Lead</div>
+            </div>
+            <div class="org-tier">
+              <div class="org-box role-ds">DS 1</div>
+              <div class="org-box role-ds">DS 2</div>
+              <div class="org-box role-mle">MLE 1</div>
+              <div class="org-box role-da">Analyst 1</div>
+              <div class="org-box role-da">Analyst 2</div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:0.9em;">
+          <table>
+            <tr><th>✅ Pros</th></tr>
+            <tr><td>High expertise concentration</td></tr>
+            <tr><td>Consistent standards & tooling</td></tr>
+            <tr><td>Easier to hire & grow talent</td></tr>
+            <tr><th>❌ Cons</th></tr>
+            <tr><td>Bottleneck — long queue for projects</td></tr>
+            <tr><td>Disconnect from business context</td></tr>
+            <tr><td>Models may miss domain nuances</td></tr>
+          </table>
+          <div class="highlight-box" style="margin-top:0.8em; font-size:0.85em;"><strong>Best for:</strong> Early-stage companies, regulated industries, when ML is still "new" to the org.</div>
+        </div>
+      </div>
+    </div>
+    <div id="struct-embedded-content" style="display:none;">
+      <div class="two-col">
+        <div>
+          <h4 style="margin-top:0; color:#003366">🔗 Embedded Model</h4>
+          <p style="font-size:0.9em;">Data scientists and ML engineers sit within business units, reporting to product/business leadership.</p>
+          <div class="org-chart">
+            <div class="org-tier">
+              <div style="background:#f8f9fa; border:2px solid #e1e4e8; border-radius:8px; padding:0.8em 1.2em; text-align:center; font-size:0.85em;">
+                <div style="font-weight:bold; color:#003366; font-family:'Helvetica Neue',Arial,sans-serif;">Product Team A</div>
+                <div class="org-tier" style="margin-top:0.5em; justify-content:flex-start;">
+                  <div class="org-box role-ds">DS</div><div class="org-box role-mle">MLE</div>
+                </div>
+              </div>
+              <div style="background:#f8f9fa; border:2px solid #e1e4e8; border-radius:8px; padding:0.8em 1.2em; text-align:center; font-size:0.85em;">
+                <div style="font-weight:bold; color:#003366; font-family:'Helvetica Neue',Arial,sans-serif;">Marketing Team</div>
+                <div class="org-tier" style="margin-top:0.5em; justify-content:flex-start;">
+                  <div class="org-box role-ds">DS</div><div class="org-box role-da">Analyst</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:0.9em;">
+          <table>
+            <tr><th>✅ Pros</th></tr>
+            <tr><td>Deep domain knowledge</td></tr>
+            <tr><td>Fast iteration with business teams</td></tr>
+            <tr><td>High business alignment</td></tr>
+            <tr><th>❌ Cons</th></tr>
+            <tr><td>Duplicated infrastructure</td></tr>
+            <tr><td>Inconsistent practices across units</td></tr>
+            <tr><td>Career growth harder to manage</td></tr>
+          </table>
+          <div class="highlight-box" style="margin-top:0.8em; font-size:0.85em;"><strong>Best for:</strong> Large enterprises with distinct business units, product-led companies, when speed matters most.</div>
+        </div>
+      </div>
+    </div>
+    <div id="struct-hub-content" style="display:none;">
+      <div class="two-col">
+        <div>
+          <h4 style="margin-top:0; color:#003366">⭐ Hub-and-Spoke</h4>
+          <p style="font-size:0.9em;">A central "hub" team handles platform, tooling, and standards. "Spokes" are embedded ML practitioners in each business unit.</p>
+          <div class="org-chart">
+            <div class="org-tier"><div class="org-box role-mlops" style="padding:0.7em 1.4em;">🏛️ Central ML Platform<br><span style="font-size:0.8em; opacity:0.8;">(MLOps, Feature Store, Standards)</span></div></div>
+            <div style="text-align:center; font-size:1.2em; color:#0366d6;">↙ ↓ ↘</div>
+            <div class="org-tier">
+              <div class="org-box role-ds">DS<br><small>Sales</small></div>
+              <div class="org-box role-ds">DS<br><small>Ops</small></div>
+              <div class="org-box role-ds">DS<br><small>Marketing</small></div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:0.9em;">
+          <table>
+            <tr><th>✅ Pros</th></tr>
+            <tr><td>Balance of centralization & speed</td></tr>
+            <tr><td>Shared infrastructure reduces cost</td></tr>
+            <tr><td>Domain expertise + platform excellence</td></tr>
+            <tr><th>❌ Cons</th></tr>
+            <tr><td>Complex reporting lines</td></tr>
+            <tr><td>Requires strong platform team</td></tr>
+            <tr><td>Hard to implement in practice</td></tr>
+          </table>
+          <div class="highlight-box" style="margin-top:0.8em; font-size:0.85em;"><strong>Best for:</strong> Mid-to-large companies with ML maturity. Used by Airbnb, Uber, LinkedIn. The industry standard at scale.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz 3 -->
+  <div class="quick-question" style="margin-top:1.5em">
+    <span class="question-label">📝 Quiz 3 of 5</span>
+    <h3 style="margin:0.5em 0">You have 3 data scientists, 1 ML engineer, and 2 analysts at a 200-person e-commerce startup. ML is a core product feature (recommendations, search). What team structure makes most sense?</h3>
+    <div class="answer-options">
+      <div class="answer-option" onclick="checkAnswer(this, 'q3', false)">A) Centralized CoE — keep everyone together for knowledge sharing</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q3', false)">B) Hub-and-Spoke — build a platform team first</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q3', true)">C) Embedded — DS/MLE should sit inside product teams for speed and alignment</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q3', false)">D) Outsource to an ML consultancy until you grow larger</div>
+    </div>
+    <div class="feedback-panel" id="feedback-q3"></div>
+  </div>
+
+  <h3>📖 Case Study: Spotify's ML Team Evolution</h3>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2006–2012: Centralized</div>
+      <p style="font-size:0.9em;">A small "Discover" team owned all ML. Built the original recommendation engine. Fast to start, but became a bottleneck as Spotify grew.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2013–2016: Embedded</div>
+      <p style="font-size:0.9em;">DS/ML engineers embedded into "Squads" (product teams). Led to Discover Weekly (2015) — 40M plays in first week. Speed and domain knowledge won.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2017–present: Hub-and-Spoke</div>
+      <p style="font-size:0.9em;">Created a central "ML Platform" team (Hendrix internally) for feature stores, model serving, A/B testing infrastructure. Business squads kept embedded DS. Result: 50% reduction in time-to-production, $300M+ incremental revenue attributed to ML improvements.</p>
+    </div>
+  </div>
+
+  <button class="button success" onclick="completeStep(4)">✅ Mark Step 4 Complete</button>
+</div>
+
+<!-- ========== SECTION 5: CHANGE MANAGEMENT ========== -->
+<div class="interactive-section" id="section5">
+  <div class="section-header">
+    <span class="section-badge">Step 5</span>
+    <h2 style="margin:0">🤝 Change Management: Getting Stakeholders to Trust ML</h2>
+  </div>
+  <p>You can build the world's best model. If the business doesn't trust it, it won't be used. Change management is the most underrated ML skill — and the one most data scientists never learn.</p>
+
+  <div class="highlight-box">
+    <strong>The Trust Problem:</strong> Studies show that even when ML models demonstrably outperform human judgment, people override model recommendations up to 72% of the time if they don't understand the model's reasoning. Explainability isn't just a technical requirement — it's a change management tool.
+  </div>
+
+  <h3>Interactive: Stakeholder Mapping</h3>
+  <p>Click each stakeholder type to reveal the engagement strategy.</p>
+
+  <div class="stakeholder-grid">
+    <div class="stakeholder-card skeptic" onclick="toggleStakeholder(this)">
+      <div class="stakeholder-icon">🚫</div>
+      <strong>VP of Sales (Skeptic)</strong>
+      <div style="font-size:0.85em; color:#555; margin-top:0.3em;">"I don't trust black box models. My reps know the customers better."</div>
+      <div class="strategy-box">
+        <strong>Strategy: Show, Don't Tell</strong><br>
+        1. Run a 90-day A/B test: model-assisted vs. unaided reps<br>
+        2. Show SHAP explanations for top predictions<br>
+        3. Frame as "augmenting your team" not "replacing judgment"<br>
+        4. Start with low-stakes use case (lead scoring, not quota setting)<br>
+        <div style="margin-top:0.5em; color:#dc3545; font-weight:bold;">Key: Never argue about the model being right. Let the data speak.</div>
+      </div>
+    </div>
+    <div class="stakeholder-card champion" onclick="toggleStakeholder(this)">
+      <div class="stakeholder-icon">✅</div>
+      <strong>Head of Operations (Champion)</strong>
+      <div style="font-size:0.85em; color:#555; margin-top:0.3em;">"This could save us 2 weeks of manual work every month. Let's do it."</div>
+      <div class="strategy-box">
+        <strong>Strategy: Activate & Amplify</strong><br>
+        1. Give them early access to results and dashboards<br>
+        2. Ask them to present ROI results to leadership<br>
+        3. Co-author the business case with them<br>
+        4. Use their success as internal marketing<br>
+        <div style="margin-top:0.5em; color:#28a745; font-weight:bold;">Key: Champions are multipliers. Invest in their success disproportionately.</div>
+      </div>
+    </div>
+    <div class="stakeholder-card neutral" onclick="toggleStakeholder(this)">
+      <div class="stakeholder-icon">🤔</div>
+      <strong>CFO (Neutral)</strong>
+      <div style="font-size:0.85em; color:#555; margin-top:0.3em;">"Show me the numbers. What's the ROI? What's the risk? How long until payback?"</div>
+      <div class="strategy-box">
+        <strong>Strategy: Speak Their Language</strong><br>
+        1. Lead with ROI: cost reduction, revenue uplift, risk mitigation<br>
+        2. Show cost breakdown (infrastructure + team) vs. value generated<br>
+        3. Define clear success metrics with 90/180-day milestones<br>
+        4. Quantify downside risk and mitigation plan<br>
+        <div style="margin-top:0.5em; color:#e6a817; font-weight:bold;">Key: CFOs are risk-adjusted return calculators. Give them the formula.</div>
+      </div>
+    </div>
+    <div class="stakeholder-card skeptic" onclick="toggleStakeholder(this)">
+      <div class="stakeholder-icon">⚠️</div>
+      <strong>Legal/Compliance (Skeptic)</strong>
+      <div style="font-size:0.85em; color:#555; margin-top:0.3em;">"What happens when the model makes a wrong decision? Who's liable?"</div>
+      <div class="strategy-box">
+        <strong>Strategy: Make It Safe by Design</strong><br>
+        1. Bring them in early — before building, not after<br>
+        2. Create a "model card" documenting intended use, limitations, bias tests<br>
+        3. Build human-in-the-loop override for high-stakes decisions<br>
+        4. Reference regulatory frameworks (GDPR Art. 22, EU AI Act) proactively<br>
+        <div style="margin-top:0.5em; color:#dc3545; font-weight:bold;">Key: Legal teams block what they don't understand. Education = access.</div>
+      </div>
+    </div>
+    <div class="stakeholder-card neutral" onclick="toggleStakeholder(this)">
+      <div class="stakeholder-icon">🧑‍💼</div>
+      <strong>Frontline Managers (Neutral)</strong>
+      <div style="font-size:0.85em; color:#555; margin-top:0.3em;">"Will this make my team's jobs harder? Will it make me look bad?"</div>
+      <div class="strategy-box">
+        <strong>Strategy: Solve Their Problem First</strong><br>
+        1. Interview them: what takes the most time? What decisions are hardest?<br>
+        2. Build the model around their workflow, not vice versa<br>
+        3. Train their team — make them the model's first power users<br>
+        4. Celebrate when the model helps their team hit targets<br>
+        <div style="margin-top:0.5em; color:#e6a817; font-weight:bold;">Key: Frontline buy-in propagates upward. Bottom-up adoption is stickier.</div>
+      </div>
+    </div>
+    <div class="stakeholder-card champion" onclick="toggleStakeholder(this)">
+      <div class="stakeholder-icon">🚀</div>
+      <strong>CTO / Chief Digital Officer (Champion)</strong>
+      <div style="font-size:0.85em; color:#555; margin-top:0.3em;">"We need to be an AI-first company. Make it happen."</div>
+      <div class="strategy-box">
+        <strong>Strategy: Align to Strategic Narrative</strong><br>
+        1. Link each ML initiative to the digital transformation strategy<br>
+        2. Give regular executive updates on portfolio ROI, not just individual models<br>
+        3. Flag blockers early — they can remove organizational obstacles you can't<br>
+        4. Propose the roadmap; let them decide prioritization<br>
+        <div style="margin-top:0.5em; color:#28a745; font-weight:bold;">Key: Executive sponsors protect ML budgets during reorganizations.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz 4 -->
+  <div class="quick-question" style="margin-top:1.5em">
+    <span class="question-label">📝 Quiz 4 of 5</span>
+    <h3 style="margin:0.5em 0">The VP of Sales says: "I don't trust black box models. My reps know the customers better than any algorithm." What's your best response?</h3>
+    <div class="answer-options">
+      <div class="answer-option" onclick="checkAnswer(this, 'q4', false)">A) "The model's accuracy is 84% vs. your team's 61%. The data is clear."</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q4', true)">B) "I agree — the reps' knowledge is invaluable. What if we ran a 90-day test where the model surfaces patterns, and reps use their judgment to act on them?"</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q4', false)">C) "Models aren't actually black boxes — let me explain gradient boosting to you."</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q4', false)">D) "We'll get sign-off from the CEO and proceed regardless."</div>
+    </div>
+    <div class="feedback-panel" id="feedback-q4"></div>
+  </div>
+
+  <h3>🔍 Explainability Demo: SHAP Values</h3>
+  <p>SHAP (SHapley Additive exPlanations) shows <em>why</em> a model made a specific prediction by attributing the prediction to each input feature. This is your most powerful tool for building stakeholder trust.</p>
+
+  <div style="background:white; border-radius:10px; padding:1.5em; border:1px solid #e1e4e8;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1em; flex-wrap:wrap; gap:1em;">
+      <div>
+        <div style="font-size:0.85em; color:#666; font-family:'Helvetica Neue',Arial,sans-serif;">Model Prediction</div>
+        <div style="font-size:1.8em; font-weight:bold; color:#dc3545; font-family:'Helvetica Neue',Arial,sans-serif;">High Churn Risk (78%)</div>
+      </div>
+      <div style="font-size:0.85em; color:#555; max-width:300px;">Customer: <strong>Enterprise Account #4471</strong><br>Monthly Spend: $12,400 | Tenure: 14 months | Support Tickets: 8</div>
+    </div>
+    <div style="font-size:0.85em; color:#888; font-family:'Helvetica Neue',Arial,sans-serif; margin-bottom:0.5em;">Feature contributions to churn prediction (red = increases risk, blue = decreases risk):</div>
+    <div class="shap-bar">
+      <div class="shap-feature">Support tickets (↑8)</div>
+      <div class="shap-viz shap-pos" style="width:55%; min-width:100px;">+0.31</div>
+      <div class="shap-value">Highest risk factor</div>
+    </div>
+    <div class="shap-bar">
+      <div class="shap-feature">Days since last login (↑23)</div>
+      <div class="shap-viz shap-pos" style="width:40%; min-width:80px;">+0.22</div>
+      <div class="shap-value">Disengagement signal</div>
+    </div>
+    <div class="shap-bar">
+      <div class="shap-feature">Contract renewal (3 mo.)</div>
+      <div class="shap-viz shap-pos" style="width:30%; min-width:60px;">+0.17</div>
+      <div class="shap-value">Upcoming decision point</div>
+    </div>
+    <div class="shap-bar">
+      <div class="shap-feature">Spend trend (stable)</div>
+      <div class="shap-viz shap-neg" style="width:20%; min-width:50px; flex-direction:row-reverse;">-0.12</div>
+      <div class="shap-value">Protective factor</div>
+    </div>
+    <div class="shap-bar">
+      <div class="shap-feature">Industry (SaaS)</div>
+      <div class="shap-viz shap-neg" style="width:15%; min-width:40px; flex-direction:row-reverse;">-0.08</div>
+      <div class="shap-value">Low churn sector</div>
+    </div>
+    <div class="highlight-box" style="margin-top:1em;">
+      <strong>Actionable Explanation:</strong> "This customer is at high churn risk primarily because they've opened 8 support tickets recently and haven't logged in for 23 days — a classic disengagement pattern before a contract cancellation. Their contract is also up for renewal in 3 months. Recommended action: customer success outreach within 48 hours."
+    </div>
+  </div>
+
+  <!-- Quiz 5 -->
+  <div class="quick-question" style="margin-top:1.5em">
+    <span class="question-label">📝 Quiz 5 of 5</span>
+    <h3 style="margin:0.5em 0">After deploying a churn model, you notice that customer success reps are overriding the model's recommendations 68% of the time. What does this most likely indicate?</h3>
+    <div class="answer-options">
+      <div class="answer-option" onclick="checkAnswer(this, 'q5', false)">A) The reps are wrong — they should trust the model more</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q5', false)">B) The model accuracy is too low to be useful</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q5', true)">C) A change management problem — model not integrated into workflow, insufficient training, or stakeholders lack trust in model explanations</div>
+      <div class="answer-option" onclick="checkAnswer(this, 'q5', false)">D) The model should be retrained on more recent data</div>
+    </div>
+    <div class="feedback-panel" id="feedback-q5"></div>
+  </div>
+
+  <button class="button success" onclick="completeStep(5)">✅ Mark Step 5 Complete</button>
+</div>
+
+<!-- ========== FINAL SECTION: SYNTHESIS ========== -->
+<div class="card" id="synthesis-section" style="display:none; border-top: 4px solid #28a745;">
+  <h2 style="color:#28a745; margin-top:0">🎉 Framework Complete!</h2>
+  <p>You've completed all 5 steps of Enterprise ML Integration. Here's your answer to the CTO's question:</p>
+  <div class="key-insight">
+    <h4>"Where did the $2M go?"</h4>
+    <p>The money went into technically sound models that failed at the enterprise integration layer: <strong>data pipelines that weren't production-ready</strong>, <strong>compliance checks skipped</strong>, <strong>infrastructure costs not tracked against ROI</strong>, <strong>a team structure that bottlenecked delivery</strong>, and <strong>stakeholders who were never bought in</strong>. The fix isn't better algorithms — it's better enterprise ML discipline.</p>
+  </div>
+  <div class="impact-display">
+    <div class="impact-grid">
+      <div><div class="impact-number">$2M</div><div class="impact-label">→ Recovered through governance</div></div>
+      <div><div class="impact-number">87%</div><div class="impact-label">→ 30% production failure rate (best-in-class)</div></div>
+      <div><div class="impact-number">3.5×</div><div class="impact-label">ROI when all 5 frameworks align</div></div>
+    </div>
+  </div>
+  <h3>Your Enterprise ML Checklist</h3>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5em; font-size:0.9em;">
+    <div>✅ Data architecture with Feature Store</div>
+    <div>✅ GDPR/compliance review before build</div>
+    <div>✅ Bias audit in model validation</div>
+    <div>✅ Infrastructure cost tracked vs. ROI</div>
+    <div>✅ Team structure matches scale & maturity</div>
+    <div>✅ Stakeholder map with engagement plan</div>
+    <div>✅ SHAP/explainability for key stakeholders</div>
+    <div>✅ MLOps pipeline for production deployment</div>
+  </div>
+  <div style="margin-top:1.5em;">
+    <a href="framework3_mlops_deployment.html" class="button secondary">← Review MLOps</a>
+    <a href="index.html" class="button">🏠 Back to Course</a>
+  </div>
+</div>
+
+<!-- Score Summary -->
+<div class="card" id="score-card">
+  <h3 style="margin-top:0">📊 Your Progress</h3>
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1em;">
+    <div>
+      <div style="font-size:2em; font-weight:bold; color:#0366d6; font-family:'Helvetica Neue',Arial,sans-serif;"><span id="score-display">0</span>/5</div>
+      <div style="color:#666; font-size:0.9em;">quiz questions correct</div>
+    </div>
+    <div>
+      <div style="font-size:2em; font-weight:bold; color:#28a745; font-family:'Helvetica Neue',Arial,sans-serif;"><span id="steps-display">0</span>/5</div>
+      <div style="color:#666; font-size:0.9em;">steps completed</div>
+    </div>
+    <div style="flex:1; min-width:200px;">
+      <div style="font-size:0.9em; color:#666; margin-bottom:0.3em;">Overall completion</div>
+      <div class="progress-bar"><div class="progress-fill" id="scoreProgress" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<footer style="margin-top:3em; padding:1.5em; background:#f5f5f5; border-radius:8px; font-size:0.85em; color:#666; text-align:center;">
+  <strong>ML Frameworks & Applied Analytics</strong> — Framework 4: Enterprise ML Integration<br>
+  Chenhao Zhou | Rutgers Business School<br>
+  <a href="../teaching.html" style="color:#0366d6;">Teaching Home</a> · <a href="index.html" style="color:#0366d6;">Course Home</a>
+</footer>
+
+<script>
+// ===== STATE =====
+let completedSteps = new Set();
+let quizScores = {};
+let totalQuizCorrect = 0;
+let savingsEnabled = { spot: false, compress: false, cache: false };
+let savingsPct = { spot: 0, compress: 0, cache: 0 };
+let baseAnnualCost = 598380;
+
+// ===== STEP NAVIGATION =====
+function goToStep(n) {
+  document.querySelectorAll('.story-step').forEach((el, i) => {
+    el.classList.remove('active');
+    if (completedSteps.has(i+1)) el.classList.add('completed');
+    else el.classList.remove('completed');
+  });
+  document.getElementById('step'+n).classList.add('active');
+  document.getElementById('section'+n).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function completeStep(n) {
+  completedSteps.add(n);
+  const stepEl = document.getElementById('step'+n);
+  stepEl.classList.add('completed');
+  stepEl.classList.remove('active');
+  if (n < 5) {
+    document.getElementById('step'+(n+1)).classList.add('active');
+  }
+  updateOverallProgress();
+  updateScoreCard();
+  if (completedSteps.size === 5) {
+    document.getElementById('synthesis-section').style.display = 'block';
+    document.getElementById('synthesis-section').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function updateOverallProgress() {
+  const pct = (completedSteps.size / 5) * 100;
+  document.getElementById('overallProgress').style.width = pct + '%';
+  document.getElementById('progressText').textContent = completedSteps.size + ' of 5 steps completed';
+}
+
+function updateScoreCard() {
+  document.getElementById('steps-display').textContent = completedSteps.size;
+  document.getElementById('score-display').textContent = totalQuizCorrect;
+  const pct = ((completedSteps.size * 10 + totalQuizCorrect * 10) / 100) * 100;
+  document.getElementById('scoreProgress').style.width = Math.min(pct, 100) + '%';
+}
+
+// ===== QUIZ ENGINE =====
+const quizFeedback = {
+  q1: {
+    correct: "✅ <strong>Correct!</strong> A Feature Store is the right architecture for real-time ML serving. It pre-computes features offline and serves them with low latency. Querying the data warehouse or CRM API directly at inference time would add 100–500ms of latency — unacceptable for a real-time recommendation system. Training-serving skew is also prevented because training and serving use the same feature definitions.",
+    incorrect: "❌ <strong>Not quite.</strong> The Feature Store is the production answer for real-time ML. Data Warehouses are great for analytics but have too high query latency for real-time serving. Raw logs require processing overhead. Direct CRM queries don't scale. The Feature Store pattern pre-computes features, stores them with low latency (Redis/DynamoDB), and ensures training and serving use identical feature computations."
+  },
+  q2: {
+    correct: "✅ <strong>Correct!</strong> Under GDPR, the lawful basis for using purchase history for churn prediction is typically 'legitimate interest' — but it requires a Legitimate Interests Assessment (LIA) to confirm the interest isn't overridden by the customer's rights. Purpose limitation means you cannot repurpose data collected for sales into automated retention decisions without disclosure. GDPR Article 22 also requires human oversight for decisions with 'significant effect' on individuals.",
+    incorrect: "❌ <strong>Not quite.</strong> GDPR doesn't absolutely forbid using purchase history (B is wrong) nor give unlimited permission (A is wrong). Anonymization (D) doesn't help because churn prediction by definition requires individual-level data. The correct answer is 'it depends' — you need a lawful basis (legitimate interest requires a balancing test), purpose limitation disclosure, and human oversight for automated decisions."
+  },
+  q3: {
+    correct: "✅ <strong>Correct!</strong> At a 200-person startup where ML is a core product feature, the embedded model wins. You need speed (embedded teams ship 2–3× faster than centralized queues), domain alignment (DS in the product team understands user behavior better), and you don't yet have the scale to justify a separate platform team. The hub-and-spoke model makes sense later, once you have 5+ embedded DS roles and infrastructure pain becomes the bottleneck.",
+    incorrect: "❌ <strong>Not quite.</strong> For a 200-person product-focused startup, embedded is best. Centralized creates bottlenecks (your 3 DS would serve 10+ teams). Hub-and-spoke requires an ML platform team you don't have the headcount for yet. Outsourcing cedes core IP on your most strategic capability. As you scale past 30 ML practitioners, then hub-and-spoke becomes the right move."
+  },
+  q4: {
+    correct: "✅ <strong>Correct!</strong> This response works because: (1) it doesn't argue with the VP — you validate their expertise; (2) it proposes a time-boxed A/B test, turning the disagreement into data; (3) it positions ML as augmenting human judgment, not replacing it; (4) it gives the VP control over how to act on model outputs. The worst response is to lecture on accuracy statistics — humans are loss-averse toward algorithmic control, and data alone won't overcome that.",
+    incorrect: "❌ <strong>Not quite.</strong> Option A creates adversarial dynamic — nobody likes being told their judgment is worse. Option C patronizes the VP. Option D burns the relationship entirely. The key insight: trust in ML is earned through collaboration and transparency, not facts and authority. The A/B test proposal is powerful because it makes the VP a participant in discovering the answer rather than a skeptic being overruled."
+  },
+  q5: {
+    correct: "✅ <strong>Correct!</strong> A 68% override rate is almost certainly a change management problem, not a model quality problem. Common causes: (1) reps were never trained on how to interpret model outputs; (2) the model recommendations don't fit into their daily workflow; (3) explanations are insufficient — reps don't know <em>why</em> the model flagged a customer; (4) there's no incentive alignment — hitting quota via their own judgment feels more satisfying. Fix: co-design the interface with reps, add SHAP explanations, run training sessions, track when overrides lead to better/worse outcomes.",
+    incorrect: "❌ <strong>Not quite.</strong> High override rates are rarely about model accuracy alone. Even excellent models get overridden when users don't understand them or don't trust them. Retraining (D) doesn't fix a trust problem. Telling reps to trust more (A) is counterproductive. The root cause is almost always change management: workflow integration, training, and explainability."
+  }
+};
+
+function checkAnswer(el, qid, isCorrect) {
+  if (quizScores[qid] !== undefined) return; // already answered
+  quizScores[qid] = isCorrect;
+  if (isCorrect) totalQuizCorrect++;
+  el.classList.add(isCorrect ? 'correct' : 'incorrect');
+  // disable all options
+  el.closest('.answer-options').querySelectorAll('.answer-option').forEach(opt => {
+    opt.style.pointerEvents = 'none';
+  });
+  const fb = document.getElementById('feedback-' + qid);
+  fb.innerHTML = isCorrect ? quizFeedback[qid].correct : quizFeedback[qid].incorrect;
+  fb.className = 'feedback-panel show ' + (isCorrect ? 'correct-fb' : 'incorrect-fb');
+  updateScoreCard();
+}
+
+// ===== DATA ARCHITECTURE INFO =====
+const sourceInfo = {
+  erp: { title: '🏭 ERP (Enterprise Resource Planning)', content: 'SAP, Oracle, Microsoft Dynamics. Contains transactional records: orders, inventory, suppliers, financials. <strong>Update frequency:</strong> batch (daily/weekly). <strong>Format:</strong> structured SQL tables. <strong>ML use:</strong> demand forecasting, supplier risk, cost optimization. <strong>Challenge:</strong> very rigid schemas, expensive to modify, often legacy systems.' },
+  crm: { title: '👥 CRM (Customer Relationship Management)', content: 'Salesforce, HubSpot, Microsoft Dynamics 365. Contains customer contacts, sales pipeline, interaction history. <strong>Update frequency:</strong> near real-time (as reps enter data). <strong>Format:</strong> structured + free text. <strong>ML use:</strong> churn prediction, lead scoring, customer LTV. <strong>Challenge:</strong> data quality depends on rep behavior — highly incomplete.' },
+  iot: { title: '📡 IoT & Sensor Data', content: 'Machinery sensors, retail foot traffic cameras, connected devices, industrial equipment. <strong>Update frequency:</strong> milliseconds to seconds (streaming). <strong>Format:</strong> time-series, semi-structured JSON. <strong>ML use:</strong> predictive maintenance, anomaly detection, real-time optimization. <strong>Challenge:</strong> massive volume (petabytes/day), noisy data, requires streaming infrastructure (Kafka/Kinesis).' },
+  logs: { title: '📊 Application & Web Logs', content: 'Web server logs, clickstream, API call logs, mobile app events. <strong>Update frequency:</strong> real-time streaming. <strong>Format:</strong> semi-structured text, JSON. <strong>ML use:</strong> recommendations, fraud detection, user behavior modeling. <strong>Challenge:</strong> high volume but low signal density — need sophisticated feature engineering.' },
+  ext: { title: '🌐 External Data Sources', content: 'Market data (Bloomberg, financial APIs), social media (Twitter API), weather APIs, competitor pricing scrapers, government datasets. <strong>Update frequency:</strong> varies (real-time to annual). <strong>ML use:</strong> macro-economic forecasting, sentiment analysis, demand signals. <strong>Challenge:</strong> licensing costs, API rate limits, schema changes without notice.' },
+  lake: { title: '🏞️ Data Lake', content: 'Centralized repository storing raw, processed, and curated data at any scale. Technologies: AWS S3 + Delta Lake, Azure Data Lake, Google Cloud Storage + BigQuery. <strong>Zones:</strong> Raw (landing), Bronze (validated), Silver (transformed), Gold (ML-ready). <strong>Key tool:</strong> Apache Spark for distributed processing. <strong>Problem:</strong> Without governance, becomes a "data swamp" — 70% of enterprise data lakes are unused.' },
+  warehouse: { title: '🏛️ Data Warehouse', content: 'Optimized for structured analytical queries (OLAP). Technologies: Snowflake, BigQuery, Redshift, Databricks SQL. <strong>Best for:</strong> batch ML training on structured data, BI dashboards, SQL-based feature engineering. <strong>NOT ideal for:</strong> unstructured data (images, text), streaming features, sub-100ms query latency for real-time serving.' },
+  feature: { title: '⚙️ Feature Store', content: 'A specialized system that computes, stores, and serves ML features with both batch (training) and online (real-time serving) access. Examples: Feast (open source), Tecton, AWS SageMaker Feature Store. <strong>Why critical:</strong> (1) Prevents training-serving skew — training and serving use identical feature logic; (2) Feature reuse across models; (3) Sub-10ms feature retrieval for real-time inference. Used by Uber (Michelangelo), LinkedIn, Airbnb.' },
+  train: { title: '🧠 Model Training Infrastructure', content: 'Distributed training environments. Technologies: AWS SageMaker, Azure ML, GCP Vertex AI, or self-managed Kubernetes + GPU clusters. <strong>Patterns:</strong> Batch training (daily/weekly retraining), online learning (continuous updates), champion/challenger (A/B test new models in production). <strong>Cost driver:</strong> GPU compute — often 40–60% of total ML infrastructure spend.' },
+  serving: { title: '⚡ Model Serving (Inference)', content: 'Real-time API endpoints serving predictions to applications. Technologies: TensorFlow Serving, TorchServe, MLflow, Seldon, KServe. <strong>Latency targets:</strong> web recommendations <50ms, fraud detection <100ms, batch scoring flexible. <strong>Patterns:</strong> REST API (synchronous), message queue (asynchronous batch), streaming (event-driven). <strong>Key metric:</strong> P99 latency — what does the slowest 1% of requests experience?' },
+  monitor: { title: '👁️ Model Monitoring & Drift Detection', content: 'Continuous health checks on deployed models. <strong>What to monitor:</strong> (1) Data drift — input distribution shift; (2) Concept drift — relationship between features and label changes; (3) Prediction drift — output distribution shifts; (4) Business KPIs — actual ROI. <strong>Tools:</strong> Evidently AI, Arize, WhyLogs, DataDog. <strong>Rule of thumb:</strong> set up monitoring BEFORE you deploy, not after you discover a problem.' }
+};
+
+function showSourceInfo(key) {
+  document.querySelectorAll('.arch-node').forEach(n => n.classList.remove('active-node'));
+  const info = sourceInfo[key];
+  const panel = document.getElementById('arch-info');
+  panel.innerHTML = '<strong>' + info.title + '</strong><br>' + info.content;
+  panel.className = 'feedback-panel show';
+  // Highlight the clicked node
+  const nodeMap = { erp:'node-erp', crm:'node-crm', iot:'node-iot', logs:'node-logs', ext:'node-ext' };
+  if (nodeMap[key]) document.getElementById(nodeMap[key]).classList.add('active-node');
+}
+
+// ===== GDPR CHECKER =====
+const gdprResults = {
+  churn: {
+    title: 'Customer Churn Prediction Using Purchase History',
+    checks: [
+      { status:'warn', text:'<strong>Lawful Basis:</strong> Legitimate interest may apply, but requires a Legitimate Interests Assessment (LIA). Document why your interest outweighs customer rights.' },
+      { status:'warn', text:'<strong>Purpose Limitation:</strong> If customers consented to purchase data for checkout processing, repurposing it for churn prediction requires separate notification or consent.' },
+      { status:'pass', text:'<strong>Data Minimization:</strong> Only use transaction data (not sensitive categories). Purchase history is generally proportionate.' },
+      { status:'warn', text:'<strong>Article 22 (Automated Decisions):</strong> If churn score triggers automatic retention offers or service changes without human review, you need explicit consent or contract necessity basis.' },
+      { status:'pass', text:'<strong>Retention:</strong> Churn model features can be retained as long as the customer relationship exists. Standard data retention policies apply.' }
+    ],
+    verdict: 'warn',
+    conclusion: '⚠️ Permitted with safeguards. Conduct a LIA, update your privacy notice to include ML analytics use, and ensure human oversight before automated actions.'
+  },
+  credit: {
+    title: 'Credit Risk Scoring Using Social Media Data',
+    checks: [
+      { status:'fail', text:'<strong>Lawful Basis:</strong> Social media data was not provided for credit assessment. Repurposing violates purpose limitation (Art. 5(1)(b)).' },
+      { status:'fail', text:'<strong>Special Category Data Risk:</strong> Social media often reveals religion, political opinions, health, or sexual orientation — all special categories (Art. 9) requiring explicit consent.' },
+      { status:'fail', text:'<strong>FCRA (US) / Consumer Credit Regulations:</strong> Credit decisions must be based on legally permissible data sources. Social media is explicitly prohibited in most jurisdictions.' },
+      { status:'fail', text:'<strong>Article 22:</strong> Credit scoring is explicitly mentioned as a high-risk automated decision. Requires explicit consent or contractual necessity, plus right to human review.' },
+      { status:'fail', text:'<strong>Discrimination Risk:</strong> Social media data is highly correlated with protected attributes (race, religion, gender). Extreme disparate impact exposure.' }
+    ],
+    verdict: 'fail',
+    conclusion: '🚫 Not compliant. High legal risk under GDPR, ECOA (US), and FCRA. Social media data is an impermissible basis for credit decisions in virtually all jurisdictions.'
+  },
+  hiring: {
+    title: 'Resume Screening for Job Applicants',
+    checks: [
+      { status:'warn', text:'<strong>EU AI Act (2024):</strong> AI used in recruitment is classified as HIGH RISK (Annex III). Requires conformity assessment, human oversight, and transparency disclosure to candidates.' },
+      { status:'fail', text:'<strong>Discrimination Risk:</strong> Historical hiring data reflects past biases. Trained on biased data → amplifies discrimination. Must conduct disparity analysis.' },
+      { status:'warn', text:'<strong>Transparency (Art. 13/14):</strong> Candidates must be informed that automated screening is being used. Right to explanation (Art. 22) applies.' },
+      { status:'pass', text:'<strong>Lawful Basis:</strong> Pre-contractual necessity (Art. 6(1)(b)) provides a basis for processing applicant data in the hiring process.' },
+      { status:'warn', text:'<strong>Human Oversight Required:</strong> EU AI Act mandates meaningful human review of AI-assisted hiring decisions. Automated rejection without review is non-compliant.' }
+    ],
+    verdict: 'warn',
+    conclusion: '⚠️ Requires careful implementation. EU AI Act classification as high-risk means you need a conformity assessment, bias audit, candidate disclosure, and mandatory human review of screening decisions.'
+  },
+  health: {
+    title: 'Health Outcome Prediction for Insurance Pricing',
+    checks: [
+      { status:'fail', text:'<strong>Special Category Data (Art. 9):</strong> Health data is explicitly listed. Processing requires explicit consent OR substantial public interest — insurance pricing does not qualify.' },
+      { status:'fail', text:'<strong>HIPAA (US):</strong> Protected Health Information cannot be used for insurance pricing without authorization. Violations carry $100K–$1.9M penalties per violation.' },
+      { status:'fail', text:'<strong>EU: Actuarial Exception Narrow:</strong> Insurance underwriting exception exists, but most EU member states have additional restrictions on health-based pricing.' },
+      { status:'fail', text:'<strong>Discrimination Risk:</strong> Health-based pricing discriminates against pre-existing conditions. ACA (US) and EU directives explicitly prohibit this in many insurance types.' },
+      { status:'fail', text:'<strong>EU AI Act:</strong> Insurance pricing based on health data is likely to be classified as unacceptable or high-risk AI.' }
+    ],
+    verdict: 'fail',
+    conclusion: '🚫 Not compliant in most jurisdictions. Health data used for insurance pricing faces multiple legal barriers — HIPAA, GDPR Art. 9, ACA, and EU insurance directives. Seek legal counsel before proceeding.'
+  },
+  reco: {
+    title: 'Product Recommendations Based on Browsing Behavior',
+    checks: [
+      { status:'warn', text:'<strong>ePrivacy Directive / Cookie Law:</strong> Behavioral tracking via cookies requires user consent (opt-in) in EU. Consent management platform required.' },
+      { status:'pass', text:'<strong>Lawful Basis:</strong> With valid cookie consent, legitimate interest or consent provides a basis for personalization.' },
+      { status:'pass', text:'<strong>Data Minimization:</strong> Browsing data (pages visited, time spent) is generally not special category data. Proportionate for recommendations.' },
+      { status:'pass', text:'<strong>Article 22:</strong> Product recommendations are not "decisions producing legal or similarly significant effects" — Article 22 does not apply to typical e-commerce recommendations.' },
+      { status:'warn', text:'<strong>Right to Object (Art. 21):</strong> Users must be able to opt out of profiling for marketing. Honor opt-outs promptly (within 30 days).' }
+    ],
+    verdict: 'pass',
+    conclusion: '✅ Generally compliant with proper consent management. Implement a compliant CMP (Consent Management Platform), honor opt-outs, and document your legitimate interest assessment.'
+  },
+  fraud: {
+    title: 'Fraud Detection on Payment Transactions',
+    checks: [
+      { status:'pass', text:'<strong>Lawful Basis:</strong> Legal obligation (PSD2, AML regulations) and legitimate interest both provide strong lawful basis for fraud detection.' },
+      { status:'pass', text:'<strong>Necessity & Proportionality:</strong> Fraud detection is explicitly recognized as a necessary use of automated processing in financial services.' },
+      { status:'pass', text:'<strong>GDPR Recital 47:</strong> Fraud prevention is listed as an example of legitimate interest. Processing personal data to prevent fraud is generally permissible.' },
+      { status:'warn', text:'<strong>Article 22 Safeguards:</strong> If fraud detection triggers automatic account blocking, you need a human review process and mechanism for customers to contest decisions.' },
+      { status:'pass', text:'<strong>Sector Regulations:</strong> PSD2 (EU), Bank Secrecy Act (US) actually require fraud monitoring — legal compliance supports the processing.' }
+    ],
+    verdict: 'pass',
+    conclusion: '✅ Well-supported by law. Fraud detection is one of the strongest use cases under GDPR. Ensure you have a human review mechanism for contested blocking decisions and document your processing in the Record of Processing Activities (RoPA).'
+  }
+};
+
+function runGDPRCheck() {
+  const val = document.getElementById('gdpr-usecase').value;
+  if (!val) { alert('Please select a use case first.'); return; }
+  const result = gdprResults[val];
+  const verdictColors = { pass: '#28a745', warn: '#e6a817', fail: '#dc3545' };
+  const verdictLabels = { pass: '✅ GENERALLY COMPLIANT', warn: '⚠️ COMPLIANT WITH SAFEGUARDS', fail: '🚫 HIGH COMPLIANCE RISK' };
+  let html = '<h4 style="margin:0 0 1em; color:#003366;">' + result.title + '</h4>';
+  result.checks.forEach(c => {
+    html += '<div class="compliance-check ' + (c.status==='pass' ? 'pass' : c.status==='fail' ? 'fail' : 'warn') + '">';
+    html += '<div class="check-icon">' + (c.status==='pass' ? '✅' : c.status==='fail' ? '❌' : '⚠️') + '</div>';
+    html += '<div class="check-text">' + c.text + '</div></div>';
+  });
+  html += '<div style="background:' + verdictColors[result.verdict] + '; color:white; padding:1em; border-radius:8px; margin-top:1em; font-weight:bold;">';
+  html += '<div style="font-size:1.1em; margin-bottom:0.3em;">' + verdictLabels[result.verdict] + '</div>';
+  html += result.conclusion + '</div>';
+  const container = document.getElementById('gdpr-result');
+  container.innerHTML = html;
+  container.style.display = 'block';
+}
+
+// ===== BIAS CALCULATOR =====
+function updateBiasCalc() {
+  const rA = parseInt(document.getElementById('rateA').value);
+  const rB = parseInt(document.getElementById('rateB').value);
+  const acc = parseInt(document.getElementById('accuracy').value);
+  document.getElementById('rateA-val').textContent = rA + '%';
+  document.getElementById('rateB-val').textContent = rB + '%';
+  document.getElementById('accuracy-val').textContent = acc + '%';
+  document.getElementById('acc-display').textContent = acc + '%';
+  const dir = (rB / rA).toFixed(2);
+  const spd = rB - rA;
+  document.getElementById('dir-val').textContent = dir;
+  document.getElementById('spd-val').textContent = (spd >= 0 ? '+' : '') + spd + 'pp';
+  const dirNum = parseFloat(dir);
+  let eeocStatus, biasClass, recommendation;
+  if (dirNum >= 0.8) {
+    document.getElementById('dir-val').className = 'metric-badge badge-ok';
+    document.getElementById('spd-val').className = 'metric-badge badge-ok';
+    document.getElementById('eeoc-val').textContent = '✅ PASS';
+    document.getElementById('eeoc-val').className = 'metric-badge badge-ok';
+    biasClass = 'bias-ok';
+    recommendation = '✅ Model passes the EEOC 4/5 rule. Disparate impact ratio ≥ 0.8. Continue monitoring for intersectional bias and ensure regular audits.';
+  } else if (dirNum >= 0.6) {
+    document.getElementById('dir-val').className = 'metric-badge badge-warn';
+    document.getElementById('spd-val').className = 'metric-badge badge-warn';
+    document.getElementById('eeoc-val').textContent = '⚠️ CAUTION';
+    document.getElementById('eeoc-val').className = 'metric-badge badge-warn';
+    biasClass = 'bias-warn';
+    recommendation = '⚠️ Borderline disparate impact detected. Mitigation options: (1) Re-weight training data to oversample protected group; (2) Apply fairness constraints (equalized odds, calibration); (3) Remove proxy features correlated with protected attributes.';
+  } else {
+    document.getElementById('dir-val').className = 'metric-badge badge-fail';
+    document.getElementById('spd-val').className = 'metric-badge badge-fail';
+    document.getElementById('eeoc-val').textContent = '🚫 FAIL';
+    document.getElementById('eeoc-val').className = 'metric-badge badge-fail';
+    biasClass = 'bias-fail';
+    recommendation = '🚫 Severe disparate impact — ratio below 0.6. Model should not be deployed as-is. Required: comprehensive bias audit, model retraining with fairness constraints, legal review, and documented remediation plan.';
+  }
+  document.getElementById('bias-recommendation').className = 'bias-result ' + biasClass;
+  document.getElementById('bias-recommendation').textContent = recommendation;
+}
+
+// ===== COST CALCULATOR =====
+function updateCostCalc() {
+  const gpuHrs = parseInt(document.getElementById('gpu-hours').value);
+  const storageTB = parseInt(document.getElementById('storage-tb').value);
+  const apiK = parseInt(document.getElementById('api-calls').value);
+  const team = parseInt(document.getElementById('team-size').value);
+  const bizValK = parseInt(document.getElementById('biz-value-slider').value);
+  document.getElementById('gpu-val').textContent = gpuHrs + ' hrs';
+  document.getElementById('storage-val').textContent = storageTB + ' TB';
+  document.getElementById('api-val').textContent = (apiK).toLocaleString() + 'K';
+  document.getElementById('team-val').textContent = team + ' FTEs';
+  document.getElementById('biz-input-val').textContent = bizValK.toLocaleString();
+  const gpuCost = gpuHrs * 3 * 12;
+  const storageCost = storageTB * 23 * 12;
+  const apiCost = apiK * 1000 * 0.0005 * 12;
+  const teamCost = team * 150000;
+  const total = gpuCost + storageCost + apiCost + teamCost;
+  baseAnnualCost = total;
+  document.getElementById('gpu-cost').textContent = '$' + gpuCost.toLocaleString();
+  document.getElementById('storage-cost').textContent = '$' + storageCost.toLocaleString();
+  document.getElementById('api-cost').textContent = '$' + apiCost.toLocaleString();
+  document.getElementById('team-cost').textContent = '$' + teamCost.toLocaleString();
+  document.getElementById('total-cost').textContent = '$' + total.toLocaleString();
+  document.getElementById('roi-cost').textContent = '$' + total.toLocaleString();
+  const bizVal = bizValK * 1000;
+  document.getElementById('biz-value').textContent = '$' + bizVal.toLocaleString();
+  const netRoi = bizVal - total;
+  const roiPct = total > 0 ? Math.round((netRoi / total) * 100) : 0;
+  document.getElementById('net-roi').textContent = (netRoi >= 0 ? '+' : '') + '$' + netRoi.toLocaleString() + ' (' + roiPct + '%)';
+  updateSavingsDisplay();
+}
+
+function toggleSaving(key, pct, btn) {
+  savingsEnabled[key] = !savingsEnabled[key];
+  savingsPct[key] = savingsEnabled[key] ? pct : 0;
+  btn.textContent = savingsEnabled[key] ? 'Disable' : 'Enable';
+  btn.className = savingsEnabled[key] ? 'button success' : 'button outline';
+  const bar = document.getElementById(key + '-bar');
+  bar.style.width = savingsEnabled[key] ? (pct * 100 / 0.55 * 100) + '%' : '0%';
+  updateSavingsDisplay();
+}
+
+function updateSavingsDisplay() {
+  const totalSavingsPct = savingsPct.spot + savingsPct.compress + savingsPct.cache;
+  const newCost = Math.round(baseAnnualCost * (1 - totalSavingsPct));
+  document.getElementById('total-savings-pct').textContent = Math.round(totalSavingsPct * 100) + '%';
+  document.getElementById('new-annual-cost').textContent = '$' + Math.round(newCost/1000) + 'K';
+  // update bars proportionally
+  if (savingsEnabled.spot) document.getElementById('spot-bar').style.width = '63%';
+  if (savingsEnabled.compress) document.getElementById('compress-bar').style.width = '22%';
+  if (savingsEnabled.cache) document.getElementById('cache-bar').style.width = '15%';
+}
+
+// ===== ORG STRUCTURES =====
+function showStructure(type) {
+  document.querySelectorAll('.structure-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('struct-'+type).classList.add('active');
+  document.querySelectorAll('[id^="struct-"][id$="-content"]').forEach(c => c.style.display='none');
+  document.getElementById('struct-'+type+'-content').style.display='block';
+}
+
+// ===== STAKEHOLDER TOGGLE =====
+function toggleStakeholder(card) {
+  const wasActive = card.classList.contains('active');
+  document.querySelectorAll('.stakeholder-card').forEach(c => c.classList.remove('active'));
+  if (!wasActive) card.classList.add('active');
+}
+
+// ===== INIT =====
+updateBiasCalc();
+updateCostCalc();
+</script>
+</body>
+</html>

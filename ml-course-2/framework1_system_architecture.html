@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Framework 1: ML System Architecture | ML Frameworks & Applied Analytics</title>
+<style>
+/* ── Base ── */
+body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 980px; margin: auto; padding: 2rem; line-height: 1.7; }
+nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #e1e4e8; }
+nav a { margin: 0 12px; text-decoration: none; color: #0366d6; font-weight: bold; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 0.95em; }
+nav a:hover { color: #003366; text-decoration: underline; }
+h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+h1 { font-size: 2em; margin-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 2px solid #e1e4e8; padding-bottom: 0.4em; margin-top: 2em; }
+h3 { font-size: 1.2em; color: #0366d6; }
+.card { background: #fff; padding: 1.4em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+.badge { display: inline-block; padding: 0.2em 0.7em; border-radius: 12px; font-size: 0.8em; font-weight: bold; font-family: sans-serif; margin-right: 0.4em; }
+.badge-blue { background: #dbeafe; color: #1e40af; }
+.badge-green { background: #d1fae5; color: #065f46; }
+.badge-orange { background: #fef3c7; color: #92400e; }
+.badge-red { background: #fee2e2; color: #991b1b; }
+
+/* ── Interactive Section ── */
+.interactive-section { background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); padding: 2em; margin: 2em 0; border-radius: 12px; border: 1px solid #e1e4e8; }
+
+/* ── Buttons ── */
+.button { display: inline-block; padding: 0.75em 1.4em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 0.97em; cursor: pointer; transition: all 0.3s ease; margin: 0.4em 0.4em 0.4em 0; font-weight: bold; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
+.button.secondary { background: #6c757d; }
+.button.secondary:hover { background: #5a6268; }
+.button.success { background: #28a745; }
+.button.success:hover { background: #218838; }
+.button.warning { background: #ffc107; color: #212529; }
+.button.danger { background: #dc3545; }
+.button.sm { padding: 0.4em 0.9em; font-size: 0.88em; }
+
+/* ── Story Progress ── */
+.story-progress { display: flex; justify-content: space-between; margin: 2em 0 1em; position: relative; }
+.story-progress::before { content: ""; position: absolute; top: 20px; left: 5%; right: 5%; height: 3px; background: #e1e4e8; z-index: 0; }
+.story-step { background: white; border: 3px solid #e1e4e8; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; z-index: 1; cursor: pointer; transition: all 0.3s ease; font-family: sans-serif; font-size: 0.9em; }
+.story-step.completed { background: #28a745; color: white; border-color: #28a745; }
+.story-step.active { background: #0366d6; color: white; border-color: #0366d6; transform: scale(1.2); box-shadow: 0 0 0 4px rgba(3,102,214,0.2); }
+.story-labels { display: flex; justify-content: space-between; margin-bottom: 2em; }
+.story-labels span { text-align: center; font-size: 0.78em; color: #555; font-family: sans-serif; width: 20%; }
+
+/* ── Progress Bar ── */
+.progress-bar { height: 28px; background: #e9ecef; border-radius: 14px; margin: 1.5em 0; overflow: hidden; position: relative; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #0366d6 0%, #667eea 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-family: sans-serif; font-size: 0.9em; transition: width 1s ease; position: relative; overflow: hidden; }
+.progress-fill::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: shimmer 2s infinite; }
+@keyframes shimmer { to { left: 100%; } }
+
+/* ── Quiz Cards ── */
+.quick-question { background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%); border: 2px solid #0366d6; border-radius: 10px; padding: 1.5em; margin: 2em 0; position: relative; overflow: hidden; }
+.quick-question::before { content: "?"; position: absolute; top: -20px; right: -10px; font-size: 120px; color: rgba(3,102,214,0.05); font-weight: bold; }
+.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin: 1em 0; }
+@media (max-width: 600px) { .answer-options { grid-template-columns: 1fr; } }
+.answer-option { padding: 0.9em 1em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.25s ease; font-family: Georgia, serif; font-size: 0.97em; line-height: 1.4; }
+.answer-option:hover { border-color: #0366d6; transform: scale(1.02); }
+.answer-option.correct { background: #d4edda; border-color: #28a745; }
+.answer-option.incorrect { background: #f8d7da; border-color: #dc3545; }
+.answer-option.disabled { pointer-events: none; }
+
+/* ── Feedback Panel ── */
+.feedback-panel { background: white; border-left: 5px solid #0366d6; padding: 1.4em; margin: 1.2em 0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); display: none; }
+.feedback-panel.show { display: block; animation: slideIn 0.4s ease; }
+.feedback-panel.correct-fb { border-left-color: #28a745; }
+.feedback-panel.incorrect-fb { border-left-color: #dc3545; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ── Business Impact ── */
+.impact-display { background: linear-gradient(135deg, #28a74510 0%, #20c99710 100%); border: 2px solid #28a745; border-radius: 12px; padding: 1.8em; margin: 2em 0; text-align: center; }
+.impact-number { font-size: 2.8em; font-weight: bold; color: #28a745; margin: 0.2em 0; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.impact-description { color: #555; font-size: 1.05em; }
+
+/* ── Code Editor ── */
+.code-editor { background: #282c34; border-radius: 10px; padding: 0; margin: 1.5em 0; overflow: hidden; }
+.code-editor-header { background: #21252b; padding: 0.6em 1em; display: flex; justify-content: space-between; align-items: center; }
+.code-editor-header span { color: #abb2bf; font-family: monospace; font-size: 0.9em; }
+.code-editor-dots { display: flex; gap: 6px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot-red { background: #ff5f57; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #28c840; }
+.code-input { width: 100%; min-height: 220px; background: #282c34; color: #abb2bf; border: none; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.93em; resize: vertical; padding: 1em; box-sizing: border-box; line-height: 1.6; outline: none; }
+.code-toolbar { background: #21252b; padding: 0.5em 1em; display: flex; gap: 0.5em; }
+.run-btn { background: #61dafb; color: #282c34; padding: 0.4em 1.1em; border-radius: 5px; font-weight: bold; cursor: pointer; border: none; font-family: sans-serif; font-size: 0.9em; }
+.run-btn:hover { background: #4fc8e8; }
+.reset-btn { background: #e06c75; color: white; padding: 0.4em 1.1em; border-radius: 5px; font-weight: bold; cursor: pointer; border: none; font-family: sans-serif; font-size: 0.9em; }
+.code-output { background: #1e2227; color: #98c379; padding: 1em; font-family: monospace; font-size: 0.9em; min-height: 80px; border-top: 1px solid #3a3f4b; white-space: pre-wrap; }
+
+/* ── Sliders ── */
+.slider-container { margin: 1.5em 0; }
+.slider-label { display: flex; justify-content: space-between; font-family: sans-serif; font-size: 0.9em; color: #555; margin-bottom: 0.4em; }
+.slider { width: 100%; height: 8px; border-radius: 4px; background: #e1e4e8; outline: none; -webkit-appearance: none; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #0366d6; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+.slider::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 0 10px rgba(3,102,214,0.4); }
+.slider-value { font-size: 1.6em; font-weight: bold; color: #0366d6; font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; margin: 0.6em 0; }
+
+/* ── SVG Viz ── */
+.viz-container { background: white; border: 2px solid #e1e4e8; border-radius: 10px; padding: 1.5em; margin: 1.5em 0; overflow-x: auto; }
+svg text { font-family: 'Helvetica Neue', Arial, sans-serif; }
+
+/* ── Architecture Boxes ── */
+.arch-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; margin: 1.5em 0; }
+@media (max-width: 680px) { .arch-panel { grid-template-columns: 1fr; } }
+.arch-box { border: 2px solid #e1e4e8; border-radius: 10px; padding: 1.2em; background: white; }
+.arch-box h4 { margin: 0 0 0.8em; font-size: 1.05em; }
+.arch-box.mono { border-color: #f59e0b; background: #fffbeb; }
+.arch-box.micro { border-color: #0366d6; background: #f0f7ff; }
+.component-tag { display: inline-block; padding: 0.3em 0.7em; border-radius: 6px; font-size: 0.82em; font-weight: bold; font-family: sans-serif; margin: 0.25em; cursor: pointer; transition: all 0.2s; }
+.component-tag:hover { transform: scale(1.05); }
+.mono-tag { background: #fef3c7; color: #78350f; border: 1px solid #f59e0b; }
+.micro-tag { background: #dbeafe; color: #1e3a8a; border: 1px solid #3b82f6; }
+
+/* ── Pipeline Demo ── */
+.pipeline { display: flex; align-items: center; flex-wrap: wrap; gap: 0; margin: 1.5em 0; }
+.pipeline-node { background: white; border: 2px solid #e1e4e8; border-radius: 8px; padding: 0.7em 1em; font-family: sans-serif; font-size: 0.88em; text-align: center; min-width: 90px; transition: all 0.3s; }
+.pipeline-node.active { border-color: #0366d6; background: #e7f3ff; box-shadow: 0 2px 8px rgba(3,102,214,0.2); }
+.pipeline-node.done { border-color: #28a745; background: #d4edda; }
+.pipeline-arrow { color: #0366d6; font-size: 1.3em; padding: 0 0.3em; }
+
+/* ── Model Version Tracker ── */
+.version-track { display: flex; gap: 1em; margin: 1.5em 0; }
+.version-card { flex: 1; border: 2px solid #e1e4e8; border-radius: 8px; padding: 1em; text-align: center; font-family: sans-serif; font-size: 0.85em; transition: all 0.3s; }
+.version-card.dev { border-color: #f59e0b; background: #fffbeb; }
+.version-card.staging { border-color: #8b5cf6; background: #f5f3ff; }
+.version-card.prod { border-color: #10b981; background: #ecfdf5; }
+.version-card.active { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+.env-label { font-weight: bold; font-size: 0.95em; margin-bottom: 0.5em; }
+.model-chip { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; padding: 0.2em 0.5em; font-size: 0.82em; margin: 0.2em 0; display: block; }
+
+/* ── Latency Meter ── */
+.latency-bar-wrap { margin: 0.6em 0; font-family: sans-serif; font-size: 0.9em; }
+.latency-bar-label { display: flex; justify-content: space-between; margin-bottom: 0.2em; }
+.latency-bar-bg { background: #e9ecef; border-radius: 8px; height: 22px; overflow: hidden; }
+.latency-bar-fill { height: 22px; border-radius: 8px; transition: width 0.8s ease; display: flex; align-items: center; padding-left: 0.5em; color: white; font-size: 0.8em; font-weight: bold; }
+
+/* ── Tabs ── */
+.tab-bar { display: flex; border-bottom: 2px solid #e1e4e8; margin-bottom: 1.5em; flex-wrap: wrap; }
+.tab { padding: 0.6em 1.2em; cursor: pointer; font-family: sans-serif; font-size: 0.92em; color: #555; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+.tab.active { color: #0366d6; border-bottom-color: #0366d6; font-weight: bold; }
+.tab:hover { color: #0366d6; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── Case Study ── */
+.case-study { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; border-radius: 12px; padding: 2em; margin: 2em 0; }
+.case-study h3 { color: #61dafb; }
+.case-study p { color: #ccd6f6; }
+.timeline-item { display: flex; gap: 1em; margin: 0.8em 0; align-items: flex-start; }
+.timeline-dot { width: 28px; height: 28px; border-radius: 50%; background: #61dafb; display: flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: bold; color: #1a1a2e; flex-shrink: 0; }
+.timeline-text { color: #a8b2d8; font-size: 0.95em; padding-top: 0.3em; }
+.timeline-year { color: #61dafb; font-weight: bold; }
+
+/* ── Accordion ── */
+.accordion-item { border: 1px solid #e1e4e8; border-radius: 8px; margin: 0.5em 0; overflow: hidden; }
+.accordion-header { padding: 0.9em 1.2em; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; font-family: sans-serif; font-weight: bold; font-size: 0.95em; transition: background 0.2s; }
+.accordion-header:hover { background: #e9ecef; }
+.accordion-body { padding: 0; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease; }
+.accordion-body.open { max-height: 400px; padding: 1em 1.2em; }
+
+/* ── Horror Story ── */
+.horror-card { background: #1a0000; color: #ff6b6b; border: 2px solid #dc3545; border-radius: 10px; padding: 1.5em; margin: 1em 0; display: none; }
+.horror-card.show { display: block; animation: shake 0.4s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  body { padding: 1rem; }
+  h1 { font-size: 1.5em; }
+  .version-track { flex-direction: column; }
+  .pipeline { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">🏠 Course Home</a>
+  <a href="framework2_pipeline_engineering.html">Next: Pipeline Engineering →</a>
+  <a href="../ml-course/index.html">📚 Course 1</a>
+  <a href="../teaching.html">Teaching Home</a>
+</nav>
+
+<!-- Header -->
+<div style="margin-top:1.5em;">
+  <span class="badge badge-blue">ML Course 2</span>
+  <span class="badge badge-orange">Framework 1</span>
+  <span class="badge badge-green">Interactive</span>
+</div>
+<h1>🏗️ Framework 1: ML System Architecture</h1>
+<p style="color:#555; font-size:1.05em;">Building production-grade ML platforms — from monoliths to microservices, feature stores to model registries.</p>
+
+<!-- Opening Hook -->
+<div class="card" style="border-left: 5px solid #0366d6; background: linear-gradient(135deg, #fff 0%, #f0f7ff 100%);">
+  <h2 style="margin-top:0;">🚨 Your First Week as Head of ML</h2>
+  <p style="font-size:1.1em;">Your company just raised <strong>$50M Series B</strong>. The CEO walks into your office and asks:</p>
+  <blockquote style="border-left:4px solid #0366d6; margin:1em 0; padding:0.8em 1.2em; background:#f0f7ff; border-radius:0 8px 8px 0; font-style:italic; font-size:1.1em; color:#003366;">
+    "How do we build an ML platform that scales? We're competing with companies that have 10× our team. What's our move?"
+  </blockquote>
+  <p>You have <strong>6 months</strong> and a team of <strong>5</strong>. Every architectural decision you make in the next 30 minutes will determine whether you ship on time — or burn through the Series B with nothing to show.</p>
+  <p style="color:#666; font-size:0.95em;">In this module, you'll learn the 4 architectural pillars every production ML system needs. We'll make the same decisions real companies made — and see which ones paid off.</p>
+  <button class="button success" onclick="startModule()">🚀 Accept the Mission</button>
+</div>
+
+<!-- Progress Tracker -->
+<div class="progress-bar" id="main-progress">
+  <div class="progress-fill" id="progress-fill" style="width:0%">0% Complete</div>
+</div>
+
+<!-- Story Steps -->
+<div class="story-progress">
+  <div class="story-step" id="step-1" onclick="scrollToSection('section-1')">1</div>
+  <div class="story-step" id="step-2" onclick="scrollToSection('section-2')">2</div>
+  <div class="story-step" id="step-3" onclick="scrollToSection('section-3')">3</div>
+  <div class="story-step" id="step-4" onclick="scrollToSection('section-4')">4</div>
+  <div class="story-step" id="step-5" onclick="scrollToSection('section-summary')">✓</div>
+</div>
+<div class="story-labels">
+  <span>Monolith vs Microservices</span>
+  <span>Feature Stores</span>
+  <span>Model Registry</span>
+  <span>API Design</span>
+  <span>Mission Complete</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTION 1: Monolithic vs Microservices                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="section-1">
+<h2>🧱 Part 1: Monolithic vs Microservices Architecture</h2>
+
+<div class="card">
+  <p><strong>Day 1 decision:</strong> Your team needs to ship a fraud detection model in 8 weeks. Do you build everything in one system, or split it into independent services? This choice will shape your codebase for years.</p>
+</div>
+
+<!-- Architecture Comparison -->
+<div class="interactive-section">
+  <h3>⚡ Architecture Explorer</h3>
+  <p>Click on any component to learn what it does and where it belongs. Use the tabs to compare the two architectures.</p>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchArch('mono')">🏠 Monolithic (All-in-One)</div>
+    <div class="tab" onclick="switchArch('micro')">🔧 Microservices (Modular)</div>
+    <div class="tab" onclick="switchArch('compare')">📊 Side-by-Side</div>
+  </div>
+
+  <!-- Monolithic View -->
+  <div id="arch-mono" class="tab-content active">
+    <div class="viz-container" style="min-height:300px; padding:1em;">
+      <svg width="100%" height="260" viewBox="0 0 700 260" id="mono-svg">
+        <!-- Big Monolith Box -->
+        <rect x="30" y="20" width="640" height="200" rx="14" fill="#fffbeb" stroke="#f59e0b" stroke-width="3"/>
+        <text x="350" y="46" text-anchor="middle" fill="#78350f" font-size="14" font-weight="bold">ML Application (Single Codebase)</text>
+        <!-- Inner components -->
+        <rect x="60" y="60" width="130" height="60" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+        <text x="125" y="88" text-anchor="middle" fill="#78350f" font-size="11" font-weight="bold">Data Ingestion</text>
+        <text x="125" y="103" text-anchor="middle" fill="#92400e" font-size="10">ETL Pipelines</text>
+
+        <rect x="210" y="60" width="130" height="60" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+        <text x="275" y="88" text-anchor="middle" fill="#78350f" font-size="11" font-weight="bold">Feature Eng.</text>
+        <text x="275" y="103" text-anchor="middle" fill="#92400e" font-size="10">Preprocessing</text>
+
+        <rect x="360" y="60" width="130" height="60" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+        <text x="425" y="88" text-anchor="middle" fill="#78350f" font-size="11" font-weight="bold">Model Training</text>
+        <text x="425" y="103" text-anchor="middle" fill="#92400e" font-size="10">sklearn / torch</text>
+
+        <rect x="510" y="60" width="130" height="60" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+        <text x="575" y="88" text-anchor="middle" fill="#78350f" font-size="11" font-weight="bold">API Serving</text>
+        <text x="575" y="103" text-anchor="middle" fill="#92400e" font-size="10">Flask / Django</text>
+
+        <!-- Bottom row -->
+        <rect x="160" y="148" width="150" height="55" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+        <text x="235" y="174" text-anchor="middle" fill="#78350f" font-size="11" font-weight="bold">Model Registry</text>
+        <text x="235" y="189" text-anchor="middle" fill="#92400e" font-size="10">File System</text>
+
+        <rect x="340" y="148" width="150" height="55" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+        <text x="415" y="174" text-anchor="middle" fill="#78350f" font-size="11" font-weight="bold">Monitoring</text>
+        <text x="415" y="189" text-anchor="middle" fill="#92400e" font-size="10">Logging / Alerts</text>
+
+        <!-- Arrows -->
+        <defs><marker id="ah" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#f59e0b"/></marker></defs>
+        <line x1="190" y1="90" x2="208" y2="90" stroke="#f59e0b" stroke-width="2" marker-end="url(#ah)"/>
+        <line x1="340" y1="90" x2="358" y2="90" stroke="#f59e0b" stroke-width="2" marker-end="url(#ah)"/>
+        <line x1="490" y1="90" x2="508" y2="90" stroke="#f59e0b" stroke-width="2" marker-end="url(#ah)"/>
+        <line x1="425" y1="120" x2="415" y2="148" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#ah)"/>
+      </svg>
+      <p style="text-align:center; color:#92400e; font-size:0.9em; font-family:sans-serif;">✅ Fast to build. One repo, one deploy. <strong>Great for small teams & early stage.</strong></p>
+    </div>
+    <div class="card" style="border-left:4px solid #f59e0b;">
+      <h4 style="color:#78350f; margin-top:0;">When Monolith Wins 🏆</h4>
+      <ul>
+        <li><strong>Early stage startup</strong> — move fast, ship features, iterate</li>
+        <li><strong>Small team (1–5 ML engineers)</strong> — coordination overhead kills microservices</li>
+        <li><strong>Simple, homogeneous models</strong> — one model type, predictable traffic</li>
+        <li><strong>Tight deadline</strong> — 8 weeks to launch? Don't architect, ship</li>
+      </ul>
+      <div class="impact-display" style="padding:1em; margin:0.5em 0;">
+        <div class="impact-number" style="font-size:1.8em;">3× faster</div>
+        <div class="impact-description">Time-to-first-model with monolith vs microservices for teams &lt;5</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Microservices View -->
+  <div id="arch-micro" class="tab-content">
+    <div class="viz-container" style="min-height:300px;">
+      <svg width="100%" height="280" viewBox="0 0 700 280" id="micro-svg">
+        <defs><marker id="am" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3b82f6"/></marker></defs>
+        <!-- Service boxes -->
+        <rect x="10" y="20" width="120" height="65" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+        <text x="70" y="47" text-anchor="middle" fill="#1e3a8a" font-size="10.5" font-weight="bold">Data Service</text>
+        <text x="70" y="62" text-anchor="middle" fill="#1e40af" font-size="9.5">Kafka / S3</text>
+        <text x="70" y="76" text-anchor="middle" fill="#3b82f6" font-size="8.5">:8001</text>
+
+        <rect x="150" y="20" width="120" height="65" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+        <text x="210" y="47" text-anchor="middle" fill="#1e3a8a" font-size="10.5" font-weight="bold">Feature Store</text>
+        <text x="210" y="62" text-anchor="middle" fill="#1e40af" font-size="9.5">Redis / Feast</text>
+        <text x="210" y="76" text-anchor="middle" fill="#3b82f6" font-size="8.5">:8002</text>
+
+        <rect x="290" y="20" width="120" height="65" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+        <text x="350" y="47" text-anchor="middle" fill="#1e3a8a" font-size="10.5" font-weight="bold">Training Svc</text>
+        <text x="350" y="62" text-anchor="middle" fill="#1e40af" font-size="9.5">Kubernetes</text>
+        <text x="350" y="76" text-anchor="middle" fill="#3b82f6" font-size="8.5">:8003</text>
+
+        <rect x="430" y="20" width="120" height="65" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+        <text x="490" y="47" text-anchor="middle" fill="#1e3a8a" font-size="10.5" font-weight="bold">Model Registry</text>
+        <text x="490" y="62" text-anchor="middle" fill="#1e40af" font-size="9.5">MLflow</text>
+        <text x="490" y="76" text-anchor="middle" fill="#3b82f6" font-size="8.5">:8004</text>
+
+        <rect x="570" y="20" width="120" height="65" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+        <text x="630" y="47" text-anchor="middle" fill="#1e3a8a" font-size="10.5" font-weight="bold">Serving Svc</text>
+        <text x="630" y="62" text-anchor="middle" fill="#1e40af" font-size="9.5">FastAPI</text>
+        <text x="630" y="76" text-anchor="middle" fill="#3b82f6" font-size="8.5">:8005</text>
+
+        <!-- API Gateway -->
+        <rect x="220" y="130" width="250" height="50" rx="8" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2.5"/>
+        <text x="345" y="153" text-anchor="middle" fill="#5b21b6" font-size="12" font-weight="bold">API Gateway</text>
+        <text x="345" y="170" text-anchor="middle" fill="#7c3aed" font-size="10">Auth • Rate Limiting • Routing</text>
+
+        <!-- Monitoring -->
+        <rect x="220" y="210" width="250" height="45" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+        <text x="345" y="232" text-anchor="middle" fill="#065f46" font-size="11" font-weight="bold">Monitoring &amp; Observability</text>
+        <text x="345" y="247" text-anchor="middle" fill="#059669" font-size="10">Prometheus · Grafana · PagerDuty</text>
+
+        <!-- Connections from services to gateway -->
+        <line x1="70" y1="85" x2="260" y2="130" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="5" marker-end="url(#am)"/>
+        <line x1="210" y1="85" x2="300" y2="130" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="5" marker-end="url(#am)"/>
+        <line x1="350" y1="85" x2="345" y2="130" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="5" marker-end="url(#am)"/>
+        <line x1="490" y1="85" x2="390" y2="130" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="5" marker-end="url(#am)"/>
+        <line x1="630" y1="85" x2="430" y2="130" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="5" marker-end="url(#am)"/>
+        <line x1="345" y1="180" x2="345" y2="210" stroke="#10b981" stroke-width="1.5" marker-end="url(#am)"/>
+      </svg>
+      <p style="text-align:center; color:#1e40af; font-size:0.9em; font-family:sans-serif;">⚙️ Each service independently deployable. <strong>Scale what needs scaling.</strong></p>
+    </div>
+    <div class="card" style="border-left:4px solid #3b82f6;">
+      <h4 style="color:#1e3a8a; margin-top:0;">When Microservices Win 🏆</h4>
+      <ul>
+        <li><strong>Large, diverse team</strong> — 10+ engineers can work in parallel without conflicts</li>
+        <li><strong>Multiple model types</strong> — recommendation, fraud, NLP — each scales differently</li>
+        <li><strong>High availability needs</strong> — one service failure shouldn't kill everything</li>
+        <li><strong>Rapid iteration at scale</strong> — deploy one service without touching others</li>
+      </ul>
+      <div class="impact-display" style="padding:1em; margin:0.5em 0;">
+        <div class="impact-number" style="font-size:1.8em;">$2.4M saved</div>
+        <div class="impact-description">Netflix's per-service scaling saves ~$2.4M/month vs monolithic over-provisioning</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Side by Side -->
+  <div id="arch-compare" class="tab-content">
+    <div class="arch-panel">
+      <div class="arch-box mono">
+        <h4 style="color:#78350f;">🏠 Monolithic</h4>
+        <table style="width:100%; font-size:0.88em; font-family:sans-serif; border-collapse:collapse;">
+          <tr style="background:#fef3c7;"><td style="padding:0.4em;">Deploy time</td><td style="padding:0.4em; text-align:right; font-weight:bold; color:#065f46;">⚡ 15 min</td></tr>
+          <tr><td style="padding:0.4em;">Team size fit</td><td style="padding:0.4em; text-align:right; color:#92400e;">1–8 engineers</td></tr>
+          <tr style="background:#fef3c7;"><td style="padding:0.4em;">Scaling</td><td style="padding:0.4em; text-align:right; color:#dc2626;">Scale everything</td></tr>
+          <tr><td style="padding:0.4em;">Fault isolation</td><td style="padding:0.4em; text-align:right; color:#dc2626;">None</td></tr>
+          <tr style="background:#fef3c7;"><td style="padding:0.4em;">Initial cost</td><td style="padding:0.4em; text-align:right; font-weight:bold; color:#065f46;">$$ Low</td></tr>
+          <tr><td style="padding:0.4em;">Tech debt risk</td><td style="padding:0.4em; text-align:right; color:#dc2626;">High at scale</td></tr>
+        </table>
+        <p style="font-size:0.85em; color:#78350f; margin-bottom:0;"><strong>Best for:</strong> MVPs, small teams, homogeneous workloads</p>
+      </div>
+      <div class="arch-box micro">
+        <h4 style="color:#1e3a8a;">🔧 Microservices</h4>
+        <table style="width:100%; font-size:0.88em; font-family:sans-serif; border-collapse:collapse;">
+          <tr style="background:#dbeafe;"><td style="padding:0.4em;">Deploy time</td><td style="padding:0.4em; text-align:right; color:#dc2626;">🕐 2–4 hours setup</td></tr>
+          <tr><td style="padding:0.4em;">Team size fit</td><td style="padding:0.4em; text-align:right; color:#1e40af;">5–500+ engineers</td></tr>
+          <tr style="background:#dbeafe;"><td style="padding:0.4em;">Scaling</td><td style="padding:0.4em; text-align:right; font-weight:bold; color:#065f46;">Per-service</td></tr>
+          <tr><td style="padding:0.4em;">Fault isolation</td><td style="padding:0.4em; text-align:right; font-weight:bold; color:#065f46;">Excellent</td></tr>
+          <tr style="background:#dbeafe;"><td style="padding:0.4em;">Initial cost</td><td style="padding:0.4em; text-align:right; color:#dc2626;">$$$$ High infra</td></tr>
+          <tr><td style="padding:0.4em;">Tech debt risk</td><td style="padding:0.4em; text-align:right; color:#1e40af;">Low long-term</td></tr>
+        </table>
+        <p style="font-size:0.85em; color:#1e3a8a; margin-bottom:0;"><strong>Best for:</strong> Scale-ups, diverse models, high availability</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quiz 1 -->
+<div class="quick-question" id="quiz-1">
+  <h3 style="margin-top:0;">🧠 Decision Time: Architecture Choice</h3>
+  <p><strong>Scenario:</strong> You're a Series A startup with 3 ML engineers. You need to ship a recommendation engine in 6 weeks for your flagship product. What do you build?</p>
+  <div class="answer-options" id="q1-options">
+    <div class="answer-option" onclick="checkAnswer('q1', 0, false)">
+      A. Full microservices from day one — we'll need to scale eventually
+    </div>
+    <div class="answer-option" onclick="checkAnswer('q1', 1, true)">
+      B. Monolithic application — ship fast, refactor when we have traction
+    </div>
+    <div class="answer-option" onclick="checkAnswer('q1', 2, false)">
+      C. Serverless functions — cheapest option per request
+    </div>
+    <div class="answer-option" onclick="checkAnswer('q1', 3, false)">
+      D. Buy a managed ML platform — don't build anything
+    </div>
+  </div>
+  <div class="feedback-panel" id="q1-feedback"></div>
+</div>
+
+<!-- Netflix Case Study -->
+<div class="case-study">
+  <h3>📱 Case Study: Netflix's Architecture Journey</h3>
+  <p>Netflix is the canonical example of a monolith-to-microservices migration done right. Here's how they did it:</p>
+  <div class="timeline-item">
+    <div class="timeline-dot">1</div>
+    <div class="timeline-text"><span class="timeline-year">2008:</span> Monolithic "DVD rental" architecture. One codebase, one database. 3-hour deployments.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot">2</div>
+    <div class="timeline-text"><span class="timeline-year">2009–2011:</span> Database corruption incident takes down the entire platform for 3 days. <strong>Cost: ~$50M in subscriber credits.</strong> Decision made: break up the monolith.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot">3</div>
+    <div class="timeline-text"><span class="timeline-year">2012–2015:</span> Gradual migration to microservices. ML recommendation engine broken out first. Each team owns their service.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot">4</div>
+    <div class="timeline-text"><span class="timeline-year">2016+:</span> 700+ microservices. Recommendation ML deploys 4,000+ times/day. A/B test new models in hours, not months.</div>
+  </div>
+  <p style="color:#61dafb; font-style:italic;">Lesson: They started monolithic <em>deliberately</em> — not by accident. The monolith let them build product intuition before investing in infrastructure.</p>
+</div>
+</div><!-- /section-1 -->
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTION 2: Feature Stores                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="section-2">
+<h2>🗃️ Part 2: Feature Stores — The Heart of ML Infrastructure</h2>
+
+<div class="card">
+  <p><strong>Week 3:</strong> Your fraud detection model is in production. Now the recommendation team wants to use some of the same features — user transaction history, session behavior. Without a feature store, they'll spend 3 months rebuilding pipelines you already built. There's a better way.</p>
+</div>
+
+<!-- Feature Reuse Slider -->
+<div class="interactive-section">
+  <h3>📊 The Feature Reuse Multiplier</h3>
+  <p>How much engineering time do you save as feature reuse increases? Drag the slider to see.</p>
+  <div class="slider-container">
+    <div class="slider-label">
+      <span>Reuse Factor</span>
+      <span id="reuse-label">1× (No Reuse)</span>
+    </div>
+    <input type="range" class="slider" id="reuse-slider" min="1" max="20" value="1" oninput="updateReuse(this.value)">
+  </div>
+  <div class="slider-value" id="reuse-value">🕐 3 months per team</div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em; margin-top:1.5em; font-family:sans-serif; text-align:center;">
+    <div style="background:#fee2e2; border-radius:8px; padding:1em;">
+      <div style="font-size:1.8em; font-weight:bold; color:#dc2626;" id="dev-time">12 wks</div>
+      <div style="font-size:0.85em; color:#666;">Engineering weeks per model</div>
+    </div>
+    <div style="background:#d1fae5; border-radius:8px; padding:1em;">
+      <div style="font-size:1.8em; font-weight:bold; color:#065f46;" id="saved-time">$0</div>
+      <div style="font-size:0.85em; color:#666;">Annual savings (@ $180K eng)</div>
+    </div>
+    <div style="background:#dbeafe; border-radius:8px; padding:1em;">
+      <div style="font-size:1.8em; font-weight:bold; color:#1e40af;" id="model-throughput">1 model/quarter</div>
+      <div style="font-size:0.85em; color:#666;">Model delivery velocity</div>
+    </div>
+  </div>
+</div>
+
+<!-- Pipeline Interactive Demo -->
+<div class="interactive-section">
+  <h3>🔧 Build a Feature Pipeline</h3>
+  <p>Click "Run Step" to walk through how raw data becomes model-ready features in a production feature store.</p>
+
+  <div class="pipeline" id="feature-pipeline">
+    <div class="pipeline-node" id="pipe-0">📊 Raw Data<br><small style="color:#666;">S3 / DB</small></div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-node" id="pipe-1">🔄 Transform<br><small style="color:#666;">Spark / dbt</small></div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-node" id="pipe-2">🗃️ Feature Store<br><small style="color:#666;">Feast / Redis</small></div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-node" id="pipe-3">🤖 Model<br><small style="color:#666;">Training</small></div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-node" id="pipe-4">⚡ Serving<br><small style="color:#666;">Real-time</small></div>
+  </div>
+
+  <div id="pipeline-info" class="card" style="margin-top:1em; min-height:80px; border-left:4px solid #0366d6;">
+    <p style="color:#666; font-style:italic; margin:0;">Click "Run Next Step" to start the pipeline simulation.</p>
+  </div>
+  <div style="margin-top:0.8em;">
+    <button class="button" onclick="runPipelineStep()">▶ Run Next Step</button>
+    <button class="button secondary" onclick="resetPipeline()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- Quiz 2 -->
+<div class="quick-question" id="quiz-2">
+  <h3 style="margin-top:0;">🧠 Feature Store Architecture</h3>
+  <p>Your recommendation model needs features that must be computed in <strong>real-time</strong> (e.g., "items the user clicked in the last 5 minutes") AND historical features computed offline (e.g., "user's 30-day purchase history"). What architecture supports both?</p>
+  <div class="answer-options" id="q2-options">
+    <div class="answer-option" onclick="checkAnswer('q2', 0, false)">
+      A. Online-only store — real-time is more important, use Redis for everything
+    </div>
+    <div class="answer-option" onclick="checkAnswer('q2', 1, false)">
+      B. Offline-only store — batch process nightly, good enough for recommendations
+    </div>
+    <div class="answer-option" onclick="checkAnswer('q2', 2, true)">
+      C. Lambda architecture — online store (Redis) for real-time + offline store (S3/BigQuery) for batch
+    </div>
+    <div class="answer-option" onclick="checkAnswer('q2', 3, false)">
+      D. Recompute all features at serving time — freshest possible data
+    </div>
+  </div>
+  <div class="feedback-panel" id="q2-feedback"></div>
+</div>
+
+<!-- Uber Michelangelo -->
+<div class="case-study">
+  <h3>🚗 Real World: Uber's Michelangelo Feature Store</h3>
+  <p>Uber's Michelangelo is one of the most influential ML platforms ever built. Here's the problem it solved:</p>
+  <div class="timeline-item">
+    <div class="timeline-dot">⚠</div>
+    <div class="timeline-text"><strong>Problem (2015):</strong> 20 teams each building their own feature pipelines. ETA model recomputing the same "driver location history" features as the surge pricing model. 60% of ML engineering time was duplicated feature work.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot">✓</div>
+    <div class="timeline-text"><strong>Solution:</strong> Centralized feature store. Teams register features once. Any model can consume them. Features backed by Cassandra (real-time) + Hive (historical).</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot">📈</div>
+    <div class="timeline-text"><strong>Result:</strong> Feature development time dropped 70%. New models ship in days instead of months. 10,000+ features registered across the org — every team benefits from every other team's work.</div>
+  </div>
+  <div style="background:#0a3d62; border-radius:8px; padding:1em; margin-top:1em;">
+    <p style="color:#61dafb; font-size:1em; margin:0;"><strong>Business impact:</strong> Uber's ETA model accuracy improvement (enabled by richer features) is estimated to have reduced driver idle time by 20%, generating ~<strong>$300M/year</strong> in efficiency gains.</p>
+  </div>
+</div>
+</div><!-- /section-2 -->
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTION 3: Model Registry & Versioning                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="section-3">
+<h2>📋 Part 3: Model Registry &amp; Versioning</h2>
+
+<div class="card">
+  <p><strong>Month 2:</strong> Your fraud model is live. It's working great. Then an engineer updates a preprocessing step, retrains the model, and pushes it directly to production. Performance tanks — fraud escapes undetected. You don't know which version is running or how to roll back. Sound familiar?</p>
+</div>
+
+<!-- Horror Story Quiz -->
+<div class="quick-question" id="quiz-3">
+  <h3 style="margin-top:0;">😱 The Versioning Horror Show</h3>
+  <p>You deployed a model without versioning. The model starts performing poorly. Which nightmare scenario are you in?</p>
+  <div class="answer-options" id="q3-options">
+    <div class="answer-option" onclick="showHorror(0)">
+      A. "Which model is in production?" — nobody knows the exact version
+    </div>
+    <div class="answer-option" onclick="showHorror(1)">
+      B. "We can't roll back" — the old model weights were overwritten
+    </div>
+    <div class="answer-option" onclick="showHorror(2)">
+      C. "Training-serving skew" — production data doesn't match training features
+    </div>
+    <div class="answer-option" onclick="showHorror(3)">
+      D. All of the above — and your CEO is on the phone
+    </div>
+  </div>
+  <div class="horror-card" id="horror-display"></div>
+  <div class="feedback-panel" id="q3-feedback"></div>
+</div>
+
+<!-- MLflow Simulation -->
+<div class="interactive-section">
+  <h3>🔬 MLflow-Style Model Registry</h3>
+  <p>Simulate promoting a model through the development lifecycle. Click on each stage to move the model forward.</p>
+
+  <div class="version-track" id="version-track">
+    <div class="version-card dev active" id="env-dev">
+      <div class="env-label" style="color:#b45309;">🔬 Development</div>
+      <span class="model-chip" id="dev-model">fraud-v1.3.2</span>
+      <span class="model-chip">Accuracy: 91.2%</span>
+      <span class="model-chip">F1: 0.87</span>
+      <div style="margin-top:0.7em;">
+        <button class="button sm" onclick="promoteModel('staging')">Promote to Staging →</button>
+      </div>
+    </div>
+    <div class="version-card staging" id="env-staging">
+      <div class="env-label" style="color:#6d28d9;">🧪 Staging</div>
+      <span class="model-chip" id="staging-model" style="color:#999;">— awaiting —</span>
+      <span class="model-chip" style="color:#999;">Shadow traffic</span>
+      <div style="margin-top:0.7em;" id="staging-btn" style="display:none;">
+        <button class="button sm" onclick="promoteModel('production')" id="btn-to-prod" disabled style="opacity:0.4;">Promote to Prod →</button>
+      </div>
+    </div>
+    <div class="version-card prod" id="env-prod">
+      <div class="env-label" style="color:#065f46;">🚀 Production</div>
+      <span class="model-chip" id="prod-model" style="color:#999;">— awaiting —</span>
+      <span class="model-chip" style="color:#999;">Live traffic</span>
+      <div style="margin-top:0.7em;" id="rollback-btn" style="display:none;">
+        <button class="button sm danger" onclick="rollbackModel()">↩ Rollback</button>
+      </div>
+    </div>
+  </div>
+  <div id="model-log" class="card" style="font-family:monospace; font-size:0.85em; background:#f8f9fa; min-height:60px; border-left:4px solid #0366d6;">
+    <span style="color:#666;">Model registry initialized. fraud-v1.3.2 in development.</span>
+  </div>
+</div>
+
+<!-- Version History Accordion -->
+<div class="card">
+  <h3 style="margin-top:0;">📜 What Goes in a Model Version?</h3>
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      🔢 Version Metadata <span>▼</span>
+    </div>
+    <div class="accordion-body">
+      Model name, version tag (semantic: v1.3.2), training timestamp, git commit hash, author, description, tags.
+    </div>
+  </div>
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      📊 Performance Metrics <span>▼</span>
+    </div>
+    <div class="accordion-body">
+      All training and validation metrics: accuracy, F1, AUC-ROC, precision@K, RMSE — whatever your task requires. Stored immutably per version.
+    </div>
+  </div>
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      🗂️ Artifacts &amp; Dependencies <span>▼</span>
+    </div>
+    <div class="accordion-body">
+      Model weights/pickle file, feature schema, preprocessing pipeline, conda environment / requirements.txt, Docker image tag. Everything needed to reproduce inference exactly.
+    </div>
+  </div>
+  <div class="accordion-item">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      📋 Lineage &amp; Provenance <span>▼</span>
+    </div>
+    <div class="accordion-body">
+      Training dataset version, feature store snapshot, hyperparameters, training code version. Answers: "If this model makes a bad prediction, why?" and "Can we reproduce this result in 2 years?"
+    </div>
+  </div>
+</div>
+
+<div class="impact-display">
+  <div class="impact-number">87%</div>
+  <div class="impact-description">of ML teams report production incidents caused by model versioning failures (Algorithmia 2022 State of ML Report)</div>
+</div>
+</div><!-- /section-3 -->
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTION 4: API Design for ML Services                      -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="section-4">
+<h2>🔌 Part 4: API Design for ML Services</h2>
+
+<div class="card">
+  <p><strong>Month 4:</strong> Your model is solid. Now engineering wants to integrate it into the mobile app. You need to expose it as an API. How you design this API determines latency, reliability, and how easily other teams can use your model.</p>
+</div>
+
+<!-- Latency Simulator -->
+<div class="interactive-section">
+  <h3>⏱️ Batch vs Real-Time Latency Simulator</h3>
+  <p>Different serving patterns have very different latency profiles. Use the controls to simulate request types and see the impact.</p>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em; margin-bottom:1.5em; font-family:sans-serif;">
+    <div>
+      <label style="font-size:0.9em; color:#555;"><strong>Batch Size</strong></label>
+      <input type="range" class="slider" id="batch-slider" min="1" max="1000" value="1" oninput="updateLatency()">
+      <div style="text-align:center; font-weight:bold; color:#0366d6;" id="batch-val">1 request</div>
+    </div>
+    <div>
+      <label style="font-size:0.9em; color:#555;"><strong>Model Complexity</strong></label>
+      <input type="range" class="slider" id="complex-slider" min="1" max="5" value="2" oninput="updateLatency()">
+      <div style="text-align:center; font-weight:bold; color:#0366d6;" id="complex-val">Medium (XGBoost)</div>
+    </div>
+  </div>
+
+  <div id="latency-display" style="font-family:sans-serif;">
+    <div class="latency-bar-wrap">
+      <div class="latency-bar-label"><span>⚡ Real-Time (synchronous)</span><span id="rt-ms">~12ms</span></div>
+      <div class="latency-bar-bg"><div class="latency-bar-fill" id="rt-bar" style="width:12%; background:#10b981;">p50</div></div>
+    </div>
+    <div class="latency-bar-wrap" style="margin-top:0.8em;">
+      <div class="latency-bar-label"><span>📦 Micro-Batch (100ms window)</span><span id="mb-ms">~110ms</span></div>
+      <div class="latency-bar-bg"><div class="latency-bar-fill" id="mb-bar" style="width:22%; background:#f59e0b;">p50</div></div>
+    </div>
+    <div class="latency-bar-wrap" style="margin-top:0.8em;">
+      <div class="latency-bar-label"><span>🗃️ Batch (async queue)</span><span id="batch-ms">~5,000ms</span></div>
+      <div class="latency-bar-bg"><div class="latency-bar-fill" id="batch-bar" style="width:60%; background:#ef4444;">p50</div></div>
+    </div>
+    <div class="latency-bar-wrap" style="margin-top:0.8em;">
+      <div class="latency-bar-label"><span>💾 Pre-computed (cache hit)</span><span id="cache-ms">~2ms</span></div>
+      <div class="latency-bar-bg"><div class="latency-bar-fill" id="cache-bar" style="width:2%; background:#3b82f6;">p50</div></div>
+    </div>
+  </div>
+  <p style="font-size:0.9em; color:#555; font-style:italic; margin-top:1em;" id="latency-advice">💡 For 1 request: Real-time is best. Use synchronous REST API with &lt;50ms SLA.</p>
+</div>
+
+<!-- Quiz 4 -->
+<div class="quick-question" id="quiz-4">
+  <h3 style="margin-top:0;">🧠 API Design Decision</h3>
+  <p>Your fraud detection model must return a decision <strong>within 200ms</strong> while the user is completing a checkout. The model uses 50 features. What serving pattern do you use?</p>
+  <div class="answer-options" id="q4-options">
+    <div class="answer-option" onclick="checkAnswer('q4', 0, true)">
+      A. Synchronous REST API with pre-fetched features from online feature store
+    </div>
+    <div class="answer-option" onclick="checkAnswer('q4', 1, false)">
+      B. Async batch job — queue the request and return a job ID
+    </div>
+    <div class="answer-option" onclick="checkAnswer('q4', 2, false)">
+      C. Pre-compute scores for all users nightly and cache them
+    </div>
+    <div class="answer-option" onclick="checkAnswer('q4', 3, false)">
+      D. GraphQL subscription — stream predictions as they're ready
+    </div>
+  </div>
+  <div class="feedback-panel" id="q4-feedback"></div>
+</div>
+
+<!-- Code Editor -->
+<div class="interactive-section">
+  <h3>💻 Code Lab: Build Your ML Serving API</h3>
+  <p>Write a FastAPI prediction endpoint. Your task: implement the <code>/predict</code> endpoint that (1) validates input, (2) loads features, (3) runs inference, and (4) returns a structured response. Click "Run" to test it.</p>
+
+  <div class="code-editor">
+    <div class="code-editor-header">
+      <div class="code-editor-dots">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
+      <span>fraud_api.py</span>
+      <span style="color:#61dafb; font-size:0.8em;">FastAPI · Python 3.11</span>
+    </div>
+    <textarea class="code-input" id="code-editor" spellcheck="false">from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import numpy as np
+import time
+
+app = FastAPI(title="Fraud Detection API", version="1.3.2")
+
+# Request schema
+class PredictionRequest(BaseModel):
+    transaction_id: str
+    amount: float
+    merchant_category: str
+    user_id: str
+
+# Response schema
+class PredictionResponse(BaseModel):
+    transaction_id: str
+    fraud_probability: float
+    decision: str          # "approve" | "review" | "decline"
+    latency_ms: float
+    model_version: str
+
+# TODO: Implement the /predict endpoint
+# Requirements:
+# 1. Validate that amount > 0
+# 2. Fetch features from online store (simulate with random)
+# 3. Run model inference (simulate with threshold logic)
+# 4. Return structured response with latency
+
+@app.post("/predict", response_model=PredictionResponse)
+async def predict(request: PredictionRequest):
+    start = time.time()
+    
+    # Your implementation here:
+    
+    pass
+</textarea>
+    <div class="code-toolbar">
+      <button class="run-btn" onclick="runCode()">▶ Run</button>
+      <button class="reset-btn" onclick="resetCode()">Reset</button>
+      <span style="color:#abb2bf; font-size:0.85em; margin-left:0.5em;">Simulated execution</span>
+    </div>
+    <div class="code-output" id="code-output">Waiting for execution...</div>
+  </div>
+
+  <div class="card" style="background:#f0f7ff; border:none;">
+    <h4 style="margin-top:0; color:#003366;">💡 Key API Design Principles for ML</h4>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em; font-size:0.9em;">
+      <div>
+        <strong>Schema Versioning</strong><br>
+        <span style="color:#555;">Include <code>model_version</code> in every response. When predictions change, clients know why.</span>
+      </div>
+      <div>
+        <strong>Latency SLAs</strong><br>
+        <span style="color:#555;">Set p99 latency budgets. Fraud: &lt;200ms. Recommendations: &lt;100ms. Log latency always.</span>
+      </div>
+      <div>
+        <strong>Fallback Logic</strong><br>
+        <span style="color:#555;">If model fails, fall back to rule-based system. Never return HTTP 500 to a payment flow.</span>
+      </div>
+      <div>
+        <strong>Input Validation</strong><br>
+        <span style="color:#555;">Validate all inputs before inference. Bad inputs cause silent model degradation worse than errors.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="impact-display">
+  <div class="impact-number">$18M / year</div>
+  <div class="impact-description">Stripe's estimated savings from &lt;100ms fraud API latency — faster decisions catch more fraud without false positives that block legitimate purchases</div>
+</div>
+</div><!-- /section-4 -->
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SUMMARY                                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="section-summary">
+<h2>🎯 Mission Complete: Your ML Architecture Playbook</h2>
+
+<div id="summary-score" class="card" style="border-left:5px solid #28a745; background:#f0fff4;">
+  <h3 style="margin-top:0; color:#065f46;">📊 Your Progress</h3>
+  <p id="score-text">Complete the quizzes above to see your score!</p>
+  <div class="progress-bar"><div class="progress-fill" id="quiz-progress" style="width:0%">0/4 quizzes</div></div>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">🗺️ The $50M Series B Architecture Decision</h3>
+  <p>Based on everything you've learned, here's the playbook for your company's ML platform:</p>
+  <table style="width:100%; border-collapse:collapse; font-size:0.93em;">
+    <thead>
+      <tr style="background:#003366; color:white;">
+        <th style="padding:0.8em; text-align:left;">Month</th>
+        <th style="padding:0.8em; text-align:left;">Decision</th>
+        <th style="padding:0.8em; text-align:left;">Why</th>
+        <th style="padding:0.8em; text-align:left;">Cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background:#f8f9fa;">
+        <td style="padding:0.7em;">1–2</td>
+        <td style="padding:0.7em;"><strong>Monolithic MVP</strong></td>
+        <td style="padding:0.7em;">Ship fast, learn what matters</td>
+        <td style="padding:0.7em; color:#065f46;">$2K/mo infra</td>
+      </tr>
+      <tr>
+        <td style="padding:0.7em;">3–4</td>
+        <td style="padding:0.7em;"><strong>Feature Store (Feast)</strong></td>
+        <td style="padding:0.7em;">Second model proves reuse value</td>
+        <td style="padding:0.7em; color:#92400e;">1 eng-month setup</td>
+      </tr>
+      <tr style="background:#f8f9fa;">
+        <td style="padding:0.7em;">4–5</td>
+        <td style="padding:0.7em;"><strong>Model Registry (MLflow)</strong></td>
+        <td style="padding:0.7em;">Multiple models → governance needed</td>
+        <td style="padding:0.7em; color:#065f46;">Open source, free</td>
+      </tr>
+      <tr>
+        <td style="padding:0.7em;">5–6</td>
+        <td style="padding:0.7em;"><strong>REST APIs (FastAPI)</strong></td>
+        <td style="padding:0.7em;">Product integrations go live</td>
+        <td style="padding:0.7em; color:#065f46;">Minimal overhead</td>
+      </tr>
+      <tr style="background:#f8f9fa;">
+        <td style="padding:0.7em;">6+</td>
+        <td style="padding:0.7em;"><strong>Begin microservices migration</strong></td>
+        <td style="padding:0.7em;">Now you know what to split</td>
+        <td style="padding:0.7em; color:#dc2626;">3–6 months effort</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card" style="background: linear-gradient(135deg, #003366 0%, #0366d6 100%); color:white;">
+  <h3 style="margin-top:0; color:#61dafb;">🔑 Key Takeaways</h3>
+  <ul style="color:#ccd6f6;">
+    <li><strong style="color:white;">Architecture follows team size</strong> — monolith for ≤8 engineers, microservices after you have traction and clear service boundaries</li>
+    <li><strong style="color:white;">Feature stores are a multiplier</strong> — every feature you build once, every team uses forever. The ROI compounds with each new model.</li>
+    <li><strong style="color:white;">Versioning is non-negotiable</strong> — you cannot safely run production ML without knowing exactly what's deployed and being able to roll back in minutes</li>
+    <li><strong style="color:white;">API design = product design</strong> — your latency SLA determines user experience; your schema determines how long integrations last</li>
+    <li><strong style="color:white;">Start boring, get fancy later</strong> — choose the simplest architecture that solves today's problem. Complexity is a debt you pay with interest.</li>
+  </ul>
+</div>
+
+<div style="display:flex; gap:1em; flex-wrap:wrap; margin:2em 0;">
+  <button class="button success" onclick="window.location.href='framework2_pipeline_engineering.html'">Next Framework: Pipeline Engineering →</button>
+  <button class="button secondary" onclick="window.location.href='index.html'">🏠 Back to Course Home</button>
+  <button class="button" onclick="window.print()">🖨️ Print / Save PDF</button>
+</div>
+</div><!-- /section-summary -->
+
+<hr style="margin:3em 0; border:none; border-top:2px solid #e1e4e8;">
+<p style="text-align:center; color:#888; font-size:0.85em; font-family:sans-serif;">
+  ML Frameworks &amp; Applied Analytics · Chenhao Zhou · Rutgers Business School<br>
+  Framework 1 of 6 · <a href="../teaching.html" style="color:#0366d6;">Teaching Portfolio</a>
+</p>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- JavaScript                                                 -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<script>
+// ── State ──────────────────────────────────────────────────
+let moduleStarted = false;
+let quizScores = { q1: null, q2: null, q3: null, q4: null };
+let pipelineStep = -1;
+let modelStage = 'dev'; // dev → staging → production
+
+const CODE_TEMPLATE = `from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import numpy as np
+import time
+
+app = FastAPI(title="Fraud Detection API", version="1.3.2")
+
+class PredictionRequest(BaseModel):
+    transaction_id: str
+    amount: float
+    merchant_category: str
+    user_id: str
+
+class PredictionResponse(BaseModel):
+    transaction_id: str
+    fraud_probability: float
+    decision: str
+    latency_ms: float
+    model_version: str
+
+@app.post("/predict", response_model=PredictionResponse)
+async def predict(request: PredictionRequest):
+    start = time.time()
+    
+    # Your implementation here:
+    
+    pass`;
+
+// ── Module Start ────────────────────────────────────────────
+function startModule() {
+  moduleStarted = true;
+  document.getElementById('step-1').classList.add('active');
+  updateProgress();
+  document.getElementById('section-1').scrollIntoView({ behavior: 'smooth' });
+  event.target.textContent = '✅ Mission Accepted!';
+  event.target.classList.remove('success');
+  event.target.classList.add('secondary');
+}
+
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── Progress ────────────────────────────────────────────────
+function updateProgress() {
+  const answered = Object.values(quizScores).filter(v => v !== null).length;
+  const pct = Math.round((answered / 4) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-fill').textContent = pct + '% Complete';
+
+  // Update quiz progress
+  document.getElementById('quiz-progress').style.width = (answered/4*100) + '%';
+  document.getElementById('quiz-progress').textContent = answered + '/4 quizzes';
+
+  const correct = Object.values(quizScores).filter(v => v === true).length;
+  document.getElementById('score-text').textContent =
+    `You answered ${answered} of 4 quizzes. Score: ${correct}/4 correct (${Math.round(correct/4*100)}%).` +
+    (answered === 4 ? (correct >= 3 ? ' 🎉 Excellent work!' : ' Keep reviewing the material above.') : ' Complete the remaining quizzes!');
+
+  // Story steps
+  const steps = [
+    answered >= 1 || moduleStarted,
+    answered >= 2,
+    answered >= 3,
+    answered >= 4,
+    answered >= 4
+  ];
+  steps.forEach((done, i) => {
+    const el = document.getElementById('step-' + (i+1));
+    if (done) { el.classList.add('completed'); el.classList.remove('active'); }
+  });
+  if (answered < 4) {
+    const next = document.getElementById('step-' + (answered + 1));
+    if (next) { next.classList.add('active'); next.classList.remove('completed'); }
+  }
+}
+
+// ── Architecture Tabs ───────────────────────────────────────
+function switchArch(which) {
+  ['mono','micro','compare'].forEach(id => {
+    document.getElementById('arch-' + id).classList.remove('active');
+  });
+  document.getElementById('arch-' + which).classList.add('active');
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.remove('active');
+    if (['mono','micro','compare'][i] === which) t.classList.add('active');
+  });
+}
+
+// ── Quiz Logic ──────────────────────────────────────────────
+const FEEDBACK = {
+  q1: {
+    correct: `<strong>✅ Correct!</strong> For an early-stage team with tight deadlines, a monolithic architecture is almost always the right call. You can always extract services later — but you can't get those 3 months back. <strong>Key insight:</strong> Architecture should match your team's coordination cost, not your aspirational scale.`,
+    incorrect: `<strong>❌ Not quite.</strong> While microservices, serverless, and managed platforms all have their place, a 3-person team with a 6-week deadline will drown in infrastructure complexity. The monolith lets you ship, learn, and then make informed architecture decisions based on real usage data.`
+  },
+  q2: {
+    correct: `<strong>✅ Exactly right!</strong> This is the Lambda Architecture pattern — offline batch processing feeds historical features into a data warehouse (S3/BigQuery), while a streaming pipeline feeds real-time features into a low-latency store (Redis). At serving time, you join both. This is how Uber's Michelangelo, DoorDash's Riviera, and Airbnb's Zipline work.`,
+    incorrect: `<strong>❌ Not quite.</strong> The correct answer is C — Lambda architecture. Online-only loses the power of rich historical aggregates. Offline-only can't respond to "what did this user just do?" And recomputing at serving time adds latency spikes and can hit rate limits. Lambda architecture separates these concerns cleanly.`
+  },
+  q3: {
+    correct: `<strong>✅ All of the above — D is correct.</strong> When you skip versioning, you lose (A) knowledge of what's deployed, (B) the ability to roll back, and (C) consistency between training and serving environments. All three are real incidents that have happened at companies ranging from Netflix to hedge funds. Versioning is cheap; production incidents are expensive.`,
+    incorrect: `<strong>⚠️ Partially right, but D is the best answer.</strong> In practice, all three nightmare scenarios can happen simultaneously when you skip versioning — and often do. The full horror is that you don't know which model is running, you can't roll back because artifacts were overwritten, and your serving environment has drifted from training. D captures the true severity.`
+  },
+  q4: {
+    correct: `<strong>✅ Correct!</strong> For a sub-200ms SLA on a payment flow, you need synchronous REST with features pre-fetched from an online (low-latency) store like Redis. Async batch fails the latency requirement. Nightly pre-compute can't capture transaction-specific context. GraphQL subscriptions add unnecessary complexity and latency.`,
+    incorrect: `<strong>❌ Not optimal.</strong> The correct answer is A. Fraud detection on a live checkout must be synchronous — you can't return a job ID and let the transaction complete while you're still deciding. Pre-nightly scores miss per-transaction context. The right architecture is: REST endpoint → pull real-time features from Redis → model inference → return in &lt;200ms.`
+  }
+};
+
+function checkAnswer(qid, optIdx, isCorrect) {
+  if (quizScores[qid] !== null) return; // already answered
+  quizScores[qid] = isCorrect;
+
+  const opts = document.querySelectorAll('#' + qid + '-options .answer-option');
+  opts.forEach((o, i) => {
+    o.classList.add('disabled');
+    if (i === optIdx) o.classList.add(isCorrect ? 'correct' : 'incorrect');
+    // Reveal correct answer
+    const correctMap = { q1:1, q2:2, q3:3, q4:0 };
+    if (i === correctMap[qid] && !isCorrect) o.classList.add('correct');
+  });
+
+  const fb = document.getElementById(qid + '-feedback');
+  fb.innerHTML = isCorrect ? FEEDBACK[qid].correct : FEEDBACK[qid].incorrect;
+  fb.className = 'feedback-panel show ' + (isCorrect ? 'correct-fb' : 'incorrect-fb');
+
+  updateProgress();
+}
+
+// ── Horror Stories ──────────────────────────────────────────
+const HORRORS = [
+  `☠️ <strong>Scenario A: The Mystery Model</strong><br><br>
+   3am. Fraud alerts firing. On-call engineer: "What model is live?" Checks S3 — model.pkl, model_new.pkl, model_final.pkl, model_final_FINAL.pkl. 
+   No timestamps. No versions. No git tags. Takes 4 hours to figure out which file is actually serving traffic. 
+   <br><br>💸 Cost: $340K in fraudulent transactions while the team investigates.`,
+
+  `☠️ <strong>Scenario B: The Unrecoverable Rollback</strong><br><br>
+   Your new model has a bug. Accuracy dropped from 91% to 61%. You need to roll back to last week's version.
+   But the previous engineer deployed by overwriting model.pkl. It's gone. The training data version is unknown.
+   You can't reproduce last week's model because no one logged the hyperparameters.
+   <br><br>💸 Cost: 3 weeks to retrain from scratch. $1.2M in missed fraud catches.`,
+
+  `☠️ <strong>Scenario C: The Silent Skew</strong><br><br>
+   Training uses "merchant_category" encoded as integers. Production feature pipeline switched to one-hot encoding 6 weeks ago — no one noticed.
+   Model has been silently receiving garbage input. Fraud rate has been "mysteriously" rising.
+   No one connected the feature change to the model degradation.
+   <br><br>💸 Cost: 6 weeks × $80K/week in missed fraud = $480K before anyone noticed.`,
+
+  `😱 <strong>ALL THREE — The Perfect Storm</strong><br><br>
+   This is a real composite of incidents at multiple companies. The cruel part: you can't fix A (mystery model) until you solve B (no rollback artifacts), 
+   and you can't measure the damage until you fix C (training-serving skew). Meanwhile, the CEO is on the phone asking why fraud jumped 40%.
+   <br><br>💸 Combined cost of all three: <strong>$2M+ and 3 engineers' jobs.</strong>
+   <br><br>The fix costs $0 and 1 afternoon: just use MLflow.`
+];
+
+function showHorror(idx) {
+  // Mark as correct if D (idx=3), else incorrect
+  const isCorrect = (idx === 3);
+  quizScores.q3 = isCorrect;
+
+  const opts = document.querySelectorAll('#q3-options .answer-option');
+  opts.forEach((o, i) => {
+    o.classList.add('disabled');
+    if (i === idx) o.classList.add(isCorrect ? 'correct' : 'incorrect');
+    if (i === 3 && !isCorrect) o.classList.add('correct');
+  });
+
+  const horror = document.getElementById('horror-display');
+  horror.innerHTML = HORRORS[idx];
+  horror.classList.add('show');
+
+  const fb = document.getElementById('q3-feedback');
+  fb.innerHTML = FEEDBACK.q3[isCorrect ? 'correct' : 'incorrect'];
+  fb.className = 'feedback-panel show ' + (isCorrect ? 'correct-fb' : 'incorrect-fb');
+
+  updateProgress();
+}
+
+// ── Feature Reuse Slider ────────────────────────────────────
+function updateReuse(val) {
+  val = parseInt(val);
+  const labels = { 1:'1× (No Reuse)', 5:'5× (Moderate Reuse)', 10:'10× (High Reuse)', 20:'20× (World-class)' };
+  const closest = [1,5,10,20].reduce((a,b) => Math.abs(b-val) < Math.abs(a-val) ? b : a);
+  document.getElementById('reuse-label').textContent = val + '× Reuse Factor';
+
+  const baseWeeks = 12;
+  const weeksPerModel = Math.max(1, Math.round(baseWeeks / val));
+  const savedEngWeeks = (baseWeeks - weeksPerModel) * 4; // 4 models/year
+  const savedDollars = savedEngWeeks * 3461; // $180K/52 weeks ≈ $3461/wk
+  const modelsPerQ = val >= 10 ? Math.round(val / 4) : (val >= 5 ? 2 : 1);
+
+  document.getElementById('reuse-value').textContent =
+    `⏱️ ${weeksPerModel} week${weeksPerModel > 1 ? 's' : ''} per model (was 12)`;
+  document.getElementById('dev-time').textContent = weeksPerModel + ' wks';
+  document.getElementById('saved-time').textContent =
+    '$' + (savedDollars >= 1000000 ? (savedDollars/1000000).toFixed(1)+'M' : Math.round(savedDollars/1000)+'K');
+  document.getElementById('model-throughput').textContent = modelsPerQ + ' model' + (modelsPerQ > 1 ? 's' : '') + '/quarter';
+}
+
+// ── Feature Pipeline Demo ───────────────────────────────────
+const PIPELINE_INFO = [
+  {
+    title: '📊 Raw Data Ingestion',
+    text: 'Raw transaction logs land in S3 (batch) and Kafka (real-time stream). At this stage data is messy: nulls, duplicates, wrong types. The data service handles schema validation and dead-letter queuing for malformed records. <strong>Volume:</strong> ~50GB/day at a mid-size fintech.'
+  },
+  {
+    title: '🔄 Feature Transformation',
+    text: 'Spark jobs (batch) and Flink (stream) compute derived features: rolling aggregates, velocity features, user-merchant affinity scores. This is where 70% of ML engineering time was spent before feature stores. Key: transformations must be <strong>identical</strong> between training and serving to avoid training-serving skew.'
+  },
+  {
+    title: '🗃️ Feature Store Write',
+    text: 'Computed features are written to two stores: <strong>Offline store</strong> (S3/BigQuery, columnar, cheap) for training data and <strong>Online store</strong> (Redis/DynamoDB, row-oriented, fast) for real-time serving. Features are versioned and schema-enforced. Any team can now consume these features — they\'re a shared organizational asset.'
+  },
+  {
+    title: '🤖 Model Training',
+    text: 'Training jobs pull a point-in-time correct snapshot from the offline feature store. This is critical: you must only use features that would have been available at each historical timestamp — no future leakage. The feature store handles this with time-travel queries. Training logs hyperparameters, metrics, and feature importance to MLflow.'
+  },
+  {
+    title: '⚡ Real-Time Serving',
+    text: 'At inference time, the model fetches features from the online store (&lt;5ms latency). The <strong>same feature computation logic</strong> that ran in batch now runs in the online store — guaranteed consistency. Predictions are logged for monitoring and future retraining. The full pipeline runs end-to-end in &lt;50ms.'
+  }
+];
+let pipeStep = -1;
+
+function runPipelineStep() {
+  pipeStep++;
+  if (pipeStep >= PIPELINE_INFO.length) { pipeStep = PIPELINE_INFO.length - 1; return; }
+
+  // Update pipeline nodes
+  for (let i = 0; i < PIPELINE_INFO.length; i++) {
+    const node = document.getElementById('pipe-' + i);
+    if (i < pipeStep) node.className = 'pipeline-node done';
+    else if (i === pipeStep) node.className = 'pipeline-node active';
+    else node.className = 'pipeline-node';
+  }
+
+  const info = PIPELINE_INFO[pipeStep];
+  document.getElementById('pipeline-info').innerHTML =
+    `<h4 style="margin-top:0; color:#003366;">${info.title}</h4><p style="margin-bottom:0;">${info.text}</p>`;
+}
+
+function resetPipeline() {
+  pipeStep = -1;
+  for (let i = 0; i < PIPELINE_INFO.length; i++) {
+    document.getElementById('pipe-' + i).className = 'pipeline-node';
+  }
+  document.getElementById('pipeline-info').innerHTML =
+    `<p style="color:#666; font-style:italic; margin:0;">Click "Run Next Step" to start the pipeline simulation.</p>`;
+}
+
+// ── Model Registry ──────────────────────────────────────────
+let modelVersion = 'fraud-v1.3.2';
+let stagingVersion = null;
+let prodVersion = null;
+
+function promoteModel(target) {
+  const log = document.getElementById('model-log');
+  const ts = new Date().toLocaleTimeString();
+
+  if (target === 'staging') {
+    stagingVersion = modelVersion;
+    document.getElementById('staging-model').textContent = stagingVersion;
+    document.getElementById('staging-model').style.color = '';
+    document.getElementById('env-staging').classList.add('active');
+    document.getElementById('env-dev').classList.remove('active');
+
+    const btn = document.getElementById('btn-to-prod');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    document.getElementById('staging-btn').style.display = 'block';
+
+    log.innerHTML = `<span style="color:#28a745;">[${ts}]</span> ✅ ${stagingVersion} promoted to <strong>Staging</strong>. Shadow traffic enabled (10% of prod). Monitoring for 24h before production promotion.`;
+
+    setTimeout(() => {
+      log.innerHTML += `<br><span style="color:#f59e0b;">[+3s sim]</span> 📊 Shadow traffic metrics: Accuracy 91.4% (+0.2%), Latency p99 87ms ✓ — staging validation PASSED.`;
+    }, 2000);
+  } else if (target === 'production') {
+    prodVersion = stagingVersion;
+    document.getElementById('prod-model').textContent = prodVersion;
+    document.getElementById('prod-model').style.color = '';
+    document.getElementById('env-prod').classList.add('active');
+    document.getElementById('env-staging').classList.remove('active');
+    document.getElementById('rollback-btn').style.display = 'block';
+
+    log.innerHTML = `<span style="color:#28a745;">[${ts}]</span> 🚀 ${prodVersion} promoted to <strong>Production</strong>. Canary deploy: 5% traffic → 20% → 100% over 30 minutes. Previous version archived in registry for rollback.`;
+  }
+}
+
+function rollbackModel() {
+  const log = document.getElementById('model-log');
+  const ts = new Date().toLocaleTimeString();
+  const prev = 'fraud-v1.3.1';
+
+  document.getElementById('prod-model').textContent = prev + ' (rolled back)';
+  document.getElementById('env-prod').classList.remove('active');
+  document.getElementById('env-dev').classList.add('active');
+
+  log.innerHTML = `<span style="color:#dc3545;">[${ts}]</span> ⚠️ ROLLBACK initiated for ${prodVersion}. Restoring ${prev} from registry. Estimated time: <strong>47 seconds</strong>. Zero downtime blue-green swap.`;
+
+  setTimeout(() => {
+    log.innerHTML += `<br><span style="color:#28a745;">[+2s sim]</span> ✅ Rollback complete. ${prev} serving 100% traffic. Incident logged. Post-mortem scheduled.`;
+  }, 1500);
+}
+
+// ── Latency Simulator ───────────────────────────────────────
+const MODEL_NAMES = ['Linear Model', 'XGBoost', 'Neural Net (small)', 'Neural Net (large)', 'Transformer'];
+
+function updateLatency() {
+  const batchSize = parseInt(document.getElementById('batch-slider').value);
+  const complexity = parseInt(document.getElementById('complex-slider').value);
+
+  document.getElementById('batch-val').textContent = batchSize === 1 ? '1 request' : batchSize + ' requests (batch)';
+  document.getElementById('complex-val').textContent = MODEL_NAMES[complexity - 1];
+
+  // Base latencies (ms) for 1 request
+  const baseComplexity = [2, 8, 25, 120, 400][complexity - 1];
+  const batchFactor = Math.log10(batchSize + 1) * 0.5 + 1;
+
+  const rt = Math.round(baseComplexity * batchFactor + 5);
+  const mb = Math.round(rt + 90 + batchSize * 0.05);
+  const batch = Math.round(rt * batchSize * 0.3 + 500);
+  const cache = 2;
+
+  const maxMs = 8000;
+  document.getElementById('rt-ms').textContent = '~' + (rt >= 1000 ? (rt/1000).toFixed(1)+'s' : rt+'ms');
+  document.getElementById('mb-ms').textContent = '~' + (mb >= 1000 ? (mb/1000).toFixed(1)+'s' : mb+'ms');
+  document.getElementById('batch-ms').textContent = '~' + (batch >= 1000 ? (batch/1000).toFixed(1)+'s' : batch+'ms');
+  document.getElementById('cache-ms').textContent = '~2ms';
+
+  document.getElementById('rt-bar').style.width = Math.min(95, rt / maxMs * 100) + '%';
+  document.getElementById('mb-bar').style.width = Math.min(95, mb / maxMs * 100) + '%';
+  document.getElementById('batch-bar').style.width = Math.min(95, batch / maxMs * 100) + '%';
+  document.getElementById('cache-bar').style.width = '2%';
+
+  const advice = document.getElementById('latency-advice');
+  if (batchSize > 100 && rt > 200) {
+    advice.textContent = `⚠️ ${batchSize} requests with ${MODEL_NAMES[complexity-1]} = ${rt}ms per request. Consider GPU batching or async queue.`;
+  } else if (rt < 50) {
+    advice.textContent = `✅ ${rt}ms per request with ${MODEL_NAMES[complexity-1]} — well within typical SLAs. Real-time REST API is appropriate.`;
+  } else if (rt < 200) {
+    advice.textContent = `💡 ${rt}ms per request — acceptable for most use cases. Monitor p99 in production; it'll be 3-5× higher than p50.`;
+  } else {
+    advice.textContent = `⚠️ ${rt}ms baseline is high. Consider: caching, model quantization, smaller model, or async serving pattern.`;
+  }
+}
+
+// ── Code Editor ─────────────────────────────────────────────
+function runCode() {
+  const code = document.getElementById('code-editor').value;
+  const out = document.getElementById('code-output');
+
+  // Simulate execution based on whether they implemented the endpoint
+  const hasValidation = code.includes('amount') && (code.includes('raise') || code.includes('< 0') || code.includes('> 0') || code.includes('HTTPException'));
+  const hasInference = code.includes('predict') || code.includes('probability') || code.includes('decision') || code.includes('fraud');
+  const hasResponse = code.includes('PredictionResponse') || code.includes('return');
+  const hasLatency = code.includes('time') || code.includes('latency');
+  const isBlank = code.includes('pass') && !code.includes('return');
+
+  if (isBlank) {
+    out.innerHTML = `<span style="color:#e06c75;">❌ NotImplementedError: Your endpoint just returns None (pass).\n</span>` +
+      `<span style="color:#abb2bf;">Hint: Replace 'pass' with your implementation.\n` +
+      `Try adding:\n  if request.amount <= 0:\n      raise HTTPException(status_code=422, detail="Amount must be positive")\n` +
+      `  features = np.random.rand(50)  # Simulate feature fetch\n` +
+      `  prob = float(np.clip(features.mean() * 2, 0, 1))\n` +
+      `  decision = "decline" if prob > 0.7 else "review" if prob > 0.4 else "approve"\n` +
+      `  return PredictionResponse(...)</span>`;
+    return;
+  }
+
+  let score = 0;
+  let checks = [];
+  if (hasValidation) { score++; checks.push('✅ Input validation present'); }
+  else checks.push('⚠️  Missing: input validation (check amount > 0)');
+  if (hasInference) { score++; checks.push('✅ Inference logic present'); }
+  else checks.push('⚠️  Missing: model inference / fraud probability calculation');
+  if (hasResponse) { score++; checks.push('✅ Structured response returned'); }
+  else checks.push('⚠️  Missing: return PredictionResponse(...)');
+  if (hasLatency) { score++; checks.push('✅ Latency tracking present'); }
+  else checks.push('⚠️  Missing: latency measurement (important for SLA monitoring)');
+
+  const simLatency = Math.round(Math.random() * 30 + 8);
+  const simProb = (Math.random() * 0.6 + 0.05).toFixed(3);
+  const simDecision = parseFloat(simProb) > 0.7 ? 'decline' : parseFloat(simProb) > 0.4 ? 'review' : 'approve';
+
+  out.innerHTML = `<span style="color:#98c379;">INFO:     Started server process [12847]
+INFO:     Uvicorn running on http://0.0.0.0:8000
+POST /predict HTTP/1.1 200 OK
+
+</span><span style="color:#61dafb;">Simulated Request:
+  { "transaction_id": "txn_abc123", "amount": 249.99, 
+    "merchant_category": "electronics", "user_id": "usr_9821" }
+
+Response (${simLatency}ms):
+  {
+    "transaction_id": "txn_abc123",
+    "fraud_probability": ${simProb},
+    "decision": "${simDecision}",
+    "latency_ms": ${simLatency}.${Math.floor(Math.random()*9)},
+    "model_version": "fraud-v1.3.2"
+  }
+
+</span><span style="color:#e5c07b;">Code Review (${score}/4 checks passed):
+${checks.join('\n')}
+</span>` + (score >= 3 ? '<span style="color:#98c379;">\n🎉 Great implementation! This is production-ready.</span>' :
+  '<span style="color:#e06c75;">\nKeep going — implement the missing pieces above.</span>');
+}
+
+function resetCode() {
+  document.getElementById('code-editor').value = CODE_TEMPLATE;
+  document.getElementById('code-output').textContent = 'Waiting for execution...';
+}
+
+// ── Accordion ───────────────────────────────────────────────
+function toggleAccordion(header) {
+  const body = header.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('open'));
+  if (!isOpen) body.classList.add('open');
+}
+
+// ── Init ────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  updateReuse(1);
+  updateLatency();
+  resetCode();
+  document.getElementById('step-1').classList.add('active');
+});
+</script>
+</body>
+</html>

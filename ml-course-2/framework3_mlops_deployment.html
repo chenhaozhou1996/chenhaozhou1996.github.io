@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Framework 3: Model Deployment & MLOps | ML Frameworks & Applied Analytics</title>
+<style>
+/* ===== BASE STYLES ===== */
+body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 980px; margin: auto; padding: 2rem; line-height: 1.7; }
+nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #e1e4e8; }
+nav a { margin: 0 12px; text-decoration: none; color: #0366d6; font-weight: bold; font-family: Arial, sans-serif; font-size: 0.9em; }
+nav a:hover { color: #003366; text-decoration: underline; }
+h1, h2, h3, h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+h1 { font-size: 2em; }
+h2 { font-size: 1.5em; border-bottom: 2px solid #003366; padding-bottom: 0.3em; }
+h3 { font-size: 1.2em; color: #0366d6; }
+p { margin: 0.8em 0; }
+ul, ol { margin: 0.5em 0 0.5em 1.5em; }
+li { margin: 0.3em 0; }
+code { background: #f0f0f0; padding: 0.1em 0.4em; border-radius: 3px; font-family: Consolas, monospace; font-size: 0.9em; }
+
+/* ===== CARD ===== */
+.card { background: #fff; padding: 1.5em; margin: 1.2em 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+/* ===== BUTTONS ===== */
+.button { display: inline-block; padding: 0.7em 1.4em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; transition: all 0.3s ease; margin: 0.4em 0.4em 0.4em 0; font-weight: bold; font-family: Arial, sans-serif; }
+.button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
+.button.secondary { background: #6c757d; }
+.button.secondary:hover { background: #5a6268; }
+.button.success { background: #28a745; }
+.button.success:hover { background: #218838; }
+.button.warning { background: #e6a817; color: #fff; }
+.button.danger { background: #dc3545; }
+.button.danger:hover { background: #c82333; }
+.button.small { padding: 0.4em 0.9em; font-size: 0.85em; }
+.button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ===== INTERACTIVE SECTION ===== */
+.interactive-section { background: linear-gradient(135deg, #667eea12 0%, #764ba212 100%); padding: 2em; margin: 2em 0; border-radius: 12px; border: 1px solid #e1e4e8; }
+
+/* ===== PROGRESS ===== */
+.progress-bar { height: 28px; background: #e9ecef; border-radius: 14px; margin: 1.5em 0; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #0366d6, #667eea); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85em; transition: width 1s ease; min-width: 40px; }
+
+/* ===== STORY STEPS ===== */
+.story-progress { display: flex; justify-content: space-between; margin: 2em 0; position: relative; }
+.story-progress::before { content: ""; position: absolute; top: 20px; left: 0; right: 0; height: 3px; background: #e1e4e8; z-index: 0; }
+.story-step { background: white; border: 3px solid #e1e4e8; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; z-index: 1; cursor: pointer; transition: all 0.3s ease; font-family: Arial, sans-serif; font-size: 0.9em; }
+.story-step.completed { background: #28a745; color: white; border-color: #28a745; }
+.story-step.active { background: #0366d6; color: white; border-color: #0366d6; transform: scale(1.25); }
+.story-labels { display: flex; justify-content: space-between; margin-top: 0.5em; }
+.story-labels span { font-size: 0.7em; color: #666; text-align: center; width: 80px; font-family: Arial, sans-serif; }
+
+/* ===== QUIZ ===== */
+.quick-question { background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%); border: 2px solid #0366d6; border-radius: 10px; padding: 1.5em; margin: 2em 0; position: relative; overflow: hidden; }
+.quick-question::before { content: "?"; position: absolute; top: -20px; right: -10px; font-size: 110px; color: rgba(3,102,214,0.05); font-weight: bold; pointer-events: none; }
+.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin: 1em 0; }
+@media(max-width: 600px) { .answer-options { grid-template-columns: 1fr; } }
+.answer-option { padding: 0.9em 1em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.25s ease; font-family: Georgia, serif; font-size: 0.95em; }
+.answer-option:hover { border-color: #0366d6; background: #f0f7ff; }
+.answer-option.correct { background: #d4edda; border-color: #28a745; }
+.answer-option.incorrect { background: #f8d7da; border-color: #dc3545; }
+.answer-option.disabled { pointer-events: none; }
+.feedback-panel { border-left: 5px solid #0366d6; padding: 1em 1.5em; margin-top: 1em; border-radius: 0 8px 8px 0; background: white; display: none; }
+.feedback-panel.show { display: block; animation: slideIn 0.4s ease; }
+.feedback-panel.success { border-color: #28a745; background: #f0fff4; }
+.feedback-panel.error { border-color: #dc3545; background: #fff5f5; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ===== IMPACT DISPLAY ===== */
+.impact-display { background: linear-gradient(135deg, #28a74510, #20c99710); border: 2px solid #28a745; border-radius: 12px; padding: 1.5em 2em; margin: 1.5em 0; text-align: center; }
+.impact-number { font-size: 2.8em; font-weight: bold; color: #28a745; margin: 0.15em 0; font-family: Arial, sans-serif; }
+.impact-description { color: #555; font-size: 1em; }
+.impact-negative { border-color: #dc3545; background: linear-gradient(135deg, #dc354510, #ff000010); }
+.impact-negative .impact-number { color: #dc3545; }
+
+/* ===== CODE EDITOR ===== */
+.code-editor { background: #282c34; border-radius: 10px; overflow: hidden; margin: 1.5em 0; }
+.code-editor-header { background: #21252b; padding: 0.7em 1em; display: flex; justify-content: space-between; align-items: center; }
+.code-editor-header span { color: #abb2bf; font-family: Arial, sans-serif; font-size: 0.85em; }
+.code-editor-dots { display: flex; gap: 6px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot.red { background: #ff5f56; }
+.dot.yellow { background: #ffbd2e; }
+.dot.green { background: #27c93f; }
+.code-input { width: 100%; min-height: 180px; background: #282c34; color: #abb2bf; border: none; font-family: Consolas, 'Courier New', monospace; font-size: 0.88em; padding: 1em; resize: vertical; outline: none; line-height: 1.6; box-sizing: border-box; }
+.code-output { background: #1e2227; color: #98c379; padding: 1em; font-family: Consolas, monospace; font-size: 0.88em; min-height: 60px; border-top: 1px solid #3a3f4b; white-space: pre-wrap; display: none; }
+.code-output.show { display: block; }
+
+/* ===== TABS ===== */
+.tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 2px solid #e1e4e8; }
+.tab { padding: 0.6em 1.2em; background: #f8f9fa; border: 1px solid #e1e4e8; border-bottom: none; cursor: pointer; font-family: Arial, sans-serif; font-size: 0.9em; color: #555; transition: all 0.2s; border-radius: 6px 6px 0 0; margin-right: 4px; }
+.tab.active { background: white; color: #003366; font-weight: bold; border-color: #e1e4e8; border-bottom: 2px solid white; margin-bottom: -2px; }
+.tab-content { display: none; padding: 1.5em; background: white; border: 1px solid #e1e4e8; border-top: none; border-radius: 0 0 8px 8px; }
+.tab-content.active { display: block; }
+
+/* ===== METRICS / GAUGE ===== */
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1em; margin: 1em 0; }
+.metric-card { background: white; border: 2px solid #e1e4e8; border-radius: 8px; padding: 1em; text-align: center; transition: border-color 0.3s; }
+.metric-card.warning { border-color: #ffc107; background: #fffdf0; }
+.metric-card.danger { border-color: #dc3545; background: #fff5f5; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(220,53,69,0.3); } 50% { box-shadow: 0 0 0 8px rgba(220,53,69,0); } }
+.metric-value { font-size: 1.8em; font-weight: bold; font-family: Arial, sans-serif; }
+.metric-label { font-size: 0.78em; color: #666; font-family: Arial, sans-serif; margin-top: 0.3em; }
+.metric-trend { font-size: 0.8em; margin-top: 0.2em; }
+
+/* ===== CANARY / TRAFFIC BAR ===== */
+.traffic-bar { height: 44px; border-radius: 8px; display: flex; overflow: hidden; margin: 1em 0; font-family: Arial, sans-serif; font-size: 0.85em; font-weight: bold; }
+.traffic-old { background: #0366d6; display: flex; align-items: center; justify-content: center; color: white; transition: width 0.8s ease; }
+.traffic-new { background: #28a745; display: flex; align-items: center; justify-content: center; color: white; transition: width 0.8s ease; }
+
+/* ===== DECISION TREE ===== */
+.decision-node { background: white; border: 2px solid #0366d6; border-radius: 8px; padding: 0.8em 1.2em; margin: 0.5em auto; max-width: 400px; text-align: center; cursor: pointer; font-family: Arial, sans-serif; font-size: 0.9em; transition: all 0.2s; }
+.decision-node:hover { background: #f0f7ff; transform: scale(1.02); }
+.decision-node.action { border-color: #28a745; background: #f0fff4; color: #155724; font-weight: bold; cursor: default; }
+.decision-node.action:hover { transform: none; }
+.decision-arrow { text-align: center; font-size: 1.4em; color: #999; margin: 0.2em 0; }
+.decision-branch { display: flex; gap: 1em; justify-content: center; flex-wrap: wrap; margin: 0.5em 0; }
+.decision-branch-item { flex: 1; min-width: 140px; max-width: 220px; }
+
+/* ===== SLIDER ===== */
+.slider-container { margin: 1em 0; }
+.slider { width: 100%; height: 8px; border-radius: 4px; background: #e1e4e8; outline: none; -webkit-appearance: none; cursor: pointer; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #0366d6; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.slider-label { display: flex; justify-content: space-between; font-size: 0.85em; color: #666; font-family: Arial, sans-serif; }
+
+/* ===== ALERT / FLOWCHART ===== */
+.alert-box { padding: 0.9em 1.2em; border-radius: 8px; margin: 0.6em 0; font-family: Arial, sans-serif; font-size: 0.9em; }
+.alert-info { background: #cce5ff; border: 1px solid #b8daff; color: #004085; }
+.alert-warning { background: #fff3cd; border: 1px solid #ffc107; color: #856404; }
+.alert-danger { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+.alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+.flowchart-step { display: flex; align-items: center; gap: 1em; padding: 0.8em 1.2em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; margin: 0.5em 0; transition: all 0.3s; }
+.flowchart-step.active { border-color: #0366d6; background: #f0f7ff; }
+.flowchart-step.done { border-color: #28a745; background: #f0fff4; }
+.step-icon { font-size: 1.5em; width: 36px; text-align: center; }
+.step-text h4 { margin: 0; color: #003366; font-size: 0.95em; }
+.step-text p { margin: 0.2em 0 0; font-size: 0.82em; color: #666; }
+
+/* ===== CASE STUDY CARDS ===== */
+.case-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1em; margin: 1em 0; }
+.case-card { background: white; border: 2px solid #e1e4e8; border-radius: 10px; padding: 1.2em; text-align: center; transition: all 0.3s; cursor: pointer; }
+.case-card:hover { border-color: #0366d6; transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+.case-card .company { font-size: 1.2em; font-weight: bold; color: #003366; font-family: Arial, sans-serif; }
+.case-card .pattern { font-size: 0.8em; color: #0366d6; font-family: Arial, sans-serif; margin: 0.3em 0; }
+.case-card .detail { font-size: 0.82em; color: #555; }
+
+/* ===== MISC ===== */
+.badge { display: inline-block; padding: 0.2em 0.7em; border-radius: 20px; font-size: 0.78em; font-weight: bold; font-family: Arial, sans-serif; }
+.badge-blue { background: #cce5ff; color: #004085; }
+.badge-green { background: #d4edda; color: #155724; }
+.badge-yellow { background: #fff3cd; color: #856404; }
+.badge-red { background: #f8d7da; color: #721c24; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; }
+@media(max-width: 650px) { .two-col { grid-template-columns: 1fr; } }
+.highlight-box { background: #fffbf0; border-left: 4px solid #e6a817; padding: 1em 1.5em; margin: 1em 0; border-radius: 0 8px 8px 0; }
+.tag { display: inline-block; background: #e7f3ff; color: #0366d6; padding: 0.2em 0.6em; border-radius: 4px; font-size: 0.8em; font-family: Arial, sans-serif; margin: 0.2em; }
+table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 0.9em; }
+th { background: #003366; color: white; padding: 0.7em 1em; text-align: left; font-family: Arial, sans-serif; }
+td { padding: 0.6em 1em; border-bottom: 1px solid #e1e4e8; }
+tr:nth-child(even) td { background: #f8f9fa; }
+.score-display { font-size: 1.1em; font-weight: bold; color: #003366; font-family: Arial, sans-serif; }
+canvas { border: 1px solid #e1e4e8; border-radius: 8px; display: block; margin: 0 auto; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="framework2_pipeline_engineering.html">← Pipeline Engineering</a>
+  <a href="index.html">🏠 Course Home</a>
+  <a href="framework4_enterprise_integration.html">Next: Enterprise Integration →</a>
+  <a href="../teaching.html">Teaching Home</a>
+</nav>
+
+<!-- ===== HEADER ===== -->
+<div class="card" style="background: linear-gradient(135deg, #003366, #0366d6); color: white; padding: 2.5em;">
+  <div style="font-family:Arial,sans-serif; font-size:0.85em; opacity:0.8; margin-bottom:0.5em;">ML Frameworks & Applied Analytics · Framework 3 of 5</div>
+  <h1 style="color:white; border:none; font-size:2.2em; margin:0 0 0.3em;">🚀 Model Deployment & MLOps</h1>
+  <p style="opacity:0.9; font-size:1.1em; margin:0 0 1.5em;">From Jupyter notebook to production system — keeping your model alive, monitored, and profitable</p>
+  <div style="display:flex; gap:1em; flex-wrap:wrap;">
+    <span class="badge" style="background:rgba(255,255,255,0.2); color:white; font-size:0.9em;">⏱ 90 min</span>
+    <span class="badge" style="background:rgba(255,255,255,0.2); color:white; font-size:0.9em;">🎓 Business Students</span>
+    <span class="badge" style="background:rgba(255,255,255,0.2); color:white; font-size:0.9em;">🛠 5 Hands-on Labs</span>
+    <span class="badge" style="background:rgba(255,255,255,0.2); color:white; font-size:0.9em;">💰 $50K/hr Stakes</span>
+  </div>
+</div>
+
+<!-- ===== OPENING HOOK ===== -->
+<div class="card" style="border-left: 5px solid #dc3545; background: #fff5f5;">
+  <h2 style="color:#dc3545;">🚨 3 AM. Your Phone Rings.</h2>
+  <p style="font-size:1.15em; font-style:italic;">"It's 3 AM. Your phone rings. The recommendation model is returning the same product for every user. Revenue is dropping <strong>$50,000 per hour</strong>. What do you do?"</p>
+  <div class="impact-display impact-negative" style="margin: 1em 0;">
+    <div class="impact-number" id="lossCounter">-$0</div>
+    <div class="impact-description">Revenue lost since incident began</div>
+    <div style="font-size:0.8em; color:#888; margin-top:0.5em; font-family:Arial,sans-serif;" id="incidentTimer">Incident started 0 minutes ago</div>
+  </div>
+  <p>This isn't a hypothetical. It happened to a major e-commerce company in 2022. The root cause? A Docker container that worked perfectly on every engineer's laptop — but silently failed when the base image was updated in production.</p>
+  <p><strong>Today you'll learn to prevent incidents, detect them faster, and recover in minutes — not hours.</strong></p>
+  <button class="button danger" onclick="startIncidentClock()">🔔 Start Incident Clock</button>
+  <button class="button success" onclick="resolveIncident()" id="resolveBtn" style="display:none">✅ I Know How to Fix This — Resolve Incident</button>
+</div>
+
+<!-- ===== OVERALL PROGRESS ===== -->
+<div class="card">
+  <h3>🗺 Your Learning Journey — 5 MLOps Pillars</h3>
+  <div class="story-progress">
+    <div class="story-step active" id="step1" onclick="scrollToSection('s1')">1</div>
+    <div class="story-step" id="step2" onclick="scrollToSection('s2')">2</div>
+    <div class="story-step" id="step3" onclick="scrollToSection('s3')">3</div>
+    <div class="story-step" id="step4" onclick="scrollToSection('s4')">4</div>
+    <div class="story-step" id="step5" onclick="scrollToSection('s5')">5</div>
+  </div>
+  <div class="story-labels">
+    <span>Containerization</span>
+    <span>Model Serving</span>
+    <span>A/B Testing</span>
+    <span>Monitoring</span>
+    <span>Rollback</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="overallProgress" style="width:5%">5%</div>
+  </div>
+  <div style="text-align:right; font-family:Arial,sans-serif; font-size:0.85em; color:#666;">
+    Quiz score: <span class="score-display" id="quizScore">0 / 5</span>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- SECTION 1: CONTAINERIZATION  -->
+<!-- ============================= -->
+<div id="s1" class="card">
+  <h2>📦 Pillar 1: Containerization for ML (Docker)</h2>
+  <p>A container packages your model, code, and <em>exact environment</em> into one portable unit. If it runs in your container, it runs in production. That's the promise of Docker — and the cure for "works on my machine."</p>
+
+  <div class="two-col">
+    <div>
+      <h4>Without Docker 😱</h4>
+      <ul>
+        <li>Python 3.8 locally → Python 3.11 in prod</li>
+        <li>scikit-learn 1.0 → 1.3 in prod</li>
+        <li>No GPU driver on prod server</li>
+        <li>Missing system library <code>libgomp</code></li>
+        <li><em>Result: 3 AM phone call</em></li>
+      </ul>
+    </div>
+    <div>
+      <h4>With Docker ✅</h4>
+      <ul>
+        <li>Exact Python version locked</li>
+        <li>Exact library versions pinned</li>
+        <li>All system dependencies included</li>
+        <li>Runs identically everywhere</li>
+        <li><em>Result: peaceful sleep</em></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- DOCKERFILE BUILDER -->
+  <div class="interactive-section" id="dockerBuilder">
+    <h3>🔨 Lab 1: Build Your Dockerfile Layer by Layer</h3>
+    <p>Add each layer by clicking the buttons below. Watch the Dockerfile assemble — and see how image size grows with each addition.</p>
+
+    <div style="display:flex; gap:0.5em; flex-wrap:wrap; margin-bottom:1em;">
+      <button class="button small" onclick="addLayer('base')">+ Base Image</button>
+      <button class="button small secondary" onclick="addLayer('deps')">+ Python Deps</button>
+      <button class="button small warning" onclick="addLayer('model')">+ Copy Model</button>
+      <button class="button small success" onclick="addLayer('serve')">+ Serve API</button>
+      <button class="button small danger" onclick="addLayer('bloat')">+ Dev Tools (Bad!)</button>
+      <button class="button small secondary" onclick="resetDocker()">↺ Reset</button>
+    </div>
+
+    <div class="code-editor">
+      <div class="code-editor-header">
+        <div class="code-editor-dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+        <span>Dockerfile</span>
+        <span id="imageSizeLabel" style="color:#61dafb; font-weight:bold;">Image size: 0 MB</span>
+      </div>
+      <textarea class="code-input" id="dockerfileContent" readonly style="min-height:220px;"># Click buttons above to build your Dockerfile
+# Each layer adds to the image size
+</textarea>
+    </div>
+
+    <!-- Image size bar -->
+    <div style="margin-top:1em;">
+      <div style="display:flex; justify-content:space-between; font-family:Arial,sans-serif; font-size:0.85em; color:#666;">
+        <span>Image Size</span><span id="sizeNumber">0 MB / 800 MB budget</span>
+      </div>
+      <div style="height:20px; background:#e9ecef; border-radius:10px; overflow:hidden; margin-top:0.3em;">
+        <div id="imageSizeBar" style="height:100%; width:0%; background:linear-gradient(90deg,#28a745,#ffc107,#dc3545); transition:width 0.6s ease; border-radius:10px;"></div>
+      </div>
+      <div id="sizeWarning" style="font-family:Arial,sans-serif; font-size:0.85em; margin-top:0.4em;"></div>
+    </div>
+
+    <div id="dockerFeedback" class="feedback-panel" style="margin-top:1em;"></div>
+  </div>
+
+  <!-- QUIZ 1 -->
+  <div class="quick-question">
+    <h3>🧩 Quiz 1: The Production Gotcha</h3>
+    <p><strong>Your container works perfectly locally but crashes immediately in production. The error says: <code>libgomp.so.1: cannot open shared object file</code>. What's most likely the cause?</strong></p>
+    <div class="answer-options" id="q1-options">
+      <div class="answer-option" onclick="checkAnswer('q1', this, false)">A) Your Python code has a bug that only appears at scale</div>
+      <div class="answer-option" onclick="checkAnswer('q1', this, false)">B) The production server has too little RAM</div>
+      <div class="answer-option" onclick="checkAnswer('q1', this, true)">C) Your Dockerfile uses a different base image than production (missing system library)</div>
+      <div class="answer-option" onclick="checkAnswer('q1', this, false)">D) You forgot to push the latest model file</div>
+    </div>
+    <div class="feedback-panel" id="q1-feedback"></div>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- SECTION 2: MODEL SERVING      -->
+<!-- ============================= -->
+<div id="s2" class="card">
+  <h2>⚡ Pillar 2: Model Serving Patterns</h2>
+  <p>Not all inference is equal. Choosing the wrong serving pattern can mean paying 10× more for the same results — or missing your latency SLA entirely.</p>
+
+  <!-- Serving Pattern Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this, 'tab-batch')">📦 Batch</div>
+    <div class="tab" onclick="switchTab(this, 'tab-realtime')">⚡ Real-time</div>
+    <div class="tab" onclick="switchTab(this, 'tab-streaming')">🌊 Streaming</div>
+  </div>
+
+  <div class="tab-content active" id="tab-batch">
+    <div class="two-col">
+      <div>
+        <h4>Batch Inference</h4>
+        <p>Process large volumes of data at scheduled intervals (hourly, nightly). Results are pre-computed and stored.</p>
+        <ul>
+          <li><strong>Latency:</strong> Minutes to hours (acceptable)</li>
+          <li><strong>Throughput:</strong> Very high (millions of rows)</li>
+          <li><strong>Cost:</strong> Low (run only when needed)</li>
+          <li><strong>Use when:</strong> Results don't need to be instant</li>
+        </ul>
+      </div>
+      <div>
+        <div class="case-card" style="cursor:default;">
+          <div class="company">🎬 Netflix</div>
+          <div class="pattern">Batch Serving</div>
+          <div class="detail">Recommendations computed nightly for all 260M subscribers. By morning, your homepage is ready instantly. Realtime computation would cost 100× more.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-realtime">
+    <div class="two-col">
+      <div>
+        <h4>Real-time Inference</h4>
+        <p>Model responds to each request within milliseconds. Results are computed on demand.</p>
+        <ul>
+          <li><strong>Latency:</strong> &lt; 100ms (tight SLA)</li>
+          <li><strong>Throughput:</strong> Medium (requests/sec)</li>
+          <li><strong>Cost:</strong> High (always-on infrastructure)</li>
+          <li><strong>Use when:</strong> User is waiting for the answer</li>
+        </ul>
+      </div>
+      <div>
+        <div class="case-card" style="cursor:default;">
+          <div class="company">🔍 Google Search</div>
+          <div class="pattern">Real-time Serving</div>
+          <div class="detail">Every search query triggers 200+ ML models in &lt;200ms — spam detection, query understanding, result ranking. You can't pre-compute "what will people search?"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-streaming">
+    <div class="two-col">
+      <div>
+        <h4>Streaming Inference</h4>
+        <p>Continuously process data streams as events arrive in near-real-time (seconds, not hours).</p>
+        <ul>
+          <li><strong>Latency:</strong> 1–10 seconds</li>
+          <li><strong>Throughput:</strong> Very high (event streams)</li>
+          <li><strong>Cost:</strong> Medium (always-on + scale)</li>
+          <li><strong>Use when:</strong> Data arrives continuously, decisions needed fast</li>
+        </ul>
+      </div>
+      <div>
+        <div class="case-card" style="cursor:default;">
+          <div class="company">🚗 Uber</div>
+          <div class="pattern">Streaming Serving</div>
+          <div class="detail">Surge pricing model ingests real-time GPS data from millions of drivers and riders. Prices update every few seconds. Too slow → wrong price. Too fast → unstable UI.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Latency/Throughput Simulator -->
+  <div class="interactive-section">
+    <h3>📊 Lab 2: Latency vs Throughput Simulator</h3>
+    <p>Adjust batch size and see how latency and throughput change. Find the sweet spot for your use case.</p>
+
+    <div class="slider-container">
+      <label style="font-family:Arial,sans-serif; font-weight:bold;">Batch Size: <span id="batchSizeLabel">1</span> requests</label>
+      <input type="range" class="slider" id="batchSizeSlider" min="1" max="512" value="1" oninput="updateLatencySimulator()">
+      <div class="slider-label"><span>1 (real-time)</span><span>128</span><span>512 (batch)</span></div>
+    </div>
+
+    <div class="metrics-grid" style="margin-top:1.5em;">
+      <div class="metric-card" id="latencyCard">
+        <div class="metric-value" id="latencyValue" style="color:#dc3545;">8 ms</div>
+        <div class="metric-label">P99 Latency</div>
+        <div class="metric-trend" id="latencyTrend">🟢 Excellent</div>
+      </div>
+      <div class="metric-card" id="throughputCard">
+        <div class="metric-value" id="throughputValue" style="color:#28a745;">125 req/s</div>
+        <div class="metric-label">Throughput</div>
+        <div class="metric-trend" id="throughputTrend">📈 Good</div>
+      </div>
+      <div class="metric-card" id="costCard">
+        <div class="metric-value" id="costValue" style="color:#e6a817;">$0.08</div>
+        <div class="metric-label">Cost per 1K req</div>
+        <div class="metric-trend" id="costTrend">💰 High</div>
+      </div>
+      <div class="metric-card" id="slaCard">
+        <div class="metric-value" id="slaValue" style="color:#28a745;">✅</div>
+        <div class="metric-label">SLA Met (&lt;200ms)</div>
+        <div class="metric-trend" id="slaTrend">Pattern: Real-time</div>
+      </div>
+    </div>
+
+    <canvas id="latencyChart" width="700" height="200" style="max-width:100%; margin-top:1em;"></canvas>
+
+    <!-- Decision Matrix -->
+    <h4 style="margin-top:1.5em;">🎯 Which Pattern Fits Your Use Case?</h4>
+    <table>
+      <tr><th>Use Case</th><th>Recommended Pattern</th><th>Key Reason</th></tr>
+      <tr><td>Credit card fraud detection</td><td><span class="badge badge-red">Real-time</span></td><td>Transaction must be approved/denied in milliseconds</td></tr>
+      <tr><td>Weekly sales forecast</td><td><span class="badge badge-blue">Batch</span></td><td>Results consumed next morning; high volume</td></tr>
+      <tr><td>Ride-share surge pricing</td><td><span class="badge badge-green">Streaming</span></td><td>Driver/rider GPS updates every few seconds</td></tr>
+      <tr><td>Email spam filter</td><td><span class="badge badge-red">Real-time</span></td><td>User expects immediate delivery or block</td></tr>
+      <tr><td>Product recommendations (homepage)</td><td><span class="badge badge-blue">Batch</span></td><td>Pre-compute for all users nightly</td></tr>
+      <tr><td>Social media content moderation</td><td><span class="badge badge-green">Streaming</span></td><td>Posts arrive continuously; hours is too slow</td></tr>
+    </table>
+  </div>
+
+  <!-- QUIZ 2 -->
+  <div class="quick-question">
+    <h3>🧩 Quiz 2: Serving Pattern Choice</h3>
+    <p><strong>A hospital wants to flag patients at high risk of sepsis. The model analyzes vital signs (updated every 5 minutes). Which serving pattern is most appropriate?</strong></p>
+    <div class="answer-options" id="q2-options">
+      <div class="answer-option" onclick="checkAnswer('q2', this, false)">A) Batch — run the model nightly for all patients</div>
+      <div class="answer-option" onclick="checkAnswer('q2', this, true)">B) Streaming — process vital sign updates as they arrive in near-real-time</div>
+      <div class="answer-option" onclick="checkAnswer('q2', this, false)">C) Real-time API — wait for a doctor to request a prediction</div>
+      <div class="answer-option" onclick="checkAnswer('q2', this, false)">D) No ML needed — use rule-based thresholds only</div>
+    </div>
+    <div class="feedback-panel" id="q2-feedback"></div>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- SECTION 3: A/B TESTING        -->
+<!-- ============================= -->
+<div id="s3" class="card">
+  <h2>🎲 Pillar 3: A/B Testing & Canary Deployments</h2>
+  <p>Never deploy a new model to 100% of users at once. Split the risk. Measure the impact. Let data — not opinions — decide if the new model is better.</p>
+
+  <!-- A/B Test Simulator -->
+  <div class="interactive-section">
+    <h3>🧪 Lab 3: Run Your Own A/B Test</h3>
+    <p>Simulate an A/B test comparing your current model (control) against a new model (treatment). Adjust parameters and watch statistical significance emerge.</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5em;">
+      <div>
+        <label style="font-family:Arial,sans-serif; font-weight:bold;">Sample Size per Group: <span id="abNLabel">1,000</span></label>
+        <input type="range" class="slider" id="abNSlider" min="100" max="10000" step="100" value="1000" oninput="runABTest()">
+        <div class="slider-label"><span>100</span><span>5,000</span><span>10,000</span></div>
+      </div>
+      <div>
+        <label style="font-family:Arial,sans-serif; font-weight:bold;">True Lift (simulated): <span id="abLiftLabel">+2.0%</span></label>
+        <input type="range" class="slider" id="abLiftSlider" min="-3" max="10" step="0.5" value="2" oninput="runABTest()">
+        <div class="slider-label"><span>-3%</span><span>0%</span><span>+10%</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:1.5em;">
+      <button class="button" onclick="runABTest()">🎲 Run Simulation</button>
+      <button class="button secondary small" onclick="runABTest()">↺ Resample</button>
+    </div>
+
+    <div class="metrics-grid" style="margin-top:1.5em;" id="abResults">
+      <div class="metric-card">
+        <div class="metric-value" id="abControlRate" style="color:#0366d6;">—</div>
+        <div class="metric-label">Control CVR</div>
+        <div class="metric-trend">Model A (current)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="abTreatRate" style="color:#28a745;">—</div>
+        <div class="metric-label">Treatment CVR</div>
+        <div class="metric-trend">Model B (new)</div>
+      </div>
+      <div class="metric-card" id="abPCard">
+        <div class="metric-value" id="abPValue" style="color:#666;">—</div>
+        <div class="metric-label">p-value</div>
+        <div class="metric-trend" id="abSigLabel">Run test first</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="abPowerVal" style="color:#666;">—</div>
+        <div class="metric-label">Statistical Power</div>
+        <div class="metric-trend" id="abPowerLabel">Run test first</div>
+      </div>
+    </div>
+
+    <div id="abDecision" class="alert-box alert-info" style="margin-top:1em; display:none;"></div>
+
+    <!-- Revenue Impact -->
+    <div class="impact-display" id="abImpactBox" style="display:none; margin-top:1em;">
+      <div class="impact-number" id="abImpactNumber">$0</div>
+      <div class="impact-description" id="abImpactDesc">Annual revenue impact if deployed to all users</div>
+    </div>
+  </div>
+
+  <!-- Canary Deployment Visualizer -->
+  <div class="interactive-section" style="margin-top:1.5em;">
+    <h3>🐤 Lab 3b: Canary Deployment — Gradual Traffic Shift</h3>
+    <p>A canary deployment gradually shifts traffic to the new model. If metrics degrade at any stage, you roll back — only a fraction of users are affected.</p>
+
+    <div style="font-family:Arial,sans-serif; margin-bottom:1em;">
+      <strong>Traffic Split:</strong> <span id="canaryPct">0</span>% → New Model &nbsp;|&nbsp; <span id="canaryOldPct">100</span>% → Current Model
+    </div>
+
+    <div class="traffic-bar">
+      <div class="traffic-old" id="trafficOld" style="width:100%">v1 (current)</div>
+      <div class="traffic-new" id="trafficNew" style="width:0%"></div>
+    </div>
+
+    <div style="display:flex; gap:0.7em; flex-wrap:wrap; margin-top:1em;">
+      <button class="button small secondary" onclick="setCanary(0)">0% (no deploy)</button>
+      <button class="button small" onclick="setCanary(1)">1% (shadow)</button>
+      <button class="button small" onclick="setCanary(5)">5% (canary)</button>
+      <button class="button small warning" onclick="setCanary(25)">25% (ramp)</button>
+      <button class="button small success" onclick="setCanary(100)">100% (full deploy)</button>
+      <button class="button small danger" onclick="setCanary(0)">🔴 Rollback!</button>
+    </div>
+
+    <div id="canaryMetrics" class="metrics-grid" style="margin-top:1.5em;">
+      <div class="metric-card" id="canaryErrorCard">
+        <div class="metric-value" id="canaryError">0.1%</div>
+        <div class="metric-label">Error Rate</div>
+        <div class="metric-trend">🟢 Normal</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="canaryLatency">82ms</div>
+        <div class="metric-label">P99 Latency</div>
+        <div class="metric-trend" id="canaryLatTrend">🟢 Normal</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="canaryCVR">3.2%</div>
+        <div class="metric-label">Conversion Rate</div>
+        <div class="metric-trend" id="canaryCVRTrend">🟢 Baseline</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="canaryUsers">0</div>
+        <div class="metric-label">Affected Users</div>
+        <div class="metric-trend" id="canaryRisk">Risk: None</div>
+      </div>
+    </div>
+
+    <div id="canaryAlert" class="alert-box alert-info" style="margin-top:0.5em;">Set canary percentage to begin gradual rollout.</div>
+  </div>
+
+  <!-- QUIZ 3 -->
+  <div class="quick-question">
+    <h3>🧩 Quiz 3: The Multiple Testing Trap</h3>
+    <p><strong>You ran an A/B test. Your new recommendation model shows a 2% conversion lift with p = 0.04. Your team is excited. Do you ship it?</strong></p>
+    <div class="answer-options" id="q3-options">
+      <div class="answer-option" onclick="checkAnswer('q3', this, false)">A) Yes — p &lt; 0.05, it's statistically significant. Ship immediately.</div>
+      <div class="answer-option" onclick="checkAnswer('q3', this, false)">B) Yes — 2% lift is huge business value regardless of p-value.</div>
+      <div class="answer-option" onclick="checkAnswer('q3', this, true)">C) Not yet — ask: Was this the only metric tested? Did we peek early? Multiple testing inflates false positives.</div>
+      <div class="answer-option" onclick="checkAnswer('q3', this, false)">D) No — p &lt; 0.05 is not significant enough for production deployment.</div>
+    </div>
+    <div class="feedback-panel" id="q3-feedback"></div>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- SECTION 4: MONITORING         -->
+<!-- ============================= -->
+<div id="s4" class="card">
+  <h2>📡 Pillar 4: Model Monitoring & Drift Detection</h2>
+  <p>A model that was 92% accurate at launch might be 71% accurate 6 months later — without a single line of code changing. Why? The world changed. Your model didn't.</p>
+
+  <div class="two-col" style="margin:1em 0;">
+    <div class="highlight-box">
+      <h4>Data Drift</h4>
+      <p>Input feature distribution changes. Customers who used to be 25–34 years old are now predominantly 45–54.</p>
+      <span class="tag">PSI</span><span class="tag">KS Test</span><span class="tag">Jensen-Shannon</span>
+    </div>
+    <div class="highlight-box" style="border-color:#dc3545; background:#fff5f5;">
+      <h4>Concept Drift</h4>
+      <p>The relationship between features and outcome changes. A "good credit" score meant something different before vs. after a recession.</p>
+      <span class="tag">Performance metrics</span><span class="tag">Label shift</span>
+    </div>
+  </div>
+
+  <!-- Live Monitoring Dashboard -->
+  <div class="interactive-section">
+    <h3>📊 Lab 4: Live Monitoring Dashboard</h3>
+    <p>This simulates a real production monitoring dashboard. Click "Start Monitoring" and watch for anomalies — then diagnose and respond.</p>
+
+    <div style="display:flex; gap:1em; align-items:center; margin-bottom:1em; flex-wrap:wrap;">
+      <button class="button success" id="monitorStartBtn" onclick="startMonitoring()">▶ Start Monitoring</button>
+      <button class="button secondary" onclick="stopMonitoring()" id="monitorStopBtn" style="display:none;">⏹ Stop</button>
+      <button class="button warning" onclick="injectDrift()">⚡ Inject Drift Event</button>
+      <span style="font-family:Arial,sans-serif; font-size:0.85em; color:#666;">Simulated time: <strong id="monitorTime">T+0h</strong></span>
+    </div>
+
+    <div class="metrics-grid" id="monitorMetrics">
+      <div class="metric-card" id="mc-accuracy">
+        <div class="metric-value" id="mv-accuracy" style="color:#28a745;">92.1%</div>
+        <div class="metric-label">Model Accuracy</div>
+        <div class="metric-trend" id="mt-accuracy">🟢 Healthy</div>
+      </div>
+      <div class="metric-card" id="mc-psi">
+        <div class="metric-value" id="mv-psi" style="color:#28a745;">0.04</div>
+        <div class="metric-label">PSI Score</div>
+        <div class="metric-trend" id="mt-psi">🟢 No drift</div>
+      </div>
+      <div class="metric-card" id="mc-ks">
+        <div class="metric-value" id="mv-ks" style="color:#28a745;">0.06</div>
+        <div class="metric-label">KS Statistic</div>
+        <div class="metric-trend" id="mt-ks">🟢 Stable</div>
+      </div>
+      <div class="metric-card" id="mc-latency">
+        <div class="metric-value" id="mv-latency" style="color:#28a745;">87ms</div>
+        <div class="metric-label">Avg Latency</div>
+        <div class="metric-trend" id="mt-latency">🟢 Normal</div>
+      </div>
+    </div>
+
+    <canvas id="monitorChart" width="700" height="180" style="max-width:100%; margin:1em 0;"></canvas>
+
+    <!-- Alert Configurator -->
+    <h4>🔔 Alert Thresholds</h4>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1em; margin:1em 0;">
+      <div>
+        <label style="font-family:Arial,sans-serif; font-size:0.85em;">Accuracy Alert Below:</label>
+        <input type="number" id="threshAccuracy" value="85" min="50" max="100" style="width:80px; padding:0.3em; border:1px solid #ccc; border-radius:4px; font-size:0.95em;"> %
+      </div>
+      <div>
+        <label style="font-family:Arial,sans-serif; font-size:0.85em;">PSI Alert Above:</label>
+        <input type="number" id="threshPSI" value="0.2" min="0" max="1" step="0.05" style="width:80px; padding:0.3em; border:1px solid #ccc; border-radius:4px; font-size:0.95em;">
+      </div>
+      <div>
+        <label style="font-family:Arial,sans-serif; font-size:0.85em;">Latency Alert Above:</label>
+        <input type="number" id="threshLatency" value="300" min="50" max="5000" style="width:80px; padding:0.3em; border:1px solid #ccc; border-radius:4px; font-size:0.95em;"> ms
+      </div>
+    </div>
+    <div id="alertLog" style="background:#1e2227; color:#98c379; padding:1em; border-radius:8px; font-family:Consolas,monospace; font-size:0.82em; min-height:60px; max-height:120px; overflow-y:auto;">
+      <div style="color:#abb2bf;">[System] Alert monitor initialized. Thresholds loaded.</div>
+    </div>
+  </div>
+
+  <!-- Incident Response Flowchart -->
+  <div style="margin-top:1.5em;">
+    <h3>🚑 Incident Response: Step Through the Process</h3>
+    <p>Click each step to advance through a real incident response. This is the process your on-call engineer follows at 3 AM.</p>
+    <div id="irFlowchart">
+      <div class="flowchart-step active" id="ir1">
+        <div class="step-icon">🔍</div>
+        <div class="step-text"><h4>1. Detect</h4><p>PagerDuty alert fires. Accuracy dropped from 92% → 61%. Drift PSI = 0.31.</p></div>
+      </div>
+      <div class="decision-arrow">↓</div>
+      <div class="flowchart-step" id="ir2">
+        <div class="step-icon">🩺</div>
+        <div class="step-text"><h4>2. Diagnose</h4><p>Is it data drift, concept drift, or infrastructure failure? Check feature distributions vs. training data.</p></div>
+      </div>
+      <div class="decision-arrow">↓</div>
+      <div class="flowchart-step" id="ir3">
+        <div class="step-icon">🛠</div>
+        <div class="step-text"><h4>3. Mitigate</h4><p>Option A: Rollback to v1 (immediate). Option B: Hotfix input preprocessing. Option C: Emergency retrain.</p></div>
+      </div>
+      <div class="decision-arrow">↓</div>
+      <div class="flowchart-step" id="ir4">
+        <div class="step-icon">✅</div>
+        <div class="step-text"><h4>4. Verify</h4><p>Monitor for 30 min post-fix. Confirm accuracy recovered. Check no new alerts.</p></div>
+      </div>
+      <div class="decision-arrow">↓</div>
+      <div class="flowchart-step" id="ir5">
+        <div class="step-icon">📝</div>
+        <div class="step-text"><h4>5. Postmortem</h4><p>Write incident report: root cause, timeline, what broke, what was missing in monitoring, prevention plan.</p></div>
+      </div>
+    </div>
+    <button class="button" onclick="advanceIR()" style="margin-top:1em;" id="irBtn">▶ Advance to Next Step</button>
+    <div id="irFeedback" class="alert-box alert-info" style="margin-top:1em; display:none;"></div>
+  </div>
+
+  <!-- QUIZ 4 -->
+  <div class="quick-question">
+    <h3>🧩 Quiz 4: Drift Detection</h3>
+    <p><strong>Your fraud detection model's accuracy is still 91% (same as launch), but fraud losses have increased 40% over 6 months. What type of drift is most likely occurring?</strong></p>
+    <div class="answer-options" id="q4-options">
+      <div class="answer-option" onclick="checkAnswer('q4', this, false)">A) Data drift — input features have shifted distribution</div>
+      <div class="answer-option" onclick="checkAnswer('q4', this, true)">B) Concept drift — fraudsters adapted to your model; accuracy metric is misleading because fraud rate itself changed</div>
+      <div class="answer-option" onclick="checkAnswer('q4', this, false)">C) Infrastructure drift — latency increased, causing more fraud</div>
+      <div class="answer-option" onclick="checkAnswer('q4', this, false)">D) No drift — 91% accuracy proves the model is working fine</div>
+    </div>
+    <div class="feedback-panel" id="q4-feedback"></div>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- SECTION 5: ROLLBACK           -->
+<!-- ============================= -->
+<div id="s5" class="card">
+  <h2>⏪ Pillar 5: Rollback Strategies</h2>
+  <p>Every deployment needs an escape hatch. The fastest fix is almost always rolling back to the last known-good model version — not debugging at 3 AM.</p>
+
+  <div class="impact-display">
+    <div class="impact-number">8 min</div>
+    <div class="impact-description">Average time to rollback with a good MLOps pipeline. vs. 4+ hours of debugging without one.</div>
+  </div>
+
+  <!-- Rollback Simulator -->
+  <div class="interactive-section">
+    <h3>🔄 Lab 5: Practice a Model Rollback</h3>
+    <p>Walk through a simulated rollback. Your model is failing — you need to detect the issue, switch versions, and verify recovery.</p>
+
+    <div style="background:#1e2227; color:#abb2bf; padding:1em; border-radius:8px; font-family:Consolas,monospace; font-size:0.85em; min-height:100px; margin:1em 0;" id="rollbackLog">
+      <span style="color:#61dafb;">[MLOps Dashboard]</span> System nominal. Model v2.3 serving 100% traffic.
+    </div>
+
+    <div style="display:flex; gap:0.7em; flex-wrap:wrap; margin-top:1em;">
+      <button class="button danger" onclick="rollbackStep(1)" id="rb1">🚨 1. Detect Issue</button>
+      <button class="button secondary" onclick="rollbackStep(2)" id="rb2" disabled>🔍 2. Confirm Rollback</button>
+      <button class="button secondary" onclick="rollbackStep(3)" id="rb3" disabled>⏪ 3. Execute Rollback</button>
+      <button class="button secondary" onclick="rollbackStep(4)" id="rb4" disabled>✅ 4. Verify Recovery</button>
+      <button class="button secondary small" onclick="resetRollback()">↺ Reset</button>
+    </div>
+
+    <div class="metrics-grid" style="margin-top:1.5em;">
+      <div class="metric-card" id="rbAccCard">
+        <div class="metric-value" id="rbAcc" style="color:#28a745;">92.1%</div>
+        <div class="metric-label">Accuracy</div>
+        <div class="metric-trend" id="rbAccTrend">🟢 Normal</div>
+      </div>
+      <div class="metric-card" id="rbErrCard">
+        <div class="metric-value" id="rbErr" style="color:#28a745;">0.1%</div>
+        <div class="metric-label">Error Rate</div>
+        <div class="metric-trend" id="rbErrTrend">🟢 Normal</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="rbVersion" style="color:#0366d6;">v2.3</div>
+        <div class="metric-label">Active Version</div>
+        <div class="metric-trend" id="rbVerTrend">Current deployment</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="rbRevLoss" style="color:#28a745;">$0</div>
+        <div class="metric-label">Revenue Loss</div>
+        <div class="metric-trend" id="rbRevTrend">Saved vs. no-action</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decision Tree: Rollback vs Fix -->
+  <div class="interactive-section" style="margin-top:1.5em;">
+    <h3>🌳 Decision Tree: Rollback vs Hotfix vs Retrain?</h3>
+    <p>Use this framework when an incident occurs. Click to explore the decision path.</p>
+
+    <div style="text-align:center;">
+      <div class="decision-node" onclick="toggleDT('dt-root')">
+        ❓ Model performance is degrading in production. What now?
+      </div>
+      <div class="decision-arrow">↓</div>
+
+      <div id="dt-root" style="display:none;">
+        <div class="decision-branch">
+          <div class="decision-branch-item">
+            <div style="background:#ffc107; color:#333; padding:0.4em; border-radius:6px; font-size:0.8em; font-family:Arial; font-weight:bold; margin-bottom:0.5em;">Is it an INFRASTRUCTURE issue?<br>(container crash, DB failure)</div>
+            <div class="decision-node action">🔧 HOTFIX<br>Fix infra, no model change needed</div>
+          </div>
+          <div class="decision-branch-item">
+            <div style="background:#ffc107; color:#333; padding:0.4em; border-radius:6px; font-size:0.8em; font-family:Arial; font-weight:bold; margin-bottom:0.5em;">Is the previous model version known-good?</div>
+            <div class="decision-node" onclick="toggleDT('dt-known-good')">Dig deeper ↓</div>
+          </div>
+        </div>
+
+        <div id="dt-known-good" style="display:none; margin-top:1em;">
+          <div class="decision-branch">
+            <div class="decision-branch-item">
+              <div style="background:#e9ecef; padding:0.4em; border-radius:6px; font-size:0.8em; font-family:Arial; margin-bottom:0.5em;">YES — previous version worked fine</div>
+              <div class="decision-node action">⏪ ROLLBACK<br>Fastest fix. Do it immediately. Investigate root cause after.</div>
+            </div>
+            <div class="decision-branch-item">
+              <div style="background:#e9ecef; padding:0.4em; border-radius:6px; font-size:0.8em; font-family:Arial; margin-bottom:0.5em;">NO — drift has been accumulating</div>
+              <div class="decision-node action">🔁 RETRAIN<br>Rollback buys time. Schedule emergency retrain with fresh data.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:1.5em;">
+      <h4>📋 Rollback vs Hotfix vs Retrain — Quick Reference</h4>
+      <table>
+        <tr><th>Option</th><th>When to Use</th><th>Time to Execute</th><th>Risk</th></tr>
+        <tr><td><strong>Rollback</strong></td><td>New model broke something; previous version was good</td><td>Minutes</td><td>Low</td></tr>
+        <tr><td><strong>Hotfix</strong></td><td>Infrastructure/data pipeline issue, not model logic</td><td>30 min – 2 hrs</td><td>Medium</td></tr>
+        <tr><td><strong>Retrain</strong></td><td>Data drift, world has changed, no good previous version</td><td>Hours to days</td><td>High</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- QUIZ 5 -->
+  <div class="quick-question">
+    <h3>🧩 Quiz 5: The Right Response</h3>
+    <p><strong>At 2 PM on Black Friday, your pricing model starts returning $0.00 for all products. Error rate spikes to 95%. Your last working deployment was 3 hours ago. What do you do FIRST?</strong></p>
+    <div class="answer-options" id="q5-options">
+      <div class="answer-option" onclick="checkAnswer('q5', this, false)">A) Start investigating the root cause — understand the bug before acting</div>
+      <div class="answer-option" onclick="checkAnswer('q5', this, false)">B) Retrain the model with today's data to fix the issue</div>
+      <div class="answer-option" onclick="checkAnswer('q5', this, true)">C) Immediately rollback to the version from 3 hours ago, then investigate</div>
+      <div class="answer-option" onclick="checkAnswer('q5', this, false)">D) Disable the ML model and use manual pricing rules</div>
+    </div>
+    <div class="feedback-panel" id="q5-feedback"></div>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- FINAL SUMMARY                 -->
+<!-- ============================= -->
+<div class="card" style="background: linear-gradient(135deg, #f0f7ff, #e8f4fd); border: 2px solid #0366d6;">
+  <h2>🎯 MLOps Mastery — Your Incident Survival Kit</h2>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:1em; margin:1.5em 0;">
+    <div style="text-align:center; padding:1em; background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+      <div style="font-size:2em;">📦</div>
+      <div style="font-weight:bold; font-family:Arial,sans-serif; color:#003366; font-size:0.9em;">Containerize</div>
+      <div style="font-size:0.78em; color:#666; margin-top:0.3em;">Lock your environment. Docker prevents "works on my machine."</div>
+    </div>
+    <div style="text-align:center; padding:1em; background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+      <div style="font-size:2em;">⚡</div>
+      <div style="font-weight:bold; font-family:Arial,sans-serif; color:#003366; font-size:0.9em;">Right Serving</div>
+      <div style="font-size:0.78em; color:#666; margin-top:0.3em;">Match batch/real-time/streaming to your latency requirements.</div>
+    </div>
+    <div style="text-align:center; padding:1em; background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+      <div style="font-size:2em;">🎲</div>
+      <div style="font-weight:bold; font-family:Arial,sans-serif; color:#003366; font-size:0.9em;">Test & Canary</div>
+      <div style="font-size:0.78em; color:#666; margin-top:0.3em;">Never deploy to 100%. Measure first. Let data decide.</div>
+    </div>
+    <div style="text-align:center; padding:1em; background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+      <div style="font-size:2em;">📡</div>
+      <div style="font-weight:bold; font-family:Arial,sans-serif; color:#003366; font-size:0.9em;">Monitor Drift</div>
+      <div style="font-size:0.78em; color:#666; margin-top:0.3em;">Your model decays. Watch PSI, KS, accuracy continuously.</div>
+    </div>
+    <div style="text-align:center; padding:1em; background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+      <div style="font-size:2em;">⏪</div>
+      <div style="font-weight:bold; font-family:Arial,sans-serif; color:#003366; font-size:0.9em;">Rollback Fast</div>
+      <div style="font-size:0.78em; color:#666; margin-top:0.3em;">Every minute costs $800+. Rollback first, debug second.</div>
+    </div>
+  </div>
+
+  <div class="impact-display">
+    <div class="impact-number" id="finalScore">—</div>
+    <div class="impact-description">Your final quiz score · <span id="finalBadge"></span></div>
+  </div>
+
+  <div id="completionMsg" style="display:none;" class="alert-box alert-success">
+    🎉 Congratulations! You've completed Framework 3: Model Deployment & MLOps. You now know how to prevent, detect, and recover from production ML incidents.
+  </div>
+
+  <p style="margin-top:1.5em;"><strong>Coming up next:</strong> Framework 4 — Enterprise ML Integration: connecting models to business systems, governance, and organizational change management.</p>
+
+  <div style="margin-top:1em;">
+    <a href="framework4_enterprise_integration.html" class="button success">Next: Enterprise Integration →</a>
+    <a href="framework2_pipeline_engineering.html" class="button secondary">← Review Pipeline Engineering</a>
+  </div>
+</div>
+
+<div style="text-align:center; color:#999; font-family:Arial,sans-serif; font-size:0.82em; margin:2em 0;">
+  ML Frameworks & Applied Analytics · Framework 3 of 5 · Chenhao Zhou, Rutgers Business School
+</div>
+
+<!-- ============================= -->
+<!-- JAVASCRIPT                    -->
+<!-- ============================= -->
+<script>
+// ===== GLOBAL STATE =====
+let quizAnswered = {};
+let quizScore = 0;
+let totalQuestions = 5;
+let incidentInterval = null;
+let incidentMinutes = 0;
+let monitorInterval = null;
+let monitorStep = 0;
+let driftInjected = false;
+let monitorAccuracy = 92.1;
+let monitorPSI = 0.04;
+let monitorKS = 0.06;
+let monitorLatency = 87;
+let monitorHistory = [];
+let irStep = 0;
+let rollbackStep_current = 0;
+let stepsCompleted = new Set();
+
+// ===== INCIDENT CLOCK =====
+function startIncidentClock() {
+  if (incidentInterval) return;
+  incidentMinutes = 0;
+  incidentInterval = setInterval(() => {
+    incidentMinutes++;
+    const loss = incidentMinutes * 833; // $50K/hr = $833/min
+    document.getElementById('lossCounter').textContent = '-$' + loss.toLocaleString();
+    document.getElementById('incidentTimer').textContent = `Incident started ${incidentMinutes} minute${incidentMinutes>1?'s':''} ago`;
+  }, 1000);
+  document.getElementById('resolveBtn').style.display = 'inline-block';
+}
+
+function resolveIncident() {
+  clearInterval(incidentInterval);
+  incidentInterval = null;
+  const loss = incidentMinutes * 833;
+  document.getElementById('lossCounter').textContent = '-$' + loss.toLocaleString() + ' (incident resolved)';
+  document.getElementById('lossCounter').style.color = '#28a745';
+  document.getElementById('resolveBtn').style.display = 'none';
+  const msg = document.createElement('div');
+  msg.className = 'alert-box alert-success';
+  msg.style.marginTop = '0.5em';
+  msg.innerHTML = `✅ Incident resolved in ${incidentMinutes} minutes. Total loss: $${loss.toLocaleString()}. With good MLOps practices, this could be 8 minutes: $${(8*833).toLocaleString()} — a saving of $${(loss - 8*833).toLocaleString()}.`;
+  document.getElementById('resolveBtn').parentNode.appendChild(msg);
+}
+
+// ===== SECTION SCROLL =====
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ===== PROGRESS =====
+function updateProgress() {
+  const pct = Math.round((stepsCompleted.size / 5) * 100);
+  const bar = document.getElementById('overallProgress');
+  bar.style.width = Math.max(pct, 5) + '%';
+  bar.textContent = pct + '%';
+
+  // Update story steps
+  ['s1','s2','s3','s4','s5'].forEach((s,i) => {
+    const stepEl = document.getElementById('step'+(i+1));
+    if (stepsCompleted.has(s)) {
+      stepEl.className = 'story-step completed';
+    }
+  });
+}
+
+function markSection(id) {
+  stepsCompleted.add(id);
+  updateProgress();
+}
+
+// ===== QUIZ SYSTEM =====
+const quizData = {
+  q1: {
+    correct: 'C',
+    title: '✅ Correct!',
+    explanation: '<strong>libgomp is a system library for OpenMP parallelism.</strong> It\'s not a Python package — it comes from the OS. If your Dockerfile starts with <code>FROM python:3.11-slim</code> but your production cluster uses <code>FROM python:3.11-alpine</code>, different system libraries are included. The fix: always pin both your Python base image AND your system library installs in your Dockerfile.',
+    wrong: '❌ Incorrect. The error <code>libgomp.so.1: cannot open shared object file</code> is a missing system library, not a Python bug or RAM issue. The most common cause is using a different Linux base image than what the team developed on.',
+    section: 's1'
+  },
+  q2: {
+    correct: 'B',
+    title: '✅ Correct!',
+    explanation: '<strong>Streaming inference is the right choice here.</strong> Vital signs update every 5 minutes — that\'s a continuous event stream. Batch would be too slow (nightly runs miss rapid deterioration). A real-time API requires a trigger — you need automatic, continuous processing. Streaming processes each vital sign update as it arrives, alerting clinicians within seconds of a dangerous change.',
+    wrong: '❌ Not quite. Vital signs are a continuous event stream updating every 5 minutes. This calls for streaming inference — automatic, near-real-time processing of each update — not batch (too slow) or waiting for a doctor\'s request (reactive, not proactive).',
+    section: 's2'
+  },
+  q3: {
+    correct: 'C',
+    title: '✅ You avoided the multiple testing trap!',
+    explanation: '<strong>p = 0.04 is not automatically a green light.</strong> Ask: (1) Was this the only metric you tested, or did you also look at revenue, bounce rate, and 8 other metrics? Each additional test inflates your false positive rate. (2) Did you peek at results before the planned sample size? Early stopping inflates significance. (3) Was the effect economically meaningful? The correct standard: pre-register your hypothesis, run to the planned sample, and consider Bonferroni correction if testing multiple metrics.',
+    wrong: '❌ Not quite. p = 0.04 can be deceiving. If you tested 20 metrics and only reported the significant one, you\'d expect 1 false positive at α=0.05. The trick question is about multiple comparisons — always ask "was this the only hypothesis tested?"',
+    section: 's3'
+  },
+  q4: {
+    correct: 'B',
+    title: '✅ Concept drift — the sneaky kind!',
+    explanation: '<strong>This is classic concept drift.</strong> The model predicts "fraud probability" based on patterns it learned. Fraudsters adapt — they study which transactions get flagged and change their behavior. The input features (transaction amount, location, time) still look normal, but the meaning of "suspicious" has changed. Accuracy stays high because the model correctly identifies old fraud patterns — but misses the new ones. Monitoring only accuracy would give you false confidence.',
+    wrong: '❌ Not quite. The accuracy metric is misleading here. Fraudsters adapted to your model — they changed their behavior to avoid detection. The relationship between features and fraud has changed (concept drift), not the input distributions themselves (data drift).',
+    section: 's4'
+  },
+  q5: {
+    correct: 'C',
+    title: '✅ Rollback first — you know the right move!',
+    explanation: '<strong>On Black Friday, every minute is $800+ in revenue.</strong> Rollback takes minutes. Root cause analysis takes hours. The previous version was working 3 hours ago — it\'s your fastest path to recovery. Rule: Stabilize first, investigate second. After rollback: write down symptoms, check git blame, look at what changed in that deployment, then fix properly. Never debug in production during a peak traffic event.',
+    wrong: '❌ On Black Friday at 2 PM, investigating first costs $800+ per minute. The previous version worked 3 hours ago. Rollback immediately — that\'s 5-10 minutes to recovery vs. hours of debugging. You can investigate after the crisis is resolved.',
+    section: 's5'
+  }
+};
+
+function checkAnswer(qId, el, isCorrect) {
+  if (quizAnswered[qId]) return;
+  quizAnswered[qId] = true;
+
+  const options = document.querySelectorAll('#' + qId + '-options .answer-option');
+  options.forEach(opt => opt.classList.add('disabled'));
+
+  const feedback = document.getElementById(qId + '-feedback');
+  feedback.classList.add('show');
+
+  const data = quizData[qId];
+  if (isCorrect) {
+    el.classList.add('correct');
+    quizScore++;
+    feedback.className = 'feedback-panel show success';
+    feedback.innerHTML = `<strong>${data.title}</strong><br>${data.explanation}`;
+    markSection(data.section);
+  } else {
+    el.classList.add('incorrect');
+    feedback.className = 'feedback-panel show error';
+    feedback.innerHTML = `<strong>${data.wrong}</strong><br><br>💡 ${data.explanation}`;
+  }
+
+  document.getElementById('quizScore').textContent = quizScore + ' / ' + totalQuestions;
+  updateFinalScore();
+}
+
+function updateFinalScore() {
+  const answered = Object.keys(quizAnswered).length;
+  if (answered === totalQuestions) {
+    document.getElementById('finalScore').textContent = quizScore + ' / ' + totalQuestions;
+    const badges = ['🥉 Keeping Learning', '🥈 Decent', '🥈 Good', '🥇 MLOps Engineer', '🏆 Production Ready', '🚀 MLOps Master'];
+    document.getElementById('finalBadge').textContent = badges[quizScore];
+    document.getElementById('completionMsg').style.display = 'block';
+  }
+}
+
+// ===== TABS =====
+function switchTab(tabEl, contentId) {
+  const tabs = tabEl.parentElement.querySelectorAll('.tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+
+  const parent = tabEl.closest('.card');
+  parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(contentId).classList.add('active');
+}
+
+// ===== DOCKERFILE BUILDER =====
+let dockerLayers = [];
+let imageSize = 0;
+
+const layerDefs = {
+  base: { code: 'FROM python:3.11-slim\n\nWORKDIR /app\n', size: 120, name: 'Base Image (Python 3.11-slim)' },
+  deps: { code: 'COPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\n    # scikit-learn==1.3.2\n    # pandas==2.1.0\n    # fastapi==0.104.0\n    # uvicorn==0.24.0\n', size: 280, name: 'Python Dependencies' },
+  model: { code: 'COPY model/ ./model/\nCOPY config.yaml .\n', size: 45, name: 'Model Artifacts' },
+  serve: { code: 'COPY app.py .\nEXPOSE 8080\nCMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]\n', size: 2, name: 'Serving Code' },
+  bloat: { code: '# ⚠️  BAD PRACTICE: dev tools in production image\nRUN apt-get install -y vim curl wget git \\\n    build-essential gcc g++ cmake \\\n    jupyter notebook pandas-profiling\n', size: 340, name: '⚠️ Dev Tools (BLOAT!)' }
+};
+
+function addLayer(type) {
+  if (dockerLayers.includes(type)) return;
+  dockerLayers.push(type);
+  const def = layerDefs[type];
+  imageSize += def.size;
+
+  const existing = document.getElementById('dockerfileContent').value;
+  const base = existing === '# Click buttons above to build your Dockerfile\n# Each layer adds to the image size\n' ? '' : existing;
+  document.getElementById('dockerfileContent').value = base + '\n# Layer: ' + def.name + '\n' + def.code;
+
+  const pct = Math.min((imageSize / 800) * 100, 100);
+  document.getElementById('imageSizeBar').style.width = pct + '%';
+  document.getElementById('imageSizeLabel').textContent = 'Image size: ' + imageSize + ' MB';
+  document.getElementById('sizeNumber').textContent = imageSize + ' MB / 800 MB budget';
+
+  const warn = document.getElementById('sizeWarning');
+  const fb = document.getElementById('dockerFeedback');
+
+  if (type === 'bloat') {
+    warn.innerHTML = '🔴 <strong>Warning:</strong> Dev tools added 340MB! Production images should be minimal. Use multi-stage builds to separate build and runtime.';
+    warn.style.color = '#dc3545';
+    fb.className = 'feedback-panel show error';
+    fb.innerHTML = '⚠️ <strong>Anti-pattern detected!</strong> You\'ve added development tools (vim, jupyter, build tools) to a production container. This: (1) increases attack surface for security vulnerabilities, (2) adds 340MB to every deployment, (3) slows down container pulls and starts. <strong>Fix:</strong> Use multi-stage builds — build in one image, copy only artifacts to a clean runtime image.';
+  } else if (type === 'serve' && dockerLayers.includes('base') && dockerLayers.includes('deps') && dockerLayers.includes('model') && !dockerLayers.includes('bloat')) {
+    fb.className = 'feedback-panel show success';
+    fb.innerHTML = '✅ <strong>Perfect Dockerfile!</strong> Your image has all essential layers: base image (120MB) + dependencies (280MB) + model (45MB) + serving code (2MB) = <strong>' + imageSize + 'MB</strong>. This is lean and production-ready. Key best practices used: <code>--no-cache-dir</code> for pip, <code>slim</code> base image, and exposing only the needed port.';
+  } else if (imageSize > 500 && !dockerLayers.includes('bloat')) {
+    warn.innerHTML = '🟡 Getting large — consider using a slimmer base image.';
+    warn.style.color = '#e6a817';
+  } else {
+    warn.innerHTML = '🟢 Looking good so far!';
+    warn.style.color = '#28a745';
+  }
+}
+
+function resetDocker() {
+  dockerLayers = [];
+  imageSize = 0;
+  document.getElementById('dockerfileContent').value = '# Click buttons above to build your Dockerfile\n# Each layer adds to the image size\n';
+  document.getElementById('imageSizeBar').style.width = '0%';
+  document.getElementById('imageSizeLabel').textContent = 'Image size: 0 MB';
+  document.getElementById('sizeNumber').textContent = '0 MB / 800 MB budget';
+  document.getElementById('sizeWarning').innerHTML = '';
+  document.getElementById('dockerFeedback').className = 'feedback-panel';
+}
+
+// ===== LATENCY SIMULATOR =====
+function updateLatencySimulator() {
+  const bs = parseInt(document.getElementById('batchSizeSlider').value);
+  document.getElementById('batchSizeLabel').textContent = bs;
+
+  // Simulate latency: increases with batch size (but with diminishing returns on throughput)
+  const baseLatency = 8;
+  const latency = Math.round(baseLatency + (bs * 0.4) + (bs > 50 ? Math.pow(bs - 50, 1.3) * 0.01 : 0));
+  const throughput = Math.round(bs / (latency / 1000));
+  const costPer1K = Math.max(0.01, (0.08 - (bs * 0.00007)).toFixed(3));
+
+  document.getElementById('batchSizeLabel').textContent = bs;
+  document.getElementById('latencyValue').textContent = latency < 1000 ? latency + ' ms' : (latency/1000).toFixed(1) + ' s';
+  document.getElementById('throughputValue').textContent = throughput.toLocaleString() + ' req/s';
+  document.getElementById('costValue').textContent = '$' + Math.max(0.01, costPer1K);
+
+  const latencyCard = document.getElementById('latencyCard');
+  const slaCard = document.getElementById('slaCard');
+
+  if (latency < 100) {
+    document.getElementById('latencyValue').style.color = '#28a745';
+    document.getElementById('latencyTrend').textContent = '🟢 Excellent';
+    latencyCard.className = 'metric-card';
+    document.getElementById('slaValue').textContent = '✅';
+    document.getElementById('slaTrend').textContent = 'Pattern: Real-time';
+    slaCard.className = 'metric-card';
+  } else if (latency < 500) {
+    document.getElementById('latencyValue').style.color = '#e6a817';
+    document.getElementById('latencyTrend').textContent = '🟡 Streaming zone';
+    latencyCard.className = 'metric-card warning';
+    document.getElementById('slaValue').textContent = '⚠️';
+    document.getElementById('slaTrend').textContent = 'Pattern: Streaming';
+    slaCard.className = 'metric-card warning';
+  } else {
+    document.getElementById('latencyValue').style.color = '#dc3545';
+    document.getElementById('latencyTrend').textContent = '🔴 Batch territory';
+    latencyCard.className = 'metric-card danger';
+    document.getElementById('slaValue').textContent = '❌';
+    document.getElementById('slaTrend').textContent = 'Pattern: Batch only';
+    slaCard.className = 'metric-card danger';
+  }
+
+  drawLatencyChart(bs, latency);
+}
+
+function drawLatencyChart(currentBS, currentLatency) {
+  const canvas = document.getElementById('latencyChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#fafafa';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#e1e4e8';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = 20 + (H - 40) * i / 4;
+    ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(W - 10, y); ctx.stroke();
+  }
+
+  // Draw curve
+  ctx.beginPath();
+  ctx.strokeStyle = '#0366d6';
+  ctx.lineWidth = 2.5;
+  const maxBS = 512;
+  for (let bs = 1; bs <= maxBS; bs += 2) {
+    const lat = 8 + (bs * 0.4) + (bs > 50 ? Math.pow(bs - 50, 1.3) * 0.01 : 0);
+    const x = 40 + (W - 50) * (bs / maxBS);
+    const y = H - 20 - Math.min((H - 40) * (lat / 800), H - 40);
+    bs === 1 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Mark current position
+  const cx = 40 + (W - 50) * (currentBS / maxBS);
+  const cy = H - 20 - Math.min((H - 40) * (currentLatency / 800), H - 40);
+  ctx.beginPath();
+  ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+  ctx.fillStyle = '#dc3545';
+  ctx.fill();
+
+  // Labels
+  ctx.fillStyle = '#555';
+  ctx.font = '11px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('Batch Size', W / 2, H - 2);
+  ctx.save();
+  ctx.translate(12, H / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('Latency (ms)', 0, 0);
+  ctx.restore();
+}
+
+// ===== A/B TEST SIMULATOR =====
+function runABTest() {
+  const n = parseInt(document.getElementById('abNSlider').value);
+  const trueLift = parseFloat(document.getElementById('abLiftSlider').value) / 100;
+  document.getElementById('abNLabel').textContent = n.toLocaleString();
+  document.getElementById('abLiftLabel').textContent = (trueLift >= 0 ? '+' : '') + (trueLift * 100).toFixed(1) + '%';
+
+  const baseRate = 0.032; // 3.2% baseline conversion
+  const treatRate = baseRate + trueLift;
+
+  // Simulate samples with binomial noise
+  const controlObs = simulateBinomial(n, baseRate);
+  const treatObs = simulateBinomial(n, Math.max(0.001, treatRate));
+
+  const controlCVR = controlObs / n;
+  const treatCVR = treatObs / n;
+
+  // Two-proportion z-test
+  const pooled = (controlObs + treatObs) / (2 * n);
+  const se = Math.sqrt(pooled * (1 - pooled) * (1/n + 1/n));
+  const z = (treatCVR - controlCVR) / (se || 0.0001);
+  const pVal = 2 * (1 - normalCDF(Math.abs(z)));
+
+  // Power calculation
+  const delta = Math.abs(trueLift);
+  const power = delta > 0 ? Math.min(0.99, 1 - normalCDF(1.96 - delta / (Math.sqrt(2 * baseRate * (1-baseRate) / n)))) : 0.05;
+
+  document.getElementById('abControlRate').textContent = (controlCVR * 100).toFixed(2) + '%';
+  document.getElementById('abTreatRate').textContent = (treatCVR * 100).toFixed(2) + '%';
+  document.getElementById('abPValue').textContent = pVal < 0.001 ? '<0.001' : pVal.toFixed(3);
+  document.getElementById('abPowerVal').textContent = (power * 100).toFixed(0) + '%';
+
+  const pCard = document.getElementById('abPCard');
+  const significant = pVal < 0.05;
+  const positiveEffect = treatCVR > controlCVR;
+
+  if (significant && positiveEffect) {
+    pCard.className = 'metric-card';
+    document.getElementById('abPValue').style.color = '#28a745';
+    document.getElementById('abSigLabel').textContent = '✅ Significant';
+    document.getElementById('abPowerLabel').textContent = power > 0.8 ? '✅ Adequate' : '⚠️ Underpowered';
+    document.getElementById('abDecision').className = 'alert-box alert-success';
+    document.getElementById('abDecision').innerHTML = `✅ <strong>Statistically significant improvement!</strong> The new model shows a ${((treatCVR - controlCVR)*100).toFixed(2)}pp lift (p=${pVal.toFixed(3)}). Consider deploying via canary.`;
+    document.getElementById('abDecision').style.display = 'block';
+  } else if (significant && !positiveEffect) {
+    pCard.className = 'metric-card danger';
+    document.getElementById('abPValue').style.color = '#dc3545';
+    document.getElementById('abSigLabel').textContent = '🔴 Significant (negative!)';
+    document.getElementById('abDecision').className = 'alert-box alert-danger';
+    document.getElementById('abDecision').innerHTML = `🚨 <strong>New model is significantly WORSE!</strong> Do NOT deploy. Investigate what changed.`;
+    document.getElementById('abDecision').style.display = 'block';
+  } else {
+    pCard.className = 'metric-card warning';
+    document.getElementById('abPValue').style.color = '#e6a817';
+    document.getElementById('abSigLabel').textContent = '⚪ Not significant';
+    document.getElementById('abDecision').className = 'alert-box alert-warning';
+    document.getElementById('abDecision').innerHTML = `⚠️ <strong>No significant difference detected</strong> (p=${pVal.toFixed(3)}). Either the effect is real but sample size is too small, or there's no true difference. Need ${Math.round(estimateSampleSize(baseRate, 0.02))} samples per group for 80% power to detect a 2% lift.`;
+    document.getElementById('abDecision').style.display = 'block';
+  }
+
+  // Revenue impact
+  const annualVisitors = 10000000;
+  const avgOrderValue = 85;
+  const revenueImpact = (treatCVR - controlCVR) * annualVisitors * avgOrderValue;
+  document.getElementById('abImpactNumber').textContent = (revenueImpact >= 0 ? '+' : '') + '$' + Math.round(Math.abs(revenueImpact)).toLocaleString();
+  document.getElementById('abImpactDesc').textContent = revenueImpact >= 0 ? 'Annual revenue uplift at 10M visits/year, $85 avg order' : 'Annual revenue LOSS — do not ship!';
+  document.getElementById('abImpactNumber').style.color = revenueImpact >= 0 ? '#28a745' : '#dc3545';
+  document.getElementById('abImpactBox').style.display = 'block';
+
+  markSection('s3');
+}
+
+function simulateBinomial(n, p) {
+  // Normal approximation with noise
+  const mean = n * p;
+  const std = Math.sqrt(n * p * (1 - p));
+  return Math.round(mean + std * (Math.random() - 0.5) * 2);
+}
+
+function normalCDF(z) {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989422820 * Math.exp(-z * z / 2);
+  const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.7814779 + t * (-1.8212560 + t * 1.3302744))));
+  return z > 0 ? 1 - p : p;
+}
+
+function estimateSampleSize(p, delta) {
+  return Math.ceil(2 * Math.pow(1.96 + 0.84, 2) * p * (1-p) / (delta * delta));
+}
+
+// ===== CANARY DEPLOYMENT =====
+function setCanary(pct) {
+  document.getElementById('canaryPct').textContent = pct;
+  document.getElementById('canaryOldPct').textContent = 100 - pct;
+  document.getElementById('trafficOld').style.width = (100 - pct) + '%';
+  document.getElementById('trafficNew').style.width = pct + '%';
+
+  if (pct > 0) {
+    document.getElementById('trafficNew').textContent = 'v2 (' + pct + '%)';
+    document.getElementById('trafficOld').textContent = 'v1 (' + (100-pct) + '%)';
+  } else {
+    document.getElementById('trafficOld').textContent = 'v1 (current)';
+    document.getElementById('trafficNew').textContent = '';
+  }
+
+  const alert = document.getElementById('canaryAlert');
+  const errorCard = document.getElementById('canaryErrorCard');
+  const usersEl = document.getElementById('canaryUsers');
+  const riskEl = document.getElementById('canaryRisk');
+
+  const dailyUsers = 500000;
+  const affectedUsers = Math.round(dailyUsers * pct / 100);
+  usersEl.textContent = affectedUsers.toLocaleString();
+
+  if (pct === 0) {
+    alert.className = 'alert-box alert-info';
+    alert.textContent = 'Set canary percentage to begin gradual rollout.';
+    riskEl.textContent = 'Risk: None';
+    errorCard.className = 'metric-card';
+    document.getElementById('canaryError').textContent = '0.1%';
+    document.getElementById('canaryLatency').textContent = '82ms';
+    document.getElementById('canaryCVR').textContent = '3.2%';
+  } else if (pct === 100) {
+    alert.className = 'alert-box alert-success';
+    alert.innerHTML = '✅ <strong>Full deployment complete!</strong> All traffic shifted to v2. Monitor closely for 30 minutes.';
+    riskEl.textContent = 'Risk: Full (all users)';
+    errorCard.className = 'metric-card';
+    document.getElementById('canaryError').textContent = '0.09%';
+    document.getElementById('canaryLatency').textContent = '79ms';
+    document.getElementById('canaryCVR').textContent = '3.38%';
+    document.getElementById('canaryCVRTrend').textContent = '📈 +5.6% lift!';
+  } else {
+    // Simulate slightly different metrics
+    const simErr = (0.1 + Math.random() * 0.05).toFixed(2);
+    const simLat = Math.round(82 + Math.random() * 5);
+    const simCVR = (3.2 + Math.random() * 0.1).toFixed(2);
+    document.getElementById('canaryError').textContent = simErr + '%';
+    document.getElementById('canaryLatency').textContent = simLat + 'ms';
+    document.getElementById('canaryCVR').textContent = simCVR + '%';
+    document.getElementById('canaryCVRTrend').textContent = '📊 Monitoring';
+    errorCard.className = 'metric-card';
+    riskEl.textContent = `Risk: ${pct < 5 ? 'Very Low' : pct < 25 ? 'Low' : 'Medium'}`;
+    alert.className = 'alert-box alert-info';
+    alert.innerHTML = `📊 <strong>${pct}% canary active.</strong> ${affectedUsers.toLocaleString()} users on new model. If error rate stays below 0.5% and latency below 200ms for 15 minutes, proceed to next stage.`;
+    markSection('s3');
+  }
+}
+
+// ===== MONITORING DASHBOARD =====
+let monitorHistory_accuracy = [92.1];
+let monitorHistory_psi = [0.04];
+let monitorTick = 0;
+
+function startMonitoring() {
+  if (monitorInterval) return;
+  document.getElementById('monitorStartBtn').style.display = 'none';
+  document.getElementById('monitorStopBtn').style.display = 'inline-block';
+
+  monitorInterval = setInterval(() => {
+    monitorTick++;
+    document.getElementById('monitorTime').textContent = 'T+' + monitorTick + 'h';
+
+    // Add natural variation
+    const accNoise = (Math.random() - 0.5) * 0.8;
+    const psiNoise = (Math.random() - 0.5) * 0.01;
+    const ksNoise = (Math.random() - 0.5) * 0.01;
+    const latNoise = (Math.random() - 0.5) * 10;
+
+    monitorAccuracy = Math.max(60, Math.min(99, monitorAccuracy + (driftInjected ? -0.8 : 0) + accNoise));
+    monitorPSI = Math.max(0.01, Math.min(0.8, monitorPSI + (driftInjected ? 0.03 : 0) + Math.abs(psiNoise)));
+    monitorKS = Math.max(0.01, Math.min(0.5, monitorKS + (driftInjected ? 0.02 : 0) + Math.abs(ksNoise)));
+    monitorLatency = Math.max(50, Math.min(2000, monitorLatency + (Math.random() - 0.5) * 15 + latNoise));
+
+    // History for chart
+    monitorHistory_accuracy.push(monitorAccuracy);
+    monitorHistory_psi.push(monitorPSI);
+    if (monitorHistory_accuracy.length > 24) {
+      monitorHistory_accuracy.shift();
+      monitorHistory_psi.shift();
+    }
+
+    updateMonitorUI();
+    drawMonitorChart();
+    markSection('s4');
+  }, 1200);
+}
+
+function stopMonitoring() {
+  clearInterval(monitorInterval);
+  monitorInterval = null;
+  document.getElementById('monitorStartBtn').style.display = 'inline-block';
+  document.getElementById('monitorStopBtn').style.display = 'none';
+}
+
+function injectDrift() {
+  driftInjected = true;
+  addAlertLog('🚨 DRIFT EVENT INJECTED — data distribution shift detected in feature: age_group', 'danger');
+  if (!monitorInterval) startMonitoring();
+}
+
+function updateMonitorUI() {
+  const threshAccuracy = parseFloat(document.getElementById('threshAccuracy').value);
+  const threshPSI = parseFloat(document.getElementById('threshPSI').value);
+  const threshLatency = parseFloat(document.getElementById('threshLatency').value);
+
+  // Accuracy
+  document.getElementById('mv-accuracy').textContent = monitorAccuracy.toFixed(1) + '%';
+  const accCard = document.getElementById('mc-accuracy');
+  if (monitorAccuracy < threshAccuracy) {
+    document.getElementById('mv-accuracy').style.color = '#dc3545';
+    document.getElementById('mt-accuracy').textContent = '🔴 ALERT!';
+    accCard.className = 'metric-card danger';
+    addAlertLog(`⚠️ ALERT: Accuracy ${monitorAccuracy.toFixed(1)}% < threshold ${threshAccuracy}%`, 'danger');
+  } else if (monitorAccuracy < threshAccuracy + 5) {
+    document.getElementById('mv-accuracy').style.color = '#e6a817';
+    document.getElementById('mt-accuracy').textContent = '🟡 Warning';
+    accCard.className = 'metric-card warning';
+  } else {
+    document.getElementById('mv-accuracy').style.color = '#28a745';
+    document.getElementById('mt-accuracy').textContent = '🟢 Healthy';
+    accCard.className = 'metric-card';
+  }
+
+  // PSI
+  document.getElementById('mv-psi').textContent = monitorPSI.toFixed(3);
+  const psiCard = document.getElementById('mc-psi');
+  if (monitorPSI > threshPSI) {
+    document.getElementById('mv-psi').style.color = '#dc3545';
+    document.getElementById('mt-psi').textContent = '🔴 Drift!';
+    psiCard.className = 'metric-card danger';
+    addAlertLog(`⚠️ ALERT: PSI ${monitorPSI.toFixed(3)} > threshold ${threshPSI} — significant data drift!`, 'danger');
+  } else if (monitorPSI > 0.1) {
+    document.getElementById('mv-psi').style.color = '#e6a817';
+    document.getElementById('mt-psi').textContent = '🟡 Moderate drift';
+    psiCard.className = 'metric-card warning';
+  } else {
+    document.getElementById('mv-psi').style.color = '#28a745';
+    document.getElementById('mt-psi').textContent = '🟢 No drift';
+    psiCard.className = 'metric-card';
+  }
+
+  // KS
+  document.getElementById('mv-ks').textContent = monitorKS.toFixed(3);
+
+  // Latency
+  document.getElementById('mv-latency').textContent = Math.round(monitorLatency) + 'ms';
+  const latCard = document.getElementById('mc-latency');
+  if (monitorLatency > threshLatency) {
+    document.getElementById('mv-latency').style.color = '#dc3545';
+    document.getElementById('mt-latency').textContent = '🔴 Slow!';
+    latCard.className = 'metric-card danger';
+  } else if (monitorLatency > threshLatency * 0.7) {
+    document.getElementById('mv-latency').style.color = '#e6a817';
+    document.getElementById('mt-latency').textContent = '🟡 Elevated';
+    latCard.className = 'metric-card warning';
+  } else {
+    document.getElementById('mv-latency').style.color = '#28a745';
+    document.getElementById('mt-latency').textContent = '🟢 Normal';
+    latCard.className = 'metric-card';
+  }
+}
+
+let lastAlertMsg = '';
+function addAlertLog(msg, type) {
+  if (msg === lastAlertMsg) return;
+  lastAlertMsg = msg;
+  const log = document.getElementById('alertLog');
+  const div = document.createElement('div');
+  div.style.color = type === 'danger' ? '#e06c75' : type === 'warning' ? '#e5c07b' : '#98c379';
+  div.textContent = `[T+${monitorTick}h] ${msg}`;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function drawMonitorChart() {
+  const canvas = document.getElementById('monitorChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.fillStyle = '#fafafa';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#e1e4e8';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 3; i++) {
+    const y = 15 + (H - 30) * i / 3;
+    ctx.beginPath(); ctx.moveTo(45, y); ctx.lineTo(W-10, y); ctx.stroke();
+  }
+
+  const pts = monitorHistory_accuracy;
+  if (pts.length < 2) return;
+
+  // Accuracy line
+  ctx.beginPath();
+  ctx.strokeStyle = '#0366d6';
+  ctx.lineWidth = 2;
+  pts.forEach((v, i) => {
+    const x = 45 + (W - 55) * i / (pts.length - 1);
+    const y = H - 15 - (H - 30) * ((v - 60) / 40);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Threshold line
+  const threshAccuracy = parseFloat(document.getElementById('threshAccuracy').value);
+  const ty = H - 15 - (H - 30) * ((threshAccuracy - 60) / 40);
+  ctx.beginPath();
+  ctx.strokeStyle = '#dc3545';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([5, 5]);
+  ctx.moveTo(45, ty); ctx.lineTo(W-10, ty);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle = '#0366d6';
+  ctx.font = '11px Arial';
+  ctx.fillText('Accuracy', 48, 22);
+  ctx.fillStyle = '#dc3545';
+  ctx.fillText('Alert', W - 40, ty - 3);
+
+  ctx.fillStyle = '#888';
+  ctx.textAlign = 'right';
+  ctx.fillText('100%', 43, 18);
+  ctx.fillText('60%', 43, H - 12);
+}
+
+// ===== INCIDENT RESPONSE =====
+let irCurrent = 0;
+const irMessages = [
+  null,
+  '🔍 <strong>Step 1: Detect.</strong> PagerDuty fires at 3:07 AM. Accuracy dashboard shows 92% → 61%. PSI = 0.31 on the <em>age_group</em> feature. Response time clock starts now.',
+  '🩺 <strong>Step 2: Diagnose.</strong> Feature distribution comparison shows <em>age_group=18-24</em> spiked from 12% → 34% of traffic. A viral TikTok campaign drove unexpected new users. The model was trained on 25-45 demographics.',
+  '🛠 <strong>Step 3: Mitigate.</strong> Decision: Rollback to v2.1 (3 days old, last known-good). Model serving shifted in 4 minutes. Accuracy recovered to 89% within 6 minutes of incident start.',
+  '✅ <strong>Step 4: Verify.</strong> Accuracy at 89.3% (within 3% of baseline). Error rate back to 0.1%. Monitoring dashboards green. Incident classified as: resolved. Duration: 14 minutes.',
+  '📝 <strong>Step 5: Postmortem.</strong> Root cause: model not trained on 18-24 demographic. Missing: demographic-stratified monitoring alerts. Prevention: add age_group PSI alert + retrain quarterly with diverse demographic mix. Timeline published within 24 hours.'
+];
+
+function advanceIR() {
+  if (irCurrent >= 5) return;
+  irCurrent++;
+
+  const steps = ['ir1','ir2','ir3','ir4','ir5'];
+  steps.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (i < irCurrent) el.className = 'flowchart-step done';
+    else if (i === irCurrent) el.className = 'flowchart-step active';
+    else el.className = 'flowchart-step';
+  });
+
+  const fb = document.getElementById('irFeedback');
+  fb.style.display = 'block';
+  fb.className = 'alert-box alert-success';
+  fb.innerHTML = irMessages[irCurrent];
+
+  if (irCurrent === 5) {
+    document.getElementById('irBtn').textContent = '✅ Incident Resolved!';
+    document.getElementById('irBtn').disabled = true;
+    document.getElementById('irBtn').className = 'button success';
+    markSection('s4');
+  }
+}
+
+// ===== ROLLBACK SIMULATOR =====
+const rbSteps = [
+  null,
+  {
+    log: '<span style="color:#e06c75;">[T+0:00] 🚨 ALERT: Model v2.3 accuracy dropped from 92% → 47%. Error rate: 89.3%. Revenue impact: -$833/min. Incident confirmed.</span>',
+    acc: '47%', accColor: '#dc3545', accClass: 'danger', accTrend: '🔴 CRITICAL',
+    err: '89.3%', errColor: '#dc3545', errClass: 'danger', errTrend: '🔴 CRITICAL',
+    ver: 'v2.3 💀', verTrend: 'BROKEN — needs rollback',
+    rev: '-$833/min', revTrend: 'Active revenue loss',
+    btn2: true
+  },
+  {
+    log: '<span style="color:#e5c07b;">[T+0:02] ✔️ Rollback target confirmed: v2.1 (deployed 3 days ago, accuracy 92.4% ✅). Last known-good. Initiating rollback procedure...</span>',
+    btn3: true
+  },
+  {
+    log: '<span style="color:#61dafb;">[T+0:04] ⏪ Switching traffic: v2.3 → v2.1. Container swap in progress... Done. 100% traffic now on v2.1.</span>',
+    acc: '91.8%', accColor: '#e6a817', accClass: 'warning', accTrend: '🟡 Recovering',
+    err: '1.2%', errColor: '#e6a817', errClass: 'warning', errTrend: '🟡 Recovering',
+    ver: 'v2.1 ⏪', verTrend: 'Rollback complete',
+    rev: '-$3,332', revTrend: '4 minutes of loss',
+    btn4: true
+  },
+  {
+    log: '<span style="color:#98c379;">[T+0:08] ✅ RECOVERY CONFIRMED. Accuracy: 92.1%. Error rate: 0.1%. Revenue flow restored. Total loss: $6,664 (8 min × $833/min). Without rollback plan: est. 4hr loss = $200K+.</span>',
+    acc: '92.1%', accColor: '#28a745', accClass: '', accTrend: '🟢 Recovered',
+    err: '0.1%', errColor: '#28a745', errClass: '', errTrend: '🟢 Normal',
+    ver: 'v2.1 ✅', verTrend: 'Stable — schedule fix',
+    rev: '-$6,664', revTrend: 'Saved vs. $200K+ no-action',
+  }
+];
+
+function rollbackStep(n) {
+  if (n !== rollbackStep_current + 1) return;
+  rollbackStep_current = n;
+  const step = rbSteps[n];
+
+  const log = document.getElementById('rollbackLog');
+  log.innerHTML += '\n' + step.log;
+
+  if (step.acc) {
+    document.getElementById('rbAcc').textContent = step.acc;
+    document.getElementById('rbAcc').style.color = step.accColor;
+    document.getElementById('rbAccTrend').textContent = step.accTrend;
+    document.getElementById('rbAccCard').className = 'metric-card ' + (step.accClass || '');
+    document.getElementById('rbErr').textContent = step.err;
+    document.getElementById('rbErr').style.color = step.errColor;
+    document.getElementById('rbErrTrend').textContent = step.errTrend;
+    document.getElementById('rbErrCard').className = 'metric-card ' + (step.errClass || '');
+    document.getElementById('rbVersion').textContent = step.ver;
+    document.getElementById('rbVerTrend').textContent = step.verTrend;
+    document.getElementById('rbRevLoss').textContent = step.rev;
+    document.getElementById('rbRevTrend').textContent = step.revTrend;
+  }
+
+  if (step.btn2) { document.getElementById('rb2').disabled = false; document.getElementById('rb2').className = 'button warning'; }
+  if (step.btn3) { document.getElementById('rb3').disabled = false; document.getElementById('rb3').className = 'button danger'; }
+  if (step.btn4) { document.getElementById('rb4').disabled = false; document.getElementById('rb4').className = 'button success'; }
+
+  if (n === 4) {
+    document.getElementById('rb1').className = 'button secondary small';
+    markSection('s5');
+    setTimeout(updateFinalScore, 100);
+  }
+}
+
+function resetRollback() {
+  rollbackStep_current = 0;
+  document.getElementById('rollbackLog').innerHTML = '<span style="color:#abb2bf;">[MLOps Dashboard]</span> System nominal. Model v2.3 serving 100% traffic.';
+  document.getElementById('rbAcc').textContent = '92.1%';
+  document.getElementById('rbAcc').style.color = '#28a745';
+  document.getElementById('rbAccTrend').textContent = '🟢 Normal';
+  document.getElementById('rbAccCard').className = 'metric-card';
+  document.getElementById('rbErr').textContent = '0.1%';
+  document.getElementById('rbErr').style.color = '#28a745';
+  document.getElementById('rbErrTrend').textContent = '🟢 Normal';
+  document.getElementById('rbErrCard').className = 'metric-card';
+  document.getElementById('rbVersion').textContent = 'v2.3';
+  document.getElementById('rbVerTrend').textContent = 'Current deployment';
+  document.getElementById('rbRevLoss').textContent = '$0';
+  document.getElementById('rbRevTrend').textContent = 'Saved vs. no-action';
+  ['rb1','rb2','rb3','rb4'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    el.disabled = i > 0;
+    el.className = i === 0 ? 'button danger' : 'button secondary';
+  });
+}
+
+// ===== DECISION TREE =====
+function toggleDT(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ===== INIT =====
+window.addEventListener('load', () => {
+  updateLatencySimulator();
+  runABTest();
+  drawMonitorChart();
+  // Mark section 1 as active
+  document.getElementById('step1').className = 'story-step active';
+});
+
+// Auto-mark sections as user scrolls
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      if (id && ['s1','s2','s3','s4','s5'].includes(id)) {
+        const idx = parseInt(id[1]);
+        // Mark current as active
+        ['step1','step2','step3','step4','step5'].forEach((s,i) => {
+          if (!stepsCompleted.has('s'+(i+1))) {
+            document.getElementById(s).className = i === idx-1 ? 'story-step active' : 'story-step';
+          }
+        });
+      }
+    }
+  });
+}, { threshold: 0.2 });
+
+['s1','s2','s3','s4','s5'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) observer.observe(el);
+});
+</script>
+</body>
+</html>

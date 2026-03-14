@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Framework 2: ML Pipeline Engineering | ML Course 2</title>
+<style>
+/* ===== BASE ===== */
+body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 980px; margin: auto; padding: 2rem; line-height: 1.7; }
+nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 200; border-bottom: 2px solid #e1e4e8; }
+nav a { margin: 0 12px; text-decoration: none; color: #0366d6; font-weight: bold; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 0.95em; }
+nav a:hover { text-decoration: underline; }
+h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+h1 { font-size: 2em; border-bottom: 3px solid #003366; padding-bottom: 0.4em; }
+h2 { font-size: 1.5em; margin-top: 2em; }
+h3 { font-size: 1.2em; color: #1a4a8a; }
+p { margin: 0.8em 0; }
+code { background: #f0f0f0; padding: 0.1em 0.4em; border-radius: 3px; font-family: Consolas, monospace; font-size: 0.9em; }
+pre { background: #282c34; color: #abb2bf; padding: 1.2em; border-radius: 8px; overflow-x: auto; font-size: 0.9em; }
+
+/* ===== CARD ===== */
+.card { background: #fff; padding: 1.4em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+
+/* ===== INTERACTIVE SECTION ===== */
+.interactive-section { background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); padding: 2em; margin: 2em 0; border-radius: 12px; border: 1px solid #d0d7de; }
+.interactive-section h3 { margin-top: 0; }
+
+/* ===== BUTTONS ===== */
+.button { display: inline-block; padding: 0.7em 1.4em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; transition: all 0.3s ease; margin: 0.4em 0.4em 0.4em 0; font-weight: bold; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
+.button.secondary { background: #6c757d; }
+.button.secondary:hover { background: #5a6268; }
+.button.success { background: #28a745; }
+.button.success:hover { background: #218838; }
+.button.warning { background: #ffc107; color: #212529; }
+.button.danger { background: #dc3545; }
+.button.sm { padding: 0.4em 0.9em; font-size: 0.85em; }
+
+/* ===== PROGRESS / STORY STEPS ===== */
+.story-progress { display: flex; justify-content: space-between; margin: 2em 0 3em; position: relative; }
+.story-progress::before { content: ""; position: absolute; top: 20px; left: 0; right: 0; height: 3px; background: #e1e4e8; z-index: 0; }
+.story-progress-fill { position: absolute; top: 20px; left: 0; height: 3px; background: linear-gradient(90deg, #0366d6, #667eea); z-index: 0; transition: width 0.8s ease; }
+.story-step { background: white; border: 3px solid #e1e4e8; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; z-index: 1; cursor: pointer; transition: all 0.3s ease; font-family: Arial, sans-serif; font-size: 0.9em; flex-direction: column; }
+.story-step .step-label { position: absolute; top: 52px; font-size: 0.65em; color: #555; width: 70px; text-align: center; left: 50%; transform: translateX(-50%); font-weight: normal; line-height: 1.2; }
+.story-step.completed { background: #28a745; color: white; border-color: #28a745; }
+.story-step.active { background: #0366d6; color: white; border-color: #0366d6; transform: scale(1.2); box-shadow: 0 4px 12px rgba(3,102,214,0.4); }
+.story-step:hover:not(.active) { border-color: #0366d6; transform: scale(1.05); }
+
+/* ===== PROGRESS BAR ===== */
+.progress-bar { height: 28px; background: #e9ecef; border-radius: 14px; margin: 1.5em 0; overflow: hidden; position: relative; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #0366d6 0%, #667eea 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85em; transition: width 1s ease; position: relative; overflow: hidden; }
+.progress-fill::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: shimmer 2s infinite; }
+@keyframes shimmer { to { left: 100%; } }
+
+/* ===== IMPACT DISPLAY ===== */
+.impact-display { background: linear-gradient(135deg, #dc354510 0%, #fd7e1410 100%); border: 2px solid #dc3545; border-radius: 12px; padding: 1.8em; margin: 1.5em 0; text-align: center; }
+.impact-number { font-size: 3.2em; font-weight: bold; color: #dc3545; margin: 0.1em 0; font-family: Arial, sans-serif; }
+.impact-description { color: #555; font-size: 1.05em; }
+.impact-display.success-impact { background: linear-gradient(135deg, #28a74510 0%, #20c99710 100%); border-color: #28a745; }
+.impact-display.success-impact .impact-number { color: #28a745; }
+
+/* ===== QUIZ ===== */
+.quiz-card { background: linear-gradient(135deg, #fff 0%, #f0f7ff 100%); border: 2px solid #0366d6; border-radius: 12px; padding: 1.8em; margin: 2em 0; position: relative; overflow: hidden; }
+.quiz-card::before { content: "?"; position: absolute; top: -15px; right: -10px; font-size: 110px; color: rgba(3,102,214,0.06); font-weight: bold; pointer-events: none; }
+.quiz-card h4 { margin-top: 0; color: #003366; font-size: 1.05em; }
+.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin: 1em 0; }
+@media (max-width: 600px) { .answer-options { grid-template-columns: 1fr; } }
+.answer-option { padding: 0.9em 1em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.25s ease; text-align: left; font-size: 0.9em; font-family: Georgia, serif; }
+.answer-option:hover { border-color: #0366d6; background: #f0f7ff; }
+.answer-option.correct { background: #d4edda; border-color: #28a745 !important; }
+.answer-option.incorrect { background: #f8d7da; border-color: #dc3545 !important; }
+.answer-option.disabled { pointer-events: none; }
+.feedback-panel { border-left: 5px solid #0366d6; padding: 1em 1.2em; margin-top: 1em; border-radius: 6px; background: white; display: none; animation: slideIn 0.4s ease; }
+.feedback-panel.show { display: block; }
+.feedback-panel.correct-fb { border-left-color: #28a745; background: #f0fff4; }
+.feedback-panel.incorrect-fb { border-left-color: #dc3545; background: #fff5f5; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ===== MULTI-SELECT QUIZ (Jupyter problems) ===== */
+.checkbox-option { padding: 0.8em 1em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.25s ease; margin: 0.4em 0; display: flex; align-items: center; gap: 0.7em; font-size: 0.9em; }
+.checkbox-option:hover { border-color: #0366d6; background: #f0f7ff; }
+.checkbox-option.selected { background: #e7f3ff; border-color: #0366d6; }
+.checkbox-option.correct-sel { background: #d4edda; border-color: #28a745; }
+.checkbox-option.missed { background: #fff3cd; border-color: #ffc107; }
+.checkbox-option.wrong-sel { background: #f8d7da; border-color: #dc3545; }
+.checkbox-icon { width: 18px; height: 18px; border: 2px solid #aaa; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.8em; flex-shrink: 0; }
+
+/* ===== NOTEBOOK MOCK ===== */
+.notebook-mock { background: #fff; border: 1px solid #d0d7de; border-radius: 8px; font-family: Consolas, monospace; font-size: 0.82em; margin: 1em 0; max-height: 340px; overflow-y: auto; }
+.nb-toolbar { background: #f5f5f5; padding: 0.5em 1em; border-bottom: 1px solid #e1e4e8; display: flex; gap: 0.5em; align-items: center; font-family: Arial, sans-serif; font-size: 0.85em; color: #555; }
+.nb-cell { border-bottom: 1px solid #f0f0f0; padding: 0.4em 0.6em; display: flex; gap: 0.6em; cursor: pointer; transition: background 0.2s; }
+.nb-cell:hover { background: #f9f9f9; }
+.nb-cell.problem { background: #fff5f5; }
+.nb-cell.problem:hover { background: #ffe8e8; }
+.nb-exec { color: #888; min-width: 55px; font-size: 0.8em; padding-top: 0.15em; }
+.nb-exec.out-of-order { color: #dc3545; font-weight: bold; }
+.nb-code { flex: 1; white-space: pre-wrap; color: #333; }
+.nb-code .kw { color: #569cd6; }
+.nb-code .str { color: #ce9178; }
+.nb-code .fn { color: #dcdcaa; }
+.nb-code .cm { color: #6a9955; }
+.nb-badge { font-size: 0.7em; padding: 0.15em 0.5em; border-radius: 10px; font-family: Arial, sans-serif; margin-left: 0.3em; }
+.badge-warn { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+.badge-err { background: #f8d7da; color: #721c24; border: 1px solid #dc3545; }
+
+/* ===== DAG BUILDER ===== */
+.dag-container { background: white; border: 2px solid #e1e4e8; border-radius: 12px; padding: 1.5em; margin: 1.5em 0; }
+.dag-canvas { position: relative; height: 320px; background: #fafbfc; border: 1px solid #e1e4e8; border-radius: 8px; overflow: hidden; }
+.dag-node { position: absolute; padding: 0.5em 0.9em; border-radius: 8px; font-size: 0.8em; font-family: Arial, sans-serif; font-weight: bold; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; user-select: none; text-align: center; }
+.dag-node:hover { transform: scale(1.08); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.dag-node.active { transform: scale(1.1); box-shadow: 0 4px 16px rgba(3,102,214,0.4); border-color: #0366d6; }
+.dag-node.n-extract { background: #dbeafe; color: #1e40af; }
+.dag-node.n-validate { background: #fce7f3; color: #9d174d; }
+.dag-node.n-transform { background: #d1fae5; color: #065f46; }
+.dag-node.n-load { background: #fef3c7; color: #92400e; }
+.dag-node.n-train { background: #ede9fe; color: #4c1d95; }
+.dag-node.n-evaluate { background: #fee2e2; color: #991b1b; }
+.dag-node.n-deploy { background: #d1fae5; color: #065f46; border: 2px dashed #28a745; }
+.dag-info-panel { background: #f8f9fa; border-radius: 8px; padding: 1em; margin-top: 1em; min-height: 60px; font-size: 0.88em; }
+.dag-legend { display: flex; flex-wrap: wrap; gap: 0.6em; margin-top: 0.8em; font-size: 0.78em; font-family: Arial, sans-serif; }
+.legend-item { display: flex; align-items: center; gap: 0.3em; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* ===== FEATURE ENGINEERING ===== */
+.fe-pipeline { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5em; margin: 1em 0; }
+.fe-stage { background: white; border: 2px solid #e1e4e8; border-radius: 8px; padding: 0.7em 1em; font-size: 0.85em; font-family: Arial, sans-serif; text-align: center; min-width: 90px; transition: all 0.3s; }
+.fe-stage.active { border-color: #0366d6; background: #e7f3ff; box-shadow: 0 2px 8px rgba(3,102,214,0.2); }
+.fe-stage.done { border-color: #28a745; background: #d4edda; }
+.fe-arrow { color: #888; font-size: 1.2em; }
+.fe-data-table { font-family: Consolas, monospace; font-size: 0.82em; border-collapse: collapse; width: 100%; margin: 0.8em 0; }
+.fe-data-table th { background: #003366; color: white; padding: 0.4em 0.8em; text-align: left; }
+.fe-data-table td { padding: 0.3em 0.8em; border-bottom: 1px solid #f0f0f0; }
+.fe-data-table tr:hover td { background: #f5f5f5; }
+.fe-data-table td.new-col { background: #d4edda; color: #155724; font-weight: bold; }
+.perf-meter { background: #e9ecef; border-radius: 6px; height: 20px; margin: 0.3em 0; overflow: hidden; }
+.perf-bar { height: 100%; background: linear-gradient(90deg, #0366d6, #28a745); border-radius: 6px; transition: width 0.8s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.75em; color: white; font-weight: bold; }
+
+/* ===== DRIFT VISUALIZATION ===== */
+.drift-chart { width: 100%; height: 260px; position: relative; background: white; border: 1px solid #e1e4e8; border-radius: 8px; overflow: hidden; }
+.drift-chart svg { width: 100%; height: 100%; }
+.retrain-marker { position: absolute; top: 0; bottom: 0; width: 3px; background: #28a745; opacity: 0; transition: opacity 0.4s; }
+.retrain-marker.show { opacity: 1; }
+.drift-controls { display: flex; gap: 1em; flex-wrap: wrap; align-items: center; margin: 0.8em 0; }
+
+/* ===== CODE EDITOR ===== */
+.code-editor { background: #282c34; border-radius: 10px; padding: 1em; margin: 1.5em 0; position: relative; }
+.code-editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8em; color: #888; font-family: Arial, sans-serif; font-size: 0.8em; }
+.code-editor-header .dots { display: flex; gap: 6px; }
+.code-editor-header .dot { width: 12px; height: 12px; border-radius: 50%; }
+.code-input { width: 100%; min-height: 160px; background: transparent; color: #abb2bf; border: none; font-family: Consolas, 'Courier New', monospace; font-size: 0.88em; resize: vertical; outline: none; line-height: 1.6; box-sizing: border-box; }
+.code-output { background: #1e1e1e; color: #d4d4d4; padding: 1em; border-radius: 8px; margin-top: 0.8em; font-family: Consolas, monospace; font-size: 0.85em; display: none; line-height: 1.5; }
+.code-output.show { display: block; animation: slideIn 0.3s ease; }
+.output-success { color: #4ec9b0; }
+.output-error { color: #f44747; }
+.output-info { color: #9cdcfe; }
+.run-btn { background: #61dafb; color: #282c34; border: none; padding: 0.4em 1em; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.82em; font-family: Arial, sans-serif; }
+.run-btn:hover { background: #4ec9fb; }
+
+/* ===== TEST PYRAMID ===== */
+.test-pyramid { text-align: center; margin: 1.5em 0; }
+.pyramid-layer { margin: 2px auto; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-family: Arial, sans-serif; font-size: 0.85em; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+.pyramid-layer:hover { transform: scaleX(1.03); box-shadow: 0 3px 10px rgba(0,0,0,0.2); }
+.pyramid-layer.p-e2e { background: linear-gradient(90deg, #dc3545, #e25563); height: 60px; width: 30%; }
+.pyramid-layer.p-int { background: linear-gradient(90deg, #ffc107, #ffcc30); height: 60px; width: 55%; color: #333; }
+.pyramid-layer.p-unit { background: linear-gradient(90deg, #28a745, #34c459); height: 60px; width: 80%; }
+.pyramid-detail { background: #f8f9fa; border-radius: 8px; padding: 1em; margin-top: 1em; min-height: 80px; text-align: left; font-size: 0.88em; border-left: 4px solid #0366d6; display: none; }
+.pyramid-detail.show { display: block; animation: slideIn 0.3s ease; }
+
+/* ===== SLIDER ===== */
+.slider-container { margin: 1em 0; }
+.slider-container label { display: block; margin-bottom: 0.4em; font-size: 0.9em; color: #333; }
+input[type=range] { width: 100%; -webkit-appearance: none; height: 8px; border-radius: 4px; background: #e1e4e8; outline: none; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #0366d6; cursor: pointer; transition: all 0.2s; }
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 0 8px rgba(3,102,214,0.5); }
+input[type=range]:hover { background: #d0d7de; }
+
+/* ===== MISC ===== */
+.tag { display: inline-block; padding: 0.2em 0.6em; border-radius: 12px; font-size: 0.78em; font-family: Arial, sans-serif; margin: 0 0.2em; }
+.tag-blue { background: #dbeafe; color: #1e40af; }
+.tag-green { background: #d1fae5; color: #065f46; }
+.tag-red { background: #fee2e2; color: #991b1b; }
+.tag-yellow { background: #fef3c7; color: #92400e; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }
+@media (max-width: 650px) { .two-col { grid-template-columns: 1fr; } }
+.score-badge { display: inline-block; background: #0366d6; color: white; border-radius: 20px; padding: 0.2em 0.8em; font-weight: bold; font-family: Arial, sans-serif; font-size: 0.9em; }
+.alert { padding: 1em 1.2em; border-radius: 8px; margin: 1em 0; font-size: 0.92em; }
+.alert-info { background: #d0e8ff; border-left: 4px solid #0366d6; color: #003366; }
+.alert-warning { background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; }
+.alert-success { background: #d4edda; border-left: 4px solid #28a745; color: #155724; }
+.section-header { display: flex; align-items: center; gap: 0.8em; margin-bottom: 0.5em; }
+.section-num { background: #003366; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: Arial, sans-serif; font-size: 1em; flex-shrink: 0; }
+hr { border: none; border-top: 2px solid #e1e4e8; margin: 2.5em 0; }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <a href="framework1_system_architecture.html">← System Architecture</a>
+  <a href="index.html">🏠 Course Home</a>
+  <a href="framework3_mlops_deployment.html">Next: MLOps →</a>
+  <a href="../teaching.html">Teaching Home</a>
+</nav>
+
+<!-- Header -->
+<h1>⚙️ Framework 2: ML Pipeline Engineering</h1>
+<p style="color:#555; font-size:1.05em; font-style:italic;">From Jupyter notebooks to production-grade ML systems that actually run.</p>
+
+<!-- Progress Tracker -->
+<div class="card">
+  <h3 style="margin-top:0">📍 Your Progress</h3>
+  <div class="story-progress" id="storyProgress">
+    <div id="fill-bar" class="story-progress-fill" style="width:0%"></div>
+    <div class="story-step active" id="step1" onclick="goToSection(1)">1<span class="step-label">Jupyter Gap</span></div>
+    <div class="story-step" id="step2" onclick="goToSection(2)">2<span class="step-label">Orchestration</span></div>
+    <div class="story-step" id="step3" onclick="goToSection(3)">3<span class="step-label">Feature Eng.</span></div>
+    <div class="story-step" id="step4" onclick="goToSection(4)">4<span class="step-label">Retraining</span></div>
+    <div class="story-step" id="step5" onclick="goToSection(5)">5<span class="step-label">Testing</span></div>
+  </div>
+  <div style="display:flex; align-items:center; gap:1em; flex-wrap:wrap;">
+    <span>Quiz Score: <span class="score-badge" id="scoreDisplay">0 / 0</span></span>
+    <span style="color:#888; font-size:0.85em;">Complete each section to advance your progress</span>
+  </div>
+</div>
+
+<!-- Opening Hook -->
+<div class="card" style="border-left: 5px solid #dc3545; background: linear-gradient(135deg, #fff5f5, #fff);">
+  <h2 style="margin-top:0; color:#dc3545;">🚨 The Scenario</h2>
+  <p style="font-size:1.1em; line-height:1.8;">
+    <em>"A data scientist at your company built a model in Jupyter that achieves <strong>95% accuracy</strong>.
+    'Ship it!' says the VP of Product. You know this won't end well. Here's why — and how to fix it."</em>
+  </p>
+  <div class="two-col">
+    <div class="impact-display">
+      <div class="impact-number">83%</div>
+      <div class="impact-description">of ML projects <strong>never reach production</strong><br><small>— Gartner Research</small></div>
+    </div>
+    <div class="impact-display success-impact">
+      <div class="impact-number">17%</div>
+      <div class="impact-description">of models actually deployed<br>use <strong>engineered pipelines</strong></div>
+    </div>
+  </div>
+  <div class="alert alert-warning">
+    <strong>The core problem:</strong> A Jupyter notebook is a great exploration tool, but it is not a production system.
+    This framework teaches you how to build the infrastructure that bridges the gap.
+  </div>
+</div>
+
+<hr>
+
+<!-- ===== SECTION 1: JUPYTER GAP ===== -->
+<section id="section1">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <h2 style="margin:0">The Jupyter-to-Production Gap</h2>
+  </div>
+
+  <p>Jupyter notebooks are <em>fantastic</em> for exploration. They're terrible for production. Here's an actual notebook from a real project — can you spot what's wrong?</p>
+
+  <!-- Notebook Mock -->
+  <div class="interactive-section">
+    <h3>🔍 Diagnose This Notebook</h3>
+    <p style="font-size:0.9em; color:#555;">This notebook achieved 95% accuracy. Click any cell to inspect it. Find the 5 production problems hidden inside.</p>
+
+    <div class="notebook-mock" id="notebookMock">
+      <div class="nb-toolbar">
+        <span>📓</span> <strong>churn_model_FINAL_v3_USE_THIS.ipynb</strong>
+        <span style="margin-left:auto">47 cells | Python 3.8</span>
+      </div>
+      <!-- Cells -->
+      <div class="nb-cell" onclick="inspectCell(this,'Cell 1: Normal import','Standard imports — looks fine.')">
+        <div class="nb-exec">[1]:</div>
+        <div class="nb-code"><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np</div>
+      </div>
+      <div class="nb-cell problem" onclick="inspectCell(this,'⚠️ Hardcoded Path!','DATA_PATH is hardcoded to a local machine path. It will break on any other machine or in any deployment environment.')">
+        <div class="nb-exec nb-out-of-order">[7]:</div>
+        <div class="nb-code">DATA_PATH = <span class="str">"/Users/john/Desktop/data_march.csv"</span> <span class="nb-badge badge-err">PROBLEM 1</span>
+df = pd.<span class="fn">read_csv</span>(DATA_PATH)</div>
+      </div>
+      <div class="nb-cell" onclick="inspectCell(this,'Cell 3: EDA','Exploratory analysis — fine for notebooks.')">
+        <div class="nb-exec">[2]:</div>
+        <div class="nb-code">df.<span class="fn">head</span>()  <span class="cm"># Quick check</span></div>
+      </div>
+      <div class="nb-cell problem" onclick="inspectCell(this,'⚠️ Out-of-Order Execution!','Cell execution numbers jump from [2] to [15]. This means cells were run out of order. The state of variables depends on which cells ran, and in what order — this is non-reproducible.')">
+        <div class="nb-exec nb-out-of-order">[15]:</div>
+        <div class="nb-code">df[<span class="str">'age_group'</span>] = pd.<span class="fn">cut</span>(df[<span class="str">'age'</span>], bins=[<span class="str">0,25,45,65,100</span>]) <span class="nb-badge badge-err">PROBLEM 2</span></div>
+      </div>
+      <div class="nb-cell" onclick="inspectCell(this,'Cell 5: Feature engineering','Feature engineering — logic looks reasonable.')">
+        <div class="nb-exec">[16]:</div>
+        <div class="nb-code">df[<span class="str">'clv'</span>] = df[<span class="str">'revenue'</span>] * df[<span class="str">'tenure_months'</span>]</div>
+      </div>
+      <div class="nb-cell problem" onclick="inspectCell(this,'⚠️ Data Leakage via Global State!','The scaler is fit on the entire dataset before splitting. When train_test_split runs, test data has already influenced the scaler — this inflates your 95% accuracy significantly.')">
+        <div class="nb-exec nb-out-of-order">[3]:</div>
+        <div class="nb-code"><span class="cm"># Normalize features</span> <span class="nb-badge badge-err">PROBLEM 3</span>
+scaler = <span class="fn">StandardScaler</span>()
+df_scaled = scaler.<span class="fn">fit_transform</span>(df[features])  <span class="cm"># LEAKS test data!</span></div>
+      </div>
+      <div class="nb-cell" onclick="inspectCell(this,'Cell 7: Split','Train/test split.')">
+        <div class="nb-exec">[4]:</div>
+        <div class="nb-code">X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(df_scaled, df[<span class="str">'churn'</span>])</div>
+      </div>
+      <div class="nb-cell" onclick="inspectCell(this,'Cell 8: Model training','Training the model.')">
+        <div class="nb-exec">[5]:</div>
+        <div class="nb-code">model = <span class="fn">RandomForestClassifier</span>(n_estimators=<span class="str">100</span>)
+model.<span class="fn">fit</span>(X_train, y_train)</div>
+      </div>
+      <div class="nb-cell problem" onclick="inspectCell(this,'⚠️ No Model Versioning!','The model is pickled with a date stamp but no version tracking, no metadata, no input schema validation. How do you know which version is in production? How do you roll back?')">
+        <div class="nb-exec">[6]:</div>
+        <div class="nb-code"><span class="kw">import</span> pickle <span class="nb-badge badge-err">PROBLEM 4</span>
+pickle.<span class="fn">dump</span>(model, <span class="fn">open</span>(<span class="str">"model_2024_03_14.pkl"</span>,<span class="str">"wb"</span>))</div>
+      </div>
+      <div class="nb-cell problem" onclick="inspectCell(this,'⚠️ No Error Handling / Reproducibility!','Random seed is not set. The model will produce different results every time it runs. No logging, no error handling, no data validation — if new data has missing values or schema changes, the pipeline silently fails.')">
+        <div class="nb-exec nb-out-of-order">[42]:</div>
+        <div class="nb-code"><span class="cm"># TODO: add error handling later</span> <span class="nb-badge badge-err">PROBLEM 5</span>
+print(<span class="str">"Accuracy:"</span>, model.<span class="fn">score</span>(X_test, y_test))</div>
+      </div>
+      <div class="nb-cell" style="text-align:center; padding:0.8em; color:#888; font-style:italic; font-size:0.8em;">
+        ... 36 more cells ...
+      </div>
+    </div>
+    <div id="cellInspect" class="feedback-panel" style="border-left-color:#856404; background:#fffbeb;"></div>
+    <p style="font-size:0.85em; color:#888; margin-top:0.5em;">💡 Click on highlighted cells (marked PROBLEM) to identify the issues.</p>
+  </div>
+
+  <!-- Quiz 1: Jupyter Problems -->
+  <div class="quiz-card" id="quiz1">
+    <h4>🧠 Quiz 1: What's Wrong With This Notebook?</h4>
+    <p style="font-size:0.9em; color:#555;">Select <strong>all 5 production problems</strong> you found. Check each one that applies:</p>
+    <div id="q1Options">
+      <div class="checkbox-option" onclick="toggleCheck(this,'q1-1')" data-id="q1-1" data-correct="true">
+        <div class="checkbox-icon" id="cb-q1-1">✓</div>
+        <span>Hardcoded file paths (<code>/Users/john/Desktop/...</code>)</span>
+      </div>
+      <div class="checkbox-option" onclick="toggleCheck(this,'q1-2')" data-id="q1-2" data-correct="true">
+        <div class="checkbox-icon" id="cb-q1-2"></div>
+        <span>Non-sequential cell execution order (out-of-order run numbers)</span>
+      </div>
+      <div class="checkbox-option" onclick="toggleCheck(this,'q1-3')" data-id="q1-3" data-correct="false">
+        <div class="checkbox-icon" id="cb-q1-3"></div>
+        <span>Using Random Forest instead of XGBoost</span>
+      </div>
+      <div class="checkbox-option" onclick="toggleCheck(this,'q1-4')" data-id="q1-4" data-correct="true">
+        <div class="checkbox-icon" id="cb-q1-4"></div>
+        <span>Data leakage: scaler fit on full dataset before train/test split</span>
+      </div>
+      <div class="checkbox-option" onclick="toggleCheck(this,'q1-5')" data-id="q1-5" data-correct="false">
+        <div class="checkbox-icon" id="cb-q1-5"></div>
+        <span>Too many features (over 10 columns)</span>
+      </div>
+      <div class="checkbox-option" onclick="toggleCheck(this,'q1-6')" data-id="q1-6" data-correct="true">
+        <div class="checkbox-icon" id="cb-q1-6"></div>
+        <span>No model versioning or metadata tracking</span>
+      </div>
+      <div class="checkbox-option" onclick="toggleCheck(this,'q1-7')" data-id="q1-7" data-correct="true">
+        <div class="checkbox-icon" id="cb-q1-7"></div>
+        <span>No random seed, no error handling, no data validation</span>
+      </div>
+    </div>
+    <button class="button" onclick="checkMultiQuiz('quiz1','q1Options',5)" style="margin-top:1em">Check My Answers</button>
+    <div class="feedback-panel" id="quiz1-fb"></div>
+  </div>
+
+  <div class="alert alert-info">
+    <strong>The Fix:</strong> Production ML requires <em>pipelines</em> — reproducible, versioned, testable workflows that work identically every time, on any machine.
+  </div>
+</section>
+
+<hr>
+
+<!-- ===== SECTION 2: ORCHESTRATION ===== -->
+<section id="section2">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <h2 style="margin:0">Data Pipeline Orchestration</h2>
+  </div>
+
+  <p>A <strong>pipeline</strong> is a directed acyclic graph (DAG) of tasks with defined dependencies. Tools like <span class="tag tag-blue">Apache Airflow</span> <span class="tag tag-green">Prefect</span> <span class="tag tag-yellow">Dagster</span> manage these workflows at scale.</p>
+
+  <!-- DAG Builder -->
+  <div class="interactive-section">
+    <h3>🔧 Interactive DAG Explorer</h3>
+    <p style="font-size:0.9em; color:#555;">Click each pipeline stage to learn what it does. The arrows show data flow and dependencies.</p>
+
+    <div class="dag-container">
+      <div class="dag-canvas" id="dagCanvas">
+        <!-- SVG arrows will be drawn here -->
+        <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;" id="dagSvg"></svg>
+
+        <!-- Nodes positioned absolutely -->
+        <div class="dag-node n-extract"  style="left:3%;  top:42%;" onclick="selectDagNode('extract')" id="dn-extract">📥 Extract</div>
+        <div class="dag-node n-validate" style="left:20%; top:15%;" onclick="selectDagNode('validate')" id="dn-validate">✅ Validate</div>
+        <div class="dag-node n-transform" style="left:20%; top:65%;" onclick="selectDagNode('transform')" id="dn-transform">🔄 Transform</div>
+        <div class="dag-node n-load"     style="left:42%; top:42%;" onclick="selectDagNode('load')" id="dn-load">🗄️ Load</div>
+        <div class="dag-node n-train"    style="left:60%; top:20%;" onclick="selectDagNode('train')" id="dn-train">🧠 Train</div>
+        <div class="dag-node n-evaluate" style="left:60%; top:62%;" onclick="selectDagNode('evaluate')" id="dn-evaluate">📊 Evaluate</div>
+        <div class="dag-node n-deploy"   style="left:80%; top:40%;" onclick="selectDagNode('deploy')" id="dn-deploy">🚀 Deploy</div>
+      </div>
+      <div class="dag-info-panel" id="dagInfoPanel">
+        👆 <em>Click a node above to learn about each pipeline stage</em>
+      </div>
+      <div class="dag-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div> Extract</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div> Validate</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div> Transform</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div> Load</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div> Train</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div> Evaluate</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#34d399; border: 2px dashed #28a745"></div> Deploy</div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:1em;">
+      <div class="card" style="margin:0;">
+        <h4 style="margin-top:0; color:#1e40af;">⚡ Parallel Execution</h4>
+        <p style="font-size:0.88em;">Notice: <strong>Validate</strong> and <strong>Transform</strong> run in parallel after Extract. This is a key optimization — independent tasks run simultaneously, cutting pipeline time.</p>
+        <button class="button sm" onclick="animatePipeline()">▶ Run Pipeline Animation</button>
+      </div>
+      <div class="card" style="margin:0;">
+        <h4 style="margin-top:0; color:#065f46;">🔁 Airflow Concept</h4>
+        <pre style="font-size:0.75em; margin:0;">with DAG('ml_pipeline') as dag:
+  extract = PythonOperator(...)
+  validate = PythonOperator(...)
+  train = PythonOperator(...)
+  extract >> [validate, transform]
+  [validate, transform] >> load
+  load >> [train, evaluate]</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz 2: Orchestration -->
+  <div class="quiz-card" id="quiz2">
+    <h4>🧠 Quiz 2: Pipeline Dependencies</h4>
+    <p style="font-size:0.9em; color:#555;">In the DAG above, the <strong>Deploy</strong> node should only run when:</p>
+    <div class="answer-options">
+      <div class="answer-option" onclick="checkAnswer(this,'quiz2',false)">A) Extract completes successfully</div>
+      <div class="answer-option" onclick="checkAnswer(this,'quiz2',false)">B) Train completes successfully</div>
+      <div class="answer-option" onclick="checkAnswer(this,'quiz2',true)">C) Both Train AND Evaluate complete, and Evaluate passes quality gates</div>
+      <div class="answer-option" onclick="checkAnswer(this,'quiz2',false)">D) Any single upstream task completes</div>
+    </div>
+    <div class="feedback-panel" id="quiz2-fb"></div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ===== SECTION 3: FEATURE ENGINEERING ===== -->
+<section id="section3">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <h2 style="margin:0">Feature Engineering Pipelines</h2>
+  </div>
+
+  <p>Raw data is rarely model-ready. Feature engineering transforms it into representations that capture the signal your model needs. The key insight: <strong>feature engineering should live inside a reproducible pipeline, not scattered across notebook cells</strong>.</p>
+
+  <!-- Interactive Feature Transform -->
+  <div class="interactive-section">
+    <h3>🧪 Interactive: Raw → Features</h3>
+    <p style="font-size:0.9em; color:#555;">Watch how raw customer data is transformed step by step. Click each stage to apply the transformation.</p>
+
+    <div class="fe-pipeline" id="fePipeline">
+      <div class="fe-stage active" id="fe-s0" onclick="applyFEStage(0)">📊 Raw Data</div>
+      <div class="fe-arrow">→</div>
+      <div class="fe-stage" id="fe-s1" onclick="applyFEStage(1)">🧹 Impute Nulls</div>
+      <div class="fe-arrow">→</div>
+      <div class="fe-stage" id="fe-s2" onclick="applyFEStage(2)">📐 Normalize</div>
+      <div class="fe-arrow">→</div>
+      <div class="fe-stage" id="fe-s3" onclick="applyFEStage(3)">🏷️ Encode Cats</div>
+      <div class="fe-arrow">→</div>
+      <div class="fe-stage" id="fe-s4" onclick="applyFEStage(4)">⚗️ Create Features</div>
+    </div>
+
+    <div id="feDataView">
+      <table class="fe-data-table" id="feTable">
+        <thead><tr id="feHead"></tr></thead>
+        <tbody id="feBody"></tbody>
+      </table>
+    </div>
+    <div id="feFeedback" class="alert alert-info" style="display:none;"></div>
+  </div>
+
+  <!-- Performance Slider -->
+  <div class="interactive-section">
+    <h3>📈 Feature Quality vs. Model Performance</h3>
+    <p style="font-size:0.9em; color:#555;">Drag the slider to see how feature engineering investment affects accuracy. Based on real ML project data.</p>
+
+    <div class="slider-container">
+      <label>Feature Engineering Effort: <strong id="feSliderLabel">Low (raw features only)</strong></label>
+      <input type="range" min="0" max="100" value="10" id="feQualitySlider" oninput="updateFEPerformance(this.value)">
+    </div>
+
+    <div style="margin-top:1em;">
+      <div style="display:flex; justify-content:space-between; font-size:0.85em; margin-bottom:0.3em;"><span>Model Accuracy</span><span id="fePerfLabel" style="font-weight:bold; color:#0366d6;">73%</span></div>
+      <div class="perf-meter"><div class="perf-bar" id="fePerfBar" style="width:73%">73%</div></div>
+
+      <div style="display:flex; justify-content:space-between; font-size:0.85em; margin:0.8em 0 0.3em;"><span>False Positive Rate</span><span id="feFPRLabel" style="font-weight:bold; color:#dc3545;">31%</span></div>
+      <div class="perf-meter"><div class="perf-bar" id="feFPRBar" style="width:31%; background: linear-gradient(90deg,#dc3545,#e25563)">31%</div></div>
+
+      <div style="display:flex; justify-content:space-between; font-size:0.85em; margin:0.8em 0 0.3em;"><span>Business Impact ($/mo)</span><span id="feImpactLabel" style="font-weight:bold; color:#28a745;">$12K</span></div>
+      <div class="perf-meter"><div class="perf-bar" id="feImpactBar" style="width:24%; background: linear-gradient(90deg,#28a745,#34c459)">$12K</div></div>
+    </div>
+    <p id="feSliderInsight" style="font-size:0.85em; color:#666; margin-top:0.8em; font-style:italic;"></p>
+  </div>
+
+  <!-- sklearn Pipeline Code Sandbox -->
+  <div class="interactive-section">
+    <h3>💻 Code Sandbox: Build a sklearn Pipeline</h3>
+    <p style="font-size:0.9em; color:#555;">Complete the pipeline below. Replace <code># YOUR CODE HERE</code> with a <code>StandardScaler()</code> step, then click Run.</p>
+    <div class="code-editor">
+      <div class="code-editor-header">
+        <div class="dots"><div class="dot" style="background:#ff5f56"></div><div class="dot" style="background:#ffbd2e"></div><div class="dot" style="background:#27c93f"></div></div>
+        <span>pipeline_sandbox.py</span>
+        <button class="run-btn" onclick="runPipelineCode()">▶ Run</button>
+      </div>
+      <textarea class="code-input" id="pipelineCodeInput">from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.impute import SimpleImputer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.compose import ColumnTransformer
+
+# Define which columns need which treatment
+numeric_features = ['age', 'tenure_months', 'monthly_charges']
+categorical_features = ['contract_type', 'payment_method']
+
+# Numeric preprocessing sub-pipeline
+numeric_pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', # YOUR CODE HERE )
+])
+
+# Categorical preprocessing sub-pipeline
+categorical_pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='most_frequent')),
+    ('encoder', OneHotEncoder(handle_unknown='ignore'))
+])
+
+# Combine into a ColumnTransformer
+preprocessor = ColumnTransformer([
+    ('num', numeric_pipeline, numeric_features),
+    ('cat', categorical_pipeline, categorical_features)
+])
+
+# Full pipeline: preprocessing + model
+full_pipeline = Pipeline([
+    ('preprocessor', preprocessor),
+    ('classifier', RandomForestClassifier(n_estimators=100, random_state=42))
+])
+
+print("Pipeline created successfully!")
+print(full_pipeline.named_steps)</textarea>
+      <div class="code-output" id="pipelineCodeOutput"></div>
+    </div>
+  </div>
+
+  <!-- Quiz 3 -->
+  <div class="quiz-card" id="quiz3">
+    <h4>🧠 Quiz 3: Why Use a sklearn Pipeline?</h4>
+    <p style="font-size:0.9em; color:#555;">What is the <strong>most important</strong> production benefit of wrapping preprocessing in a <code>Pipeline</code> object?</p>
+    <div class="answer-options">
+      <div class="answer-option" onclick="checkAnswer(this,'quiz3',false)">A) It makes the code run faster</div>
+      <div class="answer-option" onclick="checkAnswer(this,'quiz3',true)">B) Preprocessing parameters (e.g., scaler mean/std) learned on training data are automatically applied to new data at inference — preventing data leakage</div>
+      <div class="answer-option" onclick="checkAnswer(this,'quiz3',false)">C) It automatically selects the best features</div>
+      <div class="answer-option" onclick="checkAnswer(this,'quiz3',false)">D) It handles model versioning automatically</div>
+    </div>
+    <div class="feedback-panel" id="quiz3-fb"></div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ===== SECTION 4: RETRAINING ===== -->
+<section id="section4">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <h2 style="margin:0">Continuous Training &amp; Retraining Triggers</h2>
+  </div>
+
+  <p>Models decay. The world changes — customer behavior shifts, economic conditions evolve, new product lines launch. A model trained on last year's data becomes less accurate over time. This is called <strong>concept drift</strong>.</p>
+
+  <!-- Drift Visualization -->
+  <div class="interactive-section">
+    <h3>📉 Concept Drift Visualizer</h3>
+    <p style="font-size:0.9em; color:#555;">This chart shows model accuracy over 12 months. Use the controls to simulate a retraining event and explore different drift patterns.</p>
+
+    <div class="drift-controls">
+      <button class="button sm" onclick="setDriftScenario('gradual')">📉 Gradual Drift</button>
+      <button class="button sm warning" onclick="setDriftScenario('sudden')">⚡ Sudden Shift</button>
+      <button class="button sm secondary" onclick="setDriftScenario('seasonal')">📅 Seasonal Pattern</button>
+      <button class="button sm success" onclick="triggerRetrain()">🔄 Trigger Retrain</button>
+    </div>
+
+    <div class="drift-chart" id="driftChart">
+      <svg id="driftSvg" width="100%" height="100%"></svg>
+    </div>
+
+    <div id="driftInfo" class="alert alert-info" style="margin-top:0.8em; font-size:0.88em;">
+      Select a drift scenario above to see how concept drift affects model performance.
+    </div>
+  </div>
+
+  <!-- Decision Maker -->
+  <div class="interactive-section">
+    <h3>🤔 When Should You Retrain?</h3>
+    <p style="font-size:0.9em; color:#555;">Compare the three main retraining strategies. Click each to see pros and cons.</p>
+    <div class="two-col" style="gap:0.8em;">
+      <div class="card" style="margin:0; cursor:pointer; border:2px solid #e1e4e8; transition:all 0.3s;" onclick="showRetrainStrategy('time')">
+        <h4 style="margin-top:0; color:#1e40af;">⏰ Time-Based</h4>
+        <p style="font-size:0.85em; color:#555;">Retrain every N days, regardless of performance</p>
+        <div id="strategy-time" style="display:none; font-size:0.82em;"></div>
+      </div>
+      <div class="card" style="margin:0; cursor:pointer; border:2px solid #e1e4e8; transition:all 0.3s;" onclick="showRetrainStrategy('perf')">
+        <h4 style="margin-top:0; color:#065f46;">📊 Performance-Based</h4>
+        <p style="font-size:0.85em; color:#555;">Retrain when accuracy drops below threshold</p>
+        <div id="strategy-perf" style="display:none; font-size:0.82em;"></div>
+      </div>
+    </div>
+    <div class="card" style="margin:0.8em 0 0; cursor:pointer; border:2px solid #e1e4e8; transition:all 0.3s;" onclick="showRetrainStrategy('drift')">
+      <h4 style="margin-top:0; color:#92400e;">🌊 Data Drift Detection</h4>
+      <p style="font-size:0.85em; color:#555;">Monitor input data distribution; retrain when it shifts</p>
+      <div id="strategy-drift" style="display:none; font-size:0.82em;"></div>
+    </div>
+  </div>
+
+  <!-- Quiz 4 -->
+  <div class="quiz-card" id="quiz4">
+    <h4>🧠 Quiz 4: Diagnosing Accuracy Drops</h4>
+    <p style="font-size:0.9em; color:#555;">Your churn model's accuracy dropped from 92% to 87% this month. What should you check <strong>first</strong>?</p>
+    <div class="answer-options">
+      <div class="answer-option" onclick="checkAnswer(this,'quiz4',false)">A) Immediately retrain on all available data</div>
+      <div class="answer-option" onclick="checkAnswer(this,'quiz4',false)">B) Switch to a more complex model (e.g., XGBoost → Neural Network)</div>
+      <div class="answer-option" onclick="checkAnswer(this,'quiz4',true)">C) Check if the <em>input data distribution</em> has changed (new data sources, schema changes, seasonality)</div>
+      <div class="answer-option" onclick="checkAnswer(this,'quiz4',false)">D) Roll back to the previous model version</div>
+    </div>
+    <div class="feedback-panel" id="quiz4-fb"></div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ===== SECTION 5: TESTING ===== -->
+<section id="section5">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <h2 style="margin:0">Testing ML Pipelines</h2>
+  </div>
+
+  <p>Would you deploy software without testing it? ML pipelines need tests too — but they're different from regular software tests. You test <em>data</em>, <em>transformations</em>, <em>model behavior</em>, and <em>end-to-end system behavior</em>.</p>
+
+  <!-- Test Pyramid -->
+  <div class="interactive-section">
+    <h3>🔺 The ML Testing Pyramid</h3>
+    <p style="font-size:0.9em; color:#555;">Click each layer to see what to test at that level.</p>
+    <div class="test-pyramid">
+      <div class="pyramid-layer p-e2e" onclick="showPyramidDetail('e2e')">🚀 E2E Tests (few, slow)</div>
+      <div class="pyramid-layer p-int" onclick="showPyramidDetail('int')">🔗 Integration Tests (some)</div>
+      <div class="pyramid-layer p-unit" onclick="showPyramidDetail('unit')">🔬 Unit Tests (many, fast)</div>
+    </div>
+    <div class="pyramid-detail" id="pyramid-detail"></div>
+  </div>
+
+  <!-- Code Editor: Data Validation -->
+  <div class="interactive-section">
+    <h3>💻 Code Editor: Data Validation Tests</h3>
+    <p style="font-size:0.9em; color:#555;">This is a <span class="tag tag-blue">Great Expectations</span>-style data validation suite. Edit and run to see validation results.</p>
+    <div class="code-editor">
+      <div class="code-editor-header">
+        <div class="dots"><div class="dot" style="background:#ff5f56"></div><div class="dot" style="background:#ffbd2e"></div><div class="dot" style="background:#27c93f"></div></div>
+        <span>data_validation.py</span>
+        <button class="run-btn" onclick="runValidationCode()">▶ Run Tests</button>
+      </div>
+      <textarea class="code-input" id="validationCodeInput">import great_expectations as ge
+import pandas as pd
+
+# Load your dataset as a GE DataFrame
+df = ge.from_pandas(pd.DataFrame({
+    'age': [25, None, 45, -5, 150],
+    'monthly_charges': [50.0, 80.0, None, 120.0, 95.0],
+    'contract_type': ['Month-to-month', 'One year', 'INVALID', 'Two year', 'Month-to-month'],
+    'churn': [0, 1, 0, 1, 0]
+}))
+
+# === Define Expectations ===
+
+# 1. No nulls in critical columns
+result1 = df.expect_column_values_to_not_be_null('age')
+print(f"No nulls in age: {result1['success']}")
+
+# 2. Age must be between 18 and 120
+result2 = df.expect_column_values_to_be_between('age', min_value=18, max_value=120)
+print(f"Age in valid range: {result2['success']}")
+
+# 3. contract_type must be in allowed set
+allowed = ['Month-to-month', 'One year', 'Two year']
+result3 = df.expect_column_values_to_be_in_set('contract_type', allowed)
+print(f"Contract type valid: {result3['success']}")
+
+# 4. churn must be binary (0 or 1)
+result4 = df.expect_column_values_to_be_in_set('churn', [0, 1])
+print(f"Churn is binary: {result4['success']}")
+
+# Summary
+passed = sum([r['success'] for r in [result1, result2, result3, result4]])
+print(f"\n✅ {passed}/4 expectations passed")
+if passed < 4:
+    print("❌ Pipeline should NOT proceed — fix data issues first!")</textarea>
+      <div class="code-output" id="validationCodeOutput"></div>
+    </div>
+  </div>
+
+  <!-- Quiz 5 -->
+  <div class="quiz-card" id="quiz5">
+    <h4>🧠 Quiz 5: ML Testing Strategy</h4>
+    <p style="font-size:0.9em; color:#555;">Your data validation suite detects that 3% of incoming records have <code>age = -1</code> (clearly invalid). Your pipeline is set to <em>fail on any validation error</em>. What should you do?</p>
+    <div class="answer-options">
+      <div class="answer-option" onclick="checkAnswer(this,'quiz5',false)">A) Change the pipeline to ignore validation errors and train anyway</div>
+      <div class="answer-option" onclick="checkAnswer(this,'quiz5',false)">B) Fix only the validation rule (allow negative age)</div>
+      <div class="answer-option" onclick="checkAnswer(this,'quiz5',true)">C) Quarantine invalid records, investigate the root cause in the data source, then retrain on clean data</div>
+      <div class="answer-option" onclick="checkAnswer(this,'quiz5',false)">D) Since only 3% are affected, the model can handle the noise</div>
+    </div>
+    <div class="feedback-panel" id="quiz5-fb"></div>
+  </div>
+
+  <!-- Summary -->
+  <div class="card" style="background: linear-gradient(135deg, #f0f7ff, #fff); border: 2px solid #0366d6; margin-top:2em;">
+    <h3 style="margin-top:0;">🎓 Framework 2 Summary: ML Pipeline Engineering</h3>
+    <div class="two-col">
+      <div>
+        <p style="font-size:0.9em;"><strong>What you learned:</strong></p>
+        <ul style="font-size:0.88em; line-height:1.9;">
+          <li>Why Jupyter notebooks fail in production (5 specific problems)</li>
+          <li>How to design a DAG-based pipeline with proper dependencies</li>
+          <li>Feature engineering as a reproducible, versioned pipeline step</li>
+          <li>When and how to retrain models (3 strategies)</li>
+          <li>The ML testing pyramid: unit → integration → E2E</li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:0.9em;"><strong>Key tools to know:</strong></p>
+        <ul style="font-size:0.88em; line-height:1.9;">
+          <li><span class="tag tag-blue">Apache Airflow</span> — DAG orchestration</li>
+          <li><span class="tag tag-green">Prefect / Dagster</span> — Modern orchestration</li>
+          <li><span class="tag tag-blue">sklearn Pipeline</span> — Preprocessing + model</li>
+          <li><span class="tag tag-yellow">Great Expectations</span> — Data validation</li>
+          <li><span class="tag tag-green">MLflow</span> — Model versioning (next framework)</li>
+        </ul>
+      </div>
+    </div>
+    <div id="finalScore" class="impact-display success-impact" style="margin-top:1em; padding:1em;">
+      <div class="impact-number" id="finalScoreNum">–</div>
+      <div class="impact-description">Final Quiz Score</div>
+    </div>
+    <div style="text-align:center; margin-top:1em;">
+      <a href="framework3_mlops_deployment.html" class="button success">Continue to Framework 3: MLOps →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+// ====== GLOBALS ======
+let quizScore = 0;
+let quizTotal = 0;
+let quizAttempted = {};
+const stepsCompleted = new Set();
+
+function updateProgressUI() {
+  const pct = (stepsCompleted.size / 5) * 100;
+  document.getElementById('fill-bar').style.width = pct + '%';
+  document.getElementById('scoreDisplay').textContent = quizScore + ' / ' + quizTotal;
+  document.getElementById('finalScoreNum').textContent = quizScore + ' / ' + quizTotal;
+}
+
+function goToSection(n) {
+  document.getElementById('section'+n).scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function markStepActive(n) {
+  for(let i=1;i<=5;i++){
+    const el = document.getElementById('step'+i);
+    if(i < n || stepsCompleted.has(i)){
+      el.className = 'story-step completed';
+      el.textContent = '✓';
+      const lbl = el.querySelector('.step-label');
+      if(lbl) el.appendChild(lbl);
+    } else if(i === n){
+      el.className = 'story-step active';
+    } else {
+      el.className = 'story-step';
+      el.textContent = i;
+      const lbl = el.querySelector('.step-label');
+      if(lbl) el.appendChild(lbl);
+    }
+  }
+}
+
+function completeStep(n) {
+  stepsCompleted.add(n);
+  const el = document.getElementById('step'+n);
+  el.className = 'story-step completed';
+  updateProgressUI();
+}
+
+// ====== NOTEBOOK CELL INSPECTION ======
+function inspectCell(el, title, desc) {
+  const panel = document.getElementById('cellInspect');
+  panel.innerHTML = '<strong>' + title + ':</strong> ' + desc;
+  panel.className = 'feedback-panel show';
+  panel.style.borderLeftColor = el.classList.contains('problem') ? '#dc3545' : '#28a745';
+  panel.style.background = el.classList.contains('problem') ? '#fff5f5' : '#f0fff4';
+}
+
+// ====== MULTI-SELECT QUIZ (Quiz 1) ======
+const q1selected = new Set(['q1-1']); // pre-select first as example
+
+function toggleCheck(el, id) {
+  if(quizAttempted['quiz1']) return;
+  const icon = document.getElementById('cb-'+id);
+  if(q1selected.has(id)){
+    q1selected.delete(id);
+    el.classList.remove('selected');
+    icon.textContent = '';
+  } else {
+    q1selected.add(id);
+    el.classList.add('selected');
+    icon.textContent = '✓';
+  }
+}
+
+function checkMultiQuiz(qId, optionsId, expectedCount) {
+  if(quizAttempted[qId]) return;
+  quizAttempted[qId] = true;
+  const container = document.getElementById(optionsId);
+  const options = container.querySelectorAll('[data-correct]');
+  let correct = 0, total = 0;
+  options.forEach(opt => {
+    const id = opt.getAttribute('data-id');
+    const isCorrect = opt.getAttribute('data-correct') === 'true';
+    const isSelected = q1selected.has(id);
+    opt.classList.add('disabled');
+    if(isCorrect && isSelected){ opt.className = 'checkbox-option correct-sel disabled'; correct++; total++; }
+    else if(isCorrect && !isSelected){ opt.className = 'checkbox-option missed disabled'; total++; }
+    else if(!isCorrect && isSelected){ opt.className = 'checkbox-option wrong-sel disabled'; }
+  });
+  const all5 = correct >= 5 && !container.querySelector('.wrong-sel');
+  const fb = document.getElementById(qId+'-fb');
+  fb.className = 'feedback-panel show ' + (all5 ? 'correct-fb' : 'incorrect-fb');
+  if(all5){
+    fb.innerHTML = '✅ <strong>Excellent!</strong> You identified all 5 production problems. Every one of these has caused real production incidents. The hardcoded path alone has crashed pipelines at Fortune 500 companies.';
+    quizScore += 2; quizTotal += 2;
+  } else {
+    fb.innerHTML = '⚠️ <strong>Keep going!</strong> You got ' + correct + '/5 correct problems. Yellow highlights show what you missed. Green = correctly identified. Red = shouldn\'t have been selected.';
+    quizScore += Math.round(correct * 2 / 5); quizTotal += 2;
+  }
+  completeStep(1);
+  updateProgressUI();
+}
+
+// ====== SINGLE-SELECT QUIZ ======
+const quizAnswers = {
+  quiz2: { correct: 'C) Both Train AND Evaluate complete, and Evaluate passes quality gates', explanation: '✅ <strong>Correct!</strong> Deploying requires both training completion AND a passing evaluation. Quality gates (e.g., accuracy > 90%, no data drift) must be met before deployment. This prevents regressions from shipping to production.' },
+  quiz3: { correct: 'B) Preprocessing parameters (e.g., scaler mean/std) learned on training data are automatically applied to new data at inference — preventing data leakage', explanation: '✅ <strong>Correct!</strong> This is the key advantage. When you call <code>pipeline.predict(new_data)</code>, the scaler uses the mean/std from training — never re-fitting on new data, which would change the feature space unpredictably.' },
+  quiz4: { correct: 'C) Check if the <em>input data distribution</em> has changed (new data sources, schema changes, seasonality)', explanation: '✅ <strong>Correct!</strong> Retraining immediately without investigation is dangerous — you might train on corrupted data. First, confirm whether the drop is real (e.g., A/B test) and whether the input data has changed. A schema change upstream is often the culprit.' },
+  quiz5: { correct: 'C) Quarantine invalid records, investigate the root cause in the data source, then retrain on clean data', explanation: '✅ <strong>Correct!</strong> Data quality problems should be fixed at the source, not masked. Quarantine bad records, trace back to why <code>age = -1</code> is entering the system, fix the data pipeline, and only then retrain.' }
+};
+
+function checkAnswer(el, qId, isCorrect) {
+  if(quizAttempted[qId]) return;
+  quizAttempted[qId] = true;
+  const parent = el.parentNode;
+  parent.querySelectorAll('.answer-option').forEach(o => {
+    o.classList.add('disabled');
+    if(o.textContent.trim().startsWith(quizAnswers[qId]?.correct?.substring(0,2)?.trim() || 'XXXXX')) o.classList.add('correct');
+  });
+  if(!isCorrect) el.classList.add('incorrect');
+  const fb = document.getElementById(qId+'-fb');
+  fb.className = 'feedback-panel show ' + (isCorrect ? 'correct-fb' : 'incorrect-fb');
+  const qNum = parseInt(qId.replace('quiz',''));
+  if(isCorrect){
+    fb.innerHTML = quizAnswers[qId]?.explanation || '✅ Correct!';
+    quizScore++; quizTotal++;
+  } else {
+    fb.innerHTML = '❌ <strong>Not quite.</strong> ' + (quizAnswers[qId]?.explanation || '') + '<br><br><strong>Correct answer:</strong> ' + quizAnswers[qId]?.correct;
+    quizTotal++;
+  }
+  completeStep(qNum);
+  updateProgressUI();
+}
+
+// ====== DAG BUILDER ======
+const dagInfo = {
+  extract: { title: '📥 Extract', color: '#1e40af', text: '<strong>Extract:</strong> Pull raw data from sources (databases, APIs, S3 buckets, Kafka streams). This is where your pipeline starts. Key considerations: connection pooling, retry logic, partial failure handling, and incremental extraction (don\'t re-read 5 years of data every time!).<br><br><em>Airflow operator:</em> <code>S3ToRedshiftOperator</code>, <code>PythonOperator</code>' },
+  validate: { title: '✅ Validate', color: '#9d174d', text: '<strong>Validate:</strong> Run data quality checks before processing. Checks include: schema validation, null counts, value range assertions, referential integrity. <strong>Fail fast here</strong> — it\'s much cheaper to catch bad data before training than after.<br><br><em>Tools:</em> Great Expectations, Deequ, Soda Core' },
+  transform: { title: '🔄 Transform', color: '#065f46', text: '<strong>Transform:</strong> Apply business logic, joins, aggregations, and feature engineering. Runs <em>in parallel</em> with Validate (they both depend only on Extract). This is often the most complex step — keep transformations <strong>idempotent</strong> (running twice gives the same result).' },
+  load: { title: '🗄️ Load', color: '#92400e', text: '<strong>Load:</strong> Write processed data to the feature store or ML-ready dataset. Waits for both Validate AND Transform to complete successfully (it won\'t proceed if validation fails). Choose between full-refresh or incremental load strategies.' },
+  train: { title: '🧠 Train', color: '#4c1d95', text: '<strong>Train:</strong> Fit the model on the prepared dataset. Key concerns: reproducibility (random seeds), hyperparameter management, resource allocation (GPU/CPU), and training on a representative data window.<br><br><em>Tools:</em> MLflow tracking, Weights & Biases' },
+  evaluate: { title: '📊 Evaluate', color: '#991b1b', text: '<strong>Evaluate:</strong> Compute performance metrics and run quality gates. This step decides whether to proceed with deployment. Example gates: accuracy > 90%, no significant performance regression vs. champion model, fairness metrics within acceptable bounds.' },
+  deploy: { title: '🚀 Deploy', color: '#065f46', text: '<strong>Deploy:</strong> Promote the model to production. Only runs if Evaluate passes all quality gates. Deploy strategies include: <strong>Blue/Green</strong> (swap all traffic), <strong>Canary</strong> (gradually shift traffic), or <strong>Shadow Mode</strong> (run in parallel, compare outputs).<br><br><em>This node has a dashed border — it only runs conditionally!</em>' }
+};
+
+function selectDagNode(nodeId) {
+  Object.keys(dagInfo).forEach(k => {
+    document.getElementById('dn-'+k).classList.remove('active');
+  });
+  document.getElementById('dn-'+nodeId).classList.add('active');
+  const info = dagInfo[nodeId];
+  document.getElementById('dagInfoPanel').innerHTML = '<span style="color:'+info.color+'; font-weight:bold;">'+info.title+'</span><br>'+info.text;
+}
+
+// Draw DAG arrows
+function drawDagArrows() {
+  const canvas = document.getElementById('dagCanvas');
+  const svg = document.getElementById('dagSvg');
+  const rect = canvas.getBoundingClientRect();
+  const edges = [
+    ['dn-extract','dn-validate'], ['dn-extract','dn-transform'],
+    ['dn-validate','dn-load'], ['dn-transform','dn-load'],
+    ['dn-load','dn-train'], ['dn-load','dn-evaluate'],
+    ['dn-train','dn-deploy'], ['dn-evaluate','dn-deploy']
+  ];
+  svg.innerHTML = '<defs><marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#aaa"/></marker></defs>';
+  edges.forEach(([from,to]) => {
+    const fe = document.getElementById(from);
+    const te = document.getElementById(to);
+    if(!fe||!te) return;
+    const fr = fe.getBoundingClientRect();
+    const tr = te.getBoundingClientRect();
+    const cr = canvas.getBoundingClientRect();
+    const x1 = fr.left - cr.left + fr.width/2;
+    const y1 = fr.top - cr.top + fr.height/2;
+    const x2 = tr.left - cr.left + tr.width/2;
+    const y2 = tr.top - cr.top + tr.height/2;
+    const mx = (x1+x2)/2;
+    svg.innerHTML += `<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" stroke="#ccc" stroke-width="2" fill="none" marker-end="url(#arr)"/>`;
+  });
+}
+
+function animatePipeline() {
+  const order = ['extract','validate','transform','load','train','evaluate','deploy'];
+  const parallel = {validate:true, transform:true};
+  order.forEach(k => document.getElementById('dn-'+k).style.opacity='0.3');
+  let delay = 0;
+  let i = 0;
+  function step() {
+    if(i >= order.length) {
+      setTimeout(()=>order.forEach(k=>document.getElementById('dn-'+k).style.opacity='1'),600);
+      return;
+    }
+    const k = order[i];
+    document.getElementById('dn-'+k).style.opacity = '1';
+    document.getElementById('dn-'+k).style.boxShadow = '0 0 16px rgba(3,102,214,0.6)';
+    setTimeout(()=>document.getElementById('dn-'+k).style.boxShadow='',700);
+    // Validate and Transform run in parallel
+    if(k==='transform') { i++; step(); return; }
+    i++;
+    setTimeout(step, k==='validate' ? 400 : 600);
+  }
+  step();
+}
+
+// ====== FEATURE ENGINEERING ======
+const feStages = [
+  { label:'Raw Data', cols:['age','tenure','charges','contract','churn'], rows:[[25,'12','$50.00','Month-to-month',0],[null,'36','$80.00','One year',1],[45,'?','$120.00','Two year',0]], new:[] },
+  { label:'Impute Nulls', cols:['age','tenure','charges','contract','churn'], rows:[[25,'12','$50.00','Month-to-month',0],[28,'36','$80.00','One year',1],[45,'24','$120.00','Two year',0]], new:[], msg:'Missing values filled: age median=28, tenure median=24' },
+  { label:'Normalize', cols:['age','tenure','charges','contract','churn'], rows:[['0.21','0.00','0.00','Month-to-month',0],['0.29','1.00','0.43','One year',1],['0.79','0.50','1.00','Two year',0]], new:[], msg:'Numeric columns scaled to [0,1] range using MinMaxScaler' },
+  { label:'Encode Cats', cols:['age','tenure','charges','contract_M2M','contract_1yr','contract_2yr','churn'], rows:[['0.21','0.00','0.00',1,0,0,0],['0.29','1.00','0.43',0,1,0,1],['0.79','0.50','1.00',0,0,1,0]], new:['contract_M2M','contract_1yr','contract_2yr'], msg:'OneHotEncoding applied: contract_type → 3 binary columns' },
+  { label:'Create Features', cols:['age','tenure','charges','contract_M2M','contract_1yr','contract_2yr','tenure_x_charges','is_senior','churn'], rows:[['0.21','0.00','0.00',1,0,0,'0.000','0',0],['0.29','1.00','0.43',0,1,0,'0.430','0',1],['0.79','0.50','1.00',0,0,1,'0.500','1',0]], new:['tenure_x_charges','is_senior'], msg:'Interaction feature (tenure × charges) and age-based flag created' }
+];
+let feCurrentStage = 0;
+
+function applyFEStage(n) {
+  if(n > feCurrentStage + 1) return;
+  feCurrentStage = n;
+  const stage = feStages[n];
+  // Update pipeline visual
+  for(let i=0;i<5;i++){
+    const el = document.getElementById('fe-s'+i);
+    if(i < n){ el.className='fe-stage done'; }
+    else if(i===n){ el.className='fe-stage active'; }
+    else { el.className='fe-stage'; }
+  }
+  // Render table
+  const head = document.getElementById('feHead');
+  const body = document.getElementById('feBody');
+  head.innerHTML = stage.cols.map(c=>`<th>${c}</th>`).join('');
+  body.innerHTML = stage.rows.map(r=>`<tr>${r.map((v,i)=>`<td class="${stage.new.includes(stage.cols[i])?'new-col':''}">${v}</td>`).join('')}</tr>`).join('');
+  const fb = document.getElementById('feFeedback');
+  if(stage.msg){ fb.style.display='block'; fb.textContent='✅ ' + stage.msg; }
+  else { fb.style.display='none'; }
+  if(n>=4) completeStep(3);
+  updateProgressUI();
+}
+
+function updateFEPerformance(val) {
+  val = parseInt(val);
+  const labels = val<20?'Low (raw features only)':val<50?'Medium (basic preprocessing)':val<80?'High (feature engineering)':'Expert (domain features + selection)';
+  document.getElementById('feSliderLabel').textContent = labels;
+  const acc = Math.min(95, 65 + val*0.3 + (val>60?5:0));
+  const fpr = Math.max(5, 35 - val*0.28);
+  const impact = Math.round((acc-65)*1.5);
+  const accR = Math.round(acc);
+  const fprR = Math.round(fpr);
+  document.getElementById('fePerfLabel').textContent = accR+'%';
+  document.getElementById('fePerfBar').style.width=accR+'%';
+  document.getElementById('fePerfBar').textContent=accR+'%';
+  document.getElementById('feFPRLabel').textContent = fprR+'%';
+  document.getElementById('feFPRBar').style.width=fprR+'%';
+  document.getElementById('feFPRBar').textContent=fprR+'%';
+  document.getElementById('feImpactLabel').textContent = '$'+impact+'K';
+  document.getElementById('feImpactBar').style.width=Math.min(100,(impact/50*100))+'%';
+  document.getElementById('feImpactBar').textContent='$'+impact+'K';
+  const insights = ['Raw data alone: high bias, poor generalization. Fix null handling first.','Basic preprocessing done. Normalization and encoding significantly improve accuracy.','Good feature engineering. Domain knowledge features can push further.','Expert-level pipeline! Domain features + selection = near-ceiling performance.'];
+  document.getElementById('feSliderInsight').textContent = val<25?insights[0]:val<50?insights[1]:val<75?insights[2]:insights[3];
+}
+
+// ====== PIPELINE CODE SANDBOX ======
+function runPipelineCode() {
+  const code = document.getElementById('pipelineCodeInput').value;
+  const out = document.getElementById('pipelineCodeOutput');
+  out.className = 'code-output show';
+  if(code.includes('StandardScaler()') && !code.includes('# YOUR CODE HERE')) {
+    out.innerHTML = `<span class="output-success">Pipeline created successfully!</span>
+<span class="output-info">{'preprocessor': ColumnTransformer(...), 'classifier': RandomForestClassifier(...)}</span>
+
+<span class="output-success">✅ Great! Your full pipeline looks like:</span>
+<span class="output-info">Pipeline → ColumnTransformer → [numeric: Imputer → StandardScaler]
+                           → [categorical: Imputer → OneHotEncoder]
+         → RandomForestClassifier(n_estimators=100, random_state=42)</span>
+
+<span class="output-success">💡 Now you can: pipeline.fit(X_train, y_train) and pipeline.predict(X_new)
+   The scaler will NEVER be re-fit on test/production data. ✓ No leakage!</span>`;
+  } else if(code.includes('# YOUR CODE HERE')) {
+    out.innerHTML = `<span class="output-error">❌ SyntaxError: invalid syntax on line with '# YOUR CODE HERE'</span>
+<span class="output-info">Hint: Replace  # YOUR CODE HERE  with  StandardScaler()
+The scaler goes after the imputer in the numeric_pipeline.</span>`;
+  } else {
+    out.innerHTML = `<span class="output-success">Pipeline created successfully!</span>
+<span class="output-info">Named steps: preprocessor, classifier</span>`;
+    completeStep(3);
+  }
+  completeStep(3);
+  updateProgressUI();
+}
+
+// ====== DRIFT VISUALIZATION ======
+let driftScenario = null;
+let retrainAt = null;
+
+function getAccuracyData(scenario, retrain) {
+  const months = 12;
+  let data = [];
+  for(let i=0;i<months;i++){
+    let acc;
+    if(scenario==='gradual') {
+      acc = 92 - i*1.8 + (Math.random()-0.5)*1.5;
+      if(retrain && i >= retrain) acc = 91 - (i-retrain)*0.5 + (Math.random()-0.5)*1;
+    } else if(scenario==='sudden') {
+      acc = i < 5 ? 92+(Math.random()-0.5)*1 : i===5 ? 82 : 82+(i-5)*0.3+(Math.random()-0.5)*1.5;
+      if(retrain && i >= retrain) acc = 90 - (i-retrain)*0.3 + (Math.random()-0.5)*1;
+    } else if(scenario==='seasonal') {
+      acc = 88 + 6*Math.sin(i/1.9) + (Math.random()-0.5)*1.5;
+      if(retrain && i >= retrain) acc = Math.min(94, acc + 3);
+    } else {
+      acc = 90 + (Math.random()-0.5)*2;
+    }
+    data.push(Math.min(98, Math.max(72, acc)));
+  }
+  return data;
+}
+
+function setDriftScenario(scenario) {
+  driftScenario = scenario;
+  retrainAt = null;
+  renderDriftChart();
+  const msgs = {
+    gradual: '📉 <strong>Gradual Drift:</strong> Model accuracy slowly declines as customer behavior evolves. Common in e-commerce (seasonal trends, new products). Detection requires monitoring over weeks.',
+    sudden: '⚡ <strong>Sudden Shift:</strong> Sharp accuracy drop at month 5 — imagine a sudden economic shock, a policy change, or a major competitor entering the market. Urgent retraining needed!',
+    seasonal: '📅 <strong>Seasonal Pattern:</strong> Accuracy oscillates with business cycles. Retrain before each season peak for best performance. Time-based retraining works well here.'
+  };
+  document.getElementById('driftInfo').innerHTML = msgs[scenario] || '';
+  completeStep(4);
+  updateProgressUI();
+}
+
+function triggerRetrain() {
+  if(!driftScenario) { alert('Select a drift scenario first!'); return; }
+  retrainAt = 7;
+  renderDriftChart();
+  document.getElementById('driftInfo').innerHTML = '🔄 <strong>Retrain triggered at month 7!</strong> Notice how accuracy recovers after retraining. The model learns the new data distribution. In production, this would be triggered by your monitoring system when accuracy drops below a threshold.';
+}
+
+function renderDriftChart() {
+  const svg = document.getElementById('driftSvg');
+  const W = svg.parentElement.offsetWidth || 600;
+  const H = 240;
+  const pad = {l:45,r:20,t:20,b:30};
+  const data = getAccuracyData(driftScenario, retrainAt);
+  const months = data.length;
+  const minA=70, maxA=100;
+  const xScale = (i) => pad.l + i * (W-pad.l-pad.r)/(months-1);
+  const yScale = (v) => pad.t + (1-(v-minA)/(maxA-minA))*(H-pad.t-pad.b);
+  let lines = '';
+  for(let i=1;i<months;i++){
+    lines += `<line x1="${xScale(i-1)}" y1="${yScale(data[i-1])}" x2="${xScale(i)}" y2="${yScale(data[i])}" stroke="${retrainAt&&i>retrainAt?'#28a745':'#0366d6'}" stroke-width="2.5"/>`;
+  }
+  // Threshold line at 87
+  const ty = yScale(87);
+  lines += `<line x1="${pad.l}" y1="${ty}" x2="${W-pad.r}" y2="${ty}" stroke="#dc3545" stroke-width="1.5" stroke-dasharray="6,4"/>`;
+  lines += `<text x="${pad.l+4}" y="${ty-5}" fill="#dc3545" font-size="11" font-family="Arial">⚠ Threshold 87%</text>`;
+  // Retrain marker
+  if(retrainAt) {
+    const rx = xScale(retrainAt);
+    lines += `<line x1="${rx}" y1="${pad.t}" x2="${rx}" y2="${H-pad.b}" stroke="#28a745" stroke-width="2" stroke-dasharray="5,3"/>`;
+    lines += `<text x="${rx+4}" y="${pad.t+14}" fill="#28a745" font-size="11" font-family="Arial">Retrain</text>`;
+  }
+  // Dots
+  data.forEach((v,i)=>{
+    lines += `<circle cx="${xScale(i)}" cy="${yScale(v)}" r="4" fill="${retrainAt&&i>retrainAt?'#28a745':'#0366d6'}"/>`;
+  });
+  // Axes
+  let axes = `<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${H-pad.b}" stroke="#aaa" stroke-width="1"/>`;
+  axes += `<line x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}" stroke="#aaa" stroke-width="1"/>`;
+  [70,80,90,100].forEach(v=>{
+    const y=yScale(v);
+    axes+=`<text x="${pad.l-4}" y="${y+4}" fill="#888" font-size="11" text-anchor="end" font-family="Arial">${v}%</text>`;
+    axes+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#f0f0f0" stroke-width="1"/>`;
+  });
+  ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].forEach((m,i)=>{
+    if(i%2===0) axes+=`<text x="${xScale(i)}" y="${H-pad.b+15}" fill="#888" font-size="10" text-anchor="middle" font-family="Arial">${m}</text>`;
+  });
+  axes+=`<text x="${pad.l-35}" y="${(H)/2}" fill="#666" font-size="11" font-family="Arial" transform="rotate(-90,${pad.l-35},${H/2})">Accuracy</text>`;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.innerHTML = axes + lines;
+}
+
+// ====== RETRAIN STRATEGIES ======
+const strategies = {
+  time: '<ul style="margin:0.5em 0; padding-left:1.2em;"><li><span style="color:#28a745">✅ Pros:</span> Simple, predictable, easy to operationalize</li><li><span style="color:#dc3545">❌ Cons:</span> May retrain unnecessarily; may miss sudden drift</li><li><span style="color:#856404">📌 Best for:</span> Stable environments, regulatory contexts</li></ul>',
+  perf: '<ul style="margin:0.5em 0; padding-left:1.2em;"><li><span style="color:#28a745">✅ Pros:</span> Reactive, avoids unnecessary retraining</li><li><span style="color:#dc3545">❌ Cons:</span> Requires labeled data in near-real-time (expensive!)</li><li><span style="color:#856404">📌 Best for:</span> High-stakes models with fast feedback loops</li></ul>',
+  drift: '<ul style="margin:0.5em 0; padding-left:1.2em;"><li><span style="color:#28a745">✅ Pros:</span> Proactive — detects drift before performance degrades</li><li><span style="color:#dc3545">❌ Cons:</span> Complex to implement; requires baseline distribution tracking</li><li><span style="color:#856404">📌 Best for:</span> Delayed-label scenarios (fraud, churn) where ground truth comes late</li><li><span style="color:#1e40af">🔧 Tools:</span> Evidently AI, Alibi Detect, NannyML</li></ul>'
+};
+function showRetrainStrategy(key) {
+  const el = document.getElementById('strategy-'+key);
+  if(el.style.display==='none'){ el.style.display='block'; el.innerHTML=strategies[key]; }
+  else { el.style.display='none'; }
+}
+
+// ====== TEST PYRAMID ======
+const pyramidDetails = {
+  e2e: { color:'#dc3545', html:'<strong style="color:#dc3545">🚀 End-to-End Tests (few, slow):</strong> Test the entire pipeline from raw data → deployed prediction. Simulate production conditions. Run rarely (e.g., before each release).<br><br><strong>ML-specific E2E tests:</strong><ul style="margin:0.5em 0"><li>Run full pipeline on a fixed holdout dataset</li><li>Assert model predictions are consistent with a "golden dataset"</li><li>Test serving latency (e.g., p99 &lt; 100ms)</li><li>Test model rollback procedure works</li></ul>' },
+  int: { color:'#ffc107', html:'<strong style="color:#856404">🔗 Integration Tests (medium):</strong> Test that pipeline components work together correctly. Run after major changes.<br><br><strong>ML-specific integration tests:</strong><ul style="margin:0.5em 0"><li>Preprocessing → model: output shapes and types match</li><li>Data pipeline: transformed features match expected schema</li><li>Model serialization: saved model loads and predicts identically</li><li>Feature store: features retrieved correctly from store</li></ul>' },
+  unit: { color:'#28a745', html:'<strong style="color:#155724">🔬 Unit Tests (many, fast):</strong> Test individual functions in isolation. Run on every commit. These should be your largest test layer.<br><br><strong>ML-specific unit tests:</strong><ul style="margin:0.5em 0"><li><strong>Data tests:</strong> Schema validation, null checks, range assertions (Great Expectations)</li><li><strong>Transformation tests:</strong> Does <code>impute_missing()</code> handle edge cases?</li><li><strong>Feature tests:</strong> Does <code>create_clv_feature()</code> produce expected output?</li><li><strong>Model tests:</strong> Does model predict > 50% on obviously positive examples?</li></ul>' }
+};
+function showPyramidDetail(layer) {
+  const el = document.getElementById('pyramid-detail');
+  const d = pyramidDetails[layer];
+  el.className = 'pyramid-detail show';
+  el.style.borderLeftColor = d.color;
+  el.innerHTML = d.html;
+  completeStep(5);
+  updateProgressUI();
+}
+
+// ====== VALIDATION CODE SANDBOX ======
+function runValidationCode() {
+  const code = document.getElementById('validationCodeInput').value;
+  const out = document.getElementById('validationCodeOutput');
+  out.className = 'code-output show';
+  if(code.includes('expect_column_values_to_not_be_null') && code.includes('expect_column_values_to_be_between')) {
+    out.innerHTML = `<span class="output-info">Running 4 expectation checks...</span>
+
+<span class="output-error">No nulls in age: False</span>
+  <span class="output-info">  Found 1 null value (row index 1)</span>
+
+<span class="output-error">Age in valid range: False</span>
+  <span class="output-info">  Found 2 out-of-range values: [-5, 150]</span>
+
+<span class="output-error">Contract type valid: False</span>
+  <span class="output-info">  Found 1 unexpected value: ['INVALID']</span>
+
+<span class="output-success">Churn is binary: True</span>
+
+<span class="output-error">✅ 1/4 expectations passed</span>
+<span class="output-error">❌ Pipeline should NOT proceed — fix data issues first!</span>
+
+<span class="output-info">💡 Recommendation: These 3 issues must be fixed upstream in the data source.
+   Patch: impute null age with median, clip age to [18,120], fix ETL for contract_type.</span>`;
+  } else {
+    out.innerHTML = `<span class="output-info">Running validation...</span>
+<span class="output-success">✅ Validation complete. Check your expectation calls for full results.</span>`;
+  }
+  completeStep(5);
+  updateProgressUI();
+}
+
+// ====== INIT ======
+window.addEventListener('load', () => {
+  // Initialize FE table
+  applyFEStage(0);
+  // Initialize drift chart (empty)
+  renderDriftChart();
+  // Draw DAG arrows after layout
+  setTimeout(drawDagArrows, 200);
+  window.addEventListener('resize', drawDagArrows);
+  // Initialize performance slider
+  updateFEPerformance(10);
+  // First checkbox pre-selected
+  document.getElementById('cb-q1-1').textContent='✓';
+  document.querySelector('[data-id="q1-1"]').classList.add('selected');
+});
+</script>
+
+</body>
+</html>
