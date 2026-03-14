@@ -5,185 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Module 4: Decision Trees - Class Notes</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: Georgia, serif;
-            line-height: 1.8;
-            color: #333;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 950px;
-            margin: 0 auto;
-            background: white;
-            padding: 60px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        }
-        
-        h1 {
-            color: #003366;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            border-bottom: 3px solid #0366d6;
-            padding-bottom: 15px;
-        }
-        
-        h2 {
-            color: #003366;
-            font-size: 1.8em;
-            margin-top: 40px;
-            margin-bottom: 20px;
-            padding-left: 10px;
-            border-left: 4px solid #0366d6;
-        }
-        
-        h3 {
-            color: #0366d6;
-            font-size: 1.3em;
-            margin-top: 30px;
-            margin-bottom: 15px;
-        }
-        
-        .paradigm-shift {
-            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
-            border-left: 4px solid #667eea;
-            padding: 20px;
-            margin: 30px 0;
-            border-radius: 8px;
-        }
-        
-        .paradigm-shift h3 {
-            color: #667eea;
-            margin-top: 0;
-        }
-        
-        .business-context {
-            background: linear-gradient(135deg, #f093fb10 0%, #f5576c10 100%);
-            border-left: 4px solid #f5576c;
-            padding: 20px;
-            margin: 30px 0;
-            border-radius: 8px;
-        }
-        
-        .mathematical-foundation {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 25px;
-            margin: 30px 0;
-            border-radius: 8px;
-        }
-        
-        .code-block {
-            background: #282c34;
-            color: #abb2bf;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            overflow-x: auto;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.9em;
-            line-height: 1.5;
-        }
-        
-        .code-comment {
-            color: #5c6370;
-            font-style: italic;
-        }
-        
-        .code-keyword {
-            color: #c678dd;
-        }
-        
-        .code-string {
-            color: #98c379;
-        }
-        
-        .code-function {
-            color: #61afef;
-        }
-        
-        .key-insight {
-            background: linear-gradient(135deg, #ffeaa710 0%, #fdcb6e10 100%);
-            border-left: 4px solid #fdcb6e;
-            padding: 20px;
-            margin: 30px 0;
-            border-radius: 8px;
-        }
-        
-        .formula {
-            background: white;
-            border: 2px solid #e9ecef;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 8px;
-            text-align: center;
-            font-family: 'Times New Roman', serif;
-            font-size: 1.1em;
-        }
-        
-        .visualization-placeholder {
-            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
-            border: 2px dashed #667eea;
-            padding: 40px;
-            text-align: center;
-            margin: 30px 0;
-            border-radius: 8px;
-            color: #667eea;
-            font-style: italic;
-        }
-        
-        ul {
-            margin: 20px 0;
-            padding-left: 30px;
-        }
-        
-        li {
-            margin: 10px 0;
-        }
-        
-        .summary-box {
-            background: linear-gradient(135deg, #a8e6cf20 0%, #dcedc120 100%);
-            border: 2px solid #81c784;
-            padding: 25px;
-            margin: 40px 0;
-            border-radius: 8px;
-        }
-        
-        .summary-box h3 {
-            color: #4caf50;
-            margin-top: 0;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Georgia, serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 950px; margin: 0 auto; background: white; padding: 60px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        h1 { color: #003366; font-size: 2.5em; margin-bottom: 10px; border-bottom: 3px solid #0366d6; padding-bottom: 15px; }
+        h2 { color: #003366; font-size: 1.8em; margin-top: 40px; margin-bottom: 20px; padding-left: 10px; border-left: 4px solid #0366d6; }
+        h3 { color: #0366d6; font-size: 1.3em; margin-top: 30px; margin-bottom: 15px; }
+        .paradigm-shift { background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); border-left: 4px solid #667eea; padding: 20px; margin: 30px 0; border-radius: 8px; }
+        .paradigm-shift h3 { color: #667eea; margin-top: 0; }
+        .business-context { background: linear-gradient(135deg, #f093fb10 0%, #f5576c10 100%); border-left: 4px solid #f5576c; padding: 20px; margin: 30px 0; border-radius: 8px; }
+        .mathematical-foundation { background: #f8f9fa; border: 1px solid #dee2e6; padding: 25px; margin: 30px 0; border-radius: 8px; }
+        .code-block { background: #282c34; color: #abb2bf; padding: 20px; border-radius: 8px; margin: 20px 0; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; line-height: 1.5; }
+        .code-comment { color: #5c6370; font-style: italic; }
+        .code-keyword { color: #c678dd; }
+        .code-string { color: #98c379; }
+        .code-function { color: #61afef; }
+        .key-insight { background: linear-gradient(135deg, #ffeaa710 0%, #fdcb6e10 100%); border-left: 4px solid #fdcb6e; padding: 20px; margin: 30px 0; border-radius: 8px; }
+        .formula { background: white; border: 2px solid #e9ecef; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center; font-family: 'Times New Roman', serif; font-size: 1.1em; }
+        .visualization-placeholder { background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%); border: 2px dashed #667eea; padding: 40px; text-align: center; margin: 30px 0; border-radius: 8px; color: #667eea; font-style: italic; }
+        ul { margin: 20px 0; padding-left: 30px; }
+        li { margin: 10px 0; }
+        .summary-box { background: linear-gradient(135deg, #a8e6cf20 0%, #dcedc120 100%); border: 2px solid #81c784; padding: 25px; margin: 40px 0; border-radius: 8px; }
+        .summary-box h3 { color: #4caf50; margin-top: 0; }
+
+        /* Interactive Elements */
+        .interactive-section { background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); padding: 2em; margin: 2em 0; border-radius: 12px; border: 1px solid #e1e4e8; }
+        .interactive-section h3 { color: #003366; margin-top: 0; }
+        .button { display: inline-block; padding: 0.7em 1.4em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; transition: all 0.3s ease; margin: 0.4em 0.4em 0.4em 0; font-weight: bold; font-family: Georgia, serif; }
+        .button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
+        .button.success { background: #28a745; }
+        .button.secondary { background: #6c757d; }
+
+        /* Quiz Cards */
+        .quiz-card { background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%); border: 2px solid #0366d6; border-radius: 10px; padding: 1.5em; margin: 2em 0; position: relative; overflow: hidden; }
+        .quiz-card::before { content: "?"; position: absolute; top: -20px; right: -20px; font-size: 120px; color: rgba(3,102,214,0.05); font-weight: bold; }
+        .quiz-card h4 { color: #003366; margin-bottom: 1em; font-size: 1.1em; }
+        .answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin: 1em 0; }
+        .answer-option { padding: 0.8em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: center; font-family: Georgia, serif; font-size: 0.9em; }
+        .answer-option:hover { border-color: #0366d6; transform: scale(1.02); }
+        .answer-option.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .answer-option.incorrect { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .answer-option.selected { background: #e7f3ff; border-color: #0366d6; }
+        .quiz-feedback { display: none; margin-top: 1em; padding: 1em; border-radius: 8px; font-size: 0.95em; }
+        .quiz-feedback.show { display: block; animation: slideIn 0.4s ease; }
+        .quiz-feedback.correct-fb { background: #d4edda; border-left: 4px solid #28a745; color: #155724; }
+        .quiz-feedback.incorrect-fb { background: #f8d7da; border-left: 4px solid #dc3545; color: #721c24; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* Slider */
+        .slider-container { margin: 1.5em 0; }
+        .slider-label { display: flex; justify-content: space-between; margin-bottom: 0.5em; font-weight: bold; color: #003366; }
+        .slider { width: 100%; height: 8px; border-radius: 4px; background: #e1e4e8; outline: none; -webkit-appearance: none; }
+        .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #0366d6; cursor: pointer; }
+        .slider-value { text-align: center; font-size: 1.4em; font-weight: bold; color: #0366d6; margin: 0.5em 0; }
+
+        /* Canvas */
+        .viz-container { background: white; border: 2px solid #e1e4e8; border-radius: 10px; padding: 1.5em; margin: 1.5em 0; }
+        canvas { display: block; margin: 0 auto; border-radius: 8px; }
+
+        /* Progress */
+        .progress-tracker { background: #f8f9fa; border-radius: 10px; padding: 1.2em; margin: 1.5em 0; }
+        .progress-bar { height: 20px; background: #e9ecef; border-radius: 10px; overflow: hidden; margin: 0.5em 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #0366d6, #667eea); border-radius: 10px; transition: width 0.6s ease; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8em; font-weight: bold; }
+
+        /* Confusion Matrix */
+        .cm-table { border-collapse: collapse; margin: 1em auto; }
+        .cm-table td, .cm-table th { border: 2px solid #dee2e6; padding: 14px 18px; text-align: center; font-family: Georgia, serif; }
+        .cm-table th { background: #003366; color: white; }
+        .cm-tp { background: #d4edda; color: #155724; font-weight: bold; font-size: 1.2em; }
+        .cm-tn { background: #d4edda; color: #155724; font-weight: bold; font-size: 1.2em; }
+        .cm-fp { background: #f8d7da; color: #721c24; font-weight: bold; font-size: 1.2em; }
+        .cm-fn { background: #f8d7da; color: #721c24; font-weight: bold; font-size: 1.2em; }
+
+        /* Loan Explorer */
+        .loan-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin: 1em 0; }
+        .form-group label { display: block; font-weight: bold; color: #003366; margin-bottom: 0.3em; font-size: 0.9em; }
+        .form-group input, .form-group select { width: 100%; padding: 0.6em; border: 2px solid #e1e4e8; border-radius: 6px; font-family: Georgia, serif; font-size: 0.9em; }
+        .decision-result { text-align: center; padding: 1.5em; border-radius: 10px; margin: 1em 0; font-size: 1.1em; font-weight: bold; display: none; }
+        .decision-approve { background: #d4edda; border: 2px solid #28a745; color: #155724; }
+        .decision-reject { background: #f8d7da; border: 2px solid #dc3545; color: #721c24; }
+
+        /* Score Badge */
+        .score-badge { display: inline-block; background: #0366d6; color: white; border-radius: 20px; padding: 0.3em 1em; font-size: 0.85em; font-weight: bold; margin-left: 0.5em; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Module 4: Decision Trees for Intelligent Loan Approval</h1>
-        
+
+        <!-- Progress Tracker -->
+        <div class="progress-tracker">
+            <strong>📊 Module Progress:</strong>
+            <div class="progress-bar"><div class="progress-fill" id="moduleProgress" style="width:0%">0%</div></div>
+            <small id="progressText">Complete quizzes to track your progress (0/7 parts completed)</small>
+        </div>
+
         <div class="business-context">
             <h3>The $85 Million Problem</h3>
             <p>Regional Bank Corporation faces a crisis: their traditional loan approval process, based on rigid credit score cutoffs and manual review, is hemorrhaging money. Last year alone, they lost $50 million to defaults on approved loans and $35 million in missed revenue from rejected creditworthy applicants. You've been hired to build an interpretable, data-driven decision system that can revolutionize their lending operations.</p>
         </div>
 
+        <!-- PART I -->
         <h2>Part I: The Paradigm Shift - From Rules to Learning</h2>
-        
         <div class="paradigm-shift">
             <h3>Traditional Approach: Fixed Rules</h3>
             <ul>
-                <li>Hard-coded thresholds (e.g., "Reject if credit score < 650")</li>
+                <li>Hard-coded thresholds (e.g., "Reject if credit score &lt; 650")</li>
                 <li>Linear decision boundaries that miss complex patterns</li>
                 <li>No ability to discover interaction effects</li>
                 <li>Manual feature engineering based on intuition</li>
             </ul>
-            
             <h3>Machine Learning Approach: Adaptive Trees</h3>
             <ul>
                 <li>Data-driven splitting points optimized for actual outcomes</li>
@@ -193,40 +124,64 @@
             </ul>
         </div>
 
+        <!-- Quiz 1 -->
+        <div class="quiz-card" id="quiz1">
+            <h4>🧠 Quick Check — Part I</h4>
+            <p>What is the key advantage of machine learning decision trees over hard-coded rule systems for loan approval?</p>
+            <div class="answer-options">
+                <div class="answer-option" onclick="answerQuiz(1, this, false)">They are faster to run on hardware</div>
+                <div class="answer-option" onclick="answerQuiz(1, this, true)">They automatically discover data-driven splitting points and feature interactions</div>
+                <div class="answer-option" onclick="answerQuiz(1, this, false)">They require no data to train</div>
+                <div class="answer-option" onclick="answerQuiz(1, this, false)">They eliminate the need for regulatory compliance</div>
+            </div>
+            <div class="quiz-feedback" id="feedback1"></div>
+        </div>
+
+        <!-- PART II -->
         <h2>Part II: Mathematical Foundations</h2>
-        
         <div class="mathematical-foundation">
             <h3>Information Theory: The Heart of Decision Trees</h3>
-            
             <p>Decision trees make splits by maximizing information gain - the reduction in uncertainty about loan outcomes:</p>
-            
-            <div class="formula">
-                H(S) = -Σ p(c) × log₂(p(c))
-            </div>
-            
+            <div class="formula">H(S) = -Σ p(c) × log₂(p(c))</div>
             <p>Where H(S) is the entropy of the dataset S, and p(c) is the proportion of samples belonging to class c (default/no-default).</p>
-            
             <h3>Information Gain</h3>
             <p>The effectiveness of a split is measured by how much it reduces entropy:</p>
-            
-            <div class="formula">
-                IG(S, A) = H(S) - Σ (|Sᵥ|/|S|) × H(Sᵥ)
-            </div>
-            
+            <div class="formula">IG(S, A) = H(S) - Σ (|Sᵥ|/|S|) × H(Sᵥ)</div>
             <p>Where A is the attribute we're splitting on, and Sᵥ represents the subset of S for each value v of attribute A.</p>
-            
             <h3>Gini Impurity: An Alternative Metric</h3>
             <p>Many implementations use Gini impurity for computational efficiency:</p>
-            
-            <div class="formula">
-                Gini(S) = 1 - Σ p(c)²
-            </div>
-            
+            <div class="formula">Gini(S) = 1 - Σ p(c)²</div>
             <p>Lower Gini values indicate purer nodes (more homogeneous loan outcomes).</p>
         </div>
 
+        <!-- Interactive Entropy Calculator -->
+        <div class="interactive-section">
+            <h3>🔢 Interactive Entropy Calculator</h3>
+            <p>Drag the slider to change the proportion of defaults in a loan dataset and see how entropy changes:</p>
+            <div class="slider-container">
+                <div class="slider-label"><span>0% defaults (pure)</span><span>100% defaults (pure)</span></div>
+                <input type="range" class="slider" id="entropySlider" min="0" max="100" value="50" oninput="updateEntropy()">
+            </div>
+            <div class="slider-value" id="entropyDisplay">Default rate: 50% | Entropy: 1.000 bits</div>
+            <canvas id="entropyCanvas" width="600" height="120"></canvas>
+            <p style="text-align:center; color:#666; font-size:0.9em; margin-top:0.5em">🔵 Low entropy = pure node (easier decision) | 🔴 High entropy = mixed node (harder decision)</p>
+        </div>
+
+        <!-- Quiz 2 -->
+        <div class="quiz-card" id="quiz2">
+            <h4>🧠 Quick Check — Part II</h4>
+            <p>At what default rate is entropy maximized in a binary classification problem?</p>
+            <div class="answer-options">
+                <div class="answer-option" onclick="answerQuiz(2, this, false)">0% (all non-defaults)</div>
+                <div class="answer-option" onclick="answerQuiz(2, this, false)">25% defaults</div>
+                <div class="answer-option" onclick="answerQuiz(2, this, true)">50% defaults</div>
+                <div class="answer-option" onclick="answerQuiz(2, this, false)">100% (all defaults)</div>
+            </div>
+            <div class="quiz-feedback" id="feedback2"></div>
+        </div>
+
+        <!-- PART III -->
         <h2>Part III: Building the Tree - A Step-by-Step Journey</h2>
-        
         <div class="code-block">
 <span class="code-comment"># Step 1: Understanding our loan data structure</span>
 <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
@@ -249,57 +204,62 @@ features = [
     <span class="code-string">'previous_defaults'</span>,   <span class="code-comment"># Number of past defaults</span>
 ]
 
-<span class="code-comment"># Target: 1 if loan defaulted, 0 if repaid successfully</span>
 X = loan_data[features]
 y = loan_data[<span class="code-string">'defaulted'</span>]
-
-<span class="code-comment"># Split data: 70% training, 30% testing</span>
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.3, random_state=42, stratify=y
-)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
         </div>
 
         <div class="code-block">
 <span class="code-comment"># Step 2: Building our first decision tree</span>
 <span class="code-keyword">def</span> <span class="code-function">build_loan_decision_tree</span>(max_depth=None, min_samples_split=20):
-    <span class="code-string">"""
-    Build a decision tree optimized for loan approval.
-    
-    Business constraints:
-    - Must be interpretable (max_depth limits complexity)
-    - Must handle at least 20 samples per decision (regulatory requirement)
-    - Must provide probability estimates for risk scoring
-    """</span>
-    
-    <span class="code-comment"># Initialize tree with business-driven parameters</span>
     tree_model = DecisionTreeClassifier(
-        criterion=<span class="code-string">'gini'</span>,              <span class="code-comment"># Use Gini for speed</span>
-        max_depth=max_depth,             <span class="code-comment"># Control interpretability</span>
-        min_samples_split=min_samples_split,  <span class="code-comment"># Regulatory compliance</span>
-        min_samples_leaf=10,             <span class="code-comment"># Avoid overfitting</span>
-        class_weight=<span class="code-string">'balanced'</span>,       <span class="code-comment"># Handle imbalanced defaults</span>
+        criterion=<span class="code-string">'gini'</span>,
+        max_depth=max_depth,
+        min_samples_split=min_samples_split,
+        min_samples_leaf=10,
+        class_weight=<span class="code-string">'balanced'</span>,
         random_state=42
     )
-    
-    <span class="code-comment"># Train the model</span>
     tree_model.fit(X_train, y_train)
-    
-    <span class="code-comment"># Calculate feature importance for business insights</span>
     feature_importance = pd.DataFrame({
         <span class="code-string">'feature'</span>: features,
         <span class="code-string">'importance'</span>: tree_model.feature_importances_
     }).sort_values(<span class="code-string">'importance'</span>, ascending=False)
-    
     <span class="code-keyword">return</span> tree_model, feature_importance
 
-<span class="code-comment"># Build our model</span>
 model, importance = build_loan_decision_tree(max_depth=5)
-<span class="code-keyword">print</span>(<span class="code-string">"Top Risk Factors:"</span>)
-<span class="code-keyword">print</span>(importance.head())
         </div>
 
+        <!-- Interactive Decision Tree Canvas -->
+        <div class="interactive-section">
+            <h3>🌳 Interactive Decision Tree Builder</h3>
+            <p>Click any non-leaf node to expand it. Each node shows the Gini impurity and sample counts for the loan dataset.</p>
+            <div style="text-align:center; margin-bottom:1em;">
+                <button class="button" onclick="resetTree()">↺ Reset Tree</button>
+                <button class="button success" onclick="expandAll()">Expand All</button>
+                <button class="button secondary" onclick="collapseAll()">Collapse All</button>
+            </div>
+            <div class="viz-container">
+                <canvas id="treeCanvas" width="820" height="420"></canvas>
+            </div>
+            <p style="color:#666; font-size:0.85em; text-align:center;">Node color: 🟢 mostly approved (Gini &lt; 0.3) | 🟡 mixed (0.3–0.45) | 🔴 mostly rejected (Gini &gt; 0.45)</p>
+        </div>
+
+        <!-- Quiz 3 -->
+        <div class="quiz-card" id="quiz3">
+            <h4>🧠 Quick Check — Part III</h4>
+            <p>When building a decision tree for loan approval, which split would be chosen at the root node?</p>
+            <div class="answer-options">
+                <div class="answer-option" onclick="answerQuiz(3, this, false)">The split with the highest entropy after split</div>
+                <div class="answer-option" onclick="answerQuiz(3, this, true)">The split that maximizes information gain (minimizes weighted child entropy)</div>
+                <div class="answer-option" onclick="answerQuiz(3, this, false)">The split on the first feature alphabetically</div>
+                <div class="answer-option" onclick="answerQuiz(3, this, false)">A random split to ensure unbiased training</div>
+            </div>
+            <div class="quiz-feedback" id="feedback3"></div>
+        </div>
+
+        <!-- PART IV -->
         <h2>Part IV: The Business Impact - Beyond Accuracy</h2>
-        
         <div class="key-insight">
             <h3>The Cost-Sensitive Nature of Loan Decisions</h3>
             <p>Not all errors are equal in lending:</p>
@@ -313,157 +273,186 @@ model, importance = build_loan_decision_tree(max_depth=5)
         <div class="code-block">
 <span class="code-comment"># Step 3: Implementing cost-sensitive decision making</span>
 <span class="code-keyword">def</span> <span class="code-function">calculate_business_impact</span>(y_true, y_pred, y_prob):
-    <span class="code-string">"""
-    Calculate the actual dollar impact of our loan decisions.
-    
-    Business model:
-    - Average loan amount: $50,000
-    - Default rate in approved loans affects profitability
-    - Each default costs: principal loss + collection costs
-    - Each successful loan generates: interest income over loan term
-    """</span>
-    
-    <span class="code-comment"># Business parameters</span>
-    avg_loan_amount = 50000
-    default_loss = 25000      <span class="code-comment"># Average loss per defaulted loan</span>
-    good_loan_profit = 3500    <span class="code-comment"># Average profit per successful loan</span>
-    
-    <span class="code-comment"># Calculate confusion matrix components</span>
-    true_positives = np.sum((y_true == 1) & (y_pred == 1))   <span class="code-comment"># Correctly rejected bad loans</span>
-    false_positives = np.sum((y_true == 0) & (y_pred == 1))  <span class="code-comment"># Incorrectly rejected good loans</span>
-    true_negatives = np.sum((y_true == 0) & (y_pred == 0))   <span class="code-comment"># Correctly approved good loans</span>
-    false_negatives = np.sum((y_true == 1) & (y_pred == 0))  <span class="code-comment"># Incorrectly approved bad loans</span>
-    
-    <span class="code-comment"># Calculate financial impact</span>
-    saved_from_defaults = true_positives * default_loss
-    lost_opportunity = false_positives * good_loan_profit
-    earned_from_good_loans = true_negatives * good_loan_profit
-    losses_from_defaults = false_negatives * default_loss
-    
-    total_impact = saved_from_defaults + earned_from_good_loans - lost_opportunity - losses_from_defaults
-    
-    <span class="code-keyword">return</span> {
-        <span class="code-string">'total_impact'</span>: total_impact,
-        <span class="code-string">'saved_from_defaults'</span>: saved_from_defaults,
-        <span class="code-string">'lost_opportunities'</span>: lost_opportunity,
-        <span class="code-string">'earned_from_good_loans'</span>: earned_from_good_loans,
-        <span class="code-string">'losses_from_defaults'</span>: losses_from_defaults,
-        <span class="code-string">'approval_rate'</span>: (true_negatives + false_negatives) / len(y_true)
-    }
-
-<span class="code-comment"># Evaluate our model's business impact</span>
-y_pred = model.predict(X_test)
-y_prob = model.predict_proba(X_test)[:, 1]
-impact = calculate_business_impact(y_test, y_pred, y_prob)
-
-<span class="code-keyword">print</span>(f<span class="code-string">"Annual Financial Impact: ${impact['total_impact']:,.0f}"</span>)
-<span class="code-keyword">print</span>(f<span class="code-string">"Loan Approval Rate: {impact['approval_rate']:.1%}"</span>)
+    default_loss = 25000
+    good_loan_profit = 3500
+    true_positives = np.sum((y_true == 1) &amp; (y_pred == 1))
+    false_positives = np.sum((y_true == 0) &amp; (y_pred == 1))
+    true_negatives = np.sum((y_true == 0) &amp; (y_pred == 0))
+    false_negatives = np.sum((y_true == 1) &amp; (y_pred == 0))
+    total_impact = (true_positives * default_loss + true_negatives * good_loan_profit
+                    - false_positives * good_loan_profit - false_negatives * default_loss)
+    <span class="code-keyword">return</span> {<span class="code-string">'total_impact'</span>: total_impact, <span class="code-string">'approval_rate'</span>: (true_negatives + false_negatives) / len(y_true)}
         </div>
 
+        <!-- Interactive Confusion Matrix -->
+        <div class="interactive-section">
+            <h3>🔲 Interactive Confusion Matrix</h3>
+            <p>Adjust the decision threshold and see how the confusion matrix and business metrics change:</p>
+            <div class="slider-container">
+                <div class="slider-label"><span>More Approvals (low threshold)</span><span>More Rejections (high threshold)</span></div>
+                <input type="range" class="slider" id="cmThreshSlider" min="10" max="90" value="30" oninput="updateCM()">
+                <div class="slider-value" id="cmThreshDisplay">Decision Threshold: 0.30 (approve if P(default) &lt; 0.30)</div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="cm-table">
+                    <tr><th colspan="2" rowspan="2" style="background:#555"></th><th colspan="2">Predicted</th></tr>
+                    <tr><th>Approved (0)</th><th>Rejected (1)</th></tr>
+                    <tr>
+                        <th rowspan="2" style="writing-mode:vertical-rl; transform:rotate(180deg); background:#003366; color:white; padding:10px;">Actual</th>
+                        <th style="background:#003366; color:white;">No Default (0)</th>
+                        <td class="cm-tn" id="cm-tn">7,200</td>
+                        <td class="cm-fp" id="cm-fp">800</td>
+                    </tr>
+                    <tr>
+                        <th style="background:#003366; color:white;">Default (1)</th>
+                        <td class="cm-fn" id="cm-fn">300</td>
+                        <td class="cm-tp" id="cm-tp">700</td>
+                    </tr>
+                </table>
+            </div>
+            <div id="cmMetrics" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em; margin-top:1em; text-align:center;">
+                <div style="background:#f8f9fa; padding:1em; border-radius:8px;"><strong>Accuracy</strong><br><span id="cmAcc" style="font-size:1.4em; color:#0366d6; font-weight:bold;">88.9%</span></div>
+                <div style="background:#f8f9fa; padding:1em; border-radius:8px;"><strong>Financial Impact</strong><br><span id="cmImpact" style="font-size:1.4em; color:#28a745; font-weight:bold;">+$27.7M</span></div>
+                <div style="background:#f8f9fa; padding:1em; border-radius:8px;"><strong>Approval Rate</strong><br><span id="cmApproval" style="font-size:1.4em; color:#f5576c; font-weight:bold;">76%</span></div>
+            </div>
+        </div>
+
+        <!-- Quiz 4 -->
+        <div class="quiz-card" id="quiz4">
+            <h4>🧠 Quick Check — Part IV</h4>
+            <p>In a loan approval model, a False Negative means:</p>
+            <div class="answer-options">
+                <div class="answer-option" onclick="answerQuiz(4, this, false)">Rejecting a creditworthy applicant</div>
+                <div class="answer-option" onclick="answerQuiz(4, this, true)">Approving a loan that later defaults</div>
+                <div class="answer-option" onclick="answerQuiz(4, this, false)">Correctly approving a good loan</div>
+                <div class="answer-option" onclick="answerQuiz(4, this, false)">Correctly rejecting a bad loan</div>
+            </div>
+            <div class="quiz-feedback" id="feedback4"></div>
+        </div>
+
+        <!-- PART V -->
         <h2>Part V: Advanced Techniques - Pruning and Optimization</h2>
-        
         <div class="code-block">
 <span class="code-comment"># Step 4: Optimizing tree complexity for production</span>
 <span class="code-keyword">def</span> <span class="code-function">optimize_tree_depth</span>(X_train, y_train, X_val, y_val):
-    <span class="code-string">"""
-    Find the optimal tree depth that maximizes business value.
-    
-    Strategy: Balance model complexity with financial performance
-    """</span>
-    
     depth_analysis = []
-    
     <span class="code-keyword">for</span> depth <span class="code-keyword">in</span> range(2, 15):
-        <span class="code-comment"># Train tree with specific depth</span>
-        tree = DecisionTreeClassifier(
-            max_depth=depth,
-            min_samples_split=20,
-            class_weight=<span class="code-string">'balanced'</span>,
-            random_state=42
-        )
+        tree = DecisionTreeClassifier(max_depth=depth, min_samples_split=20, class_weight=<span class="code-string">'balanced'</span>, random_state=42)
         tree.fit(X_train, y_train)
-        
-        <span class="code-comment"># Evaluate on validation set</span>
         y_pred = tree.predict(X_val)
-        y_prob = tree.predict_proba(X_val)[:, 1]
-        
-        <span class="code-comment"># Calculate business metrics</span>
-        impact = calculate_business_impact(y_val, y_pred, y_prob)
-        
-        <span class="code-comment"># Store results</span>
-        depth_analysis.append({
-            <span class="code-string">'depth'</span>: depth,
-            <span class="code-string">'n_leaves'</span>: tree.get_n_leaves(),
-            <span class="code-string">'financial_impact'</span>: impact[<span class="code-string">'total_impact'</span>],
-            <span class="code-string">'approval_rate'</span>: impact[<span class="code-string">'approval_rate'</span>]
-        })
-    
+        impact = calculate_business_impact(y_val, y_pred, tree.predict_proba(X_val)[:, 1])
+        depth_analysis.append({<span class="code-string">'depth'</span>: depth, <span class="code-string">'n_leaves'</span>: tree.get_n_leaves(), <span class="code-string">'financial_impact'</span>: impact[<span class="code-string">'total_impact'</span>]})
     <span class="code-keyword">return</span> pd.DataFrame(depth_analysis)
-
-<span class="code-comment"># Find optimal complexity</span>
-optimization_results = optimize_tree_depth(X_train, y_train, X_test, y_test)
-optimal_depth = optimization_results.loc[
-    optimization_results[<span class="code-string">'financial_impact'</span>].idxmax(), <span class="code-string">'depth'</span>
-]
-
-<span class="code-keyword">print</span>(f<span class="code-string">"Optimal tree depth: {optimal_depth}"</span>)
-<span class="code-keyword">print</span>(f<span class="code-string">"Expected annual impact: ${optimization_results['financial_impact'].max():,.0f}"</span>)
         </div>
 
+        <!-- Max Depth Slider -->
+        <div class="interactive-section">
+            <h3>🎚️ Max Depth Explorer: Bias-Variance Tradeoff</h3>
+            <p>Use the slider to see how tree depth affects training accuracy, test accuracy, and model complexity:</p>
+            <div class="slider-container">
+                <div class="slider-label"><span>Depth 1 (very simple)</span><span>Depth 10 (complex)</span></div>
+                <input type="range" class="slider" id="depthSlider" min="1" max="10" value="3" oninput="updateDepthChart()">
+                <div class="slider-value" id="depthDisplay">Max Depth = 3</div>
+            </div>
+            <canvas id="depthCanvas" width="820" height="260"></canvas>
+            <div id="depthStats" style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0.8em; margin-top:1em; text-align:center;">
+                <div style="background:#f8f9fa; padding:0.8em; border-radius:8px;"><strong>Train Accuracy</strong><br><span id="trainAcc" style="color:#667eea; font-weight:bold; font-size:1.2em;">82.1%</span></div>
+                <div style="background:#f8f9fa; padding:0.8em; border-radius:8px;"><strong>Test Accuracy</strong><br><span id="testAcc" style="color:#0366d6; font-weight:bold; font-size:1.2em;">79.4%</span></div>
+                <div style="background:#f8f9fa; padding:0.8em; border-radius:8px;"><strong>Tree Leaves</strong><br><span id="numLeaves" style="color:#f5576c; font-weight:bold; font-size:1.2em;">8</span></div>
+                <div style="background:#f8f9fa; padding:0.8em; border-radius:8px;"><strong>Status</strong><br><span id="depthStatus" style="color:#28a745; font-weight:bold; font-size:1.1em;">Good Fit</span></div>
+            </div>
+        </div>
+
+        <!-- Quiz 5 -->
+        <div class="quiz-card" id="quiz5">
+            <h4>🧠 Quick Check — Part V</h4>
+            <p>A decision tree with max_depth=20 on a training dataset of 10,000 samples will likely suffer from:</p>
+            <div class="answer-options">
+                <div class="answer-option" onclick="answerQuiz(5, this, false)">Underfitting — too simple to capture patterns</div>
+                <div class="answer-option" onclick="answerQuiz(5, this, true)">Overfitting — memorizing training data but failing on new data</div>
+                <div class="answer-option" onclick="answerQuiz(5, this, false)">Slow training — too many parameters to optimize</div>
+                <div class="answer-option" onclick="answerQuiz(5, this, false)">Class imbalance — unequal leaf node sizes</div>
+            </div>
+            <div class="quiz-feedback" id="feedback5"></div>
+        </div>
+
+        <!-- PART VI -->
         <h2>Part VI: Interpretability - The Regulatory Requirement</h2>
-        
         <div class="code-block">
 <span class="code-comment"># Step 5: Extracting human-readable decision rules</span>
 <span class="code-keyword">def</span> <span class="code-function">extract_decision_path</span>(tree_model, sample_features):
-    <span class="code-string">"""
-    Extract the decision path for a loan application.
-    Required for regulatory compliance and customer communication.
-    """</span>
-    
-    <span class="code-comment"># Get the decision path</span>
     feature_names = sample_features.index
     decision_path = tree_model.decision_path([sample_features.values])
-    leaf_id = tree_model.apply([sample_features.values])[0]
-    
-    <span class="code-comment"># Extract rules from root to leaf</span>
     node_indicator = decision_path.toarray()[0]
     rules = []
-    
     <span class="code-keyword">for</span> node_id <span class="code-keyword">in</span> range(len(node_indicator)):
         <span class="code-keyword">if</span> node_indicator[node_id] == 1:
-            <span class="code-keyword">if</span> tree_model.tree_.children_left[node_id] != -1:  <span class="code-comment"># Not a leaf</span>
+            <span class="code-keyword">if</span> tree_model.tree_.children_left[node_id] != -1:
                 feature_id = tree_model.tree_.feature[node_id]
                 threshold = tree_model.tree_.threshold[node_id]
                 feature_name = feature_names[feature_id]
-                
-                <span class="code-comment"># Determine which branch was taken</span>
-                <span class="code-keyword">if</span> sample_features.values[feature_id] <= threshold:
-                    rules.append(f<span class="code-string">"{feature_name} <= {threshold:.2f}"</span>)
+                <span class="code-keyword">if</span> sample_features.values[feature_id] &lt;= threshold:
+                    rules.append(f<span class="code-string">"{feature_name} &lt;= {threshold:.2f}"</span>)
                 <span class="code-keyword">else</span>:
-                    rules.append(f<span class="code-string">"{feature_name} > {threshold:.2f}"</span>)
-    
-    <span class="code-comment"># Get the prediction probability</span>
+                    rules.append(f<span class="code-string">"{feature_name} &gt; {threshold:.2f}"</span>)
     proba = tree_model.predict_proba([sample_features.values])[0]
-    
-    <span class="code-keyword">return</span> {
-        <span class="code-string">'rules'</span>: rules,
-        <span class="code-string">'default_probability'</span>: proba[1],
-        <span class="code-string">'decision'</span>: <span class="code-string">'Approve'</span> <span class="code-keyword">if</span> proba[1] < 0.3 <span class="code-keyword">else</span> <span class="code-string">'Reject'</span>
-    }
-
-<span class="code-comment"># Example: Explain a specific loan decision</span>
-sample_application = X_test.iloc[0]
-explanation = extract_decision_path(model, sample_application)
-
-<span class="code-keyword">print</span>(<span class="code-string">"Loan Decision Explanation:"</span>)
-<span class="code-keyword">for</span> i, rule <span class="code-keyword">in</span> enumerate(explanation[<span class="code-string">'rules'</span>], 1):
-    <span class="code-keyword">print</span>(f<span class="code-string">"  Step {i}: {rule}"</span>)
-<span class="code-keyword">print</span>(f<span class="code-string">"Default Risk: {explanation['default_probability']:.1%}"</span>)
-<span class="code-keyword">print</span>(f<span class="code-string">"Decision: {explanation['decision']}"</span>)
+    <span class="code-keyword">return</span> {<span class="code-string">'rules'</span>: rules, <span class="code-string">'default_probability'</span>: proba[1], <span class="code-string">'decision'</span>: <span class="code-string">'Approve'</span> <span class="code-keyword">if</span> proba[1] &lt; 0.3 <span class="code-keyword">else</span> <span class="code-string">'Reject'</span>}
         </div>
 
+        <!-- Interactive Loan Explorer -->
+        <div class="interactive-section">
+            <h3>🏦 Interactive Loan Approval Explorer</h3>
+            <p>Enter a loan application and see how the decision tree evaluates it step by step:</p>
+            <div class="loan-form">
+                <div class="form-group">
+                    <label>Credit Score (300–850)</label>
+                    <input type="number" id="creditScore" value="680" min="300" max="850">
+                </div>
+                <div class="form-group">
+                    <label>Annual Income ($)</label>
+                    <input type="number" id="annualIncome" value="65000" min="10000" max="500000">
+                </div>
+                <div class="form-group">
+                    <label>Debt-to-Income Ratio (%)</label>
+                    <input type="number" id="dti" value="28" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label>Employment Years</label>
+                    <input type="number" id="empYears" value="5" min="0" max="40">
+                </div>
+                <div class="form-group">
+                    <label>Loan Amount ($)</label>
+                    <input type="number" id="loanAmount" value="25000" min="1000" max="500000">
+                </div>
+                <div class="form-group">
+                    <label>Previous Defaults</label>
+                    <select id="prevDefaults">
+                        <option value="0">0 (none)</option>
+                        <option value="1">1</option>
+                        <option value="2">2+</option>
+                    </select>
+                </div>
+            </div>
+            <button class="button" onclick="evaluateLoan()">🔍 Evaluate Application</button>
+            <div id="loanDecision" class="decision-result"></div>
+            <div id="loanRules" style="display:none; background:#f8f9fa; border-radius:8px; padding:1em; margin-top:1em;"></div>
+        </div>
+
+        <!-- Quiz 6 -->
+        <div class="quiz-card" id="quiz6">
+            <h4>🧠 Quick Check — Part VI</h4>
+            <p>Why is interpretability particularly important for loan approval decision trees compared to, say, an image classifier?</p>
+            <div class="answer-options">
+                <div class="answer-option" onclick="answerQuiz(6, this, false)">Image classifiers are more accurate so they don't need explanation</div>
+                <div class="answer-option" onclick="answerQuiz(6, this, false)">Decision trees are too complex for regulators to review</div>
+                <div class="answer-option" onclick="answerQuiz(6, this, true)">Financial regulations require explainable decisions for applicant rights and regulatory audits</div>
+                <div class="answer-option" onclick="answerQuiz(6, this, false)">Loan amounts are too small to warrant complex explanations</div>
+            </div>
+            <div class="quiz-feedback" id="feedback6"></div>
+        </div>
+
+        <!-- PART VII -->
         <h2>Part VII: Ensemble Enhancement - Random Forests</h2>
-        
         <div class="paradigm-shift">
             <h3>From Single Tree to Forest</h3>
             <p>While a single decision tree provides interpretability, combining multiple trees through Random Forests can dramatically improve performance while maintaining reasonable interpretability through feature importance analysis.</p>
@@ -474,38 +463,47 @@ explanation = extract_decision_path(model, sample_application)
 <span class="code-keyword">from</span> sklearn.ensemble <span class="code-keyword">import</span> RandomForestClassifier
 
 <span class="code-keyword">def</span> <span class="code-function">build_loan_forest</span>(n_trees=100):
-    <span class="code-string">"""
-    Build a Random Forest model for loan approval.
-    Trades some interpretability for significantly better performance.
-    """</span>
-    
-    forest = RandomForestClassifier(
-        n_estimators=n_trees,
-        max_depth=7,
-        min_samples_split=20,
-        class_weight=<span class="code-string">'balanced'</span>,
-        n_jobs=-1,  <span class="code-comment"># Use all CPU cores</span>
-        random_state=42
-    )
-    
+    forest = RandomForestClassifier(n_estimators=n_trees, max_depth=7, min_samples_split=20, class_weight=<span class="code-string">'balanced'</span>, n_jobs=-1, random_state=42)
     forest.fit(X_train, y_train)
-    
-    <span class="code-comment"># Compare single tree vs forest performance</span>
     tree_pred = model.predict(X_test)
     forest_pred = forest.predict(X_test)
-    
     tree_impact = calculate_business_impact(y_test, tree_pred, model.predict_proba(X_test)[:, 1])
     forest_impact = calculate_business_impact(y_test, forest_pred, forest.predict_proba(X_test)[:, 1])
-    
     improvement = forest_impact[<span class="code-string">'total_impact'</span>] - tree_impact[<span class="code-string">'total_impact'</span>]
-    
-    <span class="code-keyword">print</span>(f<span class="code-string">"Single Tree Annual Impact: ${tree_impact['total_impact']:,.0f}"</span>)
-    <span class="code-keyword">print</span>(f<span class="code-string">"Random Forest Annual Impact: ${forest_impact['total_impact']:,.0f}"</span>)
     <span class="code-keyword">print</span>(f<span class="code-string">"Additional Value from Forest: ${improvement:,.0f}"</span>)
-    
     <span class="code-keyword">return</span> forest
 
 forest_model = build_loan_forest()
+        </div>
+
+        <!-- Interactive Forest vs Tree Comparison -->
+        <div class="interactive-section">
+            <h3>🌲 Single Tree vs Random Forest: Performance Comparison</h3>
+            <p>Select the number of trees in the forest and see how ensemble size affects performance:</p>
+            <div class="slider-container">
+                <div class="slider-label"><span>1 tree</span><span>200 trees</span></div>
+                <input type="range" class="slider" id="forestSlider" min="1" max="200" step="1" value="10" oninput="updateForest()">
+                <div class="slider-value" id="forestDisplay">Forest Size: 10 trees</div>
+            </div>
+            <canvas id="forestCanvas" width="820" height="200"></canvas>
+            <div id="forestStats" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em; margin-top:1em; text-align:center;">
+                <div style="background:#f8f9fa; padding:1em; border-radius:8px;"><strong>Single Tree AUC</strong><br><span style="color:#f5576c; font-weight:bold; font-size:1.3em;">0.81</span></div>
+                <div style="background:#f8f9fa; padding:1em; border-radius:8px;"><strong>Forest AUC</strong><br><span id="forestAUC" style="color:#28a745; font-weight:bold; font-size:1.3em;">0.89</span></div>
+                <div style="background:#f8f9fa; padding:1em; border-radius:8px;"><strong>Improvement</strong><br><span id="forestImprovement" style="color:#0366d6; font-weight:bold; font-size:1.3em;">+$2.8M/yr</span></div>
+            </div>
+        </div>
+
+        <!-- Quiz 7 -->
+        <div class="quiz-card" id="quiz7">
+            <h4>🧠 Quick Check — Part VII</h4>
+            <p>What is the primary tradeoff when switching from a single decision tree to a Random Forest for loan approval?</p>
+            <div class="answer-options">
+                <div class="answer-option" onclick="answerQuiz(7, this, false)">Training speed vs accuracy (forests are much faster)</div>
+                <div class="answer-option" onclick="answerQuiz(7, this, true)">Interpretability vs performance (forests are harder to explain but more accurate)</div>
+                <div class="answer-option" onclick="answerQuiz(7, this, false)">Memory usage vs feature selection (forests use less memory)</div>
+                <div class="answer-option" onclick="answerQuiz(7, this, false)">Data requirements vs bias (forests need less data)</div>
+            </div>
+            <div class="quiz-feedback" id="feedback7"></div>
         </div>
 
         <div class="summary-box">
@@ -517,7 +515,6 @@ forest_model = build_loan_forest()
                 <li>Reduced loan processing time from 3 days to 30 seconds</li>
                 <li>Provided clear explanations for every loan decision</li>
             </ul>
-            
             <p><strong>Critical Insights:</strong></p>
             <ul>
                 <li>Decision trees naturally handle non-linear patterns and feature interactions</li>
@@ -526,7 +523,6 @@ forest_model = build_loan_forest()
                 <li>Cost-sensitive evaluation is crucial for business applications</li>
                 <li>Random Forests can improve performance while sacrificing some interpretability</li>
             </ul>
-            
             <p><strong>Production Considerations:</strong></p>
             <ul>
                 <li>Monitor for data drift - retrain quarterly with new loan data</li>
@@ -536,10 +532,431 @@ forest_model = build_loan_forest()
             </ul>
         </div>
 
+        <!-- Final Score -->
+        <div id="finalScore" style="display:none; text-align:center; background:linear-gradient(135deg,#003366,#0366d6); color:white; border-radius:12px; padding:2em; margin:2em 0;">
+            <h2 style="color:white; border:none;">🎉 Module Complete!</h2>
+            <div style="font-size:3em; font-weight:bold; margin:0.3em 0;" id="finalScoreNum">7/7</div>
+            <p>You've mastered decision trees for loan approval!</p>
+            <a href="module5_class_notes.html" style="color:white; font-weight:bold;">→ Continue to Module 5</a>
+        </div>
+
         <div class="business-context">
             <h3>The Bottom Line</h3>
             <p>Your decision tree system has transformed Regional Bank's lending operations. By replacing rigid rules with adaptive, data-driven decisions, you've not only saved $52 million annually but also increased loan approval rates by 15% while reducing default rates by 40%. The bank can now make instant, explainable loan decisions that satisfy both customers and regulators. This is the power of decision trees - turning complex patterns into clear, actionable business rules.</p>
         </div>
     </div>
+
+<script>
+// ---- Quiz System ----
+let quizScores = {};
+let quizAnswered = {};
+
+function answerQuiz(qNum, el, isCorrect) {
+    if (quizAnswered[qNum]) return;
+    quizAnswered[qNum] = true;
+    quizScores[qNum] = isCorrect;
+
+    const options = el.parentElement.querySelectorAll('.answer-option');
+    options.forEach(opt => {
+        opt.style.cursor = 'default';
+        opt.style.pointerEvents = 'none';
+    });
+    el.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+    const fb = document.getElementById('feedback' + qNum);
+    fb.className = 'quiz-feedback show ' + (isCorrect ? 'correct-fb' : 'incorrect-fb');
+    const explanations = {
+        1: "✅ Correct! ML trees automatically discover optimal split points from data, capturing interactions that hard-coded rules miss.",
+        2: "✅ Correct! Entropy is maximized at 50/50 split (H=1.0 bit) — maximum uncertainty. At 0% or 100% default, entropy = 0 (pure node).",
+        3: "✅ Correct! The algorithm evaluates all possible splits on all features and chooses the one with maximum information gain.",
+        4: "✅ Correct! A False Negative (model predicts 'no default' but loan actually defaults) is the most costly error in lending.",
+        5: "✅ Correct! Deep trees memorize noise in training data, causing high training accuracy but poor test performance (overfitting).",
+        6: "✅ Correct! Regulations like ECOA require lenders to provide reasons for adverse actions, making explainability legally required.",
+        7: "✅ Correct! Random Forests sacrifice individual-tree interpretability for better predictive performance through ensemble voting."
+    };
+    const wrongExplanations = {
+        1: "❌ The key advantage is discovering data-driven patterns, not hardware speed.",
+        2: "❌ Entropy is maximized at 50% (perfect uncertainty). Pure nodes (0% or 100%) have zero entropy.",
+        3: "❌ Trees systematically evaluate all splits to find the one with maximum information gain.",
+        4: "❌ A False Negative means the model MISSES a default — it approves a loan that later defaults.",
+        5: "❌ Deeper trees tend to overfit, not underfit. They become too complex and memorize training noise.",
+        6: "❌ Interpretability matters for financial regulations and consumer protection laws.",
+        7: "❌ The main tradeoff is interpretability vs performance, not the options listed."
+    };
+    fb.innerHTML = isCorrect ? explanations[qNum] : wrongExplanations[qNum];
+    updateProgress();
+}
+
+function updateProgress() {
+    const answered = Object.keys(quizAnswered).length;
+    const correct = Object.values(quizScores).filter(Boolean).length;
+    const pct = Math.round((answered / 7) * 100);
+    document.getElementById('moduleProgress').style.width = pct + '%';
+    document.getElementById('moduleProgress').textContent = pct + '%';
+    document.getElementById('progressText').textContent = `${correct} correct, ${answered - correct} incorrect (${answered}/7 parts completed)`;
+    if (answered === 7) {
+        document.getElementById('finalScore').style.display = 'block';
+        document.getElementById('finalScoreNum').textContent = correct + '/7';
+    }
+}
+
+// ---- Entropy Visualization ----
+function updateEntropy() {
+    const val = parseInt(document.getElementById('entropySlider').value) / 100;
+    const p = val, q = 1 - p;
+    let entropy = 0;
+    if (p > 0 && p < 1) entropy = -(p * Math.log2(p) + q * Math.log2(q));
+    document.getElementById('entropyDisplay').textContent = `Default rate: ${Math.round(val*100)}% | Entropy: ${entropy.toFixed(3)} bits`;
+
+    const canvas = document.getElementById('entropyCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw entropy bar
+    const barWidth = 600, barH = 40, x0 = 10, y0 = 20;
+    ctx.fillStyle = '#e9ecef';
+    ctx.fillRect(x0, y0, barWidth, barH);
+
+    const color = entropy > 0.8 ? '#dc3545' : entropy > 0.4 ? '#ffc107' : '#28a745';
+    ctx.fillStyle = color;
+    ctx.fillRect(x0, y0, barWidth * entropy, barH);
+
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 14px Georgia';
+    ctx.fillText('Entropy (0 = pure, 1 = maximum uncertainty)', x0, y0 + barH + 20);
+    ctx.fillText('Defaults', x0, y0 + barH + 40);
+    ctx.fillStyle = '#0366d6';
+    const dW = barWidth * val;
+    ctx.fillRect(x0, y0 + barH + 50, dW, 20);
+    ctx.fillStyle = '#28a745';
+    ctx.fillRect(x0 + dW, y0 + barH + 50, barWidth - dW, 20);
+    ctx.fillStyle = '#333';
+    ctx.font = '12px Georgia';
+    ctx.fillText('Non-defaults', x0 + dW + 5, y0 + barH + 65);
+}
+updateEntropy();
+
+// ---- Confusion Matrix ----
+function updateCM() {
+    const thresh = parseInt(document.getElementById('cmThreshSlider').value) / 100;
+    document.getElementById('cmThreshDisplay').textContent = `Decision Threshold: ${thresh.toFixed(2)} (approve if P(default) < ${thresh.toFixed(2)})`;
+
+    const total = 9000;
+    const actualDefaults = 1000, actualGood = 8000;
+    const approvalRate = thresh;
+    const sensitivity = Math.min(0.95, thresh * 2.5);
+    const tn = Math.round(actualGood * approvalRate);
+    const fp = actualGood - tn;
+    const fn = Math.round(actualDefaults * (1 - sensitivity));
+    const tp = actualDefaults - fn;
+
+    document.getElementById('cm-tn').textContent = tn.toLocaleString();
+    document.getElementById('cm-fp').textContent = fp.toLocaleString();
+    document.getElementById('cm-fn').textContent = fn.toLocaleString();
+    document.getElementById('cm-tp').textContent = tp.toLocaleString();
+
+    const acc = ((tn + tp) / total * 100).toFixed(1);
+    const impact = ((tp * 25000 + tn * 3500 - fp * 3500 - fn * 25000) / 1e6).toFixed(1);
+    const approval = ((tn + fn) / total * 100).toFixed(0);
+
+    document.getElementById('cmAcc').textContent = acc + '%';
+    document.getElementById('cmImpact').textContent = (impact > 0 ? '+' : '') + '$' + impact + 'M';
+    document.getElementById('cmApproval').textContent = approval + '%';
+}
+updateCM();
+
+// ---- Decision Tree Canvas ----
+const treeData = {
+    label: 'credit_score ≤ 650?', gini: 0.420, samples: 5000, approve: 2800, reject: 2200,
+    left: {
+        label: 'prev_defaults = 0?', gini: 0.410, samples: 2200, approve: 900, reject: 1300,
+        left: {
+            label: 'income > 40K?', gini: 0.380, samples: 1800, approve: 780, reject: 1020,
+            left: { label: '✗ REJECT', gini: 0.12, samples: 950, approve: 120, reject: 830, leaf: true },
+            right: { label: '✓ APPROVE', gini: 0.32, samples: 850, approve: 660, reject: 190, leaf: true }
+        },
+        right: { label: '✗ REJECT', gini: 0.08, samples: 400, approve: 120, reject: 280, leaf: true }
+    },
+    right: {
+        label: 'dti ≤ 35%?', gini: 0.280, samples: 2800, approve: 1900, reject: 900,
+        left: {
+            label: 'loan_amt ≤ 50K?', gini: 0.260, samples: 2200, approve: 1600, reject: 600,
+            left: { label: '✓ APPROVE', gini: 0.15, samples: 1400, approve: 1200, reject: 200, leaf: true },
+            right: { label: '✓ APPROVE', gini: 0.28, samples: 800, approve: 400, reject: 400, leaf: true }
+        },
+        right: { label: '✗ REJECT', gini: 0.22, samples: 600, approve: 300, reject: 300, leaf: true }
+    }
+};
+
+let expandedNodes = new Set(['root']);
+
+function getNodeColor(gini) {
+    if (gini < 0.25) return '#28a745';
+    if (gini < 0.40) return '#ffc107';
+    return '#dc3545';
+}
+
+function drawTree() {
+    const canvas = document.getElementById('treeCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawNode(ctx, treeData, 410, 30, 200, 'root');
+}
+
+function drawNode(ctx, node, x, y, spread, nodeId) {
+    const r = 36;
+    const color = getNodeColor(node.gini);
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = node.leaf ? '#f8f9fa' : (expandedNodes.has(nodeId) ? '#e7f3ff' : '#fff3cd');
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.fillStyle = '#003366';
+    ctx.font = 'bold 9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const label = node.label.length > 14 ? node.label.slice(0,12) + '…' : node.label;
+    ctx.fillText(label, x, y - 7);
+    ctx.fillStyle = color;
+    ctx.font = '9px sans-serif';
+    ctx.fillText('G=' + node.gini.toFixed(3), x, y + 5);
+    ctx.fillStyle = '#555';
+    ctx.fillText('n=' + node.samples, x, y + 15);
+
+    if (!node.leaf && expandedNodes.has(nodeId)) {
+        const childY = y + 90;
+        const lx = x - spread, rx = x + spread;
+
+        ctx.beginPath(); ctx.moveTo(x, y + r); ctx.lineTo(lx, childY - r);
+        ctx.strokeStyle = '#aaa'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, y + r); ctx.lineTo(rx, childY - r);
+        ctx.stroke();
+
+        ctx.fillStyle = '#555'; ctx.font = '10px Georgia'; ctx.textAlign = 'center';
+        ctx.fillText('Yes', (x + lx) / 2 - 8, (y + childY) / 2);
+        ctx.fillText('No', (x + rx) / 2 + 8, (y + childY) / 2);
+
+        if (node.left) drawNode(ctx, node.left, lx, childY, spread * 0.5, nodeId + '_L');
+        if (node.right) drawNode(ctx, node.right, rx, childY, spread * 0.5, nodeId + '_R');
+    }
+}
+
+function resetTree() { expandedNodes = new Set(['root']); drawTree(); }
+function expandAll() {
+    expandedNodes = new Set(['root','root_L','root_R','root_L_L','root_L_R','root_R_L','root_R_R']);
+    drawTree();
+}
+function collapseAll() { expandedNodes = new Set(['root']); drawTree(); }
+
+document.getElementById('treeCanvas').addEventListener('click', function(e) {
+    const rect = this.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (820 / rect.width);
+    const my = (e.clientY - rect.top) * (420 / rect.height);
+    toggleNode(mx, my, treeData, 410, 30, 200, 'root');
+    drawTree();
+});
+
+function toggleNode(mx, my, node, x, y, spread, nodeId) {
+    if (Math.hypot(mx - x, my - y) < 36) {
+        if (!node.leaf) {
+            if (expandedNodes.has(nodeId)) expandedNodes.delete(nodeId);
+            else expandedNodes.add(nodeId);
+        }
+        return;
+    }
+    if (!node.leaf && expandedNodes.has(nodeId)) {
+        if (node.left) toggleNode(mx, my, node.left, x - spread, y + 90, spread * 0.5, nodeId + '_L');
+        if (node.right) toggleNode(mx, my, node.right, x + spread, y + 90, spread * 0.5, nodeId + '_R');
+    }
+}
+drawTree();
+
+// ---- Max Depth Chart ----
+const depthData = {
+    trainAcc: [62, 70, 82, 87, 90, 92, 94, 95, 97, 99],
+    testAcc:  [61, 69, 79, 80, 80, 79, 76, 72, 67, 60],
+    leaves:   [2,  4,  8, 16, 24, 35, 52, 78,115,180]
+};
+
+function updateDepthChart() {
+    const d = parseInt(document.getElementById('depthSlider').value);
+    document.getElementById('depthDisplay').textContent = 'Max Depth = ' + d;
+
+    const ta = depthData.trainAcc[d-1];
+    const te = depthData.testAcc[d-1];
+    const lv = depthData.leaves[d-1];
+
+    document.getElementById('trainAcc').textContent = ta + '%';
+    document.getElementById('testAcc').textContent = te + '%';
+    document.getElementById('numLeaves').textContent = lv;
+
+    let status, statusColor;
+    if (ta - te > 15) { status = 'Overfitting ⚠️'; statusColor = '#dc3545'; }
+    else if (te < 70) { status = 'Underfitting ⚠️'; statusColor = '#ffc107'; }
+    else { status = 'Good Fit ✓'; statusColor = '#28a745'; }
+    document.getElementById('depthStatus').textContent = status;
+    document.getElementById('depthStatus').style.color = statusColor;
+
+    const canvas = document.getElementById('depthCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const W = 820, H = 260, pad = 50;
+    const plotW = W - 2 * pad, plotH = H - 2 * pad;
+
+    ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+        const y = pad + plotH - (i / 5) * plotH;
+        ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
+        ctx.fillStyle = '#888'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+        ctx.fillText((i * 20) + '%', pad - 5, y + 4);
+    }
+
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad); ctx.lineTo(W - pad, H - pad); ctx.stroke();
+
+    ctx.fillStyle = '#003366'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Max Depth', W / 2, H - 5);
+    ctx.save(); ctx.translate(12, H/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('Accuracy (%)', 0, 0); ctx.restore();
+
+    // Draw lines
+    [[depthData.trainAcc, '#667eea', 'Train Accuracy'], [depthData.testAcc, '#0366d6', 'Test Accuracy']].forEach(([data, color, label]) => {
+        ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+        data.forEach((v, i) => {
+            const x = pad + (i / 9) * plotW;
+            const y = pad + plotH - ((v - 50) / 50) * plotH;
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+    });
+
+    // Current depth marker
+    const cx = pad + ((d - 1) / 9) * plotW;
+    ctx.beginPath(); ctx.strokeStyle = '#dc3545'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+    ctx.moveTo(cx, pad); ctx.lineTo(cx, H - pad); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // X-axis labels
+    for (let i = 1; i <= 10; i++) {
+        const x = pad + ((i - 1) / 9) * plotW;
+        ctx.fillStyle = i === d ? '#dc3545' : '#888';
+        ctx.font = i === d ? 'bold 12px sans-serif' : '11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(i, x, H - pad + 15);
+    }
+
+    // Legend
+    ctx.font = '12px Georgia'; ctx.textAlign = 'left';
+    [['#667eea', 'Train Acc'], ['#0366d6', 'Test Acc']].forEach(([c, l], i) => {
+        ctx.fillStyle = c; ctx.fillRect(W - 140, 15 + i * 20, 20, 3);
+        ctx.fillStyle = '#333'; ctx.fillText(l, W - 115, 20 + i * 20);
+    });
+}
+updateDepthChart();
+
+// ---- Forest Chart ----
+function updateForest() {
+    const n = parseInt(document.getElementById('forestSlider').value);
+    document.getElementById('forestDisplay').textContent = 'Forest Size: ' + n + ' trees';
+
+    const baseAUC = 0.81;
+    const gain = Math.min(0.11, 0.11 * (1 - Math.exp(-n / 30)));
+    const forestAUC = (baseAUC + gain).toFixed(3);
+    const improvement = (gain * 30).toFixed(1);
+    document.getElementById('forestAUC').textContent = forestAUC;
+    document.getElementById('forestImprovement').textContent = '+$' + improvement + 'M/yr';
+
+    const canvas = document.getElementById('forestCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const W = 820, H = 200, pad = 50;
+    const plotW = W - 2 * pad, plotH = H - 2 * pad - 20;
+
+    ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+        const y = pad + plotH - (i / 4) * plotH;
+        ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
+        ctx.fillStyle = '#888'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+        ctx.fillText((0.80 + i * 0.04).toFixed(2), pad - 5, y + 4);
+    }
+
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad - 20); ctx.lineTo(W - pad, H - pad - 20); ctx.stroke();
+
+    // Forest AUC curve
+    ctx.beginPath(); ctx.strokeStyle = '#28a745'; ctx.lineWidth = 2.5;
+    for (let i = 1; i <= 200; i++) {
+        const x = pad + ((i - 1) / 199) * plotW;
+        const auc = 0.81 + 0.11 * (1 - Math.exp(-i / 30));
+        const y = pad + plotH - ((auc - 0.80) / 0.16) * plotH;
+        i === 1 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Single tree baseline
+    ctx.beginPath(); ctx.strokeStyle = '#f5576c'; ctx.lineWidth = 2; ctx.setLineDash([8, 4]);
+    ctx.moveTo(pad, pad + plotH - ((0.81 - 0.80) / 0.16) * plotH);
+    ctx.lineTo(W - pad, pad + plotH - ((0.81 - 0.80) / 0.16) * plotH);
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // Current position
+    const cx = pad + ((n - 1) / 199) * plotW;
+    ctx.beginPath(); ctx.strokeStyle = '#0366d6'; ctx.lineWidth = 2;
+    ctx.arc(cx, pad + plotH - ((parseFloat(forestAUC) - 0.80) / 0.16) * plotH, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#0366d6'; ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = '#333'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    for (let v of [1, 50, 100, 150, 200]) {
+        const x = pad + ((v - 1) / 199) * plotW;
+        ctx.fillText(v, x, H - pad + 5);
+    }
+}
+updateForest();
+
+// ---- Loan Explorer ----
+function evaluateLoan() {
+    const cs = parseInt(document.getElementById('creditScore').value);
+    const inc = parseInt(document.getElementById('annualIncome').value);
+    const dti = parseInt(document.getElementById('dti').value);
+    const emp = parseInt(document.getElementById('empYears').value);
+    const loan = parseInt(document.getElementById('loanAmount').value);
+    const def = parseInt(document.getElementById('prevDefaults').value);
+
+    const rules = [];
+    let score = 0;
+
+    if (cs > 650) { score += 30; rules.push('✅ credit_score > 650 (+30 pts)'); }
+    else { score -= 20; rules.push('❌ credit_score ≤ 650 (-20 pts)'); }
+    if (dti < 35) { score += 20; rules.push('✅ debt_to_income ≤ 35% (+20 pts)'); }
+    else { score -= 15; rules.push('❌ debt_to_income > 35% (-15 pts)'); }
+    if (inc > 50000) { score += 15; rules.push('✅ annual_income > $50K (+15 pts)'); }
+    else { rules.push('⚠️ annual_income ≤ $50K (0 pts)'); }
+    if (def === 0) { score += 20; rules.push('✅ previous_defaults = 0 (+20 pts)'); }
+    else { score -= 25; rules.push('❌ previous_defaults > 0 (-25 pts)'); }
+    if (emp >= 2) { score += 10; rules.push('✅ employment_years ≥ 2 (+10 pts)'); }
+    else { score -= 5; rules.push('⚠️ employment_years < 2 (-5 pts)'); }
+    if (loan / Math.max(inc, 1) < 0.5) { score += 5; rules.push('✅ loan/income ratio < 0.5 (+5 pts)'); }
+    else { rules.push('⚠️ loan/income ratio ≥ 0.5 (0 pts)'); }
+
+    const resultDiv = document.getElementById('loanDecision');
+    const rulesDiv = document.getElementById('loanRules');
+    resultDiv.style.display = 'block';
+    rulesDiv.style.display = 'block';
+
+    if (score >= 30) {
+        resultDiv.className = 'decision-result decision-approve';
+        resultDiv.innerHTML = '✅ LOAN APPROVED<br><small>Risk Score: ' + score + '/80 | Estimated default probability: ' + Math.max(5, 30 - score) + '%</small>';
+    } else {
+        resultDiv.className = 'decision-result decision-reject';
+        resultDiv.innerHTML = '❌ LOAN REJECTED<br><small>Risk Score: ' + score + '/80 | Estimated default probability: ' + Math.min(95, 60 - score) + '%</small>';
+    }
+    rulesDiv.innerHTML = '<strong>Decision Path:</strong><br>' + rules.map(r => '<div style="margin:0.3em 0; font-size:0.9em;">' + r + '</div>').join('');
+}
+</script>
 </body>
 </html>

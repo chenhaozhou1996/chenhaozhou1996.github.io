@@ -555,9 +555,9 @@
         
         function checkAnswer(element, isCorrect) {
             const options = document.querySelectorAll('.quiz-option');
+            // Clear ALL previous states so user can try again
             options.forEach(opt => {
-                opt.classList.remove('correct', 'incorrect');
-                opt.onclick = null;
+                opt.classList.remove('correct', 'incorrect', 'selected');
             });
             
             if (isCorrect) {
@@ -566,9 +566,7 @@
                 document.getElementById('continueBtn').style.display = 'inline-block';
             } else {
                 element.classList.add('incorrect');
-                setTimeout(() => {
-                    alert('Think about what we need to predict: a yes/no decision about customer churn');
-                }, 500);
+                // User can click again to try a different answer
             }
         }
         

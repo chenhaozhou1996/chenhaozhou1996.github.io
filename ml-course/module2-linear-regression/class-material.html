@@ -1,243 +1,1024 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 2: Linear Regression - Interactive Class Material</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        
-        h1 {
-            color: #003366;
-            font-family: Georgia, serif;
-            margin-bottom: 20px;
-        }
-        
-        .interactive-demo {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 15px;
-            margin: 30px 0;
-        }
-        
-        .slider-container {
-            margin: 20px 0;
-        }
-        
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-weight: 500;
-        }
-        
-        input[type="range"] {
-            width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: #e0e0e0;
-            outline: none;
-        }
-        
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #667eea;
-            cursor: pointer;
-        }
-        
-        .button {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 10px 5px;
-        }
-        
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        #visualization {
-            width: 100%;
-            height: 400px;
-            margin: 20px 0;
-        }
-        
-        .metrics-display {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-        
-        .metric-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .metric-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #667eea;
-        }
-        
-        .metric-label {
-            color: #666;
-            font-size: 0.9em;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2: Linear Regression | DataCorp Story</title>
+<style>
+body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 980px; margin: auto; padding: 2rem; line-height: 1.7; }
+nav { background: #f0f4f8; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; border-radius: 8px; margin-bottom: 2em; }
+nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; font-family: Arial, sans-serif; }
+h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+h1 { font-size: 2em; border-bottom: 3px solid #003366; padding-bottom: 0.5em; }
+h2 { font-size: 1.5em; margin-top: 2em; }
+
+.card { background: #fff; padding: 1.4em; margin: 1.2em 0; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.hook { background: linear-gradient(135deg, #003366 0%, #0066cc 100%); color: white; padding: 2em; border-radius: 12px; margin: 1.5em 0; }
+.hook h2 { color: white; }
+.hook p { font-size: 1.1em; line-height: 1.8; }
+
+/* Story Progress Tracker */
+.story-progress { display: flex; justify-content: space-between; margin: 2em 0; position: relative; align-items: center; }
+.story-progress::before { content: ""; position: absolute; top: 20px; left: 0; right: 0; height: 3px; background: #e1e4e8; z-index: 0; }
+.story-progress-fill { position: absolute; top: 20px; left: 0; height: 3px; background: linear-gradient(90deg, #003366, #0366d6); z-index: 0; transition: width 0.8s ease; }
+.story-step-wrap { display: flex; flex-direction: column; align-items: center; z-index: 1; }
+.story-step { background: white; border: 3px solid #e1e4e8; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: Arial, sans-serif; font-size: 0.9em; cursor: pointer; transition: all 0.3s ease; }
+.story-step.completed { background: #28a745; color: white; border-color: #28a745; }
+.story-step.active { background: #003366; color: white; border-color: #003366; transform: scale(1.25); }
+.story-step-label { font-size: 0.72em; color: #555; margin-top: 6px; text-align: center; max-width: 80px; font-family: Arial, sans-serif; }
+
+/* Interactive Section */
+.interactive-section { background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%); padding: 2em; margin: 2em 0; border-radius: 12px; border: 1px solid #c5d5f5; }
+.interactive-section h3 { color: #003366; margin-top: 0; }
+
+/* Buttons */
+.button { display: inline-block; padding: 0.7em 1.4em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; transition: all 0.25s ease; margin: 0.4em 0.4em 0.4em 0; font-weight: bold; font-family: Arial, sans-serif; }
+.button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
+.button.success { background: #28a745; }
+.button.success:hover { background: #218838; }
+.button.secondary { background: #6c757d; }
+.button.warning { background: #e67e22; }
+
+/* Sliders */
+.slider-container { margin: 1em 0; }
+.slider-container label { font-family: Arial, sans-serif; font-weight: bold; color: #003366; display: block; margin-bottom: 0.3em; }
+input[type=range] { width: 100%; height: 8px; border-radius: 4px; background: #c5d5f5; outline: none; -webkit-appearance: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #0366d6; cursor: pointer; border: 2px solid white; box-shadow: 0 0 4px rgba(3,102,214,0.5); }
+
+/* Canvas */
+canvas { display: block; border: 1px solid #dde3ed; border-radius: 8px; background: white; }
+
+/* Metrics */
+.metrics-row { display: flex; gap: 1em; flex-wrap: wrap; margin: 1em 0; }
+.metric-box { flex: 1; min-width: 120px; background: #fff; border: 2px solid #c5d5f5; border-radius: 8px; padding: 1em; text-align: center; }
+.metric-value { font-size: 1.6em; font-weight: bold; color: #003366; font-family: Arial, sans-serif; }
+.metric-label { font-size: 0.8em; color: #666; font-family: Arial, sans-serif; margin-top: 0.2em; }
+
+/* Quiz */
+.quiz-card { background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%); border: 2px solid #0366d6; border-radius: 12px; padding: 1.5em; margin: 2em 0; }
+.quiz-card h3 { color: #003366; margin-top: 0; }
+.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin: 1em 0; }
+.answer-option { padding: 0.9em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.25s ease; text-align: center; font-family: Arial, sans-serif; font-size: 0.95em; }
+.answer-option:hover { border-color: #0366d6; background: #e8f0fe; }
+.answer-option.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+.answer-option.incorrect { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+.feedback-panel { background: #e8f4fd; border-left: 5px solid #0366d6; padding: 1em 1.5em; margin-top: 1em; border-radius: 6px; display: none; font-family: Arial, sans-serif; }
+.feedback-panel.show { display: block; }
+
+/* Code Editor */
+.code-editor { background: #1e1e2e; border-radius: 10px; padding: 1em; margin: 1.5em 0; position: relative; }
+.code-editor-header { color: #cba6f7; font-family: monospace; font-size: 0.85em; margin-bottom: 0.5em; }
+.code-input { width: 100%; min-height: 140px; background: transparent; color: #cdd6f4; border: none; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.95em; resize: vertical; outline: none; line-height: 1.6; }
+.code-run-btn { background: #a6e3a1; color: #1e1e2e; padding: 0.5em 1.2em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: Arial, sans-serif; margin-top: 0.5em; }
+.code-output { background: #11111b; color: #cdd6f4; padding: 1em; border-radius: 8px; margin-top: 0.8em; min-height: 80px; font-family: monospace; font-size: 0.9em; display: none; white-space: pre; }
+.code-output.show { display: block; }
+
+/* Impact */
+.impact-display { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 2px solid #28a745; border-radius: 12px; padding: 2em; margin: 2em 0; text-align: center; }
+.impact-number { font-size: 2.8em; font-weight: bold; color: #155724; font-family: Arial, sans-serif; margin: 0.2em 0; }
+.impact-description { color: #155724; font-size: 1.05em; }
+
+/* Formula */
+.formula-box { background: #f8f4ff; border: 1px solid #c5a9f5; border-radius: 8px; padding: 1.2em; margin: 1em 0; text-align: center; font-size: 1.1em; font-family: Georgia, serif; color: #3c1f8c; }
+.formula-box .formula-title { font-size: 0.8em; color: #777; font-family: Arial, sans-serif; margin-bottom: 0.3em; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Progress bar */
+.progress-bar { height: 24px; background: #e9ecef; border-radius: 12px; margin: 1.5em 0; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #003366, #0366d6); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-family: Arial, sans-serif; font-size: 0.85em; transition: width 0.8s ease; }
+
+/* Gradient descent */
+#gd-canvas { cursor: crosshair; }
+.gd-controls { display: flex; gap: 1em; flex-wrap: wrap; align-items: center; margin: 1em 0; }
+
+/* Train/test split */
+.split-controls { display: flex; gap: 1em; flex-wrap: wrap; align-items: flex-end; margin: 1em 0; }
+.split-controls .slider-container { flex: 1; min-width: 200px; }
+
+/* Info callout */
+.callout { border-left: 4px solid #003366; padding: 1em 1.5em; background: #f0f4ff; border-radius: 0 8px 8px 0; margin: 1em 0; }
+.callout.success { border-color: #28a745; background: #f0fff4; }
+.callout.warning { border-color: #e67e22; background: #fff8f0; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Module 2: Linear Regression - Predicting Business Outcomes</h1>
-        
-        <p><strong>Learning Objective:</strong> Understand how linear regression models relationships between variables to predict future outcomes in business contexts.</p>
-        
-        <div class="interactive-demo">
-            <h2>Interactive Regression Explorer</h2>
-            <p>Adjust the parameters below to see how they affect the model's predictions:</p>
-            
-            <div class="slider-container">
-                <div class="slider-label">
-                    <span>Model Complexity</span>
-                    <span id="complexity-value">3</span>
-                </div>
-                <input type="range" min="1" max="10" value="3" id="complexity-slider">
-            </div>
-            
-            <div class="slider-container">
-                <div class="slider-label">
-                    <span>Noise Level</span>
-                    <span id="noise-value">0.3</span>
-                </div>
-                <input type="range" min="0" max="100" value="30" id="noise-slider">
-            </div>
-            
-            <div class="slider-container">
-                <div class="slider-label">
-                    <span>Training Samples</span>
-                    <span id="samples-value">50</span>
-                </div>
-                <input type="range" min="10" max="200" value="50" id="samples-slider">
-            </div>
-            
-            <button class="button" onclick="updateVisualization()">Update Visualization</button>
-            <button class="button" onclick="resetParameters()">Reset Parameters</button>
-            
-            <canvas id="visualization"></canvas>
-            
-            <div class="metrics-display">
-                <div class="metric-card">
-                    <div class="metric-value" id="train-rmse">0.00</div>
-                    <div class="metric-label">Training RMSE</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-value" id="test-rmse">0.00</div>
-                    <div class="metric-label">Test RMSE</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-value" id="r-squared">0.00</div>
-                    <div class="metric-label">R² Score</div>
-                </div>
-            </div>
-        </div>
+
+<nav>
+  <a href="class-material.html">📖 Class</a>
+  <a href="lab.html">🔬 Lab</a>
+  <a href="../index.html">🏠 Course Home</a>
+</nav>
+
+<h1>📈 Module 2: Linear Regression</h1>
+<p style="color:#555; font-style:italic;">The art of drawing the best possible line through messy reality.</p>
+
+<!-- Story Progress -->
+<div class="card">
+  <h3 style="margin-top:0;">Your Story Progress at DataCorp</h3>
+  <div class="story-progress" id="storyProgress">
+    <div id="progress-line" class="story-progress-fill" style="width:0%"></div>
+    <div class="story-step-wrap">
+      <div class="story-step active" id="step1" onclick="goToStep(1)">1</div>
+      <div class="story-step-label">The Problem</div>
     </div>
+    <div class="story-step-wrap">
+      <div class="story-step" id="step2" onclick="goToStep(2)">2</div>
+      <div class="story-step-label">OLS Fit</div>
+    </div>
+    <div class="story-step-wrap">
+      <div class="story-step" id="step3" onclick="goToStep(3)">3</div>
+      <div class="story-step-label">Gradient Descent</div>
+    </div>
+    <div class="story-step-wrap">
+      <div class="story-step" id="step4" onclick="goToStep(4)">4</div>
+      <div class="story-step-label">Overfitting</div>
+    </div>
+    <div class="story-step-wrap">
+      <div class="story-step" id="step5" onclick="goToStep(5)">5</div>
+      <div class="story-step-label">Business Impact</div>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="mainProgress" style="width:20%">Step 1 / 5</div></div>
+</div>
+
+<!-- STEP 1: Opening Hook -->
+<div id="section1" class="hook">
+  <h2>🎯 Day 1 at DataCorp</h2>
+  <p>Your first week as a junior analyst at DataCorp. The VP of Operations drops a spreadsheet on your desk: 18 months of advertising spend vs. monthly revenue. "We're burning $4M a quarter on ads," she says. "Tell me which campaigns are actually moving the needle — and predict next quarter's revenue. I need the answer by Friday."</p>
+  <p>You open the file. 216 rows of numbers. No model. No baseline. Just data and a deadline.</p>
+  <p>This is the moment linear regression was invented for.</p>
+  <button class="button success" onclick="advanceStory(2)">Start Building the Model →</button>
+</div>
+
+<!-- STEP 2: OLS Scatter Plot -->
+<div id="section2" style="display:none">
+<h2>📊 Step 2: Finding the Best Line (OLS)</h2>
+<div class="callout">
+  <strong>Ordinary Least Squares (OLS)</strong> finds the line that minimizes the sum of squared vertical distances from each point to the line. It has a closed-form solution: <em>β₁ = Cov(X,Y) / Var(X)</em> and <em>β₀ = ȳ − β₁x̄</em>.
+</div>
+
+<div class="interactive-section">
+  <h3>🔬 Interactive Regression Lab</h3>
+  <p>Adjust the controls below. The regression line and all metrics are computed in real-time using actual OLS formulas — nothing is hardcoded.</p>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5em; margin-bottom:1em;">
+    <div class="slider-container">
+      <label>Sample Size: <span id="n-val">40</span></label>
+      <input type="range" id="sl-n" min="10" max="150" value="40" oninput="updatePlot()">
+    </div>
+    <div class="slider-container">
+      <label>Noise Level: <span id="noise-val">0.3</span></label>
+      <input type="range" id="sl-noise" min="0" max="1" step="0.05" value="0.3" oninput="updatePlot()">
+    </div>
+    <div class="slider-container">
+      <label>Outliers: <span id="outlier-val">0</span></label>
+      <input type="range" id="sl-outliers" min="0" max="8" step="1" value="0" oninput="updatePlot()">
+    </div>
+  </div>
+
+  <canvas id="scatter-canvas" width="880" height="380"></canvas>
+
+  <div class="metrics-row" style="margin-top:1em;">
+    <div class="metric-box">
+      <div class="metric-value" id="m-r2">—</div>
+      <div class="metric-label">R² (Variance Explained)</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value" id="m-rmse">—</div>
+      <div class="metric-label">RMSE</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value" id="m-mae">—</div>
+      <div class="metric-label">MAE</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value" id="m-beta1">—</div>
+      <div class="metric-label">Slope β₁</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value" id="m-beta0">—</div>
+      <div class="metric-label">Intercept β₀</div>
+    </div>
+  </div>
+
+  <div class="formula-box">
+    <div class="formula-title">OLS Formulas (no hardcoding — computed from your data)</div>
+    β₁ = Σ(xᵢ − x̄)(yᵢ − ȳ) / Σ(xᵢ − x̄)² &nbsp;|&nbsp; β₀ = ȳ − β₁x̄ &nbsp;|&nbsp; R² = 1 − SSres/SStot
+  </div>
+
+  <button class="button" onclick="updatePlot()">🔄 New Random Data</button>
+  <button class="button secondary" onclick="resetSliders()">Reset</button>
+</div>
+
+<!-- Quiz 1 -->
+<div class="quiz-card">
+  <h3>❓ Quick Check: What Happens to R² When You Add Noise?</h3>
+  <p>You're adding noise via the slider above. What do you expect to happen to R²?</p>
+  <div class="answer-options">
+    <div class="answer-option" onclick="checkQ1(this, false)">R² stays the same — it's robust to noise</div>
+    <div class="answer-option" onclick="checkQ1(this, true)">R² decreases — noise increases unexplained variance</div>
+    <div class="answer-option" onclick="checkQ1(this, false)">R² increases — more data variance means better fit</div>
+    <div class="answer-option" onclick="checkQ1(this, false)">R² becomes negative — the line flips direction</div>
+  </div>
+  <div class="feedback-panel" id="q1-feedback"></div>
+</div>
+
+<button class="button success" onclick="advanceStory(3)">Next: How Gradient Descent Finds the Same Answer →</button>
+</div>
+
+<!-- STEP 3: Gradient Descent -->
+<div id="section3" style="display:none">
+<h2>⛰️ Step 3: Gradient Descent — Sliding Down the Loss Mountain</h2>
+<div class="callout">
+  OLS gives us a closed-form solution. But what if we have millions of features and can't invert a matrix? <strong>Gradient descent</strong> iteratively nudges the parameters downhill on the loss surface until it converges. Same destination, different path.
+</div>
+
+<div class="interactive-section">
+  <h3>🎮 Loss Landscape Visualization</h3>
+  <p>The heatmap below shows Mean Squared Error for different values of β₀ and β₁. The red dot is the current parameter estimate. Press <strong>Animate</strong> to watch gradient descent find the minimum.</p>
+
+  <canvas id="gd-canvas" width="420" height="380" style="display:inline-block; vertical-align:top;"></canvas>
+  <canvas id="loss-curve-canvas" width="420" height="380" style="display:inline-block; vertical-align:top; margin-left:8px;"></canvas>
+
+  <div class="gd-controls">
+    <div class="slider-container" style="flex:1; min-width:180px;">
+      <label>Learning Rate: <span id="lr-val">0.05</span></label>
+      <input type="range" id="sl-lr" min="0.001" max="0.3" step="0.001" value="0.05" oninput="document.getElementById('lr-val').textContent=parseFloat(this.value).toFixed(3)">
+    </div>
+    <button class="button" onclick="startGD()">▶ Animate</button>
+    <button class="button secondary" onclick="resetGD()">↺ Reset</button>
+  </div>
+
+  <div class="metrics-row">
+    <div class="metric-box"><div class="metric-value" id="gd-iter">0</div><div class="metric-label">Iterations</div></div>
+    <div class="metric-box"><div class="metric-value" id="gd-loss">—</div><div class="metric-label">Current MSE</div></div>
+    <div class="metric-box"><div class="metric-value" id="gd-b0">—</div><div class="metric-label">β₀ estimate</div></div>
+    <div class="metric-box"><div class="metric-value" id="gd-b1">—</div><div class="metric-label">β₁ estimate</div></div>
+  </div>
+</div>
+
+<!-- Quiz 2 -->
+<div class="quiz-card">
+  <h3>❓ Learning Rate Intuition</h3>
+  <p>What happens if you set the learning rate too high?</p>
+  <div class="answer-options">
+    <div class="answer-option" onclick="checkQ2(this, false)">Convergence is faster and more stable</div>
+    <div class="answer-option" onclick="checkQ2(this, true)">The algorithm overshoots and may diverge</div>
+    <div class="answer-option" onclick="checkQ2(this, false)">Nothing — the algorithm auto-adjusts</div>
+    <div class="answer-option" onclick="checkQ2(this, false)">R² automatically increases</div>
+  </div>
+  <div class="feedback-panel" id="q2-feedback"></div>
+</div>
+
+<button class="button success" onclick="advanceStory(4)">Next: The Overfitting Trap →</button>
+</div>
+
+<!-- STEP 4: Train/Test Split & Overfitting -->
+<div id="section4" style="display:none">
+<h2>⚠️ Step 4: The Overfitting Trap</h2>
+<div class="callout warning">
+  <strong>Overfitting</strong> means your model memorizes the training data instead of learning the pattern. It performs great in-sample but collapses on new data. A polynomial of degree 15 fits 20 training points perfectly — but predicts garbage for new inputs.
+</div>
+
+<div class="interactive-section">
+  <h3>🎓 Train/Test Split Demo</h3>
+  <p>Drag the polynomial degree slider. Watch training R² climb toward 1.0 as overfitting kicks in — but notice the test R² plummet.</p>
+
+  <div class="split-controls">
+    <div class="slider-container" style="flex:1;">
+      <label>Polynomial Degree: <span id="poly-val">1</span></label>
+      <input type="range" id="sl-poly" min="1" max="12" step="1" value="1" oninput="updatePolyPlot()">
+    </div>
+    <div class="slider-container" style="flex:1;">
+      <label>Train Split: <span id="split-val">70</span>%</label>
+      <input type="range" id="sl-split" min="40" max="90" step="5" value="70" oninput="updatePolyPlot()">
+    </div>
+  </div>
+
+  <canvas id="poly-canvas" width="880" height="360"></canvas>
+
+  <div class="metrics-row">
+    <div class="metric-box"><div class="metric-value" id="poly-r2-train" style="color:#0366d6">—</div><div class="metric-label">Train R²</div></div>
+    <div class="metric-box"><div class="metric-value" id="poly-r2-test" style="color:#dc3545">—</div><div class="metric-label">Test R²</div></div>
+    <div class="metric-box"><div class="metric-value" id="poly-rmse-train">—</div><div class="metric-label">Train RMSE</div></div>
+    <div class="metric-box"><div class="metric-value" id="poly-rmse-test">—</div><div class="metric-label">Test RMSE</div></div>
+    <div class="metric-box"><div class="metric-value" id="poly-degree">1</div><div class="metric-label">Model Degree</div></div>
+  </div>
+  <div class="callout success" id="overfit-alert" style="display:none">
+    ⚠️ <strong>Overfitting detected!</strong> Train R² ≫ Test R². This model memorizes noise, not signal. Use cross-validation or regularization to fix this.
+  </div>
+</div>
+
+<!-- Code Editor -->
+<div class="card">
+  <h3>💻 Write Your Prediction Function</h3>
+  <p>Complete the Python function below to predict revenue given ad spend. Use the OLS formulas from Step 2.</p>
+  <div class="code-editor">
+    <div class="code-editor-header"># prediction.py — DataCorp Revenue Forecaster</div>
+    <textarea class="code-input" id="code1" spellcheck="false">def predict_revenue(ad_spend, beta0, beta1):
+    """
+    Predict monthly revenue from ad spend using linear regression.
     
-    <script>
-        // Interactive visualization code
-        function updateVisualization() {
-            const complexity = document.getElementById('complexity-slider').value;
-            const noise = document.getElementById('noise-slider').value / 100;
-            const samples = document.getElementById('samples-slider').value;
-            
-            document.getElementById('complexity-value').textContent = complexity;
-            document.getElementById('noise-value').textContent = noise.toFixed(2);
-            document.getElementById('samples-value').textContent = samples;
-            
-            // Simulate model metrics
-            const trainRMSE = (0.1 + noise * 0.5 - complexity * 0.02).toFixed(3);
-            const testRMSE = (0.15 + noise * 0.6 - complexity * 0.015 + (100 - samples) * 0.001).toFixed(3);
-            const rSquared = (0.95 - noise * 0.3 - Math.abs(complexity - 5) * 0.02).toFixed(3);
-            
-            document.getElementById('train-rmse').textContent = trainRMSE;
-            document.getElementById('test-rmse').textContent = testRMSE;
-            document.getElementById('r-squared').textContent = rSquared;
-            
-            // Draw visualization
-            drawRegression(complexity, noise, samples);
-        }
-        
-        function resetParameters() {
-            document.getElementById('complexity-slider').value = 3;
-            document.getElementById('noise-slider').value = 30;
-            document.getElementById('samples-slider').value = 50;
-            updateVisualization();
-        }
-        
-        function drawRegression(complexity, noise, samples) {
-            const canvas = document.getElementById('visualization');
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth;
-            canvas.height = 400;
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw axes
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(50, canvas.height - 50);
-            ctx.lineTo(canvas.width - 30, canvas.height - 50);
-            ctx.moveTo(50, 30);
-            ctx.lineTo(50, canvas.height - 50);
-            ctx.stroke();
-            
-            // Generate and draw data points
-            ctx.fillStyle = '#667eea';
-            for (let i = 0; i < samples; i++) {
-                const x = 50 + (i / samples) * (canvas.width - 80);
-                const y = canvas.height - 50 - (Math.random() * noise * 100 + 100);
-                ctx.beginPath();
-                ctx.arc(x, y, 4, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            
-            // Draw regression line
-            ctx.strokeStyle = '#dc3545';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(50, canvas.height - 100);
-            ctx.lineTo(canvas.width - 30, 100);
-            ctx.stroke();
-        }
-        
-        // Initialize on load
-        window.onload = updateVisualization;
-    </script>
+    Args:
+        ad_spend: Monthly advertising spend ($M)
+        beta0: Intercept term
+        beta1: Slope (revenue per $M ad spend)
+    
+    Returns:
+        Predicted revenue ($M)
+    """
+    # TODO: Implement the linear regression prediction
+    prediction = beta0 + beta1 * ad_spend
+    return prediction
+
+# Test your function with DataCorp's fitted coefficients
+beta0 = 12.4   # baseline revenue ($M)
+beta1 = 3.7    # revenue per $M of advertising
+
+for spend in [1.0, 2.5, 4.0, 5.5]:
+    rev = predict_revenue(spend, beta0, beta1)
+    print(f"  Ad Spend: ${spend}M  →  Predicted Revenue: ${rev:.1f}M")</textarea>
+    <button class="code-run-btn" onclick="runCode1()">▶ Run</button>
+    <div class="code-output" id="out1"></div>
+  </div>
+</div>
+
+<button class="button success" onclick="advanceStory(5)">Final Step: See Your Business Impact →</button>
+</div>
+
+<!-- STEP 5: Business Impact -->
+<div id="section5" style="display:none">
+<h2>🏆 Step 5: Business Impact</h2>
+
+<div class="impact-display">
+  <div class="impact-description">🎉 Your model is deployed to DataCorp's inventory planning system</div>
+  <div class="impact-number" id="impact-counter">$0</div>
+  <div class="impact-description">projected annual savings in inventory costs</div>
+  <p style="margin-top:1em; color:#155724; font-family: Arial, sans-serif;">Your linear regression model reduced forecast error by 34%, enabling DataCorp to cut overstock by $1.1M and eliminate stockouts worth $1.2M in lost sales — a combined <strong>$2.3M annual impact</strong>.</p>
+</div>
+
+<div class="card">
+  <h3>📋 Model Summary Report for the VP</h3>
+  <table style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif; font-size:0.95em;">
+    <tr style="background:#003366; color:white;">
+      <th style="padding:0.8em; text-align:left;">Metric</th>
+      <th style="padding:0.8em; text-align:left;">Value</th>
+      <th style="padding:0.8em; text-align:left;">Interpretation</th>
+    </tr>
+    <tr style="background:#f0f4ff;">
+      <td style="padding:0.7em;">R²</td><td style="padding:0.7em;" id="final-r2">—</td><td style="padding:0.7em;">Share of revenue variance explained by ad spend</td>
+    </tr>
+    <tr>
+      <td style="padding:0.7em;">RMSE</td><td style="padding:0.7em;" id="final-rmse">—</td><td style="padding:0.7em;">Typical prediction error in revenue units</td>
+    </tr>
+    <tr style="background:#f0f4ff;">
+      <td style="padding:0.7em;">Slope β₁</td><td style="padding:0.7em;" id="final-beta1">—</td><td style="padding:0.7em;">Revenue increase per $1M extra ad spend</td>
+    </tr>
+    <tr>
+      <td style="padding:0.7em;">Sample Size</td><td style="padding:0.7em;">216 monthly observations</td><td style="padding:0.7em;">18 months × 12 regional markets</td>
+    </tr>
+  </table>
+  <p style="font-style:italic; color:#555; margin-top:1em;">The VP approves the model for Q3 planning. You've just delivered a $2.3M result in your first week.</p>
+</div>
+
+<div class="card">
+  <h3>🎓 What You Learned</h3>
+  <ul style="line-height:2;">
+    <li>OLS finds the unique line minimizing sum of squared residuals — with a closed-form solution</li>
+    <li>R² measures explained variance; RMSE and MAE measure prediction error</li>
+    <li>Gradient descent approximates the same minimum iteratively — essential for large-scale problems</li>
+    <li>Overfitting happens when model complexity exceeds what the data can support</li>
+    <li>Always evaluate on held-out test data — training error is an optimistic lie</li>
+  </ul>
+</div>
+
+<div style="text-align:center; margin:2em 0;">
+  <a href="lab.html" class="button success">🔬 Go to Lab — Apply on Real Housing Data →</a>
+  <a href="../index.html" class="button secondary">← Course Home</a>
+</div>
+</div>
+
+<script>
+// ============================================================
+// Global data store
+// ============================================================
+let scatterData = { xs: [], ys: [] };
+let rng = mulberry32(42);
+
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function randn() {
+  const u1 = rng(), u2 = rng();
+  return Math.sqrt(-2 * Math.log(u1 + 1e-10)) * Math.cos(2 * Math.PI * u2);
+}
+
+// ============================================================
+// Story navigation
+// ============================================================
+let currentStep = 1;
+
+function goToStep(n) {
+  // Only advance if not going backward past current
+  if (n <= currentStep + 1) advanceStory(n);
+}
+
+function advanceStory(n) {
+  if (n < 1 || n > 5) return;
+  currentStep = n;
+  for (let i = 1; i <= 5; i++) {
+    const sec = document.getElementById('section' + i);
+    if (sec) sec.style.display = (i === n) ? 'block' : 'none';
+    const step = document.getElementById('step' + i);
+    if (step) {
+      step.className = 'story-step';
+      if (i < n) step.classList.add('completed');
+      if (i === n) step.classList.add('active');
+    }
+  }
+  const prog = document.getElementById('mainProgress');
+  if (prog) {
+    prog.style.width = (n * 20) + '%';
+    prog.textContent = 'Step ' + n + ' / 5';
+  }
+  const line = document.getElementById('progress-line');
+  if (line) line.style.width = ((n - 1) * 25) + '%';
+
+  // Init sub-sections
+  if (n === 2) { rng = mulberry32(Date.now() | 0); generateScatterData(); drawScatter(); }
+  if (n === 3) { initGD(); }
+  if (n === 4) { initPoly(); updatePolyPlot(); }
+  if (n === 5) { animateImpact(); updateFinalMetrics(); }
+
+  window.scrollTo({ top: document.getElementById('section' + n).offsetTop - 80, behavior: 'smooth' });
+}
+
+// ============================================================
+// OLS Scatter Plot
+// ============================================================
+const TRUE_SLOPE = 2.4, TRUE_INTERCEPT = 5;
+
+function generateScatterData() {
+  const n = parseInt(document.getElementById('sl-n').value);
+  const noise = parseFloat(document.getElementById('sl-noise').value);
+  const outliers = parseInt(document.getElementById('sl-outliers').value);
+  const xs = [], ys = [];
+  for (let i = 0; i < n; i++) {
+    const x = 0.5 + rng() * 9;
+    const y = TRUE_INTERCEPT + TRUE_SLOPE * x + randn() * noise * 10;
+    xs.push(x); ys.push(y);
+  }
+  for (let i = 0; i < outliers; i++) {
+    const x = 0.5 + rng() * 9;
+    const y = TRUE_INTERCEPT + TRUE_SLOPE * x + (rng() > 0.5 ? 1 : -1) * (15 + rng() * 10);
+    xs.push(x); ys.push(y);
+  }
+  scatterData = { xs, ys };
+}
+
+function ols(xs, ys) {
+  const n = xs.length;
+  const xm = xs.reduce((a,b) => a+b,0)/n;
+  const ym = ys.reduce((a,b) => a+b,0)/n;
+  let cov = 0, varx = 0;
+  for (let i = 0; i < n; i++) { cov += (xs[i]-xm)*(ys[i]-ym); varx += (xs[i]-xm)**2; }
+  const b1 = varx > 0 ? cov/varx : 0;
+  const b0 = ym - b1*xm;
+  return { b0, b1 };
+}
+
+function computeMetrics(xs, ys, b0, b1) {
+  const n = xs.length;
+  const ym = ys.reduce((a,b) => a+b,0)/n;
+  let ss_res = 0, ss_tot = 0, mae = 0;
+  for (let i = 0; i < n; i++) {
+    const pred = b0 + b1*xs[i];
+    ss_res += (ys[i]-pred)**2;
+    ss_tot += (ys[i]-ym)**2;
+    mae += Math.abs(ys[i]-pred);
+  }
+  const r2 = ss_tot > 0 ? 1 - ss_res/ss_tot : 0;
+  const rmse = Math.sqrt(ss_res/n);
+  return { r2, rmse, mae: mae/n };
+}
+
+function updatePlot() {
+  document.getElementById('n-val').textContent = document.getElementById('sl-n').value;
+  document.getElementById('noise-val').textContent = parseFloat(document.getElementById('sl-noise').value).toFixed(2);
+  document.getElementById('outlier-val').textContent = document.getElementById('sl-outliers').value;
+  rng = mulberry32(Date.now() | 0);
+  generateScatterData();
+  drawScatter();
+}
+
+function resetSliders() {
+  document.getElementById('sl-n').value = 40;
+  document.getElementById('sl-noise').value = 0.3;
+  document.getElementById('sl-outliers').value = 0;
+  updatePlot();
+}
+
+function drawScatter() {
+  const canvas = document.getElementById('scatter-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const pad = { l: 60, r: 30, t: 20, b: 50 };
+  ctx.clearRect(0, 0, W, H);
+
+  const xs = scatterData.xs, ys = scatterData.ys;
+  if (xs.length === 0) return;
+
+  const xmin = Math.min(...xs), xmax = Math.max(...xs);
+  const ymin = Math.min(...ys), ymax = Math.max(...ys);
+  const xr = xmax - xmin || 1, yr = ymax - ymin || 1;
+
+  function tx(x) { return pad.l + (x - xmin) / xr * (W - pad.l - pad.r); }
+  function ty(y) { return H - pad.b - (y - ymin) / yr * (H - pad.t - pad.b); }
+
+  // Grid
+  ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const gx = pad.l + i * (W - pad.l - pad.r) / 5;
+    ctx.beginPath(); ctx.moveTo(gx, pad.t); ctx.lineTo(gx, H - pad.b); ctx.stroke();
+    const gy = pad.t + i * (H - pad.t - pad.b) / 5;
+    ctx.beginPath(); ctx.moveTo(pad.l, gy); ctx.lineTo(W - pad.r, gy); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle = '#999'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle = '#555'; ctx.font = '12px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('Ad Spend ($M)', W/2, H - 8);
+  ctx.save(); ctx.translate(14, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Revenue ($M)', 0, 0); ctx.restore();
+
+  // Compute OLS
+  const { b0, b1 } = ols(xs, ys);
+  const metrics = computeMetrics(xs, ys, b0, b1);
+
+  // Residual lines
+  ctx.strokeStyle = 'rgba(220,53,69,0.3)'; ctx.lineWidth = 1;
+  for (let i = 0; i < xs.length; i++) {
+    ctx.beginPath(); ctx.moveTo(tx(xs[i]), ty(ys[i])); ctx.lineTo(tx(xs[i]), ty(b0 + b1*xs[i])); ctx.stroke();
+  }
+
+  // Regression line
+  ctx.strokeStyle = '#003366'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(tx(xmin), ty(b0 + b1*xmin)); ctx.lineTo(tx(xmax), ty(b0 + b1*xmax)); ctx.stroke();
+
+  // True line (dashed)
+  ctx.strokeStyle = '#28a74588'; ctx.lineWidth = 1.5; ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(tx(xmin), ty(TRUE_INTERCEPT + TRUE_SLOPE*xmin)); ctx.lineTo(tx(xmax), ty(TRUE_INTERCEPT + TRUE_SLOPE*xmax)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Points
+  for (let i = 0; i < xs.length; i++) {
+    ctx.beginPath(); ctx.arc(tx(xs[i]), ty(ys[i]), 5, 0, 2*Math.PI);
+    ctx.fillStyle = 'rgba(3,102,214,0.7)'; ctx.fill();
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 1; ctx.stroke();
+  }
+
+  // Legend
+  ctx.font = '12px Arial'; ctx.fillStyle = '#003366'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#003366'; ctx.fillRect(W - 190, 8, 14, 3); ctx.fillText('OLS fit', W - 172, 14);
+  ctx.strokeStyle = '#28a74588'; ctx.setLineDash([6,4]); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(W - 190, 28); ctx.lineTo(W - 176, 28); ctx.stroke();
+  ctx.setLineDash([]); ctx.fillStyle = '#555'; ctx.fillText('True line', W - 172, 32);
+
+  // Update metrics
+  document.getElementById('m-r2').textContent = metrics.r2.toFixed(3);
+  document.getElementById('m-rmse').textContent = metrics.rmse.toFixed(2);
+  document.getElementById('m-mae').textContent = metrics.mae.toFixed(2);
+  document.getElementById('m-beta1').textContent = b1.toFixed(3);
+  document.getElementById('m-beta0').textContent = b0.toFixed(3);
+
+  // Store for final summary
+  window._lastMetrics = { r2: metrics.r2, rmse: metrics.rmse, b1 };
+}
+
+// ============================================================
+// Quiz handlers
+// ============================================================
+function checkQ1(el, correct) {
+  document.querySelectorAll('#section2 .answer-option').forEach(o => o.classList.remove('correct','incorrect'));
+  el.classList.add(correct ? 'correct' : 'incorrect');
+  const fb = document.getElementById('q1-feedback');
+  fb.className = 'feedback-panel show';
+  if (correct) {
+    fb.innerHTML = '✅ <strong>Correct!</strong> Noise adds unexplained variance, increasing SSres while SStot stays roughly the same. So R² = 1 − SSres/SStot decreases. Try the slider — watch R² fall as noise increases.';
+  } else {
+    fb.innerHTML = '❌ <strong>Not quite.</strong> R² = 1 − SSres/SStot. Noise inflates the residuals (SSres), making R² smaller. The correct answer is: R² <em>decreases</em> as noise increases.';
+  }
+}
+
+function checkQ2(el, correct) {
+  document.querySelectorAll('#section3 .answer-option').forEach(o => o.classList.remove('correct','incorrect'));
+  el.classList.add(correct ? 'correct' : 'incorrect');
+  const fb = document.getElementById('q2-feedback');
+  fb.className = 'feedback-panel show';
+  if (correct) {
+    fb.innerHTML = '✅ <strong>Correct!</strong> A learning rate that\'s too large causes the parameters to jump past the minimum and oscillate or diverge. The classic symptom is loss that bounces or explodes instead of decreasing smoothly.';
+  } else {
+    fb.innerHTML = '❌ <strong>Incorrect.</strong> High learning rates cause the gradient steps to overshoot the minimum. The parameter updates become unstable and the loss may increase rather than decrease.';
+  }
+}
+
+// ============================================================
+// Gradient Descent Visualization
+// ============================================================
+let gdState = null;
+let gdAnim = null;
+let gdData = { xs: [], ys: [] };
+
+function initGD() {
+  // Generate small fixed dataset for GD demo
+  const seed = mulberry32(99);
+  const xs = [], ys = [];
+  for (let i = 0; i < 25; i++) {
+    const x = seed() * 8;
+    const y = 5 + 2*x + (seed() - 0.5) * 8;
+    xs.push(x); ys.push(y);
+  }
+  gdData = { xs, ys };
+  gdState = { b0: -5, b1: 0, iter: 0, history: [], lossHistory: [] };
+  drawGD();
+}
+
+function mseLoss(xs, ys, b0, b1) {
+  let s = 0;
+  for (let i = 0; i < xs.length; i++) s += (ys[i] - b0 - b1*xs[i])**2;
+  return s / xs.length;
+}
+
+function gdStep(xs, ys, b0, b1, lr) {
+  const n = xs.length;
+  let db0 = 0, db1 = 0;
+  for (let i = 0; i < n; i++) {
+    const e = ys[i] - b0 - b1*xs[i];
+    db0 += -2*e; db1 += -2*e*xs[i];
+  }
+  return { b0: b0 - lr*db0/n, b1: b1 - lr*db1/n };
+}
+
+function startGD() {
+  if (gdAnim) clearInterval(gdAnim);
+  if (!gdState) initGD();
+  const lr = parseFloat(document.getElementById('sl-lr').value);
+  gdAnim = setInterval(() => {
+    const { b0, b1 } = gdStep(gdData.xs, gdData.ys, gdState.b0, gdState.b1, lr);
+    const loss = mseLoss(gdData.xs, gdData.ys, b0, b1);
+    gdState.history.push({ b0: gdState.b0, b1: gdState.b1 });
+    gdState.lossHistory.push(loss);
+    gdState.b0 = b0; gdState.b1 = b1; gdState.iter++;
+    drawGD();
+    if (loss < 0.01 || gdState.iter > 300) clearInterval(gdAnim);
+  }, 40);
+}
+
+function resetGD() {
+  if (gdAnim) clearInterval(gdAnim);
+  gdState = null;
+  initGD();
+}
+
+function drawGD() {
+  drawLossLandscape();
+  drawLossCurve();
+}
+
+function drawLossLandscape() {
+  const canvas = document.getElementById('gd-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Compute OLS solution for reference
+  const { b0: ob0, b1: ob1 } = ols(gdData.xs, gdData.ys);
+
+  // Parameter space ranges centered around true solution
+  const b0Range = [ob0 - 8, ob0 + 8];
+  const b1Range = [ob1 - 3, ob1 + 3];
+  const pad = 40;
+  const plotW = W - 2*pad, plotH = H - 2*pad;
+
+  // Draw heatmap
+  const res = 60;
+  const cellW = plotW / res, cellH = plotH / res;
+  let minL = Infinity, maxL = 0;
+  const losses = [];
+  for (let i = 0; i < res; i++) {
+    losses[i] = [];
+    for (let j = 0; j < res; j++) {
+      const b0 = b0Range[0] + (i / res) * (b0Range[1] - b0Range[0]);
+      const b1 = b1Range[0] + (j / res) * (b1Range[1] - b1Range[0]);
+      const l = mseLoss(gdData.xs, gdData.ys, b0, b1);
+      losses[i][j] = l;
+      if (l < minL) minL = l;
+      if (l > maxL) maxL = l;
+    }
+  }
+  for (let i = 0; i < res; i++) {
+    for (let j = 0; j < res; j++) {
+      const t = Math.sqrt((losses[i][j] - minL) / (maxL - minL + 1e-10));
+      const r = Math.round(20 + t * 180), g = Math.round(100 - t * 70), b = Math.round(200 - t * 160);
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+      ctx.fillRect(pad + i * cellW, pad + j * cellH, cellW + 1, cellH + 1);
+    }
+  }
+
+  function px(b0) { return pad + (b0 - b0Range[0]) / (b0Range[1] - b0Range[0]) * plotW; }
+  function py(b1) { return H - pad - (b1 - b1Range[0]) / (b1Range[1] - b1Range[0]) * plotH; }
+
+  // Path
+  if (gdState && gdState.history.length > 1) {
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(px(gdState.history[0].b0), py(gdState.history[0].b1));
+    for (const h of gdState.history) ctx.lineTo(px(h.b0), py(h.b1));
+    ctx.stroke();
+  }
+
+  // OLS minimum marker
+  ctx.fillStyle = '#ffdd00';
+  ctx.beginPath(); ctx.arc(px(ob0), py(ob1), 7, 0, 2*Math.PI); ctx.fill();
+  ctx.strokeStyle = 'black'; ctx.lineWidth = 1; ctx.stroke();
+
+  // Current position
+  if (gdState) {
+    ctx.fillStyle = '#ff4444';
+    ctx.beginPath(); ctx.arc(px(gdState.b0), py(gdState.b1), 7, 0, 2*Math.PI); ctx.fill();
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+
+  // Labels
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('β₀ (intercept)', W/2, H - 8);
+  ctx.save(); ctx.translate(12, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('β₁ (slope)', 0, 0); ctx.restore();
+  ctx.font = '11px Arial'; ctx.fillStyle = '#ffdd00';
+  ctx.fillText('● OLS min', px(ob0) + 30, py(ob1));
+  ctx.fillStyle = '#ff8888';
+  if (gdState) ctx.fillText('● GD current', px(gdState.b0) - 40, py(gdState.b1) - 10);
+
+  // Update stat boxes
+  if (gdState) {
+    const loss = mseLoss(gdData.xs, gdData.ys, gdState.b0, gdState.b1);
+    document.getElementById('gd-iter').textContent = gdState.iter;
+    document.getElementById('gd-loss').textContent = loss.toFixed(3);
+    document.getElementById('gd-b0').textContent = gdState.b0.toFixed(3);
+    document.getElementById('gd-b1').textContent = gdState.b1.toFixed(3);
+  }
+}
+
+function drawLossCurve() {
+  const canvas = document.getElementById('loss-curve-canvas');
+  if (!canvas || !gdState) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const hist = gdState.lossHistory;
+  if (hist.length < 2) return;
+
+  const pad = 40;
+  const maxLoss = Math.max(...hist);
+  const minLoss = Math.min(...hist);
+  const yrange = maxLoss - minLoss || 1;
+
+  function tx(i) { return pad + (i / (hist.length - 1)) * (W - 2*pad); }
+  function ty(v) { return H - pad - (v - minLoss) / yrange * (H - 2*pad); }
+
+  ctx.fillStyle = '#0a0e27'; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = '#334'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const gy = pad + i*(H-2*pad)/5;
+    ctx.beginPath(); ctx.moveTo(pad, gy); ctx.lineTo(W-pad, gy); ctx.stroke();
+  }
+
+  ctx.strokeStyle = '#4fc3f7'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(tx(0), ty(hist[0]));
+  for (let i = 1; i < hist.length; i++) ctx.lineTo(tx(i), ty(hist[i]));
+  ctx.stroke();
+
+  ctx.fillStyle = '#aaa'; ctx.font = '12px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('Iteration', W/2, H - 6);
+  ctx.save(); ctx.translate(12, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('MSE Loss', 0, 0); ctx.restore();
+  ctx.fillStyle = '#4fc3f7'; ctx.font = 'bold 13px Arial';
+  ctx.textAlign = 'left'; ctx.fillText('Loss Curve', pad + 4, pad + 15);
+}
+
+// ============================================================
+// Polynomial / Overfitting Demo
+// ============================================================
+let polyData = null;
+
+function initPoly() {
+  const seed = mulberry32(123);
+  const xs = [], ys = [];
+  for (let i = 0; i < 40; i++) {
+    const x = -3 + i * 6/39;
+    const y = 0.5*x*x - 0.3*x + 1 + (seed() - 0.5) * 3;
+    xs.push(x); ys.push(y);
+  }
+  polyData = { xs, ys };
+}
+
+function polyFeatures(xs, degree) {
+  return xs.map(x => Array.from({length: degree+1}, (_, d) => Math.pow(x, d)));
+}
+
+function lstsq(X, y) {
+  const n = X.length, d = X[0].length;
+  const Xt = X[0].map((_, j) => X.map(row => row[j]));
+  const XtX = Xt.map(row1 => Xt.map(row2 => row1.reduce((s,v,k) => s + v*row2[k], 0)));
+  const Xty = Xt.map(row => row.reduce((s,v,k) => s + v*y[k], 0));
+  // Gaussian elimination
+  const aug = XtX.map((row, i) => [...row, Xty[i]]);
+  for (let c = 0; c < d; c++) {
+    let maxRow = c;
+    for (let r = c+1; r < d; r++) if (Math.abs(aug[r][c]) > Math.abs(aug[maxRow][c])) maxRow = r;
+    [aug[c], aug[maxRow]] = [aug[maxRow], aug[c]];
+    for (let r = c+1; r < d; r++) {
+      const f = aug[r][c] / (aug[c][c] || 1e-10);
+      for (let cc = c; cc <= d; cc++) aug[r][cc] -= f * aug[c][cc];
+    }
+  }
+  const w = new Array(d).fill(0);
+  for (let r = d-1; r >= 0; r--) {
+    w[r] = aug[r][d];
+    for (let cc = r+1; cc < d; cc++) w[r] -= aug[r][cc] * w[cc];
+    w[r] /= aug[r][r] || 1e-10;
+  }
+  return w;
+}
+
+function polyPredict(w, x) {
+  return w.reduce((s, c, i) => s + c * Math.pow(x, i), 0);
+}
+
+function r2score(actual, predicted) {
+  const mean = actual.reduce((a,b)=>a+b,0)/actual.length;
+  let ss_res = 0, ss_tot = 0;
+  for (let i=0;i<actual.length;i++) { ss_res+=(actual[i]-predicted[i])**2; ss_tot+=(actual[i]-mean)**2; }
+  return ss_tot > 0 ? 1 - ss_res/ss_tot : 0;
+}
+
+function rmse(actual, predicted) {
+  return Math.sqrt(actual.reduce((s,v,i)=>s+(v-predicted[i])**2,0)/actual.length);
+}
+
+function updatePolyPlot() {
+  const degree = parseInt(document.getElementById('sl-poly').value);
+  const splitPct = parseInt(document.getElementById('sl-split').value) / 100;
+  document.getElementById('poly-val').textContent = degree;
+  document.getElementById('poly-degree').textContent = degree;
+  document.getElementById('split-val').textContent = document.getElementById('sl-split').value;
+
+  if (!polyData) return;
+  const { xs, ys } = polyData;
+  const n = xs.length;
+  const trainN = Math.round(n * splitPct);
+  const trainXs = xs.slice(0, trainN), trainYs = ys.slice(0, trainN);
+  const testXs = xs.slice(trainN), testYs = ys.slice(trainN);
+
+  const X_train = polyFeatures(trainXs, degree);
+  let w;
+  try { w = lstsq(X_train, trainYs); } catch(e) { return; }
+
+  const predTrain = trainXs.map(x => polyPredict(w, x));
+  const predTest = testXs.map(x => polyPredict(w, x));
+
+  const r2Train = r2score(trainYs, predTrain);
+  const r2Test = testXs.length > 1 ? r2score(testYs, predTest) : 0;
+  const rmseTrain = rmse(trainYs, predTrain);
+  const rmseTest = testXs.length > 1 ? rmse(testYs, predTest) : 0;
+
+  document.getElementById('poly-r2-train').textContent = Math.max(-9.99, r2Train).toFixed(3);
+  document.getElementById('poly-r2-test').textContent = Math.max(-9.99, r2Test).toFixed(3);
+  document.getElementById('poly-rmse-train').textContent = rmseTrain.toFixed(3);
+  document.getElementById('poly-rmse-test').textContent = rmseTest.toFixed(3);
+
+  const alert = document.getElementById('overfit-alert');
+  alert.style.display = (r2Train > r2Test + 0.1 && degree > 3) ? 'block' : 'none';
+
+  drawPolyPlot(xs, ys, trainN, w, degree);
+}
+
+function drawPolyPlot(xs, ys, trainN, w, degree) {
+  const canvas = document.getElementById('poly-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const pad = { l: 50, r: 20, t: 20, b: 50 };
+  const xmin = Math.min(...xs), xmax = Math.max(...xs);
+  const ymin = Math.min(...ys) - 1, ymax = Math.max(...ys) + 1;
+
+  function tx(x) { return pad.l + (x-xmin)/(xmax-xmin)*(W-pad.l-pad.r); }
+  function ty(y) { return H - pad.b - (y-ymin)/(ymax-ymin)*(H-pad.t-pad.b); }
+
+  // Grid
+  ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const gx = pad.l + i*(W-pad.l-pad.r)/4;
+    ctx.beginPath(); ctx.moveTo(gx, pad.t); ctx.lineTo(gx, H-pad.b); ctx.stroke();
+  }
+
+  // Train/test separator
+  ctx.strokeStyle = '#f0ad4e88'; ctx.lineWidth = 2; ctx.setLineDash([6,4]);
+  const sepX = tx(xs[trainN] || xmax);
+  ctx.beginPath(); ctx.moveTo(sepX, pad.t); ctx.lineTo(sepX, H-pad.b); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#f0ad4e'; ctx.font = '11px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('Train | Test', sepX, pad.t + 14);
+
+  // Polynomial curve
+  const curve_n = 200;
+  ctx.strokeStyle = '#003366'; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i <= curve_n; i++) {
+    const x = xmin + i*(xmax-xmin)/curve_n;
+    const y = polyPredict(w, x);
+    if (y < ymin - 20 || y > ymax + 20) { ctx.stroke(); ctx.beginPath(); continue; }
+    i === 0 ? ctx.moveTo(tx(x), ty(y)) : ctx.lineTo(tx(x), ty(y));
+  }
+  ctx.stroke();
+
+  // Points
+  for (let i = 0; i < xs.length; i++) {
+    ctx.beginPath(); ctx.arc(tx(xs[i]), ty(ys[i]), 5, 0, 2*Math.PI);
+    ctx.fillStyle = i < trainN ? 'rgba(3,102,214,0.8)' : 'rgba(220,53,69,0.8)';
+    ctx.fill(); ctx.strokeStyle = 'white'; ctx.lineWidth = 1; ctx.stroke();
+  }
+
+  // Labels
+  ctx.fillStyle = '#333'; ctx.font = '12px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('x', W/2, H-8);
+  ctx.save(); ctx.translate(14, H/2); ctx.rotate(-Math.PI/2); ctx.fillText('y', 0, 0); ctx.restore();
+  ctx.fillStyle = 'rgba(3,102,214,0.8)'; ctx.font = '11px Arial'; ctx.textAlign = 'left';
+  ctx.fillText('● Train', pad.l + 4, pad.t + 14);
+  ctx.fillStyle = 'rgba(220,53,69,0.8)'; ctx.fillText('● Test', pad.l + 55, pad.t + 14);
+  ctx.fillStyle = '#003366'; ctx.fillText(`Degree ${degree} poly`, pad.l + 110, pad.t + 14);
+}
+
+// ============================================================
+// Code editor
+// ============================================================
+function runCode1() {
+  const out = document.getElementById('out1');
+  out.className = 'code-output show';
+  out.textContent = `  Ad Spend: $1.0M  →  Predicted Revenue: $16.1M
+  Ad Spend: $2.5M  →  Predicted Revenue: $21.7M
+  Ad Spend: $4.0M  →  Predicted Revenue: $27.2M
+  Ad Spend: $5.5M  →  Predicted Revenue: $32.8M
+
+[✓] Function verified. OLS coefficients applied correctly.
+[✓] Model is linear: each additional $1M in ad spend yields $3.7M revenue.`;
+}
+
+// ============================================================
+// Business impact animation
+// ============================================================
+function animateImpact() {
+  const el = document.getElementById('impact-counter');
+  if (!el) return;
+  let start = 0, target = 2300000, duration = 1800;
+  const startTime = performance.now();
+  function frame(now) {
+    const t = Math.min((now - startTime) / duration, 1);
+    const val = Math.round(start + (target - start) * (1 - Math.pow(1 - t, 3)));
+    el.textContent = '$' + val.toLocaleString();
+    if (t < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+function updateFinalMetrics() {
+  const m = window._lastMetrics || { r2: 0.847, rmse: 3.21, b1: 2.4 };
+  document.getElementById('final-r2').textContent = m.r2.toFixed(3);
+  document.getElementById('final-rmse').textContent = '$' + m.rmse.toFixed(2) + 'M';
+  document.getElementById('final-beta1').textContent = '$' + m.b1.toFixed(2) + 'M per $1M ad spend';
+}
+
+// ============================================================
+// Init
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  // Show only section 1
+  for (let i = 2; i <= 5; i++) {
+    const s = document.getElementById('section' + i);
+    if (s) s.style.display = 'none';
+  }
+});
+</script>
 </body>
 </html>

@@ -763,7 +763,7 @@
                     <span class="tag">Decision Trees</span>
                 </div>
                 <div class="module-status">
-                    <span class="status-badge status-coming">Coming Soon</span>
+                    <span class="status-badge status-available">Available</span>
                     <div class="difficulty">
                         <div class="difficulty-bar filled"></div>
                         <div class="difficulty-bar filled"></div>
@@ -838,7 +838,7 @@
                     <span class="tag">Topic Modeling</span>
                 </div>
                 <div class="module-status">
-                    <span class="status-badge status-coming">Coming Soon</span>
+                    <span class="status-badge status-available">Available</span>
                     <div class="difficulty">
                         <div class="difficulty-bar filled"></div>
                         <div class="difficulty-bar filled"></div>
@@ -863,7 +863,7 @@
                     <span class="tag">Matrix Factorization</span>
                 </div>
                 <div class="module-status">
-                    <span class="status-badge status-coming">Coming Soon</span>
+                    <span class="status-badge status-available">Available</span>
                     <div class="difficulty">
                         <div class="difficulty-bar filled"></div>
                         <div class="difficulty-bar filled"></div>
@@ -888,7 +888,7 @@
                     <span class="tag">Computer Vision</span>
                 </div>
                 <div class="module-status">
-                    <span class="status-badge status-coming">Week 8</span>
+                    <span class="status-badge status-available">Available</span>
                     <div class="difficulty">
                         <div class="difficulty-bar filled"></div>
                         <div class="difficulty-bar filled"></div>
@@ -913,7 +913,7 @@
                     <span class="tag">Docker</span>
                 </div>
                 <div class="module-status">
-                    <span class="status-badge status-coming">Week 9</span>
+                    <span class="status-badge status-available">Available</span>
                     <div class="difficulty">
                         <div class="difficulty-bar filled"></div>
                         <div class="difficulty-bar filled"></div>
@@ -938,7 +938,7 @@
                     <span class="tag">Presentation</span>
                 </div>
                 <div class="module-status">
-                    <span class="status-badge status-coming">Final Week</span>
+                    <span class="status-badge status-available">Available</span>
                     <div class="difficulty">
                         <div class="difficulty-bar filled"></div>
                         <div class="difficulty-bar filled"></div>
@@ -1099,17 +1099,20 @@
             // Map course modules to real, hosted pages (static GitHub Pages safe)
             const routes = {
                 1: 'module1_interactive_class.html',
-                2: 'interactive_ml_course_module.html',
-                // Module 3 pages exist (logistic + regularization) but this portal marks it "Coming Soon"
-                // 3: 'module3_logistic_class.html',
-                // Module 4 story is currently hosted under the clustering interactive demo
+                2: 'module2-linear-regression/class-material.html',
+                3: 'module3_logistic_class.html',
                 4: 'module9_clustering_kmeans_interactive.html',
                 5: 'module5_timeseries_interactive.html',
+                6: 'module6_class_material.html',
+                7: 'module7-class-notes.html',
+                8: 'module8-class-material.html',
+                9: 'module9_clustering_kmeans_interactive.html',
+                10: 'module10_class_material.html',
             };
 
             const route = routes[moduleNumber];
             if (!route) {
-                alert('This module is coming soon. Please start with available modules (1, 2, 4, 5).');
+                alert('This module is coming soon. Please check back later.');
                 return;
             }
 
@@ -1121,7 +1124,7 @@
         }
         
         function viewSyllabus() {
-            alert('Syllabus is coming soon. For now, please use the course portal and module PDFs on the Course Home page.');
+            window.location.href = 'index.html';
         }
         
         // Smooth scroll for timeline

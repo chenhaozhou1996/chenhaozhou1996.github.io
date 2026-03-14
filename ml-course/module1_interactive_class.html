@@ -373,10 +373,13 @@ function startTimer(timerId, seconds) {
     }, 1000);
 }
 
-// Answer checking with immediate feedback
+// Answer checking with immediate feedback (allows re-selection)
 function checkAnswer(element, questionId, isCorrect) {
     const options = element.parentElement.querySelectorAll('.answer-option');
-    options.forEach(opt => opt.classList.remove('selected'));
+    // Clear ALL previous states so user can try again
+    options.forEach(opt => {
+        opt.classList.remove('selected', 'correct', 'incorrect');
+    });
     element.classList.add('selected');
     
     setTimeout(() => {
@@ -385,6 +388,7 @@ function checkAnswer(element, questionId, isCorrect) {
             document.getElementById('feedback-' + questionId).classList.add('show');
         } else {
             element.classList.add('incorrect');
+            // Allow user to try again after seeing incorrect feedback
         }
     }, 500);
 }

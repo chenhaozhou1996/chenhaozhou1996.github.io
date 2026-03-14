@@ -1503,10 +1503,13 @@ for feature, impact, description in important_features:
             document.getElementById('accuracyRate').style.color = accuracy > 80 ? '#10b981' : '#ef4444';
         }
         
-        // Quiz answer checking
+        // Quiz answer checking (allows re-selection)
         function checkQuizAnswer(element, result) {
             const options = element.parentElement.querySelectorAll('.quiz-option');
-            options.forEach(opt => opt.style.pointerEvents = 'none');
+            // Clear ALL previous states so user can try again
+            options.forEach(opt => {
+                opt.classList.remove('correct', 'incorrect', 'selected');
+            });
             
             if (result === 'correct') {
                 element.classList.add('correct');
@@ -1514,6 +1517,7 @@ for feature, impact, description in important_features:
                 updateProgress(20);
             } else {
                 element.classList.add('incorrect');
+                // User can click again to try a different answer
             }
         }
         

@@ -1,2099 +1,1072 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ML Module 4: Clustering - Find Your Hidden Customer Segments | 发现隐藏的客户金矿</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #030712;
-            color: #1e293b;
-            overflow-x: hidden;
-            position: relative;
-        }
-        
-        /* Animated Background */
-        .galaxy-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #030712 0%, #1e1b4b 50%, #312e81 100%);
-            z-index: -2;
-        }
-        
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-        
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
-        }
-        
-        @keyframes twinkle {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
-        
-        /* Loading Screen */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            transition: opacity 0.5s, visibility 0.5s;
-        }
-        
-        .loading-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-        
-        .cluster-loader {
-            width: 100px;
-            height: 100px;
-            position: relative;
-        }
-        
-        .cluster-dot {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            animation: cluster-pulse 2s infinite;
-        }
-        
-        .cluster-dot:nth-child(1) {
-            background: #fbbf24;
-            top: 0;
-            left: 40px;
-            animation-delay: 0s;
-        }
-        
-        .cluster-dot:nth-child(2) {
-            background: #34d399;
-            top: 40px;
-            left: 0;
-            animation-delay: 0.5s;
-        }
-        
-        .cluster-dot:nth-child(3) {
-            background: #60a5fa;
-            top: 40px;
-            right: 0;
-            animation-delay: 1s;
-        }
-        
-        .cluster-dot:nth-child(4) {
-            background: #f472b6;
-            bottom: 0;
-            left: 40px;
-            animation-delay: 1.5s;
-        }
-        
-        @keyframes cluster-pulse {
-            0%, 100% { transform: scale(1); opacity: 0.3; }
-            50% { transform: scale(1.5); opacity: 1; }
-        }
-        
-        /* Navigation */
-        .nav-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(3, 7, 18, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            padding: 15px 30px;
-            border-bottom: 1px solid rgba(99, 102, 241, 0.3);
-        }
-        
-        .nav-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .nav-title {
-            font-size: 1.3em;
-            font-weight: bold;
-            background: linear-gradient(90deg, #60a5fa 0%, #a78bfa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .progress-container {
-            flex: 1;
-            max-width: 400px;
-            margin: 0 30px;
-        }
-        
-        .progress-bar {
-            background: rgba(99, 102, 241, 0.2);
-            height: 8px;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #60a5fa 0%, #a78bfa 100%);
-            width: 0%;
-            transition: width 0.5s ease;
-            box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
-        }
-        
-        .nav-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .nav-btn {
-            background: rgba(99, 102, 241, 0.2);
-            color: white;
-            border: 1px solid rgba(99, 102, 241, 0.4);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9em;
-        }
-        
-        .nav-btn:hover {
-            background: rgba(99, 102, 241, 0.4);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-        
-        /* Chapter Container */
-        .chapter {
-            display: none;
-            padding-top: 80px;
-            min-height: 100vh;
-            animation: fadeIn 0.5s;
-        }
-        
-        .chapter.active {
-            display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white;
-            padding: 80px 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            top: -250px;
-            right: -250px;
-            animation: float 10s infinite ease-in-out;
-        }
-        
-        .hero-section::after {
-            content: '';
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
-            border-radius: 50%;
-            bottom: -200px;
-            left: -200px;
-            animation: float 10s infinite ease-in-out reverse;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -30px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        
-        .hero-title {
-            font-size: 3.5em;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-        
-        @keyframes glow {
-            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(139, 92, 246, 0.5); }
-            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 30px rgba(139, 92, 246, 0.8), 0 0 40px rgba(139, 92, 246, 0.6); }
-        }
-        
-        .hero-subtitle {
-            font-size: 1.4em;
-            opacity: 0.95;
-            position: relative;
-            z-index: 1;
-            max-width: 700px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-        
-        /* Content Section */
-        .content-section {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 30px;
-        }
-        
-        /* Story Card */
-        .story-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            position: relative;
-            overflow: hidden;
-            transform: translateY(0);
-            transition: transform 0.3s;
-        }
-        
-        .story-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 25px 70px rgba(0,0,0,0.2);
-        }
-        
-        .story-card::before {
-            content: attr(data-emoji);
-            position: absolute;
-            top: -40px;
-            right: -40px;
-            font-size: 150px;
-            opacity: 0.08;
-            transform: rotate(-15deg);
-        }
-        
-        .story-header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-        
-        .story-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-        
-        .story-title {
-            font-size: 2em;
-            color: #1e293b;
-            font-weight: bold;
-        }
-        
-        .story-content {
-            line-height: 1.8;
-            font-size: 1.1em;
-            color: #475569;
-        }
-        
-        /* Customer Visualization */
-        .customer-map {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border-radius: 15px;
-            padding: 30px;
-            margin: 30px 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .customer-dots {
-            position: relative;
-            height: 400px;
-            width: 100%;
-        }
-        
-        .customer-dot {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s;
-            opacity: 0.7;
-        }
-        
-        .customer-dot:hover {
-            transform: scale(2);
-            opacity: 1;
-            z-index: 10;
-        }
-        
-        .cluster-1 { background: #fbbf24; }
-        .cluster-2 { background: #34d399; }
-        .cluster-3 { background: #60a5fa; }
-        .cluster-4 { background: #f472b6; }
-        .cluster-unknown { background: #94a3b8; }
-        
-        /* Interactive Clustering Tool */
-        .clustering-tool {
-            background: #f8fafc;
-            border-radius: 15px;
-            padding: 30px;
-            margin: 30px 0;
-            border: 2px solid #e2e8f0;
-        }
-        
-        .tool-header {
-            font-size: 1.5em;
-            color: #1e293b;
-            margin-bottom: 25px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .control-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .control-item {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .control-label {
-            font-weight: 600;
-            color: #475569;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .slider {
-            width: 100%;
-            -webkit-appearance: none;
-            height: 8px;
-            border-radius: 5px;
-            background: linear-gradient(to right, #e2e8f0 0%, #6366f1 var(--value), #e2e8f0 var(--value));
-            outline: none;
-            transition: background 0.3s;
-        }
-        
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.5);
-            transition: transform 0.2s;
-        }
-        
-        .slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
-        
-        .value-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9em;
-            margin-left: 10px;
-        }
-        
-        /* Segment Cards */
-        .segment-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-        
-        .segment-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            border: 2px solid transparent;
-            transition: all 0.3s;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .segment-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-        }
-        
-        .segment-card.segment-1::before { background: #fbbf24; }
-        .segment-card.segment-2::before { background: #34d399; }
-        .segment-card.segment-3::before { background: #60a5fa; }
-        .segment-card.segment-4::before { background: #f472b6; }
-        
-        .segment-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-        
-        .segment-card.selected {
-            border-color: #6366f1;
-            background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
-        }
-        
-        .segment-emoji {
-            font-size: 3em;
-            margin-bottom: 15px;
-        }
-        
-        .segment-name {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #1e293b;
-            margin-bottom: 10px;
-        }
-        
-        .segment-stats {
-            color: #64748b;
-            font-size: 0.95em;
-            line-height: 1.6;
-        }
-        
-        .segment-value {
-            font-weight: bold;
-            color: #1e293b;
-        }
-        
-        /* K-Means Visualization */
-        .kmeans-demo {
-            background: #1e293b;
-            border-radius: 15px;
-            padding: 30px;
-            margin: 30px 0;
-            color: white;
-        }
-        
-        .kmeans-canvas {
-            background: #0f172a;
-            border-radius: 10px;
-            height: 400px;
-            position: relative;
-            overflow: hidden;
-            margin: 20px 0;
-        }
-        
-        .centroid {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 3px solid white;
-            transform: translate(-50%, -50%);
-            z-index: 100;
-            box-shadow: 0 0 20px rgba(255,255,255,0.5);
-        }
-        
-        .data-point {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.5s;
-        }
-        
-        /* Action Buttons */
-        .action-btn {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 10px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-        
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-        }
-        
-        .action-btn:active {
-            transform: translateY(0);
-        }
-        
-        .action-btn.secondary {
-            background: white;
-            color: #6366f1;
-            border: 2px solid #6366f1;
-        }
-        
-        /* Business Impact */
-        .impact-dashboard {
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-            border-radius: 15px;
-            padding: 30px;
-            margin: 30px 0;
-        }
-        
-        .metric-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .metric-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
-        }
-        
-        .metric-card:hover {
-            transform: scale(1.05);
-        }
-        
-        .metric-value {
-            font-size: 2.5em;
-            font-weight: bold;
-            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
-        }
-        
-        .metric-label {
-            color: #059669;
-            font-size: 0.95em;
-            font-weight: 600;
-        }
-        
-        /* Quiz Section */
-        .quiz-section {
-            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
-            border-radius: 15px;
-            padding: 30px;
-            margin: 30px 0;
-        }
-        
-        .quiz-question {
-            font-size: 1.3em;
-            color: #92400e;
-            margin-bottom: 25px;
-            font-weight: 600;
-        }
-        
-        .quiz-options {
-            display: grid;
-            gap: 15px;
-        }
-        
-        .quiz-option {
-            background: white;
-            border: 2px solid #fed7aa;
-            padding: 15px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1.05em;
-        }
-        
-        .quiz-option:hover {
-            border-color: #f59e0b;
-            background: #fffbeb;
-            transform: translateX(5px);
-        }
-        
-        .quiz-option.correct {
-            background: #10b981;
-            color: white;
-            border-color: #10b981;
-            animation: correctPulse 0.5s;
-        }
-        
-        .quiz-option.incorrect {
-            background: #ef4444;
-            color: white;
-            border-color: #ef4444;
-            animation: shake 0.5s;
-        }
-        
-        @keyframes correctPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        
-        /* Code Block */
-        .code-section {
-            background: #1e293b;
-            border-radius: 12px;
-            padding: 25px;
-            margin: 30px 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .code-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-        }
-        
-        .code-title {
-            color: #94a3b8;
-            font-weight: 600;
-            font-size: 1.1em;
-        }
-        
-        .run-code-btn {
-            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .run-code-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-        }
-        
-        .code-block {
-            background: #0f172a;
-            color: #e2e8f0;
-            padding: 20px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.95em;
-            line-height: 1.6;
-            overflow-x: auto;
-        }
-        
-        .code-output {
-            background: #0f172a;
-            color: #34d399;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            line-height: 1.6;
-            max-height: 300px;
-            overflow-y: auto;
-            display: none;
-        }
-        
-        /* Achievement Popup */
-        .achievement {
-            position: fixed;
-            bottom: 30px;
-            right: -400px;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            transition: right 0.5s ease;
-            z-index: 2000;
-            max-width: 350px;
-            border-left: 4px solid #fbbf24;
-        }
-        
-        .achievement.show {
-            right: 30px;
-        }
-        
-        .achievement-content {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .achievement-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            animation: bounce 1s;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            25% { transform: translateY(-10px); }
-            50% { transform: translateY(0); }
-            75% { transform: translateY(-5px); }
-        }
-        
-        .achievement-text {
-            flex: 1;
-        }
-        
-        .achievement-title {
-            font-weight: bold;
-            color: #1e293b;
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-        
-        .achievement-desc {
-            color: #64748b;
-            font-size: 0.9em;
-        }
-        
-        /* Floating Help Button */
-        .help-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
-            transition: transform 0.3s;
-            z-index: 100;
-            color: white;
-            font-size: 24px;
-        }
-        
-        .help-btn:hover {
-            transform: scale(1.1);
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5em;
-            }
-            
-            .story-card {
-                padding: 25px;
-            }
-            
-            .control-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .segment-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 9: Hierarchical Clustering — Deep Dive | ML Course</title>
+<style>
+body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 980px; margin: auto; padding: 2rem; line-height: 1.6; }
+nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #ddd; }
+nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; }
+h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+.card { background: #fff; padding: 1.3em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.interactive-section { background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); padding: 2em; margin: 2em 0; border-radius: 12px; border: 1px solid #e1e4e8; }
+.button { display: inline-block; padding: 0.8em 1.5em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; transition: all 0.3s ease; margin: 0.5em 0.5em 0.5em 0; font-weight: bold; }
+.button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
+.button.secondary { background: #6c757d; }
+.button.success { background: #28a745; }
+.button.warning { background: #ffc107; color: #212529; }
+.button.danger { background: #dc3545; }
+.slider-container { margin: 1.2em 0; }
+.slider-container label { display: block; font-weight: bold; margin-bottom: 0.5em; color: #003366; }
+.slider { width: 100%; height: 8px; border-radius: 4px; background: #e1e4e8; outline: none; -webkit-appearance: none; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #0366d6; cursor: pointer; }
+canvas { border: 1px solid #e1e4e8; border-radius: 8px; display: block; margin: 0 auto; }
+.quick-question { background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%); border: 2px solid #0366d6; border-radius: 10px; padding: 1.5em; margin: 2em 0; }
+.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin: 1em 0; }
+.answer-option { padding: 1em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: center; }
+.answer-option:hover { border-color: #0366d6; transform: scale(1.02); }
+.answer-option.correct { background: #d4edda; border-color: #28a745; }
+.answer-option.incorrect { background: #f8d7da; border-color: #dc3545; }
+.feedback-panel { background: white; border-left: 5px solid #0366d6; padding: 1.5em; margin: 1.5em 0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: none; }
+.feedback-panel.show { display: block; animation: slideIn 0.5s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+.progress-bar { height: 30px; background: #e9ecef; border-radius: 15px; margin: 1.5em 0; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #003366 0%, #0366d6 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; transition: width 1s ease; min-width: 40px; }
+.concept-box { background: #e7f3ff; border-left: 4px solid #0366d6; padding: 1.2em; margin: 1.5em 0; border-radius: 0 8px 8px 0; }
+.warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 1.2em; margin: 1.5em 0; border-radius: 0 8px 8px 0; }
+.success-box { background: #d4edda; border-left: 4px solid #28a745; padding: 1.2em; margin: 1.5em 0; border-radius: 0 8px 8px 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1em; margin: 1em 0; }
+.stat-card { background: #fff; border: 2px solid #e1e4e8; border-radius: 8px; padding: 1em; text-align: center; }
+.stat-number { font-size: 2.5em; font-weight: bold; color: #003366; }
+.stat-label { color: #666; font-size: 0.9em; }
+table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+th { background: #003366; color: white; padding: 0.8em; text-align: left; }
+td { padding: 0.8em; border-bottom: 1px solid #e1e4e8; }
+tr:hover td { background: #f0f8ff; }
+.section-header { background: linear-gradient(135deg, #003366 0%, #1e5799 100%); color: white; padding: 1.5em; border-radius: 10px; margin: 2em 0 1em; }
+.section-header h2 { color: white; margin: 0; }
+.section-header p { color: rgba(255,255,255,0.85); margin: 0.5em 0 0; }
+.step-display { background: #f8f9fa; border-radius: 8px; padding: 1em; margin-top: 0.8em; font-family: monospace; color: #003366; min-height: 2.5em; }
+.linkage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin: 1em 0; }
+.linkage-card { background: #fff; border: 2px solid #e1e4e8; border-radius: 10px; padding: 1.2em; cursor: pointer; transition: all 0.3s ease; }
+.linkage-card:hover { border-color: #0366d6; }
+.linkage-card.active { border-color: #0366d6; background: #e7f3ff; }
+.linkage-card h4 { color: #003366; margin-bottom: 0.4em; }
+.comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; margin: 1.5em 0; }
+.compare-card { border: 2px solid #e1e4e8; border-radius: 10px; padding: 1.5em; }
+.compare-card h3 { color: #003366; margin-top: 0; }
+.compare-card.kmeans { border-color: #3498db; }
+.compare-card.hier { border-color: #9b59b6; }
+</style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="cluster-loader">
-            <div class="cluster-dot"></div>
-            <div class="cluster-dot"></div>
-            <div class="cluster-dot"></div>
-            <div class="cluster-dot"></div>
-        </div>
-        <h2 style="color: white; margin-top: 40px;">Discovering Hidden Patterns...</h2>
-        <p style="color: rgba(255,255,255,0.8); margin-top: 10px;">Loading Module 4: Clustering Magic</p>
-    </div>
-    
-    <!-- Galaxy Background -->
-    <div class="galaxy-background"></div>
-    <div class="stars" id="starsContainer"></div>
-    
-    <!-- Navigation -->
-    <nav class="nav-header">
-        <div class="nav-content">
-            <div class="nav-title">
-                <span>🌟</span>
-                <span>Module 4: Market Segmentation with Clustering</span>
-            </div>
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressBar"></div>
-                </div>
-            </div>
-            <div class="nav-actions">
-                <button class="nav-btn" onclick="previousChapter()">← Back</button>
-                <button class="nav-btn" onclick="nextChapter()">Next →</button>
-                <button class="nav-btn" onclick="showMenu()">📚 Menu</button>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- Chapter 1: The Amazon Crisis -->
-    <div class="chapter active" id="chapter1">
-        <div class="hero-section">
-            <h1 class="hero-title">🎯 The $50M Mystery</h1>
-            <p class="hero-subtitle">
-                <span id="typingText"></span>
-            </p>
-        </div>
-        
-        <div class="content-section">
-            <div class="story-card" data-emoji="😱">
-                <div class="story-header">
-                    <div class="story-icon">💔</div>
-                    <h2 class="story-title">The Shocking Discovery</h2>
-                </div>
-                <div class="story-content">
-                    <p style="font-size: 1.15em; line-height: 1.8;">
-                        Three months after Sarah's successful sales prediction model, MegaMart faces a new crisis. The quarterly report just landed on her desk, and the numbers are devastating.
-                    </p>
-                    
-                    <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #ef4444;">
-                        <h3 style="color: #991b1b; margin-bottom: 15px;">📊 Q3 2024 Customer Report</h3>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; color: #7f1d1d;">
-                            <div><strong>Lost Customers:</strong> 47,000</div>
-                            <div><strong>Revenue Impact:</strong> -$50M</div>
-                            <div><strong>Market Share Lost:</strong> -3.2%</div>
-                            <div><strong>Competitor Gain:</strong> Amazon +85%</div>
-                        </div>
-                    </div>
-                    
-                    <p style="margin: 20px 0;">
-                        The CEO storms into Sarah's office: <em>"We're treating all customers the same with generic marketing emails. Amazon somehow knows exactly what each customer wants. We're losing the personalization war!"</em>
-                    </p>
-                    
-                    <p style="margin: 20px 0;">
-                        Sarah realizes the problem immediately. MegaMart has 2 million customers but treats them as one homogeneous group. Meanwhile, Amazon has discovered something MegaMart hasn't seen...
-                    </p>
-                    
-                    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 20px; border-radius: 10px; margin: 25px 0;">
-                        <p style="color: #1e40af; font-size: 1.1em; text-align: center; font-weight: 600;">
-                            🔍 "There must be hidden customer segments we're not seeing. If we can find them, we can fight back!"
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Interactive Customer Visualization -->
-            <div class="story-card">
-                <div class="story-header">
-                    <div class="story-icon">👥</div>
-                    <h2 class="story-title">Your 2 Million Customers</h2>
-                </div>
-                <div class="story-content">
-                    <p>Look at MegaMart's customer base. Can you spot any patterns?</p>
-                    
-                    <div class="customer-map">
-                        <div class="customer-dots" id="customerMap">
-                            <!-- Dots will be generated here -->
-                        </div>
-                        <div style="text-align: center; margin-top: 20px;">
-                            <p style="color: #64748b; font-size: 0.95em;">
-                                Each dot represents 1,000 customers. Gray = Unknown segment
-                            </p>
-                            <button class="action-btn" style="margin-top: 15px;" onclick="revealPatterns()">
-                                🔮 Reveal Hidden Patterns
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Quiz -->
-            <div class="quiz-section">
-                <div class="quiz-question">
-                    🤔 What's the main problem with MegaMart's current approach?
-                </div>
-                <div class="quiz-options">
-                    <div class="quiz-option" onclick="checkAnswer(this, 'wrong')">
-                        Prices are too high
-                    </div>
-                    <div class="quiz-option" onclick="checkAnswer(this, 'correct')">
-                        One-size-fits-all marketing to diverse customer groups
-                    </div>
-                    <div class="quiz-option" onclick="checkAnswer(this, 'wrong')">
-                        Not enough products in inventory
-                    </div>
-                    <div class="quiz-option" onclick="checkAnswer(this, 'wrong')">
-                        Website is too slow
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Chapter 2: Understanding Clustering -->
-    <div class="chapter" id="chapter2">
-        <div class="hero-section" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
-            <h1 class="hero-title">🎨 The Art of Finding Groups</h1>
-            <p class="hero-subtitle">How clustering reveals hidden patterns in chaos</p>
-        </div>
-        
-        <div class="content-section">
-            <!-- Cafeteria Analogy -->
-            <div class="story-card" data-emoji="🍽️">
-                <div class="story-header">
-                    <div class="story-icon">🏫</div>
-                    <h2 class="story-title">The High School Cafeteria Principle</h2>
-                </div>
-                <div class="story-content">
-                    <p style="font-size: 1.1em; line-height: 1.8; margin-bottom: 20px;">
-                        Remember high school? Students naturally formed groups in the cafeteria. Nobody assigned them - they clustered naturally based on shared interests.
-                    </p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(2, 2fr); gap: 20px; margin: 30px 0;">
-                        <div style="background: #fef3c7; padding: 20px; border-radius: 10px; text-align: center;">
-                            <div style="font-size: 2em; margin-bottom: 10px;">🏈</div>
-                            <strong>Athletes</strong><br>
-                            Similar: Sports interests<br>
-                            Different from: Study habits
-                        </div>
-                        <div style="background: #dcfce7; padding: 20px; border-radius: 10px; text-align: center;">
-                            <div style="font-size: 2em; margin-bottom: 10px;">📚</div>
-                            <strong>Study Group</strong><br>
-                            Similar: Academic focus<br>
-                            Different from: Social activities
-                        </div>
-                        <div style="background: #fee2e2; padding: 20px; border-radius: 10px; text-align: center;">
-                            <div style="font-size: 2em; margin-bottom: 10px;">🎸</div>
-                            <strong>Musicians</strong><br>
-                            Similar: Creative interests<br>
-                            Different from: Sports
-                        </div>
-                        <div style="background: #e0e7ff; padding: 20px; border-radius: 10px; text-align: center;">
-                            <div style="font-size: 2em; margin-bottom: 10px;">🎮</div>
-                            <strong>Gamers</strong><br>
-                            Similar: Gaming passion<br>
-                            Different from: Outdoor activities
-                        </div>
-                    </div>
-                    
-                    <p style="font-size: 1.15em; color: #6366f1; text-align: center; margin: 30px 0; font-weight: 600;">
-                        Clustering algorithms do the same thing - find natural groups in your data!
-                    </p>
-                </div>
-            </div>
-            
-            <!-- Interactive K-Means Demo -->
-            <div class="kmeans-demo">
-                <h3 style="font-size: 1.5em; margin-bottom: 20px;">🤖 Watch K-Means Clustering in Action</h3>
-                <p style="margin-bottom: 20px; opacity: 0.9;">
-                    K-Means finds groups by: 1) Placing centers randomly, 2) Assigning points to nearest center, 3) Moving centers to group middle, 4) Repeat until stable
-                </p>
-                
-                <div class="kmeans-canvas" id="kmeansCanvas">
-                    <!-- Animation will appear here -->
-                </div>
-                
-                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
-                    <button class="action-btn" onclick="startKMeans()">▶ Start Animation</button>
-                    <button class="action-btn secondary" onclick="resetKMeans()">🔄 Reset</button>
-                    <button class="action-btn" onclick="stepKMeans()">Step Forward →</button>
-                </div>
-            </div>
-            
-            <!-- The Math (Simple) -->
-            <div class="code-section">
-                <div class="code-header">
-                    <span class="code-title">🧮 The Simple Math Behind Clustering</span>
-                    <button class="run-code-btn" onclick="runClusteringCode()">▶ Run Code</button>
-                </div>
-                <div class="code-block">
-import numpy as np
-from sklearn.cluster import KMeans
-import matplotlib.pyplot as plt
 
-# Your customer data (simplified to 2D for visualization)
-customers = {
-    'age': [22, 67, 45, 23, 68, 44, 25, 70, 42],
-    'spending': [500, 200, 1200, 450, 180, 1100, 480, 150, 1300]
+<nav>
+  <a href="module9_class_material.html">📊 Module 9 Overview</a>
+  <a href="module9_clustering_kmeans_interactive.html">🎯 K-Means</a>
+  <a href="index.html">🏠 Course Home</a>
+  <a href="module9_lab_manual.html">🔬 Lab</a>
+</nav>
+
+<h1>🌳 Hierarchical Clustering: Deep Dive</h1>
+
+<!-- Opening Hook -->
+<div class="card" style="border-left: 6px solid #9b59b6;">
+  <h2>🧩 The Challenge</h2>
+  <p style="font-size: 1.15em;">The marketing team ran K-Means on RetailMax's customers and found 4 groups. Great. But now the CMO asks: <strong>"Are the Premium customers more like Standard customers, or more like Budget customers? Are there sub-groups within Premium?"</strong></p>
+  <p>K-Means can't answer this — it only tells you cluster assignments, not <em>how clusters relate to each other.</em></p>
+  <p><strong>The marketing team wants to know not just WHAT groups exist, but HOW they relate to each other.</strong> Enter hierarchical clustering.</p>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number">∞</div>
+      <div class="stat-label">No k needed upfront</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">🌳</div>
+      <div class="stat-label">Full hierarchy of relationships</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">1</div>
+      <div class="stat-label">Cut → any k you want</div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Tracker -->
+<div class="card">
+  <h3>📈 Your Progress</h3>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill" style="width: 5%;">5%</div>
+  </div>
+  <div style="display: flex; justify-content: space-between; font-size: 0.85em; color: #666; margin-top: 0.5em;">
+    <span>⚙️ Algorithm</span><span>🌳 Dendrogram</span><span>🔗 Linkage</span><span>💼 Business Case</span><span>✅ Quiz</span>
+  </div>
+</div>
+
+<!-- Section 1: How Agglomerative Works -->
+<div class="section-header">
+  <h2>1. Agglomerative Clustering: Bottom-Up</h2>
+  <p>Start with individuals, merge into groups</p>
+</div>
+
+<div class="card">
+  <h3>The Core Idea</h3>
+  <p>Agglomerative (bottom-up) hierarchical clustering is the most common variant. It starts with each data point as its own cluster, then repeatedly merges the two closest clusters until everything is merged into one.</p>
+  
+  <div class="concept-box">
+    <strong>Algorithm:</strong>
+    <ol style="line-height:2; margin: 0.5em 0 0;">
+      <li>Initialize: n clusters, one per data point</li>
+      <li>Compute distance matrix (all pairwise distances)</li>
+      <li>Find the two closest clusters</li>
+      <li>Merge them — record the merge height (distance)</li>
+      <li>Update the distance matrix</li>
+      <li>Repeat steps 3-5 until 1 cluster remains</li>
+      <li>Cut the resulting dendrogram at desired height</li>
+    </ol>
+  </div>
+
+  <h3>Time Complexity</h3>
+  <ul>
+    <li>Naïve: O(n³) — building the full distance matrix and updating it n times</li>
+    <li>With priority queues: O(n² log n)</li>
+    <li>Practical limit: ~10,000–50,000 points (use K-Means for millions)</li>
+  </ul>
+</div>
+
+<!-- Interactive Step-by-Step Animation -->
+<div class="interactive-section">
+  <h3>⚙️ Step-by-Step Agglomerative Clustering</h3>
+  <p>Watch the algorithm merge clusters one at a time. Click <strong>Next Step</strong> to advance, or <strong>Auto Run</strong> to watch it automatically.</p>
+  
+  <div style="display: flex; gap: 1em; flex-wrap: wrap; align-items: center; margin-bottom: 1em;">
+    <button class="button success" onclick="generateStepData()">🔄 New Data</button>
+    <button class="button" onclick="nextStep()">⏭ Next Step</button>
+    <button class="button warning" onclick="autoRun()">▶ Auto Run</button>
+    <button class="button secondary" onclick="resetSteps()">↺ Reset</button>
+  </div>
+
+  <canvas id="step-canvas" width="920" height="380"></canvas>
+  <div class="step-display" id="step-info">Generate new data, then step through the algorithm.</div>
+</div>
+
+<!-- Section 2: The Dendrogram -->
+<div class="section-header">
+  <h2>2. Reading the Dendrogram</h2>
+  <p>The tree that shows everything</p>
+</div>
+
+<div class="card">
+  <h3>What is a Dendrogram?</h3>
+  <p>A dendrogram is a tree diagram that records the complete history of merges. The <strong>y-axis is distance</strong> (or dissimilarity) at which clusters merged. The higher the merge, the more different the clusters were.</p>
+  
+  <div class="concept-box">
+    <strong>How to read a dendrogram:</strong>
+    <ul>
+      <li>Leaf nodes at the bottom = individual data points</li>
+      <li>Each horizontal line = a merge event</li>
+      <li>Height of the horizontal line = distance at which the merge happened</li>
+      <li>Long vertical gap before a merge = the two groups were very different</li>
+      <li>Cut at any height to get a specific number of clusters</li>
+    </ul>
+  </div>
+
+  <div class="warning-box">
+    <strong>Key insight — the elbow rule for dendrograms:</strong> Look for the longest vertical line you can draw without crossing any horizontal line. The height of that line suggests the natural number of clusters — cut just below the longest gap.
+  </div>
+</div>
+
+<!-- Interactive Dendrogram -->
+<div class="interactive-section">
+  <h3>🌳 Interactive Dendrogram Explorer</h3>
+  <p>Use the slider to <strong>cut the dendrogram at different heights</strong>. The clusters update in real time. Look for the longest vertical line to find the natural cluster count.</p>
+
+  <div style="display: flex; gap: 1em; flex-wrap: wrap; align-items: center; margin-bottom: 1em;">
+    <button class="button success" onclick="buildDendrogram()">🔄 Generate New Data</button>
+    <button class="button secondary" onclick="highlightLongestGap()">💡 Find Longest Gap</button>
+  </div>
+
+  <div class="slider-container">
+    <label>Cut Height: <strong id="cut-height-display">—</strong> &nbsp;→&nbsp; <strong id="cut-clusters-display">—</strong> clusters</label>
+    <input type="range" class="slider" id="cut-slider" min="0" max="100" value="50" oninput="sliderCut(parseInt(this.value))">
+  </div>
+
+  <canvas id="dend-canvas" width="920" height="380" onclick="clickCutDendrogram(event)"></canvas>
+  <canvas id="scatter-canvas" width="920" height="260" style="margin-top: 1em;"></canvas>
+  <div class="step-display" id="dend-info">Click "Generate New Data" to start. Then drag the slider to cut the dendrogram.</div>
+  <div id="dend-progress" style="margin-top: 0.5em;"></div>
+</div>
+
+<!-- Section 3: Linkage Methods -->
+<div class="section-header">
+  <h2>3. Linkage Methods: How We Measure Distance Between Clusters</h2>
+  <p>Different definitions of "closest" give very different results</p>
+</div>
+
+<div class="card">
+  <p>Once you have more than one point in a cluster, how do you measure the distance between two clusters? The answer depends on your <strong>linkage method</strong>.</p>
+
+  <div class="linkage-grid">
+    <div class="linkage-card" id="lc-single" onclick="selectLinkage('single')">
+      <h4>🔹 Single Linkage</h4>
+      <p><strong>Distance = minimum</strong> between any pair of points</p>
+      <small>Tends to create long, "chaining" clusters. Good for detecting elongated shapes.</small>
+    </div>
+    <div class="linkage-card" id="lc-complete" onclick="selectLinkage('complete')">
+      <h4>🔶 Complete Linkage</h4>
+      <p><strong>Distance = maximum</strong> between any pair of points</p>
+      <small>Creates compact, roughly equal-sized clusters. Sensitive to outliers.</small>
+    </div>
+    <div class="linkage-card" id="lc-average" onclick="selectLinkage('average')">
+      <h4>🔷 Average Linkage</h4>
+      <p><strong>Distance = average</strong> of all pairwise distances</p>
+      <small>Balances single and complete. More robust than both.</small>
+    </div>
+    <div class="linkage-card active" id="lc-ward" onclick="selectLinkage('ward')">
+      <h4>⭐ Ward Linkage</h4>
+      <p><strong>Minimize increase in WCSS</strong> when merging</p>
+      <small>Usually the best default. Produces balanced, compact clusters.</small>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive Linkage Comparison -->
+<div class="interactive-section">
+  <h3>🔗 Linkage Method Comparison</h3>
+  <p>Select a linkage method and see how it changes the resulting dendrogram and clusters.</p>
+
+  <div style="display: flex; gap: 1em; flex-wrap: wrap; margin-bottom: 1em;">
+    <button class="button" onclick="selectAndDraw('single')">Single</button>
+    <button class="button" onclick="selectAndDraw('complete')">Complete</button>
+    <button class="button" onclick="selectAndDraw('average')">Average</button>
+    <button class="button success" onclick="selectAndDraw('ward')">⭐ Ward</button>
+    <button class="button secondary" onclick="generateLinkageData()">🔄 New Data</button>
+  </div>
+
+  <canvas id="linkage-canvas" width="920" height="350"></canvas>
+  <div class="step-display" id="linkage-info">Select a linkage method to see the dendrogram.</div>
+</div>
+
+<div class="card">
+  <h3>Choosing Linkage: Quick Guide</h3>
+  <table>
+    <tr><th>Linkage</th><th>Best For</th><th>Watch Out</th></tr>
+    <tr><td>Single</td><td>Elongated clusters, filament detection</td><td>Chaining effect — creates uneven clusters</td></tr>
+    <tr><td>Complete</td><td>Compact, separated clusters</td><td>Sensitive to outliers; breaks large clusters</td></tr>
+    <tr><td>Average</td><td>Moderate clusters, biological data</td><td>Intermediate behavior</td></tr>
+    <tr><td>Ward ⭐</td><td>Customer segmentation, general use</td><td>Computationally heavier; assumes similar cluster sizes</td></tr>
+  </table>
+</div>
+
+<!-- Quiz Question 1 -->
+<div class="quick-question" id="q1">
+  <h3>❓ Quick Check 1</h3>
+  <p>You're clustering geographic regions (countries) by economic indicators. Some regions have very different characteristics and you want compact clusters. Which linkage should you choose?</p>
+  <div class="answer-options">
+    <div class="answer-option" onclick="checkAnswer('q1', this, false)">Single — it preserves shape</div>
+    <div class="answer-option" onclick="checkAnswer('q1', this, true)">Ward or Complete — they create compact clusters</div>
+    <div class="answer-option" onclick="checkAnswer('q1', this, false)">Average — it's always the best choice</div>
+    <div class="answer-option" onclick="checkAnswer('q1', this, false)">Linkage doesn't matter for geographic data</div>
+  </div>
+  <div class="feedback-panel" id="q1-feedback"></div>
+</div>
+
+<!-- Section 4: Choosing Number of Clusters -->
+<div class="section-header">
+  <h2>4. Choosing the Number of Clusters</h2>
+  <p>Reading the dendrogram vs. silhouette score</p>
+</div>
+
+<div class="card">
+  <h3>Method 1: Dendrogram Visual Cut</h3>
+  <p>Find the <strong>longest vertical line</strong> that you can extend horizontally without crossing any merge line. The number of lines cut at that level = number of clusters.</p>
+  <div class="success-box">
+    <strong>Rule of thumb:</strong> Draw a horizontal line across the dendrogram such that it cuts through the longest vertical segment. Count how many branches you cut through — that's your k.
+  </div>
+
+  <h3>Method 2: Silhouette Score</h3>
+  <p>After cutting the dendrogram at different heights (giving different k values), compute the silhouette score for each. Pick the k that maximizes silhouette score.</p>
+
+  <div class="concept-box">
+    <code>s(i) = (b(i) - a(i)) / max(a(i), b(i))</code><br>
+    where a(i) = avg distance to own cluster, b(i) = avg distance to nearest other cluster.<br>
+    <strong>Range:</strong> -1 to +1 (higher is better; > 0.5 is good).
+  </div>
+
+  <h3>Method 3: Domain Knowledge</h3>
+  <p>The business constraint is often the most important factor. If your marketing team can only execute 4 campaigns, then k=4. The dendrogram helps you check whether a 4-cluster cut is supported by the data.</p>
+</div>
+
+<!-- Quiz Question 2 -->
+<div class="quick-question" id="q2">
+  <h3>❓ Quick Check 2</h3>
+  <p>A dendrogram's longest vertical gap is between heights 40 and 95. Cutting at height 60 gives 3 clusters (silhouette = 0.68). Cutting at height 20 gives 7 clusters (silhouette = 0.42). What do you recommend?</p>
+  <div class="answer-options">
+    <div class="answer-option" onclick="checkAnswer('q2', this, true)">3 clusters — both the dendrogram gap and silhouette agree</div>
+    <div class="answer-option" onclick="checkAnswer('q2', this, false)">7 clusters — more granularity is always useful</div>
+    <div class="answer-option" onclick="checkAnswer('q2', this, false)">Neither — you need more data</div>
+    <div class="answer-option" onclick="checkAnswer('q2', this, false)">Run K-Means instead to validate</div>
+  </div>
+  <div class="feedback-panel" id="q2-feedback"></div>
+</div>
+
+<!-- Section 5: Business Case -->
+<div class="section-header">
+  <h2>5. Business Case: RetailMax Customer Hierarchy</h2>
+  <p>Understanding not just who the segments are, but how they relate</p>
+</div>
+
+<div class="card">
+  <h3>Why Hierarchy Matters for RetailMax</h3>
+  <p>K-Means told RetailMax: "You have 4 segments." But hierarchical clustering reveals the nested structure: Premium customers split into two sub-groups (High-frequency Premium and Occasional Premium). Budget customers split into Price-Sensitive and Discount-Hunters.</p>
+  
+  <div class="interactive-section">
+    <h3>🏢 Customer Hierarchy Visualization</h3>
+    <p>This dendrogram shows RetailMax's actual customer hierarchy. Notice how Premium and Standard customers are more similar to each other than either is to Budget customers.</p>
+    <button class="button success" onclick="drawBizDendrogram()">Show Customer Hierarchy</button>
+    <canvas id="biz-dend-canvas" width="920" height="380"></canvas>
+    <div class="step-display" id="biz-dend-info">Click "Show Customer Hierarchy" to see the dendrogram.</div>
+  </div>
+
+  <h3 style="margin-top: 1.5em;">Hierarchy → Strategy</h3>
+  <table>
+    <tr><th>Level</th><th>Clusters</th><th>Strategy</th></tr>
+    <tr><td>Cut at top (k=2)</td><td>High-Value vs. Price-Sensitive</td><td>Two separate product lines, two pricing strategies</td></tr>
+    <tr><td>Cut at middle (k=4)</td><td>Premium / Standard / Budget / New</td><td>Four email campaign tracks, four loyalty tiers</td></tr>
+    <tr><td>Cut at bottom (k=8)</td><td>8 granular sub-segments</td><td>Personalized recommendations per sub-segment</td></tr>
+  </table>
+  <div class="success-box">
+    <strong>The hierarchy lets RetailMax be flexible:</strong> Use k=4 for email campaigns (manageable for the team), but drill to k=8 for product recommendation algorithms.
+  </div>
+</div>
+
+<!-- Quiz Question 3 -->
+<div class="quick-question" id="q3">
+  <h3>❓ Quick Check 3</h3>
+  <p>RetailMax has 500,000 customers and wants to run hierarchical clustering. The data scientist warns it may not be feasible. Why?</p>
+  <div class="answer-options">
+    <div class="answer-option" onclick="checkAnswer('q3', this, false)">Hierarchical clustering requires labeled data</div>
+    <div class="answer-option" onclick="checkAnswer('q3', this, true)">Hierarchical clustering is O(n²) or O(n³) — it doesn't scale to 500K rows</div>
+    <div class="answer-option" onclick="checkAnswer('q3', this, false)">The dendrogram would be too wide to display</div>
+    <div class="answer-option" onclick="checkAnswer('q3', this, false)">Ward linkage fails above 100K points</div>
+  </div>
+  <div class="feedback-panel" id="q3-feedback"></div>
+</div>
+
+<!-- Section 6: K-Means vs. Hierarchical -->
+<div class="section-header">
+  <h2>6. K-Means vs. Hierarchical: When to Use Each</h2>
+  <p>Pick the right tool for your problem</p>
+</div>
+
+<div class="card">
+  <div class="comparison-grid">
+    <div class="compare-card kmeans">
+      <h3>🎯 K-Means</h3>
+      <p><strong>Choose K-Means when:</strong></p>
+      <ul>
+        <li>Dataset has &gt; 50,000 rows</li>
+        <li>You already know (or can estimate) k</li>
+        <li>Clusters are roughly spherical and similar-sized</li>
+        <li>You need speed and scalability</li>
+        <li>You need to re-run frequently (streaming data)</li>
+      </ul>
+      <p><strong>Classic use cases:</strong> Customer segmentation at scale, image compression, document clustering</p>
+    </div>
+    <div class="compare-card hier">
+      <h3>🌳 Hierarchical</h3>
+      <p><strong>Choose Hierarchical when:</strong></p>
+      <ul>
+        <li>You don't know k and want to explore</li>
+        <li>The hierarchy itself is valuable (taxonomy)</li>
+        <li>Dataset has &lt; 50,000 rows</li>
+        <li>You need to cut at multiple levels</li>
+        <li>You want to visualize cluster relationships</li>
+      </ul>
+      <p><strong>Classic use cases:</strong> Gene expression analysis, product taxonomy, organizational structure analysis</p>
+    </div>
+  </div>
+
+  <h3>A Practical Approach: Use Both</h3>
+  <div class="concept-box">
+    <strong>Common workflow:</strong>
+    <ol>
+      <li>Run hierarchical clustering on a representative sample (5–10K rows) to understand structure</li>
+      <li>Read the dendrogram to determine the natural number of clusters</li>
+      <li>Run K-Means on the full dataset with the k from step 2</li>
+      <li>Compare K-Means centroids with hierarchical cluster profiles — they should roughly align</li>
+    </ol>
+  </div>
+</div>
+
+<!-- Quiz Question 4 -->
+<div class="quick-question" id="q4">
+  <h3>❓ Quick Check 4 (Final)</h3>
+  <p>A genomics researcher wants to cluster 800 genes by expression pattern to identify regulatory modules (nested gene groups that activate together). Which method fits best?</p>
+  <div class="answer-options">
+    <div class="answer-option" onclick="checkAnswer('q4', this, false)">K-Means — it's faster</div>
+    <div class="answer-option" onclick="checkAnswer('q4', this, true)">Hierarchical — the nested regulatory structure maps naturally to a dendrogram</div>
+    <div class="answer-option" onclick="checkAnswer('q4', this, false)">DBSCAN — genes have irregular expression patterns</div>
+    <div class="answer-option" onclick="checkAnswer('q4', this, false)">Either; they give identical results</div>
+  </div>
+  <div class="feedback-panel" id="q4-feedback"></div>
+</div>
+
+<!-- Summary -->
+<div class="card" style="border-left: 6px solid #9b59b6;">
+  <h2>📝 Module 9 — Hierarchical Clustering Summary</h2>
+  <ul style="line-height: 2.2;">
+    <li><strong>Agglomerative clustering</strong> starts with n individual clusters and merges iteratively</li>
+    <li>The <strong>dendrogram</strong> captures the full merge history — cut at any height for any k</li>
+    <li><strong>Linkage methods</strong> define cluster distance: Ward is the best default for most business applications</li>
+    <li>Find k by looking for the <strong>longest vertical gap</strong> in the dendrogram</li>
+    <li><strong>Practical limit:</strong> ~50K rows; use K-Means on a sample, hierarchical for structure discovery</li>
+    <li>Use <strong>both together</strong>: hierarchical to find k, K-Means to scale up</li>
+  </ul>
+  <div style="margin-top: 1em;">
+    <a href="module9_clustering_kmeans_interactive.html" class="button">← K-Means Deep Dive</a>
+    <a href="module9_class_material.html" class="button secondary">Back to Module 9 Overview</a>
+    <a href="module9_lab_manual.html" class="button success">🔬 Lab Manual →</a>
+  </div>
+</div>
+
+<script>
+// =====================
+// Colors & state
+// =====================
+const COLORS = ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#e91e63'];
+let sectionsComplete = new Set();
+const totalSections = 5;
+
+function markDone(s) {
+  sectionsComplete.add(s);
+  const pct = Math.max(5, Math.round((sectionsComplete.size / totalSections) * 100));
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-fill').textContent = pct + '%';
 }
 
-# Convert to array
-X = np.array([customers['age'], customers['spending']]).T
+// =====================
+// STEP-BY-STEP AGGLOMERATIVE
+// =====================
+let stepPoints = [];
+let stepClusters = [];
+let stepHistory = [];
+let stepIdx = 0;
+let autoTimer = null;
 
-# Apply K-Means clustering
-kmeans = KMeans(n_clusters=3, random_state=42)
-clusters = kmeans.fit_predict(X)
+function generateStepData() {
+  clearInterval(autoTimer);
+  stepPoints = [];
+  for (let i = 0; i < 12; i++) {
+    stepPoints.push({
+      x: 80 + Math.random() * 760,
+      y: 60 + Math.random() * 260
+    });
+  }
+  stepClusters = stepPoints.map((p, i) => [i]);
+  stepHistory = [];
+  stepIdx = 0;
+  // Precompute all merges (Ward-like — nearest centroid merge)
+  precomputeMerges();
+  drawStep();
+  document.getElementById('step-info').textContent = `12 data points generated. Each is its own cluster. Click "Next Step" to merge.`;
+  markDone('algorithm');
+}
 
-print("🎯 Customer Segments Found!")
-print("="*40)
-for i in range(3):
-    cluster_data = X[clusters == i]
-    print(f"\nSegment {i+1}:")
-    print(f"  Average Age: {cluster_data[:, 0].mean():.0f} years")
-    print(f"  Average Spending: ${cluster_data[:, 1].mean():.0f}")
-    
-    # Business interpretation
-    if cluster_data[:, 0].mean() < 30:
-        print("  📱 Profile: Young Digital Natives")
-        print("  💡 Strategy: Mobile-first, social media marketing")
-    elif cluster_data[:, 0].mean() > 60:
-        print("  📰 Profile: Senior Savers")
-        print("  💡 Strategy: Email, discounts, traditional ads")
-    else:
-        print("  💼 Profile: Premium Professionals")
-        print("  💡 Strategy: Quality focus, convenience features")
-                </div>
-                <div class="code-output" id="clusteringOutput"></div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Chapter 3: Discovering MegaMart's Segments -->
-    <div class="chapter" id="chapter3">
-        <div class="hero-section" style="background: linear-gradient(135deg, #34d399 0%, #10b981 100%);">
-            <h1 class="hero-title">💎 Finding Your Gold Mines</h1>
-            <p class="hero-subtitle">Uncover the four hidden customer segments in your data</p>
-        </div>
-        
-        <div class="content-section">
-            <!-- Interactive Clustering Tool -->
-            <div class="clustering-tool">
-                <div class="tool-header">
-                    <span>🔬</span>
-                    <span>MegaMart Customer Segmentation Laboratory</span>
-                </div>
-                
-                <div class="control-grid">
-                    <div class="control-item">
-                        <div class="control-label">
-                            <span>👥</span>
-                            <span>Number of Clusters</span>
-                            <span class="value-badge" id="clusterCount">4</span>
-                        </div>
-                        <input type="range" class="slider" id="clusterSlider" min="2" max="8" value="4" onchange="updateClusters()">
-                    </div>
-                    <div class="control-item">
-                        <div class="control-label">
-                            <span>💰</span>
-                            <span>Spending Weight</span>
-                            <span class="value-badge" id="spendingWeight">1.0x</span>
-                        </div>
-                        <input type="range" class="slider" id="spendingSlider" min="0" max="2" step="0.1" value="1" onchange="updateWeights()">
-                    </div>
-                    <div class="control-item">
-                        <div class="control-label">
-                            <span>📊</span>
-                            <span>Frequency Weight</span>
-                            <span class="value-badge" id="frequencyWeight">1.0x</span>
-                        </div>
-                        <input type="range" class="slider" id="frequencySlider" min="0" max="2" step="0.1" value="1" onchange="updateWeights()">
-                    </div>
-                    <div class="control-item">
-                        <div class="control-label">
-                            <span>📅</span>
-                            <span>Recency Weight</span>
-                            <span class="value-badge" id="recencyWeight">1.0x</span>
-                        </div>
-                        <input type="range" class="slider" id="recencySlider" min="0" max="2" step="0.1" value="1" onchange="updateWeights()">
-                    </div>
-                </div>
-                
-                <button class="action-btn" style="width: 100%; margin-top: 20px;" onclick="runSegmentation(event)">
-                    🚀 Run Segmentation Analysis
-                </button>
-            </div>
-            
-            <!-- Visualization -->
-            <div id="segmentationViz" style="margin: 30px 0;"></div>
-            
-            <!-- Segment Results -->
-            <div class="segment-grid" id="segmentResults" style="display: none;">
-                <div class="segment-card segment-1" onclick="selectSegment(event, 1)">
-                    <div class="segment-emoji">👑</div>
-                    <div class="segment-name">VIP Champions</div>
-                    <div class="segment-stats">
-                        Size: <span class="segment-value">8%</span> (160K customers)<br>
-                        Avg Spending: <span class="segment-value">$4,500/year</span><br>
-                        Visit Frequency: <span class="segment-value">2x/week</span><br>
-                        Lifetime Value: <span class="segment-value">$45,000</span>
-                    </div>
-                </div>
-                
-                <div class="segment-card segment-2" onclick="selectSegment(event, 2)">
-                    <div class="segment-emoji">💎</div>
-                    <div class="segment-name">Loyal Regulars</div>
-                    <div class="segment-stats">
-                        Size: <span class="segment-value">22%</span> (440K customers)<br>
-                        Avg Spending: <span class="segment-value">$1,800/year</span><br>
-                        Visit Frequency: <span class="segment-value">1x/week</span><br>
-                        Lifetime Value: <span class="segment-value">$12,000</span>
-                    </div>
-                </div>
-                
-                <div class="segment-card segment-3" onclick="selectSegment(event, 3)">
-                    <div class="segment-emoji">🌱</div>
-                    <div class="segment-name">Occasional Shoppers</div>
-                    <div class="segment-stats">
-                        Size: <span class="segment-value">45%</span> (900K customers)<br>
-                        Avg Spending: <span class="segment-value">$600/year</span><br>
-                        Visit Frequency: <span class="segment-value">1x/month</span><br>
-                        Lifetime Value: <span class="segment-value">$3,000</span>
-                    </div>
-                </div>
-                
-                <div class="segment-card segment-4" onclick="selectSegment(event, 4)">
-                    <div class="segment-emoji">😴</div>
-                    <div class="segment-name">Dormant Users</div>
-                    <div class="segment-stats">
-                        Size: <span class="segment-value">25%</span> (500K customers)<br>
-                        Avg Spending: <span class="segment-value">$150/year</span><br>
-                        Visit Frequency: <span class="segment-value">2x/year</span><br>
-                        Lifetime Value: <span class="segment-value">$500</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Strategy Recommendations -->
-            <div class="story-card" id="strategyCard" style="display: none;">
-                <div class="story-header">
-                    <div class="story-icon">💡</div>
-                    <h2 class="story-title">Personalized Marketing Strategies</h2>
-                </div>
-                <div class="story-content" id="strategyContent">
-                    <!-- Dynamic content will be inserted here -->
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Chapter 4: Business Impact -->
-    <div class="chapter" id="chapter4">
-        <div class="hero-section" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);">
-            <h1 class="hero-title">💰 The $50M Recovery Plan</h1>
-            <p class="hero-subtitle">Transform segments into profit with targeted strategies</p>
-        </div>
-        
-        <div class="content-section">
-            <!-- ROI Calculator -->
-            <div class="impact-dashboard">
-                <h3 style="color: #059669; font-size: 1.5em; margin-bottom: 20px;">📈 Segmentation ROI Calculator</h3>
-                
-                <div class="control-grid">
-                    <div class="control-item">
-                        <div class="control-label">
-                            <span>👑</span>
-                            <span>VIP Retention Improvement</span>
-                            <span class="value-badge" id="vipRetention">+15%</span>
-                        </div>
-                        <input type="range" class="slider" id="vipSlider" min="0" max="30" value="15" onchange="calculateROI()">
-                    </div>
-                    <div class="control-item">
-                        <div class="control-label">
-                            <span>💎</span>
-                            <span>Regular Upsell Success</span>
-                            <span class="value-badge" id="regularUpsell">+20%</span>
-                        </div>
-                        <input type="range" class="slider" id="regularSlider" min="0" max="40" value="20" onchange="calculateROI()">
-                    </div>
-                    <div class="control-item">
-                        <div class="control-label">
-                            <span>🌱</span>
-                            <span>Occasional Activation</span>
-                            <span class="value-badge" id="occasionalActivation">+10%</span>
-                        </div>
-                        <input type="range" class="slider" id="occasionalSlider" min="0" max="20" value="10" onchange="calculateROI()">
-                    </div>
-                    <div class="control-item">
-                        <div class="control-label">
-                            <span>😴</span>
-                            <span>Dormant Reactivation</span>
-                            <span class="value-badge" id="dormantReactivation">+5%</span>
-                        </div>
-                        <input type="range" class="slider" id="dormantSlider" min="0" max="15" value="5" onchange="calculateROI()">
-                    </div>
-                </div>
-                
-                <div class="metric-grid">
-                    <div class="metric-card">
-                        <div class="metric-value" id="revenueImpact">+$52.4M</div>
-                        <div class="metric-label">Annual Revenue Impact</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value" id="customerRetained">41K</div>
-                        <div class="metric-label">Customers Retained</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value" id="conversionRate">+18%</div>
-                        <div class="metric-label">Conversion Rate Lift</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value" id="roiPercent">847%</div>
-                        <div class="metric-label">ROI</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Campaign Builder -->
-            <div class="story-card">
-                <div class="story-header">
-                    <div class="story-icon">📧</div>
-                    <h2 class="story-title">Personalized Campaign Builder</h2>
-                </div>
-                <div class="story-content">
-                    <p style="margin-bottom: 20px;">Design targeted campaigns for each segment:</p>
-                    
-                    <div style="display: grid; gap: 20px;">
-                        <div style="background: #fef3c7; padding: 20px; border-radius: 10px;">
-                            <h4 style="color: #92400e; margin-bottom: 10px;">👑 VIP Champions Campaign</h4>
-                            <ul style="line-height: 1.8; color: #78350f;">
-                                <li>Early access to new products</li>
-                                <li>Exclusive VIP events and previews</li>
-                                <li>Personal shopping assistant</li>
-                                <li>Free same-day delivery</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="background: #dcfce7; padding: 20px; border-radius: 10px;">
-                            <h4 style="color: #166534; margin-bottom: 10px;">💎 Loyal Regulars Campaign</h4>
-                            <ul style="line-height: 1.8; color: #14532d;">
-                                <li>Points multiplier weekends</li>
-                                <li>Birthday month specials</li>
-                                <li>Product recommendations based on history</li>
-                                <li>Member-only flash sales</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="background: #dbeafe; padding: 20px; border-radius: 10px;">
-                            <h4 style="color: #1e3a8a; margin-bottom: 10px;">🌱 Occasional Shoppers Campaign</h4>
-                            <ul style="line-height: 1.8; color: #1e3a8a;">
-                                <li>Seasonal reminders and offers</li>
-                                <li>Bundle deals for bulk purchases</li>
-                                <li>Free shipping thresholds</li>
-                                <li>Category-specific promotions</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="background: #fce7f3; padding: 20px; border-radius: 10px;">
-                            <h4 style="color: #831843; margin-bottom: 10px;">😴 Dormant Users Campaign</h4>
-                            <ul style="line-height: 1.8; color: #831843;">
-                                <li>"We miss you" 30% off coupon</li>
-                                <li>Show what's new since last visit</li>
-                                <li>Simplified re-engagement email</li>
-                                <li>Win-back survey with incentive</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- A/B Testing Results -->
-            <div class="code-section">
-                <div class="code-header">
-                    <span class="code-title">📊 A/B Test Results: Generic vs Segmented</span>
-                    <button class="run-code-btn" onclick="showTestResults()">Show Results</button>
-                </div>
-                <div class="code-block">
-# A/B Test: Generic Marketing vs Segmented Approach
-# Test Duration: 30 days
-# Sample Size: 100,000 customers (50K each group)
+function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+function centroid(idxs) {
+  const pts = idxs.map(i => stepPoints[i]);
+  return { x: pts.reduce((s,p)=>s+p.x,0)/pts.length, y: pts.reduce((s,p)=>s+p.y,0)/pts.length };
+}
 
-results = {
-    'Generic Campaign (Control)': {
-        'open_rate': 0.18,
-        'click_rate': 0.02,
-        'conversion_rate': 0.008,
-        'revenue_per_customer': 12.50
-    },
-    'Segmented Campaign (Test)': {
-        'open_rate': 0.42,
-        'click_rate': 0.08,
-        'conversion_rate': 0.035,
-        'revenue_per_customer': 47.80
+function precomputeMerges() {
+  let clusters = stepPoints.map((_, i) => [i]);
+  stepHistory = [];
+  while (clusters.length > 1) {
+    let bestI = 0, bestJ = 1, bestD = Infinity;
+    for (let i = 0; i < clusters.length; i++) {
+      for (let j = i+1; j < clusters.length; j++) {
+        const ci = centroid(clusters[i]), cj = centroid(clusters[j]);
+        const d = dist(ci, cj);
+        if (d < bestD) { bestD = d; bestI = i; bestJ = j; }
+      }
     }
+    const merged = [...clusters[bestI], ...clusters[bestJ]];
+    stepHistory.push({ from: [clusters[bestI], clusters[bestJ]], to: merged, dist: bestD, remaining: clusters.length - 1 });
+    clusters = clusters.filter((_, k) => k !== bestI && k !== bestJ);
+    clusters.push(merged);
+  }
 }
 
-print("🔬 A/B TEST RESULTS")
-print("="*50)
-print("\n📧 Email Performance:")
-print(f"Generic Open Rate: {results['Generic Campaign (Control)']['open_rate']*100:.1f}%")
-print(f"Segmented Open Rate: {results['Segmented Campaign (Test)']['open_rate']*100:.1f}%")
-print(f"📈 Improvement: +{(results['Segmented Campaign (Test)']['open_rate']/results['Generic Campaign (Control)']['open_rate']-1)*100:.0f}%")
+const stepCtx = document.getElementById('step-canvas').getContext('2d');
+function drawStep() {
+  const ctx = stepCtx;
+  const W = 920, H = 380;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0,0,W,H);
+  
+  if (stepPoints.length === 0) {
+    ctx.fillStyle='#999'; ctx.font='16px Arial'; ctx.textAlign='center';
+    ctx.fillText('Click "New Data" to generate points', W/2, H/2);
+    return;
+  }
+  
+  // Build current cluster state up to stepIdx
+  let currentClusters = stepPoints.map((_, i) => [i]);
+  for (let s = 0; s < stepIdx && s < stepHistory.length; s++) {
+    const h = stepHistory[s];
+    const merged = h.to;
+    currentClusters = currentClusters.filter(c => !h.from.some(f => arrEquals(c, f)));
+    currentClusters.push(merged);
+  }
+  
+  // Draw cluster connections
+  currentClusters.forEach((cluster, ci) => {
+    if (cluster.length > 1) {
+      const cen = centroid(cluster);
+      cluster.forEach(pi => {
+        ctx.beginPath();
+        ctx.strokeStyle = COLORS[ci % COLORS.length] + '55';
+        ctx.lineWidth = 1.5;
+        ctx.moveTo(stepPoints[pi].x, stepPoints[pi].y);
+        ctx.lineTo(cen.x, cen.y);
+        ctx.stroke();
+      });
+    }
+  });
+  
+  // Draw points
+  currentClusters.forEach((cluster, ci) => {
+    cluster.forEach(pi => {
+      ctx.beginPath();
+      ctx.arc(stepPoints[pi].x, stepPoints[pi].y, 9, 0, 2*Math.PI);
+      ctx.fillStyle = COLORS[ci % COLORS.length];
+      ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 9px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(pi+1, stepPoints[pi].x, stepPoints[pi].y);
+    });
+    // Centroid
+    if (cluster.length > 1) {
+      const cen = centroid(cluster);
+      ctx.beginPath(); ctx.arc(cen.x, cen.y, 12, 0, 2*Math.PI);
+      ctx.strokeStyle = COLORS[ci % COLORS.length]; ctx.lineWidth = 3;
+      ctx.fillStyle = '#fff'; ctx.fill(); ctx.stroke();
+      ctx.fillStyle = COLORS[ci % COLORS.length]; ctx.font = 'bold 10px Arial';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('C'+(ci+1), cen.x, cen.y);
+    }
+  });
+  
+  // Status text
+  ctx.fillStyle = '#003366'; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(`Step ${stepIdx} / ${stepHistory.length} — ${currentClusters.length} cluster(s) remaining`, 10, 10);
+}
 
-print("\n💰 Revenue Impact:")
-generic_revenue = 50000 * results['Generic Campaign (Control)']['revenue_per_customer']
-segmented_revenue = 50000 * results['Segmented Campaign (Test)']['revenue_per_customer']
-print(f"Generic Campaign: ${generic_revenue:,.0f}")
-print(f"Segmented Campaign: ${segmented_revenue:,.0f}")
-print(f"💎 Additional Revenue: ${segmented_revenue - generic_revenue:,.0f}")
+function arrEquals(a, b) { return a.length===b.length && a.every((v,i)=>v===b[i]); }
 
-print("\n✅ Statistical Significance: p < 0.001")
-print("🎯 Decision: Roll out segmented approach to all customers!")
-                </div>
-                <div class="code-output" id="testResults"></div>
-            </div>
-        </div>
-    </div>
+function nextStep() {
+  if (stepPoints.length === 0) { generateStepData(); return; }
+  if (stepIdx >= stepHistory.length) {
+    document.getElementById('step-info').textContent = '✅ Fully merged! All points in one cluster. Now build a dendrogram to cut at any level.';
+    return;
+  }
+  const h = stepHistory[stepIdx];
+  document.getElementById('step-info').textContent = `Step ${stepIdx+1}: Merged ${h.from[0].map(i=>i+1).join(',')} + ${h.from[1].map(i=>i+1).join(',')} at distance ${h.dist.toFixed(1)} → ${h.remaining} cluster(s) remain`;
+  stepIdx++;
+  drawStep();
+  markDone('algorithm');
+}
+
+function autoRun() {
+  clearInterval(autoTimer);
+  autoTimer = setInterval(() => {
+    if (stepIdx >= stepHistory.length) { clearInterval(autoTimer); return; }
+    nextStep();
+  }, 700);
+}
+
+function resetSteps() {
+  clearInterval(autoTimer);
+  stepIdx = 0;
+  drawStep();
+  document.getElementById('step-info').textContent = 'Reset to beginning. Click "Next Step" to advance.';
+}
+
+generateStepData();
+
+// =====================
+// DENDROGRAM + SCATTER
+// =====================
+let dendPoints = [], dendMerges = [], dendMaxH = 1;
+let selectedLinkage = 'ward';
+
+function euclidean(pts, a, b) { return Math.hypot(pts[a].x - pts[b].x, pts[a].y - pts[b].y); }
+
+function buildDendrogram() {
+  dendPoints = Array.from({length: 14}, () => ({
+    x: 60 + Math.random()*820,
+    y: 40 + Math.random()*180
+  }));
+  computeMerges();
+  const cutH = dendMaxH * 0.5;
+  document.getElementById('cut-slider').max = Math.ceil(dendMaxH);
+  document.getElementById('cut-slider').value = Math.ceil(dendMaxH * 0.5);
+  drawFullDendrogram(cutH);
+  drawScatter(getClustersAtHeight(cutH));
+  updateCutInfo(cutH);
+  markDone('dendrogram');
+}
+
+function computeMerges() {
+  // Agglomerative with Ward linkage (centroid approximation)
+  let clusters = dendPoints.map((_, i) => [i]);
+  dendMerges = [];
+  let nodePositions = dendPoints.map((p, i) => ({x: p.x, y: p.y, id: i}));
+  const nodeX = [...dendPoints.map(p => p.x)];
+  const nodeY = [...dendPoints.map(p => p.y)];
+  
+  while (clusters.length > 1) {
+    let bestI = 0, bestJ = 1, bestD = Infinity;
+    for (let i = 0; i < clusters.length; i++) {
+      for (let j = i+1; j < clusters.length; j++) {
+        const ci = {x: clusters[i].reduce((s,k)=>s+dendPoints[k].x,0)/clusters[i].length, y: clusters[i].reduce((s,k)=>s+dendPoints[k].y,0)/clusters[i].length};
+        const cj = {x: clusters[j].reduce((s,k)=>s+dendPoints[k].x,0)/clusters[j].length, y: clusters[j].reduce((s,k)=>s+dendPoints[k].y,0)/clusters[j].length};
+        const d = Math.hypot(ci.x-cj.x, ci.y-cj.y);
+        if (d < bestD) { bestD = d; bestI = i; bestJ = j; }
+      }
+    }
+    dendMerges.push({left: clusters[bestI], right: clusters[bestJ], height: bestD});
+    const merged = [...clusters[bestI], ...clusters[bestJ]];
+    clusters = clusters.filter((_,k) => k !== bestI && k !== bestJ);
+    clusters.push(merged);
+  }
+  dendMaxH = Math.max(...dendMerges.map(m => m.height)) * 1.05;
+}
+
+function getClustersAtHeight(cutH) {
+  let clusters = dendPoints.map((_, i) => [i]);
+  for (const m of dendMerges) {
+    if (m.height <= cutH) {
+      const newClusters = clusters.filter(c => !m.left.every(x=>c.includes(x)) && !m.right.every(x=>c.includes(x)));
+      const left = clusters.find(c => m.left.every(x=>c.includes(x)));
+      const right = clusters.find(c => m.right.every(x=>c.includes(x)));
+      if (left && right) {
+        newClusters.push([...left, ...right]);
+        clusters = newClusters;
+      }
+    }
+  }
+  return clusters;
+}
+
+const dendCtx2 = document.getElementById('dend-canvas').getContext('2d');
+function drawFullDendrogram(cutH) {
+  const ctx = dendCtx2;
+  const W = 920, H = 380;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0,0,W,H);
+  
+  if (!dendPoints.length) {
+    ctx.fillStyle='#999'; ctx.font='16px Arial'; ctx.textAlign='center';
+    ctx.fillText('Click "Generate New Data" to build a dendrogram', W/2, H/2); return;
+  }
+  
+  const pad = {left:50, right:20, top:20, bottom:45};
+  const cW = W-pad.left-pad.right, cH = H-pad.top-pad.bottom;
+  
+  // Leaf x positions sorted by index
+  const n = dendPoints.length;
+  const leafX = Array.from({length:n}, (_, i) => pad.left + (i+0.5)/(n) * cW);
+  const nodeXMap = [...leafX]; // node i → x position
+  const nodeYMap = dendPoints.map(() => pad.top + cH); // leaves at bottom
+  
+  // Draw merges
+  dendMerges.forEach(m => {
+    const lMem = m.left, rMem = m.right;
+    const lIdxs = lMem.map(i => leafX[i]);
+    const rIdxs = rMem.map(i => leafX[i]);
+    const lx = (Math.min(...lIdxs) + Math.max(...lIdxs)) / 2;
+    const rx = (Math.min(...rIdxs) + Math.max(...rIdxs)) / 2;
+    const mx = (lx + rx) / 2;
+    const my = pad.top + cH - (m.height / dendMaxH) * cH;
     
-    <!-- Chapter 5: Victory -->
-    <div class="chapter" id="chapter5">
-        <div class="hero-section" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">
-            <h1 class="hero-title">🏆 Victory Against Amazon!</h1>
-            <p class="hero-subtitle">How clustering saved MegaMart and won back customers</p>
-        </div>
-        
-        <div class="content-section">
-            <div class="story-card" data-emoji="🎉">
-                <div class="story-header">
-                    <div class="story-icon">📈</div>
-                    <h2 class="story-title">The Stunning Turnaround</h2>
-                </div>
-                <div class="story-content">
-                    <h3 style="color: #059669; margin-bottom: 20px;">Three Months Later...</h3>
-                    <p style="font-size: 1.1em; line-height: 1.8; margin-bottom: 25px;">
-                        Sarah implemented the segmentation strategy across all MegaMart stores and digital channels. The Q4 results just arrived...
-                    </p>
-                    
-                    <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); padding: 30px; border-radius: 15px; margin: 30px 0;">
-                        <h3 style="color: #166534; margin-bottom: 20px;">📊 Q4 2024 Results</h3>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
-                            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
-                                <div style="font-size: 2em; color: #10b981; font-weight: bold;">+$54.2M</div>
-                                <div style="color: #059669;">Revenue Recovery</div>
-                            </div>
-                            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
-                                <div style="font-size: 2em; color: #10b981; font-weight: bold;">+38,000</div>
-                                <div style="color: #059669;">Customers Won Back</div>
-                            </div>
-                            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
-                                <div style="font-size: 2em; color: #10b981; font-weight: bold;">4.7⭐</div>
-                                <div style="color: #059669;">Customer Satisfaction</div>
-                            </div>
-                            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
-                                <div style="font-size: 2em; color: #10b981; font-weight: bold;">-12%</div>
-                                <div style="color: #059669;">Amazon's Local Share</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="background: #f0f9ff; padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #0284c7;">
-                        <h4 style="color: #0c4a6e; margin-bottom: 15px;">💬 CEO's Message to the Board:</h4>
-                        <p style="color: #075985; font-style: italic; line-height: 1.8;">
-                            "Sarah's clustering model didn't just recover our losses - it revolutionized how we understand our customers. For the first time, we're competing with Amazon on personalization and winning! 
-                            Sarah is promoted to Chief Customer Intelligence Officer with a mandate to roll this out globally."
-                        </p>
-                    </div>
-                    
-                    <h3 style="margin-top: 40px; margin-bottom: 20px;">🎯 Key Success Factors:</h3>
-                    <ul style="line-height: 2; font-size: 1.05em;">
-                        <li>✅ Identified 4 distinct customer segments instead of treating everyone the same</li>
-                        <li>✅ Created personalized marketing campaigns with 3.5x higher conversion</li>
-                        <li>✅ Reduced customer churn by 76% in VIP segment</li>
-                        <li>✅ Increased average order value by 42% through better targeting</li>
-                        <li>✅ Achieved 847% ROI on clustering implementation</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <!-- Your Certificate -->
-            <div class="story-card" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
-                <div class="story-header">
-                    <div class="story-icon" style="background: white; color: #f59e0b;">🏅</div>
-                    <h2 class="story-title" style="color: white;">Certificate of Mastery</h2>
-                </div>
-                <div class="story-content" style="text-align: center; padding: 40px; color: white;">
-                    <h2 style="font-size: 2.5em; margin-bottom: 30px;">Clustering Expert Certification</h2>
-                    <p style="font-size: 1.3em; margin-bottom: 30px;">
-                        This certifies that
-                    </p>
-                    <div style="font-size: 2em; font-weight: bold; margin: 30px 0; padding: 20px; background: rgba(255,255,255,0.2); border-radius: 10px;">
-                        [YOUR NAME]
-                    </div>
-                    <p style="font-size: 1.2em; margin: 30px 0;">
-                        has successfully mastered<br>
-                        <strong>Customer Segmentation with K-Means Clustering</strong>
-                    </p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 40px 0;">
-                        <div>
-                            <div style="font-size: 2.5em; font-weight: bold;">4</div>
-                            <div>Segments Discovered</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 2.5em; font-weight: bold;">$54M</div>
-                            <div>Revenue Generated</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 2.5em; font-weight: bold;">847%</div>
-                            <div>ROI Achieved</div>
-                        </div>
-                    </div>
-                    
-                    <button class="action-btn" style="background: white; color: #f59e0b; padding: 15px 40px; font-size: 1.1em;">
-                        📥 Download Certificate
-                    </button>
-                </div>
-            </div>
-            
-            <!-- What You Learned -->
-            <div class="story-card">
-                <div class="story-header">
-                    <div class="story-icon">🧠</div>
-                    <h2 class="story-title">What You've Mastered</h2>
-                </div>
-                <div class="story-content">
-                    <div style="display: grid; gap: 15px;">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">✓</div>
-                            <div>
-                                <strong>Clustering Fundamentals:</strong> Understanding how unsupervised learning finds hidden patterns
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">✓</div>
-                            <div>
-                                <strong>K-Means Algorithm:</strong> How it works, when to use it, and parameter tuning
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">✓</div>
-                            <div>
-                                <strong>RFM Analysis:</strong> Using Recency, Frequency, and Monetary value for customer segmentation
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">✓</div>
-                            <div>
-                                <strong>Segment Strategy:</strong> Creating targeted marketing campaigns for different groups
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">✓</div>
-                            <div>
-                                <strong>Business Impact:</strong> Calculating ROI and proving value to stakeholders
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); padding: 25px; border-radius: 12px; margin: 30px 0;">
-                        <h3 style="color: #3730a3; margin-bottom: 15px;">🚀 Next Module Preview</h3>
-                        <p style="color: #4338ca; line-height: 1.8;">
-                            <strong>Module 5: Time Series Forecasting</strong><br>
-                            Sarah's next challenge: Black Friday is coming! Can she predict hourly demand patterns to optimize staffing and inventory? Learn ARIMA, Prophet, and neural networks for time series.
-                        </p>
-                        <button class="action-btn" style="margin-top: 15px;">
-                            Start Module 5 →
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    const lLeafY = pad.top + cH - (findPrevMergeH(m.left[0]) / dendMaxH) * cH;
+    const rLeafY = pad.top + cH - (findPrevMergeH(m.right[0]) / dendMaxH) * cH;
     
-    <!-- Help Button -->
-    <div class="help-btn" onclick="showHint()">💡</div>
+    const above = cutH !== undefined && m.height > cutH;
+    ctx.strokeStyle = above ? '#ccc' : '#0366d6';
+    ctx.lineWidth = above ? 1 : 2;
     
-    <!-- Achievement Popup -->
-    <div class="achievement" id="achievementPopup">
-        <div class="achievement-content">
-            <div class="achievement-icon" id="achievementIcon">🏆</div>
-            <div class="achievement-text">
-                <div class="achievement-title" id="achievementTitle">Achievement Unlocked!</div>
-                <div class="achievement-desc" id="achievementDesc">You discovered your first customer segment!</div>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        // Global variables
-        let currentChapter = 1;
-        let totalChapters = 5;
-        let progress = 0;
-        let segments = [];
-        let selectedSegment = null;
-        let kmeansStep = 0;
-        let animationRunning = false;
-        
-        // Initialize on load
-        window.addEventListener('DOMContentLoaded', function() {
-            setTimeout(() => {
-                document.getElementById('loadingScreen').classList.add('hidden');
-                initializeModule();
-            }, 2000);
-        });
-        
-        function initializeModule() {
-            // Create stars
-            createStars();
-            
-            // Initialize typing effect
-            startTypingEffect();
-            
-            // Generate initial customer dots
-            generateCustomerDots();
-            
-            // Initialize K-Means visualization
-            initializeKMeans();
-        }
-        
-        // Create starfield background
-        function createStars() {
-            const container = document.getElementById('starsContainer');
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                container.appendChild(star);
-            }
-        }
-        
-        // Typing effect
-        function startTypingEffect() {
-            const text = "MegaMart is losing $50M to Amazon. The secret weapon? Hidden customer segments.";
-            let index = 0;
-            const element = document.getElementById('typingText');
-            
-            function type() {
-                if (index < text.length) {
-                    element.textContent += text.charAt(index);
-                    index++;
-                    setTimeout(type, 50);
-                }
-            }
-            
-            if (element) {
-                type();
-            }
-        }
-        
-        // Generate customer dots
-        function generateCustomerDots() {
-            const container = document.getElementById('customerMap');
-            if (!container) return;
-            
-            container.innerHTML = '';
-            
-            for (let i = 0; i < 200; i++) {
-                const dot = document.createElement('div');
-                dot.className = 'customer-dot cluster-unknown';
-                dot.style.left = Math.random() * 100 + '%';
-                dot.style.top = Math.random() * 100 + '%';
-                dot.title = 'Unknown segment';
-                container.appendChild(dot);
-            }
-        }
-        
-        // Reveal patterns in customer data
-        function revealPatterns() {
-            const dots = document.querySelectorAll('.customer-dot');
-            const clusters = ['cluster-1', 'cluster-2', 'cluster-3', 'cluster-4'];
-            const positions = [
-                { x: 20, y: 20, spread: 15 },  // Cluster 1
-                { x: 70, y: 30, spread: 20 },  // Cluster 2
-                { x: 30, y: 70, spread: 25 },  // Cluster 3
-                { x: 75, y: 75, spread: 15 }   // Cluster 4
-            ];
-            
-            dots.forEach((dot, index) => {
-                const clusterIndex = Math.floor(index / 50);
-                const cluster = clusters[clusterIndex];
-                const position = positions[clusterIndex];
-                
-                setTimeout(() => {
-                    dot.className = 'customer-dot ' + cluster;
-                    
-                    // Animate to cluster position
-                    const offsetX = (Math.random() - 0.5) * position.spread;
-                    const offsetY = (Math.random() - 0.5) * position.spread;
-                    
-                    dot.style.left = (position.x + offsetX) + '%';
-                    dot.style.top = (position.y + offsetY) + '%';
-                }, index * 10);
-            });
-            
-            showAchievement('👁️', 'Pattern Revealer', 'You discovered hidden customer segments!');
-            updateProgress(20);
-        }
-        
-        // Initialize K-Means visualization
-        function initializeKMeans() {
-            const canvas = document.getElementById('kmeansCanvas');
-            if (!canvas) return;
-            
-            // Generate random data points
-            for (let i = 0; i < 50; i++) {
-                const point = document.createElement('div');
-                point.className = 'data-point';
-                point.style.left = Math.random() * 100 + '%';
-                point.style.top = Math.random() * 100 + '%';
-                point.style.background = '#94a3b8';
-                canvas.appendChild(point);
-            }
-        }
-        
-        // Start K-Means animation
-        function startKMeans() {
-            if (animationRunning) return;
-            animationRunning = true;
-            kmeansStep = 0;
-            
-            const interval = setInterval(() => {
-                stepKMeans();
-                kmeansStep++;
-                
-                if (kmeansStep > 5) {
-                    clearInterval(interval);
-                    animationRunning = false;
-                    showAchievement('🤖', 'Algorithm Master', 'You understand K-Means clustering!');
-                }
-            }, 1000);
-        }
-        
-        // Step through K-Means
-        function stepKMeans() {
-            const canvas = document.getElementById('kmeansCanvas');
-            const points = canvas.querySelectorAll('.data-point');
-            const colors = ['#fbbf24', '#34d399', '#60a5fa', '#f472b6'];
-            
-            if (kmeansStep === 0) {
-                // Place centroids
-                for (let i = 0; i < 3; i++) {
-                    const centroid = document.createElement('div');
-                    centroid.className = 'centroid';
-                    centroid.style.left = (25 + i * 25) + '%';
-                    centroid.style.top = (30 + Math.random() * 40) + '%';
-                    centroid.style.background = colors[i];
-                    canvas.appendChild(centroid);
-                }
-            } else {
-                // Assign points to nearest centroid
-                const centroids = canvas.querySelectorAll('.centroid');
-                
-                points.forEach(point => {
-                    let minDist = Infinity;
-                    let nearestCentroid = 0;
-                    
-                    centroids.forEach((centroid, index) => {
-                        const dx = parseFloat(point.style.left) - parseFloat(centroid.style.left);
-                        const dy = parseFloat(point.style.top) - parseFloat(centroid.style.top);
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (dist < minDist) {
-                            minDist = dist;
-                            nearestCentroid = index;
-                        }
-                    });
-                    
-                    point.style.background = colors[nearestCentroid];
-                });
-                
-                // Move centroids to cluster centers
-                if (kmeansStep % 2 === 0) {
-                    centroids.forEach((centroid, index) => {
-                        const clusterPoints = Array.from(points).filter(
-                            p => p.style.background === colors[index]
-                        );
-                        
-                        if (clusterPoints.length > 0) {
-                            const avgX = clusterPoints.reduce((sum, p) => 
-                                sum + parseFloat(p.style.left), 0) / clusterPoints.length;
-                            const avgY = clusterPoints.reduce((sum, p) => 
-                                sum + parseFloat(p.style.top), 0) / clusterPoints.length;
-                            
-                            centroid.style.left = avgX + '%';
-                            centroid.style.top = avgY + '%';
-                        }
-                    });
-                }
-            }
-        }
-        
-        // Reset K-Means
-        function resetKMeans() {
-            const canvas = document.getElementById('kmeansCanvas');
-            canvas.innerHTML = '';
-            initializeKMeans();
-            kmeansStep = 0;
-        }
-        
-        // Check quiz answer
-        function checkAnswer(element, result) {
-            const options = element.parentElement.querySelectorAll('.quiz-option');
-            options.forEach(opt => opt.style.pointerEvents = 'none');
-            
-            if (result === 'correct') {
-                element.classList.add('correct');
-                showAchievement('🎯', 'Quick Learner', 'Perfect answer!');
-                updateProgress(10);
-            } else {
-                element.classList.add('incorrect');
-            }
-        }
-        
-        // Update cluster count
-        function updateClusters() {
-            const value = document.getElementById('clusterSlider').value;
-            document.getElementById('clusterCount').textContent = value;
-        }
-        
-        // Update weights
-        function updateWeights() {
-            document.getElementById('spendingWeight').textContent = 
-                document.getElementById('spendingSlider').value + 'x';
-            document.getElementById('frequencyWeight').textContent = 
-                document.getElementById('frequencySlider').value + 'x';
-            document.getElementById('recencyWeight').textContent = 
-                document.getElementById('recencySlider').value + 'x';
-        }
-        
-        // Run segmentation
-        function runSegmentation(evt) {
-            // Show loading animation
-            const button = (evt && evt.target) ? evt.target : null;
-            if (!button) return;
-            button.textContent = '⏳ Analyzing 2 million customers...';
-            button.disabled = true;
-            
-            setTimeout(() => {
-                // Show results
-                document.getElementById('segmentResults').style.display = 'grid';
-                createSegmentationVisualization();
-                
-                button.textContent = '✅ Segmentation Complete!';
-                
-                showAchievement('🔬', 'Data Scientist', 'Successfully segmented 2M customers!');
-                updateProgress(25);
-            }, 2000);
-        }
-        
-        // Create segmentation visualization
-        function createSegmentationVisualization() {
-            const data = [
-                {
-                    x: [500, 1200, 2000, 3500, 4500],
-                    y: [1, 3, 6, 8, 12],
-                    mode: 'markers',
-                    marker: {
-                        size: [25, 40, 60, 35, 20],
-                        color: ['#f472b6', '#60a5fa', '#34d399', '#fbbf24', '#8b5cf6']
-                    },
-                    text: ['Dormant', 'Occasional', 'Regular', 'Loyal', 'VIP'],
-                    name: 'Customer Segments'
-                }
-            ];
-            
-            const layout = {
-                title: 'Customer Segments by Value and Frequency',
-                xaxis: { title: 'Annual Spending ($)' },
-                yaxis: { title: 'Visits per Month' },
-                showlegend: false,
-                height: 400
-            };
-            
-            Plotly.newPlot('segmentationViz', data, layout);
-        }
-        
-        // Select segment
-        function selectSegment(evt, id) {
-            // Update selection
-            document.querySelectorAll('.segment-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            if (evt && evt.currentTarget) {
-                evt.currentTarget.classList.add('selected');
-            }
-            
-            // Show strategy
-            document.getElementById('strategyCard').style.display = 'block';
-            
-            const strategies = {
-                1: {
-                    title: 'VIP Champions Strategy',
-                    content: `
-                        <h4 style="color: #6366f1; margin-bottom: 15px;">Retention is Everything</h4>
-                        <ul style="line-height: 1.8;">
-                            <li><strong>Personal Account Manager:</strong> Assign dedicated support for top 1%</li>
-                            <li><strong>Exclusive Access:</strong> 48-hour early access to all sales and new products</li>
-                            <li><strong>VIP Events:</strong> Quarterly exclusive shopping events with 30% discounts</li>
-                            <li><strong>Free Everything:</strong> Shipping, returns, gift wrapping, personal shopping</li>
-                            <li><strong>Birthday Surprise:</strong> $100 gift card on their birthday</li>
-                        </ul>
-                        <p style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px;">
-                            <strong>Expected Impact:</strong> 15% retention improvement = $10.8M additional revenue
-                        </p>
-                    `
-                },
-                2: {
-                    title: 'Loyal Regulars Strategy',
-                    content: `
-                        <h4 style="color: #6366f1; margin-bottom: 15px;">Increase Basket Size</h4>
-                        <ul style="line-height: 1.8;">
-                            <li><strong>Smart Recommendations:</strong> AI-powered product suggestions</li>
-                            <li><strong>Bundle Deals:</strong> Save 20% when buying complementary items</li>
-                            <li><strong>Loyalty Points:</strong> 2x points on weekdays to spread traffic</li>
-                            <li><strong>Category Expansion:</strong> Introduce them to new departments</li>
-                            <li><strong>Referral Rewards:</strong> $20 for each friend they bring</li>
-                        </ul>
-                        <p style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px;">
-                            <strong>Expected Impact:</strong> 20% basket increase = $15.8M additional revenue
-                        </p>
-                    `
-                },
-                3: {
-                    title: 'Occasional Shoppers Strategy',
-                    content: `
-                        <h4 style="color: #6366f1; margin-bottom: 15px;">Increase Visit Frequency</h4>
-                        <ul style="line-height: 1.8;">
-                            <li><strong>Timely Reminders:</strong> Seasonal shopping reminders</li>
-                            <li><strong>Flash Sales:</strong> 4-hour surprise sales via app notifications</li>
-                            <li><strong>Gamification:</strong> Spin-to-win discounts on each visit</li>
-                            <li><strong>Social Proof:</strong> Show what similar customers bought</li>
-                            <li><strong>Easy Reorder:</strong> One-click repeat of previous purchases</li>
-                        </ul>
-                        <p style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px;">
-                            <strong>Expected Impact:</strong> 1 extra visit/month = $21.6M additional revenue
-                        </p>
-                    `
-                },
-                4: {
-                    title: 'Dormant Users Strategy',
-                    content: `
-                        <h4 style="color: #6366f1; margin-bottom: 15px;">Win-Back Campaign</h4>
-                        <ul style="line-height: 1.8;">
-                            <li><strong>We Miss You:</strong> 40% off coupon for return visit</li>
-                            <li><strong>What's New:</strong> Showcase improvements since they left</li>
-                            <li><strong>Survey Incentive:</strong> $10 for telling us why they left</li>
-                            <li><strong>Mobile App:</strong> Exclusive app-only deals to re-engage</li>
-                            <li><strong>No Expiry Points:</strong> Restore all their old loyalty points</li>
-                        </ul>
-                        <p style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px;">
-                            <strong>Expected Impact:</strong> 5% reactivation = $3.75M additional revenue
-                        </p>
-                    `
-                }
-            };
-            
-            document.getElementById('strategyContent').innerHTML = strategies[id].content;
-        }
-        
-        // Calculate ROI
-        function calculateROI() {
-            const vip = document.getElementById('vipSlider').value;
-            const regular = document.getElementById('regularSlider').value;
-            const occasional = document.getElementById('occasionalSlider').value;
-            const dormant = document.getElementById('dormantSlider').value;
-            
-            // Update display values
-            document.getElementById('vipRetention').textContent = '+' + vip + '%';
-            document.getElementById('regularUpsell').textContent = '+' + regular + '%';
-            document.getElementById('occasionalActivation').textContent = '+' + occasional + '%';
-            document.getElementById('dormantReactivation').textContent = '+' + dormant + '%';
-            
-            // Calculate impact
-            const vipRevenue = 160000 * 4500 * (vip / 100);
-            const regularRevenue = 440000 * 1800 * (regular / 100);
-            const occasionalRevenue = 900000 * 600 * (occasional / 100);
-            const dormantRevenue = 500000 * 150 * (dormant / 100);
-            
-            const totalRevenue = (vipRevenue + regularRevenue + occasionalRevenue + dormantRevenue) / 1000000;
-            const customersRetained = (160000 * vip + 440000 * regular * 0.5 + 900000 * occasional * 0.3 + 500000 * dormant * 0.2) / 100 / 1000;
-            const conversionLift = (vip * 0.3 + regular * 0.25 + occasional * 0.2 + dormant * 0.1) / 4;
-            const roi = (totalRevenue * 1000000 / 150000 - 1) * 100;
-            
-            // Update display
-            document.getElementById('revenueImpact').textContent = '+$' + totalRevenue.toFixed(1) + 'M';
-            document.getElementById('customerRetained').textContent = customersRetained.toFixed(0) + 'K';
-            document.getElementById('conversionRate').textContent = '+' + conversionLift.toFixed(0) + '%';
-            document.getElementById('roiPercent').textContent = roi.toFixed(0) + '%';
-        }
-        
-        // Run clustering code
-        function runClusteringCode() {
-            const output = document.getElementById('clusteringOutput');
-            output.style.display = 'block';
-            output.innerHTML = `🎯 Customer Segments Found!
-========================================
+    ctx.beginPath();
+    ctx.moveTo(lx, lLeafY); ctx.lineTo(lx, my);
+    ctx.lineTo(rx, my); ctx.lineTo(rx, rLeafY);
+    ctx.stroke();
+  });
+  
+  // Leaf labels
+  ctx.fillStyle = '#333'; ctx.font = '11px Arial'; ctx.textAlign = 'center';
+  leafX.forEach((x, i) => ctx.fillText(i+1, x, H-10));
+  
+  // Cut line
+  if (cutH !== undefined) {
+    const cy = pad.top + cH - (cutH / dendMaxH) * cH;
+    ctx.strokeStyle = '#dc3545'; ctx.lineWidth = 2.5; ctx.setLineDash([8,4]);
+    ctx.beginPath(); ctx.moveTo(pad.left, cy); ctx.lineTo(pad.left+cW, cy); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#dc3545'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'right';
+    ctx.fillText(`Cut: ${cutH.toFixed(0)}`, pad.left+cW, cy-5);
+  }
+  
+  // Y axis
+  ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top+cH); ctx.stroke();
+  ctx.fillStyle = '#666'; ctx.font = '11px Arial'; ctx.textAlign = 'right';
+  [0, 0.25, 0.5, 0.75, 1].forEach(f => {
+    const y = pad.top + cH - f * cH;
+    ctx.fillText(Math.round(f * dendMaxH), pad.left-5, y+4);
+  });
+  ctx.save(); ctx.translate(12, pad.top+cH/2); ctx.rotate(-Math.PI/2);
+  ctx.font = '12px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = '#333';
+  ctx.fillText('Distance', 0, 0); ctx.restore();
+}
 
-Segment 1:
-  Average Age: 24 years
-  Average Spending: $476
-  📱 Profile: Young Digital Natives
-  💡 Strategy: Mobile-first, social media marketing
+function findPrevMergeH(pointIdx) {
+  for (const m of dendMerges) {
+    if (m.left.length===1 && m.left[0]===pointIdx) return 0;
+    if (m.right.length===1 && m.right[0]===pointIdx) return 0;
+  }
+  return 0;
+}
 
-Segment 2:
-  Average Age: 68 years
-  Average Spending: $177
-  📰 Profile: Senior Savers
-  💡 Strategy: Email, discounts, traditional ads
+const scatterCtx = document.getElementById('scatter-canvas').getContext('2d');
+function drawScatter(clusters) {
+  const ctx = scatterCtx;
+  const W = 920, H = 260;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0,0,W,H);
+  
+  const minX = Math.min(...dendPoints.map(p=>p.x));
+  const maxX = Math.max(...dendPoints.map(p=>p.x));
+  const minY = Math.min(...dendPoints.map(p=>p.y));
+  const maxY = Math.max(...dendPoints.map(p=>p.y));
+  
+  const pad = 40;
+  function toCanvas(p) {
+    return {
+      cx: pad + (p.x-minX)/(maxX-minX||1) * (W-2*pad),
+      cy: pad + (p.y-minY)/(maxY-minY||1) * (H-2*pad)
+    };
+  }
+  
+  clusters.forEach((cluster, ci) => {
+    cluster.forEach(pi => {
+      const {cx,cy} = toCanvas(dendPoints[pi]);
+      ctx.beginPath(); ctx.arc(cx, cy, 9, 0, 2*Math.PI);
+      ctx.fillStyle = COLORS[ci % COLORS.length] + 'cc';
+      ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='bold 9px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(pi+1, cx, cy);
+    });
+  });
+  
+  ctx.fillStyle='#003366'; ctx.font='13px Arial'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText(`${clusters.length} cluster(s) — scatter view`, W/2, 5);
+}
 
-Segment 3:
-  Average Age: 44 years
-  Average Spending: $1200
-  💼 Profile: Premium Professionals
-  💡 Strategy: Quality focus, convenience features`;
-            
-            showAchievement('📊', 'Cluster Expert', 'You understand customer segmentation!');
-        }
-        
-        // Show test results
-        function showTestResults() {
-            const output = document.getElementById('testResults');
-            output.style.display = 'block';
-            output.innerHTML = `🔬 A/B TEST RESULTS
-==================================================
+function updateCutInfo(cutH) {
+  const clusters = getClustersAtHeight(cutH);
+  document.getElementById('cut-height-display').textContent = cutH.toFixed(0);
+  document.getElementById('cut-clusters-display').textContent = clusters.length;
+  document.getElementById('dend-info').textContent = `Cut at height ${cutH.toFixed(0)} → ${clusters.length} cluster(s). ${clusters.map((c,i)=>`Cluster ${i+1}: [${c.map(x=>x+1).join(',')}]`).join(' | ')}`;
+  drawScatter(clusters);
+}
 
-📧 Email Performance:
-Generic Open Rate: 18.0%
-Segmented Open Rate: 42.0%
-📈 Improvement: +133%
+function sliderCut(v) {
+  if (!dendPoints.length) return;
+  const cutH = (v / 100) * dendMaxH;
+  drawFullDendrogram(cutH);
+  updateCutInfo(cutH);
+  markDone('dendrogram');
+}
 
-💰 Revenue Impact:
-Generic Campaign: $625,000
-Segmented Campaign: $2,390,000
-💎 Additional Revenue: $1,765,000
+function clickCutDendrogram(e) {
+  if (!dendPoints.length) return;
+  const r = document.getElementById('dend-canvas').getBoundingClientRect();
+  const y = e.clientY - r.top;
+  const pad = {top:20, bottom:45};
+  const cH = 380 - pad.top - pad.bottom;
+  const cutH = ((cH - (y - pad.top)) / cH) * dendMaxH;
+  if (cutH < 0 || cutH > dendMaxH) return;
+  document.getElementById('cut-slider').value = Math.round((cutH / dendMaxH) * 100);
+  drawFullDendrogram(cutH);
+  updateCutInfo(cutH);
+}
 
-✅ Statistical Significance: p < 0.001
-🎯 Decision: Roll out segmented approach to all customers!`;
-        }
-        
-        // Navigation
-        function nextChapter() {
-            if (currentChapter < totalChapters) {
-                currentChapter++;
-                updateChapter();
-            }
-        }
-        
-        function previousChapter() {
-            if (currentChapter > 1) {
-                currentChapter--;
-                updateChapter();
-            }
-        }
-        
-        function updateChapter() {
-            document.querySelectorAll('.chapter').forEach(ch => {
-                ch.classList.remove('active');
-            });
-            document.getElementById('chapter' + currentChapter).classList.add('active');
-            window.scrollTo(0, 0);
-            updateProgress(currentChapter * 20);
-        }
-        
-        // Progress tracking
-        function updateProgress(amount) {
-            progress = Math.min(100, progress + amount);
-            document.getElementById('progressBar').style.width = progress + '%';
-            
-            if (progress === 100 && currentChapter === totalChapters) {
-                showAchievement('🎓', 'Module Complete!', 'You are now a Clustering Expert!');
-            }
-        }
-        
-        // Show achievement
-        function showAchievement(icon, title, description) {
-            const popup = document.getElementById('achievementPopup');
-            document.getElementById('achievementIcon').textContent = icon;
-            document.getElementById('achievementTitle').textContent = title;
-            document.getElementById('achievementDesc').textContent = description;
-            
-            popup.classList.add('show');
-            
-            setTimeout(() => {
-                popup.classList.remove('show');
-            }, 3000);
-        }
-        
-        // Show hint
-        function showHint() {
-            const hints = [
-                "💡 Clustering finds natural groups without being told what to look for",
-                "💡 K-Means needs you to specify the number of clusters (K)",
-                "💡 RFM stands for Recency, Frequency, and Monetary value",
-                "💡 Different segments need different marketing strategies",
-                "💡 Even a 1% improvement in VIP retention can mean millions in revenue"
-            ];
-            
-            const hint = hints[Math.floor(Math.random() * hints.length)];
-            alert(hint);
-        }
-        
-        // Show menu
-        function showMenu() {
-            alert('Chapter Menu:\n\n1. The $50M Mystery\n2. Understanding Clustering\n3. Finding Segments\n4. Business Impact\n5. Victory!');
-        }
-    </script>
+function highlightLongestGap() {
+  if (!dendMerges.length) return;
+  const heights = dendMerges.map(m => m.height).sort((a,b)=>a-b);
+  let maxGap = 0, gapIdx = 0;
+  for (let i = 1; i < heights.length; i++) {
+    const g = heights[i] - heights[i-1];
+    if (g > maxGap) { maxGap = g; gapIdx = i; }
+  }
+  const optCut = (heights[gapIdx-1] + heights[gapIdx]) / 2;
+  const slider = document.getElementById('cut-slider');
+  slider.value = Math.round((optCut / dendMaxH) * 100);
+  drawFullDendrogram(optCut);
+  updateCutInfo(optCut);
+  const clusters = getClustersAtHeight(optCut);
+  document.getElementById('dend-info').textContent = `💡 Longest gap found! Natural k = ${clusters.length} cluster(s). Cut at height ~${optCut.toFixed(0)}.`;
+}
+
+buildDendrogram();
+
+// =====================
+// LINKAGE COMPARISON
+// =====================
+let linkagePoints = [];
+let activeLinkage = 'ward';
+
+function generateLinkageData() {
+  linkagePoints = [];
+  const configs = [{cx:200,cy:100},{cx:200,cy:220},{cx:600,cy:100},{cx:600,cy:220},{cx:400,cy:160}];
+  configs.forEach(c => {
+    for (let i=0;i<8;i++) {
+      linkagePoints.push({x:c.cx+(Math.random()-0.5)*80, y:c.cy+(Math.random()-0.5)*80});
+    }
+  });
+  selectAndDraw(activeLinkage);
+}
+
+function selectLinkage(m) {
+  activeLinkage = m;
+  ['single','complete','average','ward'].forEach(l => {
+    document.getElementById('lc-'+l).classList.toggle('active', l===m);
+  });
+}
+
+function selectAndDraw(m) {
+  selectLinkage(m);
+  if (linkagePoints.length === 0) generateLinkageData();
+  else drawLinkageDendrogram(m);
+  markDone('linkage');
+}
+
+function clusterDist(a, b, method, pts) {
+  const pairsA = a.map(i => pts[i]);
+  const pairsB = b.map(i => pts[i]);
+  const dists = [];
+  pairsA.forEach(pa => pairsB.forEach(pb => dists.push(Math.hypot(pa.x-pb.x, pa.y-pb.y))));
+  if (method === 'single') return Math.min(...dists);
+  if (method === 'complete') return Math.max(...dists);
+  if (method === 'average') return dists.reduce((s,d)=>s+d,0)/dists.length;
+  // Ward: variance increase
+  const allIdxs = [...a, ...b];
+  const cx = allIdxs.reduce((s,i)=>s+pts[i].x,0)/allIdxs.length;
+  const cy = allIdxs.reduce((s,i)=>s+pts[i].y,0)/allIdxs.length;
+  return allIdxs.reduce((s,i)=>s + Math.pow(pts[i].x-cx,2) + Math.pow(pts[i].y-cy,2),0) / allIdxs.length;
+}
+
+const linkCtx = document.getElementById('linkage-canvas').getContext('2d');
+function drawLinkageDendrogram(method) {
+  const pts = linkagePoints;
+  let clusters = pts.map((_,i)=>[i]);
+  const merges = [];
+  while (clusters.length > 1) {
+    let bi = 0, bj = 1, bd = Infinity;
+    for (let i=0;i<clusters.length;i++) for (let j=i+1;j<clusters.length;j++) {
+      const d = clusterDist(clusters[i], clusters[j], method, pts);
+      if (d < bd) { bd = d; bi = i; bj = j; }
+    }
+    merges.push({left: clusters[bi], right: clusters[bj], height: bd});
+    const merged = [...clusters[bi], ...clusters[bj]];
+    clusters = clusters.filter((_,k)=>k!==bi && k!==bj);
+    clusters.push(merged);
+  }
+  
+  const maxH = Math.max(...merges.map(m=>m.height)) * 1.1;
+  const ctx = linkCtx;
+  const W = 920, H = 350;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0,0,W,H);
+  
+  const pad = {left:50,right:20,top:25,bottom:40};
+  const cW = W-pad.left-pad.right, cH = H-pad.top-pad.bottom;
+  const n = pts.length;
+  const leafX = Array.from({length:n},(_,i)=>pad.left+(i+0.5)/n*cW);
+  
+  merges.forEach(m => {
+    const lx = m.left.reduce((s,i)=>s+leafX[i],0)/m.left.length;
+    const rx = m.right.reduce((s,i)=>s+leafX[i],0)/m.right.length;
+    const my = pad.top + cH - (m.height/maxH)*cH;
+    ctx.strokeStyle = '#0366d6'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(lx, pad.top+cH); ctx.lineTo(lx, my);
+    ctx.lineTo(rx, my); ctx.lineTo(rx, pad.top+cH);
+    ctx.stroke();
+  });
+  
+  ctx.fillStyle='#333'; ctx.font='11px Arial'; ctx.textAlign='center';
+  leafX.forEach((x,i)=>ctx.fillText(i+1, x, H-8));
+  
+  ctx.fillStyle='#003366'; ctx.font='bold 14px Arial'; ctx.textAlign='left';
+  ctx.fillText(`Linkage: ${method.charAt(0).toUpperCase()+method.slice(1)}`, pad.left, 20);
+  
+  // Y axis
+  ctx.strokeStyle='#999'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pad.left,pad.top); ctx.lineTo(pad.left,pad.top+cH); ctx.stroke();
+  ctx.fillStyle='#666'; ctx.font='10px Arial'; ctx.textAlign='right';
+  [0,.25,.5,.75,1].forEach(f=>{
+    const y=pad.top+cH-f*cH;
+    ctx.fillText((f*maxH).toFixed(0), pad.left-4, y+4);
+  });
+  
+  document.getElementById('linkage-info').textContent = {
+    single: 'Single linkage: note the "chaining" effect — clusters tend to merge one-by-one, creating elongated chains.',
+    complete: 'Complete linkage: creates more compact clusters, but sensitive to outliers.',
+    average: 'Average linkage: balanced result between single and complete.',
+    ward: 'Ward linkage: minimizes within-cluster variance. Most compact, most balanced. Best for customer segmentation.'
+  }[method];
+}
+
+generateLinkageData();
+
+// =====================
+// BUSINESS DENDROGRAM
+// =====================
+const bizDendCtx = document.getElementById('biz-dend-canvas').getContext('2d');
+function drawBizDendrogram() {
+  const ctx = bizDendCtx;
+  const W = 920, H = 380;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0,0,W,H);
+  
+  const pad = {left:140, right:20, top:30, bottom:55};
+  const cW = W-pad.left-pad.right, cH = H-pad.top-pad.bottom;
+  const maxH = 200;
+  
+  // Leaf positions (8 customer sub-segments)
+  const leaves = [
+    {label:'Premium VIP', x:0.05}, {label:'Premium Loyal', x:0.14},
+    {label:'Standard Freq', x:0.26}, {label:'Standard Occ', x:0.35},
+    {label:'New Urban', x:0.50}, {label:'New Suburban', x:0.59},
+    {label:'Budget Price', x:0.74}, {label:'Budget Disc', x:0.83}
+  ];
+  
+  const leafX = leaves.map(l => pad.left + l.x * cW);
+  const leafY = pad.top + cH;
+  
+  // Define merges: [left leaf idxs, right leaf idxs, height]
+  const merges = [
+    {li:[0],ri:[1],h:20,color:'#9b59b6'},   // Premium sub-segs
+    {li:[2],ri:[3],h:22,color:'#27ae60'},   // Standard sub-segs
+    {li:[4],ri:[5],h:18,color:'#3498db'},   // New sub-segs
+    {li:[6],ri:[7],h:15,color:'#e74c3c'},   // Budget sub-segs
+    {li:[0,1],ri:[2,3],h:75,color:'#9b59b6'}, // Premium + Standard = High-Value
+    {li:[4,5],ri:[6,7],h:80,color:'#e67e22'}, // New + Budget = Price-Sensitive
+    {li:[0,1,2,3],ri:[4,5,6,7],h:160,color:'#888'}, // All
+  ];
+  
+  function getX(idxs) { return leafX.slice(Math.min(...idxs), Math.max(...idxs)+1).reduce((s,x)=>s+x,0)/idxs.length; }
+  function getPrevH(li) { 
+    for (const m of merges) {
+      if (m.li.length===1 && m.li[0]===li[0] && li.length===1) return 0;
+    }
+    return 0;
+  }
+  
+  // Two cut lines to show different k
+  const cuts = [{h:100, label:'k=4 cut', color:'#dc3545'}, {h:30, label:'k=8 cut', color:'#f39c12'}];
+  
+  merges.forEach(m => {
+    const lx = getX(m.li), rx = getX(m.ri);
+    const my = pad.top + cH - (m.h/maxH)*cH;
+    const lh = merges.find(mx => JSON.stringify(mx.li)===JSON.stringify(m.li) && mx.h < m.h);
+    const rh = merges.find(mx => JSON.stringify(mx.li)===JSON.stringify(m.ri) && mx.h < m.h);
+    ctx.strokeStyle = m.color; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(lx, leafY); ctx.lineTo(lx, my);
+    ctx.lineTo(rx, my); ctx.lineTo(rx, leafY);
+    ctx.stroke();
+  });
+  
+  // Leaf labels
+  ctx.font = '11px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = '#333';
+  leaves.forEach((l, i) => {
+    ctx.save(); ctx.translate(leafX[i], leafY+5); ctx.rotate(Math.PI/5);
+    ctx.fillText(l.label, 0, 0); ctx.restore();
+  });
+  
+  // Cut lines
+  cuts.forEach(cut => {
+    const cy = pad.top + cH - (cut.h/maxH)*cH;
+    ctx.strokeStyle = cut.color; ctx.lineWidth = 2.5; ctx.setLineDash([8,4]);
+    ctx.beginPath(); ctx.moveTo(pad.left, cy); ctx.lineTo(pad.left+cW, cy); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = cut.color; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'left';
+    ctx.fillText(cut.label, pad.left+5, cy-5);
+  });
+  
+  // Annotations
+  const annotations = [
+    {x: getX([0,1]), y: pad.top + cH - (75/maxH)*cH - 30, text:'High-Value', color:'#9b59b6'},
+    {x: getX([4,5,6,7]), y: pad.top + cH - (80/maxH)*cH - 30, text:'Price-Sensitive', color:'#e67e22'},
+  ];
+  annotations.forEach(a => {
+    ctx.fillStyle = a.color; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
+    ctx.fillText(a.text, a.x, a.y);
+  });
+  
+  // Y axis
+  ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top+cH); ctx.stroke();
+  ctx.fillStyle = '#666'; ctx.font = '10px Arial'; ctx.textAlign = 'right';
+  [0,50,100,150,200].forEach(h => {
+    const y = pad.top + cH - (h/maxH)*cH;
+    ctx.fillText(h, pad.left-4, y+4);
+  });
+  ctx.save(); ctx.translate(15, pad.top+cH/2); ctx.rotate(-Math.PI/2);
+  ctx.font='12px Arial'; ctx.textAlign='center'; ctx.fillStyle='#333';
+  ctx.fillText('Customer Distance', 0, 0); ctx.restore();
+  
+  document.getElementById('biz-dend-info').textContent = 'Premium & Standard customers cluster together (High-Value group) before they merge with Budget & New customers. The two horizontal dashed lines show different business cuts.';
+  markDone('business');
+}
+
+// =====================
+// QUIZ
+// =====================
+const feedbacks = {
+  q1: {
+    correct: '✅ Correct! Ward and Complete linkage both create compact clusters, which is what you want for clear country groupings. Single linkage would create a chaining effect and give uneven clusters.',
+    incorrect: '❌ For compact, well-separated clusters (especially with potential outliers), Ward or Complete linkage is preferred. Single linkage tends to "chain" — creating elongated, uneven clusters.'
+  },
+  q2: {
+    correct: '✅ Exactly! Both the dendrogram analysis (longest gap suggests k=3) and the silhouette score (0.68 at k=3 vs 0.42 at k=7) agree. When two methods align, that\'s a strong signal.',
+    incorrect: '❌ k=3 is strongly indicated: the dendrogram shows a natural gap at 3 clusters, and the silhouette score is much higher (0.68 vs 0.42). More clusters doesn\'t always mean better clustering.'
+  },
+  q3: {
+    correct: '✅ Right! Hierarchical clustering requires computing and storing an n×n distance matrix, which is O(n²) in space and O(n³) in naive computation. 500K rows means a 250-billion-entry matrix — not feasible. Sample first!',
+    incorrect: '❌ The computational bottleneck is the distance matrix: O(n²) space and O(n³) time. At 500K rows, this becomes a massive bottleneck. The practical limit is ~50K rows.'
+  },
+  q4: {
+    correct: '✅ Perfect! Gene regulatory modules are naturally hierarchical — genes form small co-expression groups, which aggregate into larger regulatory networks. A dendrogram directly captures this nested structure, which K-Means cannot.',
+    incorrect: '❌ Hierarchical clustering is the natural fit here. Regulatory gene modules are nested by design — small co-expression groups combine into larger networks. The dendrogram captures this hierarchy; K-Means cannot.'
+  }
+};
+
+function checkAnswer(qid, el, correct) {
+  if (el.classList.contains('correct') || el.classList.contains('incorrect')) return;
+  el.parentElement.querySelectorAll('.answer-option').forEach(s => s.style.pointerEvents='none');
+  el.classList.add(correct ? 'correct' : 'incorrect');
+  const fb = document.getElementById(qid+'-feedback');
+  fb.innerHTML = feedbacks[qid][correct ? 'correct' : 'incorrect'];
+  fb.classList.add('show');
+  if (correct) markDone('quiz');
+}
+</script>
+
 </body>
 </html>

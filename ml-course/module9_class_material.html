@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 9: Clustering — Find the Hidden Groups | ML Course</title>
+<style>
+body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 950px; margin: auto; padding: 2rem; line-height: 1.6; }
+nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #ddd; }
+nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; }
+h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+.card { background: #fff; padding: 1.2em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.interactive-section { background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); padding: 2em; margin: 2em 0; border-radius: 12px; border: 1px solid #e1e4e8; }
+.button { display: inline-block; padding: 0.8em 1.5em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; transition: all 0.3s ease; margin: 0.5em 0.5em 0.5em 0; font-weight: bold; }
+.button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
+.button.secondary { background: #6c757d; }
+.button.success { background: #28a745; }
+.button.warning { background: #ffc107; color: #212529; }
+.button.danger { background: #dc3545; }
+.slider-container { margin: 1.5em 0; }
+.slider-container label { display: block; font-weight: bold; margin-bottom: 0.5em; color: #003366; }
+.slider { width: 100%; height: 8px; border-radius: 4px; background: #e1e4e8; outline: none; -webkit-appearance: none; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #0366d6; cursor: pointer; }
+.viz-container { background: white; border: 2px solid #e1e4e8; border-radius: 10px; padding: 1.5em; margin: 2em 0; }
+canvas { border: 1px solid #e1e4e8; border-radius: 8px; display: block; margin: 0 auto; cursor: crosshair; }
+.quick-question { background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%); border: 2px solid #0366d6; border-radius: 10px; padding: 1.5em; margin: 2em 0; }
+.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin: 1em 0; }
+.answer-option { padding: 1em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-align: center; }
+.answer-option:hover { border-color: #0366d6; transform: scale(1.02); }
+.answer-option.correct { background: #d4edda; border-color: #28a745; }
+.answer-option.incorrect { background: #f8d7da; border-color: #dc3545; }
+.feedback-panel { background: white; border-left: 5px solid #0366d6; padding: 1.5em; margin: 1.5em 0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: none; }
+.feedback-panel.show { display: block; animation: slideIn 0.5s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+.progress-bar { height: 30px; background: #e9ecef; border-radius: 15px; margin: 2em 0; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #0366d6 0%, #667eea 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; transition: width 1s ease; min-width: 40px; }
+.concept-box { background: #e7f3ff; border-left: 4px solid #0366d6; padding: 1.2em; margin: 1.5em 0; border-radius: 0 8px 8px 0; }
+.warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 1.2em; margin: 1.5em 0; border-radius: 0 8px 8px 0; }
+.success-box { background: #d4edda; border-left: 4px solid #28a745; padding: 1.2em; margin: 1.5em 0; border-radius: 0 8px 8px 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1em; margin: 1em 0; }
+.stat-card { background: #fff; border: 2px solid #e1e4e8; border-radius: 8px; padding: 1em; text-align: center; }
+.stat-number { font-size: 2.5em; font-weight: bold; color: #0366d6; }
+.stat-label { color: #666; font-size: 0.9em; }
+.algo-compare { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1em; margin: 1.5em 0; }
+.algo-card { background: #fff; border: 2px solid #e1e4e8; border-radius: 10px; padding: 1.2em; }
+.algo-card h4 { color: #003366; margin-bottom: 0.5em; }
+.algo-card.highlight { border-color: #0366d6; background: #e7f3ff; }
+table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+th { background: #003366; color: white; padding: 0.8em; text-align: left; }
+td { padding: 0.8em; border-bottom: 1px solid #e1e4e8; }
+tr:hover td { background: #f0f8ff; }
+.section-header { background: linear-gradient(135deg, #003366 0%, #0366d6 100%); color: white; padding: 1.5em; border-radius: 10px; margin: 2em 0 1em; }
+.section-header h2 { color: white; margin: 0; }
+.section-header p { color: rgba(255,255,255,0.85); margin: 0.5em 0 0; }
+#output-log { background: #f8f9fa; border: 1px solid #e1e4e8; border-radius: 8px; padding: 1em; font-family: monospace; font-size: 0.9em; min-height: 60px; max-height: 120px; overflow-y: auto; margin-top: 1em; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">🏠 Course Home</a>
+  <a href="module9_clustering_kmeans_interactive.html">🎯 K-Means Interactive</a>
+  <a href="module9_clustering_hierarchical_interactive.html">🌳 Hierarchical</a>
+  <a href="module9_lab_manual.html">🔬 Lab</a>
+</nav>
+
+<h1>📊 Module 9: Clustering — Find the Hidden Groups</h1>
+
+<!-- Opening Hook -->
+<div class="card" style="border-left: 6px solid #0366d6;">
+  <h2>🎯 The Challenge</h2>
+  <p style="font-size: 1.2em;"><strong>RetailMax has 2 million customers but treats them all the same.</strong> Every customer gets the same emails, the same promotions, the same recommendations. Result: 12% open rate on emails, $3.2M wasted on irrelevant promotions per year, and customers churning because they feel misunderstood.</p>
+  <p>Your job: <strong>find the hidden groups.</strong> Within those 2 million customers are segments with distinct behaviors, values, and needs. Discover them, and you can personalize at scale.</p>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number">2M</div>
+      <div class="stat-label">Customers to segment</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">$3.2M</div>
+      <div class="stat-label">Annual waste from generic targeting</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">340%</div>
+      <div class="stat-label">ROI from personalized campaigns</div>
+    </div>
+  </div>
+  <button class="button success" onclick="startProgress()">Start Learning →</button>
+</div>
+
+<!-- Progress Tracker -->
+<div class="card">
+  <h3>📈 Your Progress</h3>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill" style="width: 0%;">0%</div>
+  </div>
+  <div style="display: flex; justify-content: space-between; font-size: 0.85em; color: #666; margin-top: 0.5em;">
+    <span>🔵 K-Means</span><span>📐 Elbow Method</span><span>🌳 Hierarchical</span><span>🌊 DBSCAN</span><span>💼 Business Case</span><span>✅ Quiz</span>
+  </div>
+  <p id="progress-text" style="margin-top: 0.5em; color: #666; font-size: 0.9em;">Complete sections to track your progress.</p>
+</div>
+
+<!-- What is Clustering -->
+<div class="section-header">
+  <h2>1. What is Clustering?</h2>
+  <p>Unsupervised learning — finding structure when you have no labels</p>
+</div>
+
+<div class="card">
+  <h3>Supervised vs. Unsupervised Learning</h3>
+  <p>Everything we've done so far was <strong>supervised</strong>: we had labeled examples (spam/not-spam, price, churn/no-churn) and learned to predict them.</p>
+  <p><strong>Clustering is different.</strong> You have data with no labels. You're exploring: are there natural groups? How many? What defines each group?</p>
+  <div class="concept-box">
+    <strong>Key insight:</strong> Clustering is about <em>discovering structure</em>, not predicting outcomes. Two customers who buy premium brands + live in urban areas + are 25–35 years old are "similar" even if we never labeled them as such.
+  </div>
+  <h3>Three Main Approaches</h3>
+  <div class="algo-compare">
+    <div class="algo-card highlight">
+      <h4>🎯 K-Means</h4>
+      <p>Assign each point to the nearest centroid. Iterate until stable. Fast, scalable.</p>
+      <small>Best for: known # clusters, spherical shapes</small>
+    </div>
+    <div class="algo-card">
+      <h4>🌳 Hierarchical</h4>
+      <p>Merge closest points iteratively. Produces a tree (dendrogram).</p>
+      <small>Best for: unknown # clusters, nested groups</small>
+    </div>
+    <div class="algo-card">
+      <h4>🌊 DBSCAN</h4>
+      <p>Find dense regions, label sparse points as noise.</p>
+      <small>Best for: irregular shapes, outlier detection</small>
+    </div>
+  </div>
+</div>
+
+<!-- K-Means Section -->
+<div class="section-header">
+  <h2>2. K-Means Clustering</h2>
+  <p>The workhorse of customer segmentation</p>
+</div>
+
+<div class="card">
+  <h3>How K-Means Works</h3>
+  <ol style="line-height: 2;">
+    <li><strong>Choose k:</strong> Decide how many clusters you want</li>
+    <li><strong>Initialize centroids:</strong> Place k random points</li>
+    <li><strong>Assign points:</strong> Each point joins its nearest centroid</li>
+    <li><strong>Update centroids:</strong> Move each centroid to the mean of its cluster</li>
+    <li><strong>Repeat:</strong> Until centroids stop moving (convergence)</li>
+  </ol>
+  <div class="concept-box">
+    <strong>The math:</strong> K-Means minimizes <em>within-cluster sum of squares (WCSS)</em>:<br>
+    <code>WCSS = Σ Σ ||xᵢ - μₖ||²</code><br>
+    where μₖ is the centroid of cluster k.
+  </div>
+</div>
+
+<!-- Interactive K-Means Canvas -->
+<div class="interactive-section">
+  <h3>🎮 Interactive K-Means Visualization</h3>
+  <p>Click on the canvas to <strong>place data points</strong>. Then click "Run K-Means" to watch the algorithm cluster them in real time.</p>
+
+  <div style="display: flex; gap: 1em; flex-wrap: wrap; align-items: center; margin-bottom: 1em;">
+    <div>
+      <label for="k-slider"><strong>Number of Clusters (k): <span id="k-val">3</span></strong></label>
+      <input type="range" class="slider" id="k-slider" min="2" max="7" value="3" oninput="document.getElementById('k-val').textContent=this.value; kmeansK=parseInt(this.value);">
+    </div>
+    <button class="button" onclick="runKMeans()">▶ Run K-Means</button>
+    <button class="button warning" onclick="stepKMeans()">⏭ Step</button>
+    <button class="button secondary" onclick="resetKMeans()">↺ Reset</button>
+    <button class="button success" onclick="loadSampleData()">📊 Load Sample Data</button>
+  </div>
+
+  <canvas id="kmeans-canvas" width="860" height="400"></canvas>
+  <div id="kmeans-log" style="margin-top:0.8em; font-family: monospace; color: #003366; min-height: 2em;">Click canvas to add points, then Run K-Means.</div>
+</div>
+
+<div class="card">
+  <h3>K-Means Strengths & Limitations</h3>
+  <table>
+    <tr><th>Aspect</th><th>Detail</th><th>Implication</th></tr>
+    <tr><td>✅ Speed</td><td>O(n·k·iterations)</td><td>Scales to millions of customers</td></tr>
+    <tr><td>✅ Simplicity</td><td>Easy to understand & explain</td><td>Stakeholders can grasp the segments</td></tr>
+    <tr><td>⚠️ Needs k upfront</td><td>Must specify number of clusters</td><td>Use elbow method or business knowledge</td></tr>
+    <tr><td>⚠️ Spherical clusters</td><td>Assumes similar-sized round clusters</td><td>Fails on elongated or irregular shapes</td></tr>
+    <tr><td>⚠️ Sensitive to init</td><td>Random start → different results</td><td>Use k-means++ or multiple restarts</td></tr>
+    <tr><td>❌ No noise handling</td><td>Every point must join a cluster</td><td>Outliers distort centroids</td></tr>
+  </table>
+</div>
+
+<!-- Elbow Method Section -->
+<div class="section-header">
+  <h2>3. Choosing k: The Elbow Method</h2>
+  <p>How many clusters is the right number?</p>
+</div>
+
+<div class="card">
+  <p>The hardest part of K-Means is choosing k. Too few clusters → segments are too broad. Too many → segments are tiny and unmeaningful.</p>
+  <p>The <strong>elbow method</strong> plots WCSS (inertia) against k. As k increases, WCSS always decreases. But there's a point of diminishing returns — the "elbow" — where adding more clusters stops being worth it.</p>
+</div>
+
+<!-- Interactive Elbow Method -->
+<div class="interactive-section">
+  <h3>📐 Interactive Elbow Method</h3>
+  <p>Adjust the slider to see how WCSS and silhouette score change with different values of k on the RetailMax dataset.</p>
+
+  <div class="slider-container">
+    <label>Number of Clusters k: <strong id="elbow-k-display">3</strong></label>
+    <input type="range" class="slider" id="elbow-k-slider" min="2" max="10" value="3" oninput="updateElbowChart(parseInt(this.value))">
+  </div>
+
+  <canvas id="elbow-canvas" width="860" height="300"></canvas>
+
+  <div style="margin-top: 1em; padding: 1em; background: #f8f9fa; border-radius: 8px;">
+    <strong>Current k = <span id="current-k-display">3</span>:</strong>
+    <span id="elbow-interpretation"> Select a k value to see interpretation.</span>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Silhouette Score: A Better Metric</h3>
+  <p>The silhouette score measures how similar each point is to its own cluster vs. other clusters:</p>
+  <div class="concept-box">
+    <code>s(i) = (b(i) - a(i)) / max(a(i), b(i))</code><br>
+    <ul style="margin-top: 0.5em;">
+      <li><strong>a(i)</strong> = average distance to all points in the same cluster</li>
+      <li><strong>b(i)</strong> = average distance to all points in the nearest other cluster</li>
+      <li><strong>Range:</strong> -1 (wrong cluster) to +1 (perfect cluster)</li>
+      <li><strong>Target:</strong> &gt; 0.5 is good, &gt; 0.7 is excellent</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Quiz Question 1 -->
+<div class="quick-question" id="q1">
+  <h3>❓ Quick Check 1</h3>
+  <p>RetailMax runs K-Means with k=2 (WCSS=1200) and k=5 (WCSS=380). Should they always choose k=5?</p>
+  <div class="answer-options">
+    <div class="answer-option" onclick="checkAnswer('q1', this, false)">Yes — lower WCSS always means better clustering</div>
+    <div class="answer-option" onclick="checkAnswer('q1', this, true)">No — more clusters doesn't mean more useful segments</div>
+    <div class="answer-option" onclick="checkAnswer('q1', this, false)">Yes — k=5 captures more customer nuance</div>
+    <div class="answer-option" onclick="checkAnswer('q1', this, false)">No — WCSS can't be compared across different k values</div>
+  </div>
+  <div class="feedback-panel" id="q1-feedback"></div>
+</div>
+
+<!-- Hierarchical Clustering Section -->
+<div class="section-header">
+  <h2>4. Hierarchical Clustering</h2>
+  <p>Building a tree of relationships</p>
+</div>
+
+<div class="card">
+  <p>Instead of picking k upfront, hierarchical clustering builds a complete tree of merges. You can cut the tree at any height to get any number of clusters.</p>
+  <h3>Agglomerative (Bottom-Up) Algorithm</h3>
+  <ol style="line-height: 2;">
+    <li>Start: each point is its own cluster (n clusters)</li>
+    <li>Find the two closest clusters</li>
+    <li>Merge them into one</li>
+    <li>Repeat until one cluster remains</li>
+    <li>Cut the dendrogram at the desired height</li>
+  </ol>
+  <div class="concept-box">
+    <strong>Linkage methods</strong> define "closest":<br>
+    • <strong>Single:</strong> minimum distance between any two points<br>
+    • <strong>Complete:</strong> maximum distance between any two points<br>
+    • <strong>Average:</strong> average of all pairwise distances<br>
+    • <strong>Ward:</strong> minimizes increase in total WCSS (best for most use cases)
+  </div>
+</div>
+
+<!-- Dendrogram Visualization -->
+<div class="interactive-section">
+  <h3>🌳 Interactive Dendrogram</h3>
+  <p>Click on the dendrogram to <strong>cut at different heights</strong> and see how many clusters result. The colored bands show different cluster groupings.</p>
+  <button class="button" onclick="generateDendrogram()">Generate New Data</button>
+  <button class="button secondary" onclick="resetDendrogramCut()">Reset Cut</button>
+  <canvas id="dendrogram-canvas" width="860" height="350" onclick="handleDendrogramClick(event)"></canvas>
+  <div id="dendrogram-info" style="margin-top: 0.8em; font-family: monospace; color: #003366;">Click on the dendrogram to cut at a height and see cluster count.</div>
+</div>
+
+<!-- Quiz Question 2 -->
+<div class="quick-question" id="q2">
+  <h3>❓ Quick Check 2</h3>
+  <p>A dendrogram shows a very long vertical line before the final merge at the top. What does this suggest?</p>
+  <div class="answer-options">
+    <div class="answer-option" onclick="checkAnswer('q2', this, false)">The data has many outliers</div>
+    <div class="answer-option" onclick="checkAnswer('q2', this, true)">There are likely 2 natural clusters — the two groups are very different</div>
+    <div class="answer-option" onclick="checkAnswer('q2', this, false)">K-Means would be a better algorithm here</div>
+    <div class="answer-option" onclick="checkAnswer('q2', this, false)">The linkage method is wrong</div>
+  </div>
+  <div class="feedback-panel" id="q2-feedback"></div>
+</div>
+
+<!-- DBSCAN Section -->
+<div class="section-header">
+  <h2>5. DBSCAN: Density-Based Clustering</h2>
+  <p>Find clusters of any shape, ignore noise</p>
+</div>
+
+<div class="card">
+  <p>DBSCAN (Density-Based Spatial Clustering of Applications with Noise) doesn't look for compact spheres. Instead, it finds <strong>dense regions</strong> and labels sparse points as noise.</p>
+  <h3>Two Parameters</h3>
+  <ul style="line-height: 2;">
+    <li><strong>ε (epsilon):</strong> radius defining "neighborhood"</li>
+    <li><strong>minPts:</strong> minimum points within radius to be a "core point"</li>
+  </ul>
+  <h3>Three Types of Points</h3>
+  <div class="algo-compare">
+    <div class="algo-card">
+      <h4>🔵 Core Point</h4>
+      <p>Has ≥ minPts neighbors within ε. Center of a dense region.</p>
+    </div>
+    <div class="algo-card">
+      <h4>🟡 Border Point</h4>
+      <p>Fewer than minPts neighbors, but reachable from a core point.</p>
+    </div>
+    <div class="algo-card" style="border-color: #dc3545;">
+      <h4>🔴 Noise Point</h4>
+      <p>Not core, not reachable from any core. Outlier.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive DBSCAN -->
+<div class="interactive-section">
+  <h3>🌊 Interactive DBSCAN</h3>
+  <p>Adjust epsilon to see how the density threshold changes cluster formation. Watch how noise points (red ✕) appear when epsilon is too small.</p>
+  
+  <div style="display: flex; gap: 2em; flex-wrap: wrap; align-items: flex-start; margin-bottom: 1em;">
+    <div style="flex: 1; min-width: 200px;">
+      <div class="slider-container">
+        <label>ε (Epsilon): <strong id="eps-display">30</strong></label>
+        <input type="range" class="slider" id="eps-slider" min="10" max="80" value="30" oninput="updateDBSCAN(parseInt(this.value), parseInt(document.getElementById('minpts-slider').value))">
+      </div>
+      <div class="slider-container">
+        <label>MinPts: <strong id="minpts-display">3</strong></label>
+        <input type="range" class="slider" id="minpts-slider" min="2" max="8" value="3" oninput="updateDBSCAN(parseInt(document.getElementById('eps-slider').value), parseInt(this.value))">
+      </div>
+    </div>
+    <div style="flex: 1; min-width: 200px; padding: 1em; background: #f8f9fa; border-radius: 8px;">
+      <div><strong>Clusters found:</strong> <span id="dbscan-clusters" style="font-size: 1.4em; color: #0366d6; font-weight: bold;">—</span></div>
+      <div><strong>Noise points:</strong> <span id="dbscan-noise" style="font-size: 1.4em; color: #dc3545; font-weight: bold;">—</span></div>
+    </div>
+  </div>
+  
+  <button class="button" onclick="loadDBSCANData()">📊 Load Data</button>
+  <button class="button secondary" onclick="runDBSCAN()">▶ Run DBSCAN</button>
+  <canvas id="dbscan-canvas" width="860" height="380"></canvas>
+</div>
+
+<div class="card">
+  <h3>When to Use DBSCAN</h3>
+  <div class="success-box">
+    <strong>DBSCAN shines when:</strong>
+    <ul>
+      <li>Clusters have irregular shapes (geographic regions, behavioral patterns)</li>
+      <li>You don't know the number of clusters</li>
+      <li>There are genuine outliers in your data</li>
+    </ul>
+  </div>
+  <div class="warning-box">
+    <strong>DBSCAN struggles when:</strong>
+    <ul>
+      <li>Clusters have very different densities</li>
+      <li>High-dimensional data (distance becomes meaningless)</li>
+      <li>Choosing ε is critical and tricky</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Quiz Question 3 -->
+<div class="quick-question" id="q3">
+  <h3>❓ Quick Check 3</h3>
+  <p>Which algorithm is BEST for finding fraudulent transactions (rare, unusual patterns) in a customer dataset?</p>
+  <div class="answer-options">
+    <div class="answer-option" onclick="checkAnswer('q3', this, false)">K-Means with k=10</div>
+    <div class="answer-option" onclick="checkAnswer('q3', this, false)">Hierarchical with Ward linkage</div>
+    <div class="answer-option" onclick="checkAnswer('q3', this, true)">DBSCAN — fraud cases will be labeled as noise/outliers</div>
+    <div class="answer-option" onclick="checkAnswer('q3', this, false)">Any algorithm works equally well here</div>
+  </div>
+  <div class="feedback-panel" id="q3-feedback"></div>
+</div>
+
+<!-- Business Case Section -->
+<div class="section-header">
+  <h2>6. Business Case: RetailMax Customer Segmentation</h2>
+  <p>From algorithm to actionable strategy</p>
+</div>
+
+<div class="card">
+  <h3>The Data</h3>
+  <p>RetailMax has 3 key features per customer: <strong>Purchase Frequency</strong> (orders/year), <strong>Average Order Value</strong> ($), and <strong>Recency</strong> (days since last purchase).</p>
+
+  <div class="interactive-section">
+    <h3>🎯 RetailMax Segmentation Demo</h3>
+    <p>Click "Segment Customers" to run K-Means on the RetailMax data and see the resulting business segments.</p>
+    <div class="slider-container">
+      <label>Number of Segments: <strong id="biz-k-display">4</strong></label>
+      <input type="range" class="slider" id="biz-k-slider" min="2" max="6" value="4" oninput="document.getElementById('biz-k-display').textContent=this.value; runBizSegmentation(parseInt(this.value))">
+    </div>
+    <button class="button success" onclick="runBizSegmentation(4)">🚀 Segment Customers</button>
+    <canvas id="biz-canvas" width="860" height="380"></canvas>
+    <div id="biz-segments" style="margin-top:1em;"></div>
+  </div>
+
+  <h3 style="margin-top: 2em;">From Segments to Strategy</h3>
+  <table>
+    <tr><th>Segment</th><th>Profile</th><th>Size</th><th>Strategy</th><th>Expected Lift</th></tr>
+    <tr><td>💎 Champions</td><td>High frequency, high value, recent</td><td>8%</td><td>VIP program, early access, referral rewards</td><td>+25% AOV</td></tr>
+    <tr><td>🌱 Potential Loyalists</td><td>Mid frequency, growing value</td><td>22%</td><td>Loyalty tier, personalized recommendations</td><td>+40% retention</td></tr>
+    <tr><td>💤 At Risk</td><td>Was frequent, now dormant</td><td>31%</td><td>Win-back campaign, "We miss you" discounts</td><td>Recover 15%</td></tr>
+    <tr><td>👋 New Customers</td><td>Low frequency, recent</td><td>39%</td><td>Onboarding series, first-purchase discounts</td><td>+60% 2nd purchase</td></tr>
+  </table>
+</div>
+
+<!-- Quiz Question 4 -->
+<div class="quick-question" id="q4">
+  <h3>❓ Quick Check 4</h3>
+  <p>After running K-Means, a cluster has 80% of all customers in a single group and 2 tiny groups. What went wrong?</p>
+  <div class="answer-options">
+    <div class="answer-option" onclick="checkAnswer('q4', this, false)">The data wasn't normalized — features with large ranges dominate</div>
+    <div class="answer-option" onclick="checkAnswer('q4', this, false)">k is too small — you need more clusters</div>
+    <div class="answer-option" onclick="checkAnswer('q4', this, false)">Bad centroid initialization</div>
+    <div class="answer-option" onclick="checkAnswer('q4', this, true)">All of the above could cause this — always normalize data, validate k, and use k-means++</div>
+  </div>
+  <div class="feedback-panel" id="q4-feedback"></div>
+</div>
+
+<!-- Algorithm Comparison -->
+<div class="section-header">
+  <h2>7. Choosing the Right Algorithm</h2>
+  <p>The right tool for the right job</p>
+</div>
+
+<div class="card">
+  <table>
+    <tr><th>Criterion</th><th>K-Means</th><th>Hierarchical</th><th>DBSCAN</th></tr>
+    <tr><td>Need to specify k?</td><td>✅ Yes</td><td>❌ No (cut later)</td><td>❌ No (automatic)</td></tr>
+    <tr><td>Scalability</td><td>✅ Excellent (millions)</td><td>⚠️ O(n²) — medium datasets</td><td>✅ Good</td></tr>
+    <tr><td>Cluster shapes</td><td>Spherical only</td><td>Any (via dendrogram)</td><td>Any shape</td></tr>
+    <tr><td>Handles noise?</td><td>❌ No</td><td>❌ No</td><td>✅ Yes (explicitly)</td></tr>
+    <tr><td>Interpretability</td><td>High (centroids)</td><td>High (dendrogram)</td><td>Medium</td></tr>
+    <tr><td>Best use case</td><td>Customer segmentation, profiling</td><td>Taxonomy, hierarchy understanding</td><td>Anomaly detection, geo clusters</td></tr>
+  </table>
+</div>
+
+<!-- Quiz Question 5 -->
+<div class="quick-question" id="q5">
+  <h3>❓ Quick Check 5 (Final)</h3>
+  <p>RetailMax wants to identify customer segments to target with email campaigns. The marketing team insists on exactly 4 segments (one per team member). Which algorithm is MOST appropriate?</p>
+  <div class="answer-options">
+    <div class="answer-option" onclick="checkAnswer('q5', this, true)">K-Means with k=4 — fast, interpretable, meets the constraint</div>
+    <div class="answer-option" onclick="checkAnswer('q5', this, false)">DBSCAN — it finds the natural number of clusters</div>
+    <div class="answer-option" onclick="checkAnswer('q5', this, false)">Hierarchical with single linkage</div>
+    <div class="answer-option" onclick="checkAnswer('q5', this, false)">No algorithm — you need labels for email marketing</div>
+  </div>
+  <div class="feedback-panel" id="q5-feedback"></div>
+</div>
+
+<!-- Summary -->
+<div class="card" style="border-left: 6px solid #28a745;">
+  <h2>📝 Module 9 Summary</h2>
+  <ul style="line-height: 2.2;">
+    <li><strong>Clustering</strong> is unsupervised — you find structure without labels</li>
+    <li><strong>K-Means</strong> is fast and scalable; use the elbow method to choose k; always normalize features</li>
+    <li><strong>Hierarchical clustering</strong> builds a dendrogram — flexible, interpretable, but slower</li>
+    <li><strong>DBSCAN</strong> finds arbitrary shapes and labels outliers as noise</li>
+    <li><strong>Business value</strong> comes from acting on segments: personalized campaigns, tiered service, targeted offers</li>
+  </ul>
+  <div style="margin-top: 1em;">
+    <a href="module9_clustering_kmeans_interactive.html" class="button">Next: K-Means Deep Dive →</a>
+    <a href="module9_clustering_hierarchical_interactive.html" class="button secondary">Hierarchical Deep Dive →</a>
+  </div>
+</div>
+
+<script>
+// --- State ---
+let kmeansK = 3;
+let kmeansPoints = [];
+let kmeansCentroids = [];
+let kmeansAssignments = [];
+let kmeansIteration = 0;
+let kmeansRunning = false;
+
+const COLORS = ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22'];
+
+// --- Progress ---
+let sectionsDone = new Set();
+let totalSections = 6;
+function markDone(section) {
+  sectionsDone.add(section);
+  let pct = Math.round((sectionsDone.size / totalSections) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-fill').textContent = pct + '%';
+  document.getElementById('progress-text').textContent = `${sectionsDone.size} of ${totalSections} sections completed.`;
+}
+function startProgress() {
+  markDone('start');
+  document.querySelector('h1').scrollIntoView({behavior: 'smooth'});
+}
+
+// --- K-Means Canvas ---
+const kmCanvas = document.getElementById('kmeans-canvas');
+const kmCtx = kmCanvas.getContext('2d');
+
+kmCanvas.addEventListener('click', function(e) {
+  const r = kmCanvas.getBoundingClientRect();
+  const x = e.clientX - r.left;
+  const y = e.clientY - r.top;
+  kmeansPoints.push({x, y});
+  kmeansAssignments = new Array(kmeansPoints.length).fill(0);
+  drawKMeans();
+});
+
+function loadSampleData() {
+  kmeansPoints = [];
+  kmeansIteration = 0;
+  kmeansCentroids = [];
+  const clusters = [
+    {cx: 150, cy: 120, spread: 55},
+    {cx: 400, cy: 250, spread: 65},
+    {cx: 680, cy: 130, spread: 50},
+    {cx: 580, cy: 310, spread: 60},
+  ];
+  clusters.forEach(c => {
+    for (let i=0; i<28; i++) {
+      kmeansPoints.push({
+        x: c.cx + (Math.random()-0.5)*c.spread*2,
+        y: c.cy + (Math.random()-0.5)*c.spread*2
+      });
+    }
+  });
+  kmeansAssignments = new Array(kmeansPoints.length).fill(0);
+  document.getElementById('kmeans-log').textContent = `${kmeansPoints.length} points loaded. Click Run K-Means to cluster.`;
+  drawKMeans();
+  markDone('kmeans');
+}
+
+function drawKMeans() {
+  kmCtx.clearRect(0, 0, kmCanvas.width, kmCanvas.height);
+  kmCtx.fillStyle = '#f8f9fa';
+  kmCtx.fillRect(0, 0, kmCanvas.width, kmCanvas.height);
+  
+  // Draw cluster regions if centroids exist
+  if (kmeansCentroids.length > 0) {
+    kmeansPoints.forEach((p, i) => {
+      const c = COLORS[kmeansAssignments[i] % COLORS.length];
+      kmCtx.beginPath();
+      kmCtx.arc(p.x, p.y, 7, 0, 2*Math.PI);
+      kmCtx.fillStyle = c + 'cc';
+      kmCtx.fill();
+      kmCtx.strokeStyle = '#fff';
+      kmCtx.lineWidth = 1.5;
+      kmCtx.stroke();
+    });
+    kmeansCentroids.forEach((c, i) => {
+      kmCtx.beginPath();
+      kmCtx.arc(c.x, c.y, 14, 0, 2*Math.PI);
+      kmCtx.fillStyle = COLORS[i % COLORS.length];
+      kmCtx.fill();
+      kmCtx.strokeStyle = '#fff';
+      kmCtx.lineWidth = 3;
+      kmCtx.stroke();
+      kmCtx.fillStyle = '#fff';
+      kmCtx.font = 'bold 12px Arial';
+      kmCtx.textAlign = 'center';
+      kmCtx.textBaseline = 'middle';
+      kmCtx.fillText((i+1), c.x, c.y);
+    });
+  } else {
+    kmeansPoints.forEach(p => {
+      kmCtx.beginPath();
+      kmCtx.arc(p.x, p.y, 6, 0, 2*Math.PI);
+      kmCtx.fillStyle = '#0366d6aa';
+      kmCtx.fill();
+    });
+  }
+}
+
+function initCentroids() {
+  kmeansCentroids = [];
+  const used = new Set();
+  for (let i=0; i<kmeansK; i++) {
+    let idx;
+    do { idx = Math.floor(Math.random()*kmeansPoints.length); } while(used.has(idx));
+    used.add(idx);
+    kmeansCentroids.push({x: kmeansPoints[idx].x, y: kmeansPoints[idx].y});
+  }
+}
+
+function assignPoints() {
+  kmeansAssignments = kmeansPoints.map(p => {
+    let best = 0, bestDist = Infinity;
+    kmeansCentroids.forEach((c, i) => {
+      const d = Math.hypot(p.x-c.x, p.y-c.y);
+      if (d < bestDist) { bestDist = d; best = i; }
+    });
+    return best;
+  });
+}
+
+function updateCentroids() {
+  const newC = kmeansCentroids.map((_, i) => {
+    const pts = kmeansPoints.filter((_, j) => kmeansAssignments[j] === i);
+    if (pts.length === 0) return kmeansCentroids[i];
+    return { x: pts.reduce((s,p)=>s+p.x,0)/pts.length, y: pts.reduce((s,p)=>s+p.y,0)/pts.length };
+  });
+  const moved = newC.some((c, i) => Math.hypot(c.x-kmeansCentroids[i].x, c.y-kmeansCentroids[i].y) > 0.5);
+  kmeansCentroids = newC;
+  return moved;
+}
+
+function stepKMeans() {
+  if (kmeansPoints.length < 3) { document.getElementById('kmeans-log').textContent = 'Add more points first (or use Load Sample Data).'; return; }
+  if (kmeansCentroids.length === 0) { initCentroids(); kmeansIteration = 0; }
+  kmeansIteration++;
+  assignPoints();
+  const moved = updateCentroids();
+  assignPoints();
+  drawKMeans();
+  if (!moved) {
+    document.getElementById('kmeans-log').textContent = `Converged after ${kmeansIteration} iterations!`;
+    markDone('kmeans');
+  } else {
+    document.getElementById('kmeans-log').textContent = `Iteration ${kmeansIteration} — centroids still moving...`;
+  }
+}
+
+async function runKMeans() {
+  if (kmeansPoints.length < 3) { document.getElementById('kmeans-log').textContent = 'Add more points first (or use Load Sample Data).'; return; }
+  initCentroids();
+  kmeansIteration = 0;
+  let moved = true;
+  while (moved && kmeansIteration < 50) {
+    kmeansIteration++;
+    assignPoints();
+    moved = updateCentroids();
+    assignPoints();
+    drawKMeans();
+    await new Promise(r => setTimeout(r, 120));
+  }
+  document.getElementById('kmeans-log').textContent = `✅ Converged in ${kmeansIteration} iterations with k=${kmeansK}. ${kmeansPoints.length} points clustered.`;
+  markDone('kmeans');
+}
+
+function resetKMeans() {
+  kmeansPoints = [];
+  kmeansCentroids = [];
+  kmeansAssignments = [];
+  kmeansIteration = 0;
+  kmCtx.clearRect(0, 0, kmCanvas.width, kmCanvas.height);
+  kmCtx.fillStyle = '#f8f9fa';
+  kmCtx.fillRect(0, 0, kmCanvas.width, kmCanvas.height);
+  document.getElementById('kmeans-log').textContent = 'Reset. Click canvas to add points.';
+}
+
+// --- Elbow Method ---
+const elbowCanvas = document.getElementById('elbow-canvas');
+const elbowCtx = elbowCanvas.getContext('2d');
+
+// Simulated inertia and silhouette for RetailMax-like data
+const elbowInertia = [0, 0, 4200, 2100, 1050, 720, 530, 440, 390, 360, 345];
+const elbowSilhouette = [0, 0, 0.41, 0.62, 0.71, 0.64, 0.58, 0.52, 0.47, 0.43, 0.39];
+
+function updateElbowChart(k) {
+  document.getElementById('elbow-k-display').textContent = k;
+  document.getElementById('current-k-display').textContent = k;
+  drawElbow(k);
+  
+  const interp = {
+    2: "k=2: Only 2 broad groups. Too simple for actionable marketing segmentation.",
+    3: "k=3: Three segments emerging. Silhouette improving. Still a bit broad.",
+    4: "k=4: ✅ Good 'elbow' here. Silhouette peaks around 0.71. Recommended!",
+    5: "k=5: Silhouette starts declining. Diminishing returns on extra clusters.",
+    6: "k=6: Marginal improvement in inertia. Silhouette dropping. Too many segments.",
+    7: "k=7: Clusters getting too small to act on. Avoid.",
+    8: "k=8: Very small clusters, hard to name or target.",
+    9: "k=9: Overly granular. Marketing can't execute on 9 segments.",
+    10: "k=10: Too many. Pick k=4 based on the elbow."
+  };
+  document.getElementById('elbow-interpretation').textContent = interp[k] || '';
+}
+
+function drawElbow(activeK) {
+  const ctx = elbowCtx;
+  const W = elbowCanvas.width, H = elbowCanvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8f9fa';
+  ctx.fillRect(0, 0, W, H);
+  
+  const pad = {left: 60, right: 60, top: 30, bottom: 50};
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+  
+  const kVals = [2,3,4,5,6,7,8,9,10];
+  const maxInertia = 4500, minInertia = 0;
+  const maxSil = 1, minSil = 0;
+  
+  // Grid
+  ctx.strokeStyle = '#e1e4e8';
+  ctx.lineWidth = 1;
+  for (let i=0; i<=4; i++) {
+    const y = pad.top + (i/4)*chartH;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left+chartW, y); ctx.stroke();
+  }
+  
+  // Axes
+  ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top+chartH); ctx.lineTo(pad.left+chartW, pad.top+chartH); ctx.stroke();
+  
+  // X labels
+  ctx.fillStyle = '#333'; ctx.font = '13px Arial'; ctx.textAlign = 'center';
+  kVals.forEach((k, i) => {
+    const x = pad.left + (i/(kVals.length-1))*chartW;
+    ctx.fillText('k='+k, x, pad.top+chartH+25);
+  });
+  ctx.fillText('Number of Clusters (k)', pad.left+chartW/2, H-5);
+  
+  // Inertia line (blue)
+  ctx.beginPath(); ctx.strokeStyle = '#0366d6'; ctx.lineWidth = 2.5;
+  kVals.forEach((k, i) => {
+    const x = pad.left + (i/(kVals.length-1))*chartW;
+    const y = pad.top + chartH - ((elbowInertia[k] - minInertia)/(maxInertia-minInertia))*chartH;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  
+  // Silhouette line (green, scaled)
+  ctx.beginPath(); ctx.strokeStyle = '#28a745'; ctx.lineWidth = 2.5; ctx.setLineDash([6,3]);
+  kVals.forEach((k, i) => {
+    const x = pad.left + (i/(kVals.length-1))*chartW;
+    const y = pad.top + chartH - (elbowSilhouette[k]/maxSil)*chartH;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke(); ctx.setLineDash([]);
+  
+  // Highlight active k
+  const ai = kVals.indexOf(activeK);
+  if (ai >= 0) {
+    const x = pad.left + (ai/(kVals.length-1))*chartW;
+    ctx.beginPath(); ctx.strokeStyle = '#ff6b6b'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+    ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top+chartH); ctx.stroke(); ctx.setLineDash([]);
+    
+    const iy = pad.top + chartH - ((elbowInertia[activeK] - minInertia)/(maxInertia-minInertia))*chartH;
+    ctx.beginPath(); ctx.arc(x, iy, 8, 0, 2*Math.PI);
+    ctx.fillStyle = '#0366d6'; ctx.fill();
+    
+    const sy = pad.top + chartH - (elbowSilhouette[activeK]/maxSil)*chartH;
+    ctx.beginPath(); ctx.arc(x, sy, 8, 0, 2*Math.PI);
+    ctx.fillStyle = '#28a745'; ctx.fill();
+  }
+  
+  // Legend
+  ctx.font = '13px Arial'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#0366d6'; ctx.fillRect(pad.left, pad.top-5, 16, 4); ctx.fillStyle = '#0366d6'; ctx.fillText('Inertia (WCSS)', pad.left+20, pad.top);
+  ctx.strokeStyle = '#28a745'; ctx.setLineDash([6,3]); ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(pad.left+160, pad.top-3); ctx.lineTo(pad.left+176, pad.top-3); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#28a745'; ctx.fillText('Silhouette Score', pad.left+180, pad.top);
+}
+updateElbowChart(3);
+document.getElementById('elbow-k-slider').oninput = function() { updateElbowChart(parseInt(this.value)); markDone('elbow'); };
+
+// --- Dendrogram ---
+const dendCanvas = document.getElementById('dendrogram-canvas');
+const dendCtx = dendCanvas.getContext('2d');
+let dendData = null, dendCutY = null;
+
+function generateDendrogram() {
+  // Generate random hierarchical structure for visualization
+  const n = 12;
+  const labels = ['C1','C2','C3','C4','C5','C6','C7','C8','C9','C10','C11','C12'];
+  // Simulate merge heights
+  const merges = [
+    {left: 0, right: 1, height: 18, label: 'AB'},
+    {left: 2, right: 3, height: 22, label: 'CD'},
+    {left: 4, right: 5, height: 15, label: 'EF'},
+    {left: 6, right: 7, height: 20, label: 'GH'},
+    {left: 8, right: 9, height: 25, label: 'IJ'},
+    {left: 10, right: 11, height: 12, label: 'KL'},
+    {left: 12, right: 13, height: 55, label: 'ABCD'},  // merge AB+CD
+    {left: 14, right: 15, height: 62, label: 'EFGH'},  // merge EF+GH
+    {left: 16, right: 17, height: 45, label: 'IJKL'},  // merge IJ+KL
+    {left: 18, right: 19, height: 110, label: 'ABCDEFGH'},
+    {left: 20, right: 21, height: 145, label: 'ALL'},
+  ];
+  dendData = {n, labels, merges};
+  dendCutY = null;
+  drawDendrogram();
+  markDone('hierarchical');
+}
+
+function drawDendrogram(cutHeight) {
+  const ctx = dendCtx;
+  const W = dendCanvas.width, H = dendCanvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8f9fa';
+  ctx.fillRect(0, 0, W, H);
+
+  if (!dendData) {
+    ctx.fillStyle = '#666'; ctx.font = '16px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('Click "Generate New Data" to create a dendrogram', W/2, H/2);
+    return;
+  }
+
+  const pad = {left:55, right:30, top:20, bottom:55};
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+  const maxH = 160;
+
+  // X positions for leaf nodes (12 leaves evenly spaced)
+  const n = dendData.n;
+  const leafX = Array.from({length: n}, (_, i) => pad.left + (i/(n-1)) * chartW);
+  const nodeX = [...leafX];
+  const nodeY = new Array(n).fill(pad.top + chartH);
+
+  // Draw leaf labels
+  ctx.font = '12px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = '#333';
+  leafX.forEach((x, i) => ctx.fillText(dendData.labels[i], x, H - 10));
+
+  // Draw merges
+  const mergeX = [...leafX];
+  const mergeY = [...leafX.map(() => pad.top + chartH)];
+  
+  // Define merge points with actual x positions
+  const allX = [...leafX];
+  const allY = new Array(n).fill(pad.top + chartH);
+  
+  dendData.merges.forEach((merge, mi) => {
+    const lx = allX[merge.left] !== undefined ? allX[merge.left] : (allX[merge.left - n]);
+    const rx = allX[merge.right] !== undefined ? allX[merge.right] : (allX[merge.right - n]);
+    const ly = allY[merge.left] !== undefined ? allY[merge.left] : (allY[merge.left - n]);
+    const ry = allY[merge.right] !== undefined ? allY[merge.right] : (allY[merge.right - n]);
+    
+    const midX = (lx + rx) / 2;
+    const mergeYPos = pad.top + chartH - (merge.height / maxH) * chartH;
+    
+    const above = cutHeight !== undefined && merge.height > cutHeight;
+    ctx.strokeStyle = above ? '#ccc' : '#0366d6';
+    ctx.lineWidth = above ? 1 : 2;
+    
+    ctx.beginPath();
+    ctx.moveTo(lx, ly); ctx.lineTo(lx, mergeYPos);
+    ctx.lineTo(rx, mergeYPos); ctx.lineTo(rx, ry);
+    ctx.stroke();
+    
+    allX.push(midX);
+    allY.push(mergeYPos);
+  });
+
+  // Draw cut line
+  if (cutHeight !== undefined) {
+    const cutYpx = pad.top + chartH - (cutHeight / maxH) * chartH;
+    ctx.strokeStyle = '#dc3545'; ctx.lineWidth = 2.5; ctx.setLineDash([8, 4]);
+    ctx.beginPath(); ctx.moveTo(pad.left, cutYpx); ctx.lineTo(pad.left + chartW, cutYpx); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#dc3545'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'right';
+    ctx.fillText(`Cut at height ${cutHeight.toFixed(0)}`, pad.left + chartW, cutYpx - 5);
+  }
+
+  // Y axis
+  ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top + chartH); ctx.stroke();
+  ctx.fillStyle = '#666'; ctx.font = '11px Arial'; ctx.textAlign = 'right';
+  [0, 50, 100, 150].forEach(h => {
+    const y = pad.top + chartH - (h / maxH) * chartH;
+    ctx.fillText(h, pad.left - 5, y + 4);
+  });
+  ctx.save(); ctx.translate(15, pad.top + chartH/2); ctx.rotate(-Math.PI/2);
+  ctx.font = '13px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = '#333';
+  ctx.fillText('Merge Distance', 0, 0); ctx.restore();
+}
+
+function handleDendrogramClick(e) {
+  if (!dendData) return;
+  const r = dendCanvas.getBoundingClientRect();
+  const y = e.clientY - r.top;
+  const pad = {top: 20, bottom: 55};
+  const chartH = dendCanvas.height - pad.top - pad.bottom;
+  const maxH = 160;
+  const cutHeight = ((pad.top + chartH - y) / chartH) * maxH;
+  if (cutHeight < 0 || cutHeight > maxH) return;
+  dendCutY = cutHeight;
+  
+  // Count clusters at this cut height
+  const crossings = dendData.merges.filter(m => m.height > cutHeight).length;
+  // Approximate clusters = leaves - merges below cut
+  const mergesBelowCut = dendData.merges.filter(m => m.height <= cutHeight).length;
+  const clusters = Math.max(2, dendData.n - mergesBelowCut);
+  
+  drawDendrogram(cutHeight);
+  document.getElementById('dendrogram-info').textContent = 
+    `Cut at height ~${cutHeight.toFixed(0)} → approximately ${Math.min(clusters, dendData.n)} clusters`;
+}
+
+function resetDendrogramCut() {
+  dendCutY = null;
+  drawDendrogram();
+  document.getElementById('dendrogram-info').textContent = 'Click the dendrogram to cut at a height.';
+}
+
+generateDendrogram();
+
+// --- DBSCAN ---
+const dbCanvas = document.getElementById('dbscan-canvas');
+const dbCtx = dbCanvas.getContext('2d');
+let dbPoints = [];
+
+function loadDBSCANData() {
+  dbPoints = [];
+  // Create non-spherical clusters
+  const configs = [
+    // Crescent 1
+    ...Array.from({length:30}, (_, i) => {
+      const a = (i/30) * Math.PI;
+      return { x: 150 + 110*Math.cos(a) + (Math.random()-0.5)*18,
+               y: 180 + 110*Math.sin(a)*0.5 + (Math.random()-0.5)*18 };
+    }),
+    // Crescent 2 (opposite)
+    ...Array.from({length:30}, (_, i) => {
+      const a = Math.PI + (i/30) * Math.PI;
+      return { x: 150 + 110*Math.cos(a) + (Math.random()-0.5)*18,
+               y: 110 + 110*Math.sin(a)*0.5 + (Math.random()-0.5)*18 };
+    }),
+    // Blob
+    ...Array.from({length:25}, () => ({
+      x: 580 + (Math.random()-0.5)*80,
+      y: 160 + (Math.random()-0.5)*80
+    })),
+    // Noise
+    ...Array.from({length:8}, () => ({
+      x: 50 + Math.random()*760,
+      y: 50 + Math.random()*280
+    }))
+  ];
+  dbPoints = configs;
+  drawDBSCAN([]);
+  document.getElementById('dbscan-clusters').textContent = '—';
+  document.getElementById('dbscan-noise').textContent = '—';
+}
+
+function runDBSCAN() {
+  if (dbPoints.length === 0) { loadDBSCANData(); }
+  const eps = parseInt(document.getElementById('eps-slider').value);
+  const minPts = parseInt(document.getElementById('minpts-slider').value);
+  const labels = dbscanAlgo(dbPoints, eps, minPts);
+  
+  const nClusters = new Set(labels.filter(l => l >= 0)).size;
+  const nNoise = labels.filter(l => l === -1).length;
+  document.getElementById('dbscan-clusters').textContent = nClusters;
+  document.getElementById('dbscan-noise').textContent = nNoise;
+  drawDBSCAN(labels, eps);
+  markDone('dbscan');
+}
+
+function updateDBSCAN(eps, minPts) {
+  document.getElementById('eps-display').textContent = eps;
+  document.getElementById('minpts-display').textContent = minPts;
+  if (dbPoints.length > 0) runDBSCAN();
+}
+
+function dbscanAlgo(points, eps, minPts) {
+  const labels = new Array(points.length).fill(-2); // unvisited
+  let cluster = 0;
+  
+  function regionQuery(i) {
+    return points.map((p, j) => Math.hypot(p.x-points[i].x, p.y-points[i].y) <= eps ? j : -1).filter(j => j >= 0);
+  }
+  
+  points.forEach((p, i) => {
+    if (labels[i] !== -2) return;
+    const neighbors = regionQuery(i);
+    if (neighbors.length < minPts) { labels[i] = -1; return; }
+    labels[i] = cluster;
+    const seeds = [...neighbors];
+    let si = 0;
+    while (si < seeds.length) {
+      const q = seeds[si++];
+      if (labels[q] === -1) labels[q] = cluster;
+      if (labels[q] !== -2) continue;
+      labels[q] = cluster;
+      const qNeighbors = regionQuery(q);
+      if (qNeighbors.length >= minPts) {
+        qNeighbors.forEach(n => { if (!seeds.includes(n)) seeds.push(n); });
+      }
+    }
+    cluster++;
+  });
+  return labels;
+}
+
+function drawDBSCAN(labels, eps) {
+  const ctx = dbCtx;
+  ctx.clearRect(0, 0, dbCanvas.width, dbCanvas.height);
+  ctx.fillStyle = '#f8f9fa';
+  ctx.fillRect(0, 0, dbCanvas.width, dbCanvas.height);
+  
+  if (dbPoints.length === 0) {
+    ctx.fillStyle = '#999'; ctx.font = '16px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('Click "Load Data" to see DBSCAN in action', dbCanvas.width/2, dbCanvas.height/2);
+    return;
+  }
+  
+  dbPoints.forEach((p, i) => {
+    const label = labels[i];
+    if (label === undefined || label === -2) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, 2*Math.PI);
+      ctx.fillStyle = '#0366d6aa'; ctx.fill();
+    } else if (label === -1) {
+      ctx.strokeStyle = '#dc3545'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(p.x-6, p.y-6); ctx.lineTo(p.x+6, p.y+6);
+      ctx.moveTo(p.x+6, p.y-6); ctx.lineTo(p.x-6, p.y+6);
+      ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, 2*Math.PI);
+      ctx.fillStyle = COLORS[label % COLORS.length] + 'dd';
+      ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+  });
+  
+  // Show epsilon circle on hover (just draw one example)
+  if (eps && dbPoints.length > 0) {
+    const ex = dbPoints[0];
+    ctx.beginPath(); ctx.arc(ex.x, ex.y, eps, 0, 2*Math.PI);
+    ctx.strokeStyle = '#ffc107'; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#856404'; ctx.font = '11px Arial'; ctx.textAlign = 'left';
+    ctx.fillText(`ε=${eps}`, ex.x+eps+4, ex.y);
+  }
+}
+
+// Load initial DBSCAN data
+loadDBSCANData();
+
+// --- Business Segmentation ---
+const bizCanvas = document.getElementById('biz-canvas');
+const bizCtx = bizCanvas.getContext('2d');
+
+const segProfiles = [
+  { name: '💎 Champions', cx: 0.85, cy: 0.9, color: '#9b59b6', spread: 0.08 },
+  { name: '🌱 Potential', cx: 0.55, cy: 0.6, color: '#27ae60', spread: 0.1 },
+  { name: '💤 At Risk', cx: 0.3, cy: 0.25, color: '#e74c3c', spread: 0.09 },
+  { name: '👋 New', cx: 0.6, cy: 0.2, color: '#3498db', spread: 0.08 },
+  { name: '🌀 Casual', cx: 0.2, cy: 0.6, color: '#f39c12', spread: 0.1 },
+  { name: '🎁 Seasonal', cx: 0.45, cy: 0.4, color: '#1abc9c', spread: 0.09 },
+];
+
+function runBizSegmentation(k) {
+  const pts = [];
+  segProfiles.slice(0, k).forEach(seg => {
+    const cnt = Math.round(35 + Math.random()*20);
+    for (let i = 0; i < cnt; i++) {
+      pts.push({
+        x: seg.cx + (Math.random()-0.5)*seg.spread*2 + (Math.random()-0.5)*0.04,
+        y: seg.cy + (Math.random()-0.5)*seg.spread*2 + (Math.random()-0.5)*0.04,
+        seg: segProfiles.indexOf(seg)
+      });
+    }
+  });
+  
+  const ctx = bizCtx;
+  const W = bizCanvas.width, H = bizCanvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0, 0, W, H);
+  
+  const pad = {left:70, right:30, top:20, bottom:50};
+  const cW = W-pad.left-pad.right, cH = H-pad.top-pad.bottom;
+  
+  // Axes
+  ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+  for (let i=0; i<=4; i++) {
+    const x = pad.left + (i/4)*cW; const y = pad.top + (i/4)*cH;
+    ctx.beginPath(); ctx.moveTo(x,pad.top); ctx.lineTo(x,pad.top+cH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(pad.left+cW,y); ctx.stroke();
+  }
+  ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(pad.left,pad.top); ctx.lineTo(pad.left,pad.top+cH); ctx.lineTo(pad.left+cW,pad.top+cH); ctx.stroke();
+  
+  // Labels
+  ctx.fillStyle = '#333'; ctx.font = '13px Arial'; ctx.textAlign = 'center';
+  ctx.fillText('Purchase Frequency (orders/year)', pad.left+cW/2, H-5);
+  ctx.save(); ctx.translate(20, pad.top+cH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Avg Order Value ($)', 0, 0); ctx.restore();
+  
+  // Points
+  pts.forEach(p => {
+    const px = pad.left + p.x * cW;
+    const py = pad.top + (1-p.y) * cH;
+    ctx.beginPath(); ctx.arc(px, py, 5, 0, 2*Math.PI);
+    ctx.fillStyle = segProfiles[p.seg].color + 'bb';
+    ctx.fill();
+  });
+  
+  // Centroids
+  segProfiles.slice(0, k).forEach((seg, i) => {
+    const px = pad.left + seg.cx * cW;
+    const py = pad.top + (1-seg.cy) * cH;
+    ctx.beginPath(); ctx.arc(px, py, 14, 0, 2*Math.PI);
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'center';
+    ctx.fillText(seg.name.split(' ')[0], px, py+4);
+  });
+  
+  // Legend
+  const segHtml = segProfiles.slice(0, k).map(s =>
+    `<div style="display:inline-flex;align-items:center;gap:6px;margin:4px 12px 4px 0;font-size:0.9em;">
+      <span style="width:14px;height:14px;border-radius:50%;background:${s.color};display:inline-block;"></span>${s.name}
+    </div>`
+  ).join('');
+  document.getElementById('biz-segments').innerHTML = `<div style="margin-top:0.8em;">${segHtml}</div>`;
+  markDone('business');
+}
+
+runBizSegmentation(4);
+
+// --- Quiz ---
+const feedbackMessages = {
+  q1: {
+    correct: "✅ Correct! Lower WCSS doesn't mean better segments. More clusters means smaller, more granular groups — but at some point they stop being actionable. Business context matters: can your team actually create 5 different email campaigns?",
+    incorrect: "❌ Not quite. WCSS always decreases as k increases, but that doesn't make more clusters better. A segment of 3 customers isn't useful."
+  },
+  q2: {
+    correct: "✅ Excellent! A long vertical line before the final merge means the two groups being combined are very far apart — strong evidence that 2 natural clusters exist in the data.",
+    incorrect: "❌ Think about what the y-axis (merge distance) means in a dendrogram. A long jump upward before the final merge = the last two clusters were very different from each other."
+  },
+  q3: {
+    correct: "✅ Exactly right! DBSCAN is perfect for anomaly detection because it explicitly labels points in sparse regions as 'noise'. Fraudulent transactions are typically rare, isolated patterns — exactly what DBSCAN marks as outliers.",
+    incorrect: "❌ DBSCAN is the best choice here because it labels outliers explicitly as 'noise', making it ideal for fraud/anomaly detection."
+  },
+  q4: {
+    correct: "✅ Perfect! All three issues can cause imbalanced clusters. Always: (1) normalize features (standardize to 0 mean, unit variance), (2) validate k with elbow/silhouette, (3) use k-means++ initialization.",
+    incorrect: "❌ This is a tricky one — all three answers could individually be correct. The best answer covers all possible causes."
+  },
+  q5: {
+    correct: "✅ Right! When you have a business constraint (k=4) and need to segment millions of customers for email campaigns, K-Means is the natural fit: fast, scalable, interpretable, and you can set k=4 directly.",
+    incorrect: "❌ K-Means is the right choice here. You have a fixed k requirement (4 segments), a large dataset, and need interpretable centroids for campaign targeting."
+  }
+};
+
+let questionsAnswered = 0;
+function checkAnswer(questionId, element, isCorrect) {
+  if (element.classList.contains('correct') || element.classList.contains('incorrect')) return;
+  const siblings = element.parentElement.querySelectorAll('.answer-option');
+  siblings.forEach(s => s.style.pointerEvents = 'none');
+  
+  element.classList.add(isCorrect ? 'correct' : 'incorrect');
+  
+  const fb = document.getElementById(questionId + '-feedback');
+  fb.innerHTML = feedbackMessages[questionId][isCorrect ? 'correct' : 'incorrect'];
+  fb.classList.add('show');
+  
+  if (isCorrect) {
+    questionsAnswered++;
+    if (questionsAnswered >= 5) markDone('quiz');
+  }
+}
+
+// Initialize progress
+updateElbowChart(3);
+</script>
+
+</body>
+</html>
