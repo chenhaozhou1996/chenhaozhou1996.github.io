@@ -51,48 +51,120 @@
   </script>
 
   <style>
-    .hero { display: grid; grid-template-columns: 1fr 240px; gap: var(--space-8); align-items: start; margin-top: var(--space-6); }
-    @media (max-width: 768px) { .hero { grid-template-columns: 1fr; } }
-
-    .hero .card { padding: var(--space-6) var(--space-8); }
-    .title {
-      font-size: clamp(28px, 4vw, 42px);
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      margin: var(--space-2) 0 var(--space-3);
+    /* ---- Homepage Layout ---- */
+    .hero-banner {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+      padding: var(--space-8) 0;
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: var(--space-8);
+    }
+    .hero-photo img {
+      width: 160px; height: 160px; border-radius: 50%; object-fit: cover;
+      border: 3px solid var(--color-border);
+    }
+    .hero-info { flex: 1; }
+    .hero-name {
+      font-size: clamp(28px, 3.5vw, 40px);
+      font-weight: 800;
       color: var(--color-primary-dark);
+      margin: 0 0 var(--space-2);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
     }
-    .subtitle { color: var(--color-text-muted); margin-top: var(--space-2); font-size: 1rem; line-height: 1.6; }
-    .badges { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-4) 0 var(--space-3); }
-    .actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
-
-    .profile-card { text-align: center; padding: var(--space-8); }
-    .profile-card img {
-      width: 180px; height: 180px; border-radius: 50%; object-fit: cover;
-      border: 3px solid var(--color-border); margin-bottom: var(--space-5);
-      box-shadow: var(--shadow-md);
+    .hero-affiliation {
+      color: var(--color-text-muted);
+      font-size: var(--font-size-md);
+      line-height: 1.6;
+      margin: 0 0 var(--space-4);
     }
-    .contact-info { font-size: var(--font-size-sm); color: var(--color-text-muted); line-height: 1.9; }
-    .contact-info a { color: var(--color-primary); font-weight: 500; }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2) var(--space-6);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+    }
+    .hero-meta a { color: var(--color-primary); font-weight: 500; }
+    .hero-badges {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
 
-    section .card { padding: var(--space-6) var(--space-8); }
+    /* Two-column content grid */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+    }
+    .two-col > .card { margin-bottom: 0; }
 
+    /* Full-width sections */
+    .full-width { margin-top: var(--space-6); }
+
+    /* Compact publication list */
+    .pub-list { list-style: none; padding: 0; margin: 0; }
+    .pub-list li {
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+      font-size: var(--font-size-sm);
+      line-height: 1.5;
+    }
+    .pub-list li:last-child { border-bottom: none; }
+    .pub-list .pub-title-inline { font-weight: 600; color: var(--color-primary-dark); }
+    .pub-list .pub-journal { font-style: italic; }
     .pub-status {
-      display: inline-block; padding: 3px 10px; border-radius: var(--radius-full);
-      font-size: 0.7rem; font-weight: 700; margin-left: var(--space-2);
-      text-transform: uppercase; letter-spacing: 0.05em;
+      display: inline-block; padding: 2px 8px; border-radius: var(--radius-full);
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; vertical-align: middle; margin-left: var(--space-1);
     }
     .pub-status.r3 { background: var(--color-primary-weak); color: var(--color-primary); }
     .pub-status.r2 { background: #dbeafe; color: #1e40af; }
     .pub-status.r1 { background: #fef3c7; color: #92400e; }
 
-    .references-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-5); }
-    .reference-item { font-size: var(--font-size-sm); }
-    .reference-item strong { color: var(--color-primary-dark); display: block; margin-bottom: var(--space-1); }
-    .reference-item span { color: var(--color-text-muted); line-height: 1.6; }
+    /* Compact education */
+    .edu-item { margin-bottom: var(--space-4); }
+    .edu-item:last-child { margin-bottom: 0; }
+    .edu-school { font-weight: 600; color: var(--color-primary-dark); }
+    .edu-detail { font-size: var(--font-size-sm); color: var(--color-text-muted); line-height: 1.5; }
 
-    ul.tight { margin: 0; padding-left: var(--space-5); }
-    ul.tight li { margin: var(--space-2) 0; }
+    /* Compact teaching */
+    .teach-list { list-style: none; padding: 0; margin: 0; }
+    .teach-list li { padding: var(--space-2) 0; font-size: var(--font-size-sm); }
+
+    /* Compact references */
+    .ref-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-4);
+    }
+    .ref-item { font-size: var(--font-size-sm); line-height: 1.5; }
+    .ref-item strong { color: var(--color-primary-dark); display: block; }
+    .ref-item span { color: var(--color-text-muted); }
+
+    /* Skills compact */
+    .skills-section h3 { font-size: var(--font-size-sm); margin-bottom: var(--space-2); margin-top: var(--space-3); }
+    .skills-section h3:first-child { margin-top: 0; }
+
+    /* Section titles inside cards */
+    .card h2 { font-size: var(--font-size-lg); margin-bottom: var(--space-4); }
+
+    /* Three-column for skills+teaching+eval row */
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-6);
+    }
+    .three-col > .card { margin-bottom: 0; }
+
+    @media (max-width: 900px) {
+      .two-col, .three-col { grid-template-columns: 1fr; }
+      .hero-banner { flex-direction: column; text-align: center; }
+      .hero-meta { justify-content: center; }
+      .hero-badges { justify-content: center; }
+    }
   </style>
 </head>
 <body>
@@ -117,167 +189,125 @@
   </header>
 
   <main id="main" class="container">
-    <!-- HERO -->
-    <section class="hero">
-      <div class="card">
-        <div class="badges">
-          <span class="badge">Ph.D. Candidate</span>
-          <span class="badge badge-success">Job Market 2025-26</span>
-        </div>
-        <h1 class="title">Chenhao Zhou</h1>
-        <p class="subtitle">
-          Ph.D. Candidate in Supply Chain Management at Rutgers Business School<br>
-          Research: Healthcare Operations &middot; Workforce Dynamics &middot; AI-Driven Scheduling
-        </p>
 
-        <div class="info-grid">
-          <div class="info-item">
-            <div class="label">Advisor</div>
-            <div class="value">Lei Lei, Ph.D.</div>
-          </div>
-          <div class="info-item">
-            <div class="label">Expected Graduation</div>
-            <div class="value">May 2026</div>
-          </div>
-          <div class="info-item">
-            <div class="label">GPA</div>
-            <div class="value">4.00 / 4.00</div>
-          </div>
-          <div class="info-item">
-            <div class="label">Memberships</div>
-            <div class="value">INFORMS, POMS, DSI, IEEE, AOM</div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <a class="btn btn-primary" href="mailto:chenhao.zhou@rutgers.edu">Email</a>
-          <a class="btn" href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank">LinkedIn</a>
-          <a class="btn" href="cv.html">CV</a>
-          <a class="btn" href="research.html">Research</a>
-        </div>
-      </div>
-
-      <div class="card profile-card">
+    <!-- ===== HERO ===== -->
+    <div class="hero-banner">
+      <div class="hero-photo">
         <img alt="Chenhao Zhou" src="images/profile.jpg" />
-        <div class="contact-info">
-          <div>Rutgers Business School</div>
-          <div>(929) 314-1613</div>
-          <div><a href="mailto:chenhao.zhou@rutgers.edu">chenhao.zhou@rutgers.edu</a></div>
+      </div>
+      <div class="hero-info">
+        <div class="hero-badges">
+          <span class="badge">Ph.D. Candidate</span>
+          <span class="badge badge-success">Job Market 2025&ndash;26</span>
+        </div>
+        <h1 class="hero-name">Chenhao Zhou</h1>
+        <p class="hero-affiliation">
+          Department of Supply Chain Management, Rutgers Business School<br>
+          Advisor: Lei Lei &middot; Expected Graduation: May 2026 &middot; GPA: 4.00/4.00
+        </p>
+        <div class="hero-meta">
+          <span><a href="mailto:chenhao.zhou@rutgers.edu">chenhao.zhou@rutgers.edu</a></span>
+          <span>(929) 314-1613</span>
+          <span><a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank">LinkedIn</a></span>
+          <span><a href="cv.html">CV</a></span>
+          <span><a href="research.html">Research</a></span>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- RESEARCH INTERESTS -->
-    <section>
+    <!-- ===== ROW 1: Research Interests + Publications ===== -->
+    <div class="two-col">
       <div class="card">
         <h2>Research Interests</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-          <div>
-            <h3>Primary Areas</h3>
-            <ul class="tight">
-              <li>Healthcare Operations</li>
-              <li>Appointment Scheduling</li>
-              <li>Population Health</li>
-              <li>Sustainability &amp; Equity</li>
-            </ul>
-          </div>
-          <div>
-            <h3>Methods &amp; Approaches</h3>
-            <ul class="tight">
-              <li>Causal Inference &amp; Econometrics</li>
-              <li>Team Dynamics &amp; Workforce Design</li>
-              <li>AI-driven Simulation &amp; Optimization</li>
-            </ul>
-          </div>
-        </div>
+        <h3>Primary Areas</h3>
+        <ul class="tight">
+          <li>Healthcare Operations</li>
+          <li>Appointment Scheduling</li>
+          <li>Population Health</li>
+          <li>Sustainability &amp; Equity</li>
+        </ul>
+        <h3 style="margin-top: var(--space-4);">Methods</h3>
+        <ul class="tight">
+          <li>Causal Inference &amp; Econometrics</li>
+          <li>Team Dynamics &amp; Workforce Design</li>
+          <li>AI-driven Simulation &amp; Optimization</li>
+        </ul>
       </div>
-    </section>
 
-    <!-- PUBLICATIONS -->
-    <section>
       <div class="card">
         <h2>Publications Under Review</h2>
-
-        <div class="pub-item">
-          <div class="pub-title">Balancing Workforce Fissuring and Service Quality <span class="pub-status r3">Round 3</span></div>
-          <div class="pub-meta"><em>Journal of Operations Management (SI)</em> &middot; Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L.</div>
-        </div>
-
-        <div class="pub-item">
-          <div class="pub-title">Exploring the Triple Aim Through Clinician Empowerment <span class="pub-status r2">Round 2</span></div>
-          <div class="pub-meta"><em>Journal of Operations Management</em> &middot; Zhou, C.; Dreyfus, D.*; Bagchi, A.</div>
-        </div>
-
-        <div class="pub-item">
-          <div class="pub-title">Enhancing Efficiency and Workflow in Oncology Outpatient Services by Simulation-Based Optimization <span class="pub-status r3">Round 3, Minor Revision</span></div>
-          <div class="pub-meta"><em>Annals of Operations Research</em> &middot; Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A.M.</div>
-        </div>
-
-        <div class="pub-item">
-          <div class="pub-title">Enhancing Healthcare Operations in Disadvantaged Communities <span class="pub-status r1">Round 1</span></div>
-          <div class="pub-meta"><em>Health Care Management Science (SI)</em> &middot; Dreyfus, D.; Zhou, C.*; Lin, T.</div>
-        </div>
-
-        <p style="margin-top: 16px; font-size: 0.9rem;">
-          <a href="research.html" style="font-weight: 600;">View all research &amp; working papers &rarr;</a>
+        <ul class="pub-list">
+          <li>
+            <span class="pub-title-inline">Balancing Workforce Fissuring and Service Quality</span>
+            <span class="pub-status r3">R3</span><br>
+            <span class="pub-journal">Journal of Operations Management (SI)</span> &middot; Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L.
+          </li>
+          <li>
+            <span class="pub-title-inline">Exploring the Triple Aim Through Clinician Empowerment</span>
+            <span class="pub-status r2">R2</span><br>
+            <span class="pub-journal">Journal of Operations Management</span> &middot; Zhou, C.; Dreyfus, D.*; Bagchi, A.
+          </li>
+          <li>
+            <span class="pub-title-inline">Enhancing Efficiency and Workflow in Oncology Outpatient Services by Simulation-Based Optimization</span>
+            <span class="pub-status r3">R3 Minor</span><br>
+            <span class="pub-journal">Annals of Operations Research</span> &middot; Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A.M.
+          </li>
+          <li>
+            <span class="pub-title-inline">Enhancing Healthcare Operations in Disadvantaged Communities</span>
+            <span class="pub-status r1">R1</span><br>
+            <span class="pub-journal">Health Care Management Science (SI)</span> &middot; Dreyfus, D.; Zhou, C.*; Lin, T.
+          </li>
+        </ul>
+        <p style="margin-top: var(--space-3); font-size: var(--font-size-sm);">
+          <a href="research.html" style="font-weight: 600;">All research &amp; working papers &rarr;</a>
         </p>
       </div>
-    </section>
+    </div>
 
-    <!-- EDUCATION -->
-    <section>
+    <!-- ===== ROW 2: Education + Teaching ===== -->
+    <div class="two-col full-width">
       <div class="card">
         <h2>Education</h2>
-
-        <div class="pub-item">
-          <div class="pub-title">Rutgers Business School, Rutgers University</div>
-          <div class="pub-meta">
-            Ph.D. in Management &mdash; Supply Chain Management &middot; GPA: 4.00/4.00 &middot; Expected May 2026<br>
-            <strong>Dissertation Committee:</strong> Lei Lei (Chair), Weiwei Chen, Xin Ding, David Dreyfus, Keith Skowronski<br>
-            <strong>Awards:</strong> Graduate School Academic Excellence Award (2025), Alfred J. Battaglia Memorial Fellowship (2024-25)
+        <div class="edu-item">
+          <div class="edu-school">Rutgers Business School, Rutgers University</div>
+          <div class="edu-detail">
+            Ph.D. in Management &mdash; Supply Chain Management &middot; GPA: 4.00 &middot; Expected May 2026<br>
+            Committee: Lei Lei (Chair), Weiwei Chen, Xin Ding, David Dreyfus, Keith Skowronski<br>
+            Awards: Academic Excellence Award (2025), Battaglia Fellowship (2024&ndash;25), Summer Research Grant (2022&ndash;24)
           </div>
         </div>
-
-        <div class="pub-item">
-          <div class="pub-title">Tandon School of Engineering, New York University</div>
-          <div class="pub-meta">M.S. Engineering/Industrial Management &middot; September 2021</div>
+        <div class="edu-item">
+          <div class="edu-school">Tandon School of Engineering, New York University</div>
+          <div class="edu-detail">M.S. Engineering/Industrial Management &middot; 2021</div>
         </div>
-
-        <div class="pub-item">
-          <div class="pub-title">Questrom School of Business, Boston University</div>
-          <div class="pub-meta">B.S. Business Administration &middot; September 2019</div>
+        <div class="edu-item">
+          <div class="edu-school">Questrom School of Business, Boston University</div>
+          <div class="edu-detail">B.S. Business Administration &middot; 2019</div>
         </div>
       </div>
-    </section>
 
-    <!-- TEACHING -->
-    <section>
       <div class="card">
-        <h2>Teaching Experience</h2>
-
+        <h2>Teaching</h2>
         <h3>Instructor of Record</h3>
-        <ul class="tight">
+        <ul class="teach-list">
           <li><strong>Supply Chain Analytics</strong> (52:620:326) &mdash; Spring 2026</li>
-          <li><strong>Introduction to Six Sigma and Lean Manufacturing</strong> (33:799:460) &mdash; 2026</li>
           <li><strong>Demand Planning &amp; Fulfillment</strong> (29:799:310) &mdash; Summer 2025, Spring 2026</li>
+          <li><strong>Intro to Six Sigma &amp; Lean Manufacturing</strong> (33:799:460) &mdash; TBA</li>
         </ul>
-
-        <p style="margin-top: 16px; font-size: 0.9rem;">
-          Teaching Evaluations: Overall Effectiveness <strong>4.91/5.00</strong> &middot; Course Quality <strong>5.00/5.00</strong>
-          &middot; <a href="SIRS Summer 2025.pdf" style="font-weight: 600;">View evaluation report &rarr;</a>
-        </p>
-
-        <p style="margin-top: 8px; font-size: 0.9rem;">
-          <a href="teaching.html" style="font-weight: 600;">View teaching portfolio &amp; simulation demos &rarr;</a>
+        <div style="margin-top: var(--space-4); padding: var(--space-3); background: var(--color-primary-weak); border-radius: var(--radius-md); font-size: var(--font-size-sm);">
+          Evaluations: Effectiveness <strong>4.91</strong>/5.00 &middot; Course Quality <strong>5.00</strong>/5.00 &middot;
+          <a href="SIRS Summer 2025.pdf" style="font-weight: 600;">Report &rarr;</a>
+        </div>
+        <p style="margin-top: var(--space-3); font-size: var(--font-size-sm);">
+          <a href="teaching.html" style="font-weight: 600;">Teaching portfolio &amp; simulations &rarr;</a>
         </p>
       </div>
-    </section>
+    </div>
 
-    <!-- TECHNICAL SKILLS -->
-    <section>
-      <div class="card">
+    <!-- ===== ROW 3: Skills + References ===== -->
+    <div class="two-col full-width">
+      <div class="card skills-section">
         <h2>Technical Skills</h2>
-
         <h3>Programming</h3>
         <div class="skills-grid">
           <span class="skill-tag">HTML</span>
@@ -288,7 +318,6 @@
           <span class="skill-tag">Stata</span>
           <span class="skill-tag">LaTeX</span>
         </div>
-
         <h3>Optimization &amp; Simulation</h3>
         <div class="skills-grid">
           <span class="skill-tag">AMPL</span>
@@ -297,7 +326,6 @@
           <span class="skill-tag">Gurobi</span>
           <span class="skill-tag">OptQuest</span>
         </div>
-
         <h3>Econometric Methods</h3>
         <div class="skills-grid">
           <span class="skill-tag">DEA</span>
@@ -306,50 +334,47 @@
           <span class="skill-tag">IV-2SLS/LIML/CF</span>
           <span class="skill-tag">SEM</span>
         </div>
-
         <h3>ML / AI</h3>
         <div class="skills-grid">
           <span class="skill-tag">Causal ML</span>
           <span class="skill-tag">Deep RL</span>
           <span class="skill-tag">Prediction</span>
         </div>
-
-        <h3>Languages</h3>
-        <div class="skills-grid">
-          <span class="skill-tag">English (Fluent)</span>
-          <span class="skill-tag">Mandarin (Native)</span>
-        </div>
+        <p style="margin-top: var(--space-3); font-size: var(--font-size-sm); color: var(--color-text-muted);">
+          Languages: English (Fluent), Mandarin (Native) &middot;
+          Memberships: AOM, DSI, IEEE, INFORMS, POMS
+        </p>
       </div>
-    </section>
 
-    <!-- REFERENCES -->
-    <section>
       <div class="card">
         <h2>References</h2>
-        <div class="references-grid">
-          <div class="reference-item">
+        <div class="ref-grid">
+          <div class="ref-item">
             <strong>Lei Lei, Ph.D.</strong>
             <span>Distinguished Professor &amp; Dean<br>Rutgers Business School<br>llei@business.rutgers.edu</span>
           </div>
-          <div class="reference-item">
+          <div class="ref-item">
             <strong>Weiwei Chen, Ph.D.</strong>
-            <span>Professor<br>Rutgers Business School<br>wchen@business.rutgers.edu</span>
+            <span>Professor; Senior Director, MBA Programs<br>Rutgers Business School<br>wchen@business.rutgers.edu</span>
           </div>
-          <div class="reference-item">
+          <div class="ref-item">
             <strong>Xin Ding, Ph.D.</strong>
-            <span>Dean's Research Professor<br>Rutgers Business School<br>xding@business.rutgers.edu</span>
+            <span>Dean's Research Professor; Interim Vice Chair<br>Rutgers Business School<br>xding@business.rutgers.edu</span>
           </div>
-          <div class="reference-item">
+          <div class="ref-item">
             <strong>David Dreyfus, Ph.D.</strong>
-            <span>Associate Professor<br>Rutgers Business School<br>ddreyfus@business.rutgers.edu</span>
+            <span>Associate Professor; Director, MS in Healthcare Analytics<br>Rutgers Business School<br>ddreyfus@business.rutgers.edu</span>
           </div>
-          <div class="reference-item">
+          <div class="ref-item">
             <strong>Lian Qi, Ph.D.</strong>
-            <span>Professor &amp; Department Chair<br>Dept. of Supply Chain Management<br>Rutgers Business School<br>lianqi@business.rutgers.edu</span>
+            <span>Professor &amp; Department Chair<br>Dept. of SCM, Rutgers Business School<br>lianqi@business.rutgers.edu</span>
           </div>
         </div>
+        <p style="margin-top: var(--space-3); font-size: var(--font-size-xs); color: var(--color-text-muted);">
+          Advisor listed first; remaining in alphabetical order.
+        </p>
       </div>
-    </section>
+    </div>
 
     <footer>
       <p>Last updated March 2026 &middot; &copy; 2026 Chenhao Zhou</p>
