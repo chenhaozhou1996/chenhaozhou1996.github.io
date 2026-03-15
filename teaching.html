@@ -136,6 +136,9 @@
     }
     .scf-pill:hover { border-color: var(--navy-light); text-decoration: none; }
     .scf-pill span { display: block; font-size: 9px; color: var(--slate-pale); font-weight: 400; }
+    .scf-pill-main { background: var(--navy-dark); color: #fff; border-color: var(--navy-dark); font-weight: 700; }
+    .scf-pill-main span { color: rgba(255,255,255,0.6); }
+    .scf-pill-main:hover { background: var(--navy); border-color: var(--navy); color: #fff; text-decoration: none; }
 
     /* Handbook grid */
     .hb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
@@ -310,14 +313,8 @@
     <!-- SCF -->
     <div class="section">
       <div class="section-title">Supply Chain Finance Simulations</div>
-      <div class="scf-banner">
-        <div>
-          <h4>Supply Chain Finance Master Dashboard</h4>
-          <p>All 10 modules in one tabbed interface</p>
-        </div>
-        <a href="scf-simulations/SCF_Dashboard.html">Open Dashboard →</a>
-      </div>
       <div class="scf-pills">
+        <a href="scf-simulations/SCF_Dashboard.html" class="scf-pill scf-pill-main">Master Dashboard<span>All 10 modules in one interface</span></a>
         <a href="scf-simulations/SCF_01_Cash_Conversion_Cycle.html" class="scf-pill">Cash Conversion Cycle<span>DIO, DSO, DPO</span></a>
         <a href="scf-simulations/SCF_02_Reverse_Factoring.html" class="scf-pill">Reverse Factoring<span>Buyer-led SCF</span></a>
         <a href="scf-simulations/SCF_03_Dynamic_Discounting.html" class="scf-pill">Dynamic Discounting<span>APR-equivalent</span></a>
