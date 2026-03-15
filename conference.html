@@ -1,151 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Conferences & Presentations – Chenhao Zhou</title>
-  <meta name="description" content="Academic conferences, presentations, and professional activities by Chenhao Zhou." />
-
-  <!-- Favicon -->
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conferences – Chenhao Zhou</title>
   <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
-
-  <!-- Shared Stylesheet -->
-  <link rel="stylesheet" href="styles/main.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #1a365d; --navy-dark: #0f2442; --slate: #475569; --slate-light: #64748b; --slate-pale: #94a3b8; --bg: #ffffff; --bg-alt: #f8fafc; --border: #e2e8f0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; font-size: 15px; line-height: 1.6; color: #1e293b; background: var(--bg); -webkit-font-smoothing: antialiased; }
+    a { color: var(--navy); text-decoration: none; } a:hover { text-decoration: underline; }
+    .topnav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 48px; }
+    .topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+    .topnav-brand { font-weight: 700; font-size: 15px; color: var(--navy-dark); display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+    .topnav-links { display: flex; gap: 4px; } .topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--slate); text-decoration: none; }
+    .topnav-links a:hover { background: var(--bg-alt); } .topnav-links a.active { background: var(--bg-alt); color: var(--navy); font-weight: 600; }
+    .page { max-width: 1600px; margin: 0 auto; padding: 48px; }
+    .section { margin-bottom: 40px; }
+    .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--navy); padding-bottom: 8px; border-bottom: 2px solid var(--navy); margin-bottom: 16px; }
+    .t { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .t th { text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate-pale); padding: 6px 12px 6px 0; border-bottom: 1px solid var(--border); }
+    .t td { padding: 8px 12px 8px 0; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--slate); }
+    .t td:first-child { color: var(--navy-dark); font-weight: 600; width: 60px; }
+    .t tr:last-child td { border-bottom: none; }
+    .note { font-size: 12px; color: var(--slate-pale); margin-top: 8px; }
+    .site-footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--slate-pale); text-align: center; }
+    .site-footer a { color: var(--slate-light); }
+    @media (max-width: 900px) { .page { padding: 24px; } }
+  </style>
 </head>
 <body>
-<a href="#main" class="skip-to-main">Skip to main content</a>
-
-<header>
-  <nav aria-label="Primary">
-    <a href="index.html" class="nav-brand">
-      <img alt="Chenhao Zhou" src="images/profile.jpg" />
-      <span class="nav-brand-text">Chenhao Zhou</span>
-    </a>
-    <div class="nav-menu">
-      <a href="index.html">Home</a>
-      <a href="research.html">Research</a>
-      <a href="milestones.html">Milestones</a>
-      <a href="conference.html" class="active">Conferences</a>
-      <a href="teaching.html">Teaching</a>
-      <a href="professional.html">Professional</a>
-      <a href="cv.html">CV</a>
-    </div>
-  </nav>
-</header>
-
-<main id="main" class="container">
-<div class="page-header">
-  <h1>Conference Presentations</h1>
-  <p class="page-subtitle">Academic presentations and session leadership</p>
-</div>
-
-<div class="card">
-  <table>
-    <thead><tr><th>Year</th><th>Conference</th><th>Topic</th><th>Role</th><th>Status</th></tr></thead>
-    <tbody>
-      <tr>
-        <td>2026</td>
-        <td>POMS Annual Meeting</td>
-        <td>How Community Health Disparities Affect Dialysis Facility Performance</td>
-        <td>Presenter</td>
-        <td>Scheduled</td>
-      </tr>
-      <tr>
-        <td>2026</td>
-        <td>POMS Annual Meeting</td>
-        <td>Team Continuity Amid Workforce Fissure</td>
-        <td>Presenter</td>
-        <td>Scheduled</td>
-      </tr>
-      <tr>
-        <td>2025</td>
-        <td>DSI Annual Conference &mdash; Doctoral Research Showcase</td>
-        <td>Healthcare Operating in Fissured Workforce</td>
-        <td>Presenter</td>
-        <td>Completed</td>
-      </tr>
-      <tr>
-        <td>2025</td>
-        <td>DSI Annual Conference &mdash; Healthcare Management</td>
-        <td>Empowering Clinicians in Resource-Constrained Dialysis Care</td>
-        <td>Presenter</td>
-        <td>Completed</td>
-      </tr>
-      <tr>
-        <td>2025</td>
-        <td>DSI Annual Conference &mdash; Supply Chain Management</td>
-        <td>Organizational Learning in a Fissured Healthcare Workforce</td>
-        <td>Presenter</td>
-        <td>Completed</td>
-      </tr>
-      <tr>
-        <td>2025</td>
-        <td>INFORMS Annual Meeting &mdash; Service Science</td>
-        <td>Resilience in Health Care Operations</td>
-        <td>Session Chair / Presenter</td>
-        <td>Completed</td>
-      </tr>
-      <tr>
-        <td>2024</td>
-        <td>DSI Annual Conference &mdash; Healthcare Management</td>
-        <td>Clinician Empowerment and the Triple Aim</td>
-        <td>Presenter</td>
-        <td>Completed</td>
-      </tr>
-      <tr>
-        <td>2024</td>
-        <td>INFORMS Annual Meeting</td>
-        <td>Optimizing Oncology Outpatient Flow</td>
-        <td>Presenter</td>
-        <td>Completed</td>
-      </tr>
-      <tr>
-        <td>2023</td>
-        <td>INFORMS Annual Meeting</td>
-        <td>ED Crowding and Diversion Operations</td>
-        <td>Presenter</td>
-        <td>Completed</td>
-      </tr>
-      <tr>
-        <td>2023</td>
-        <td>CHOM/POMS Annual Meeting</td>
-        <td>Clinician Empowerment and the Triple Aim</td>
-        <td>Invited Speaker</td>
-        <td>Completed</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="card">
-  <h2>Workshops and Invited Talks</h2>
-  <ul>
-    <li>Invited Speaker, CHOM Synapse: Healthcare Operations Engagement (2023). <a href="CHOM.pdf" target="_blank">Program Flyer (PDF)</a></li>
-  </ul>
-</div>
-
-<footer>
-  <p>Last updated March 2026 &middot; &copy; 2026 Chenhao Zhou</p>
-  <p style="margin-top: 8px;">
-    <a href="mailto:chenhao.zhou@rutgers.edu">Email</a> &middot;
-    <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank" rel="noopener">LinkedIn</a>
-  </p>
-</footer>
+<nav class="topnav"><div class="topnav-inner">
+  <a href="index.html" class="topnav-brand"><img alt="CZ" src="images/profile.jpg" />Chenhao Zhou</a>
+  <div class="topnav-links"><a href="index.html">Home</a><a href="research.html">Research</a><a href="milestones.html">Milestones</a><a href="conference.html" class="active">Conferences</a><a href="teaching.html">Teaching</a><a href="professional.html">Professional</a><a href="cv.html">CV</a></div>
+</div></nav>
+<main class="page">
+  <div class="section">
+    <div class="section-title">Conference Presentations</div>
+    <table class="t">
+      <thead><tr><th>Year</th><th>Conference</th><th>Topic</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr><td>2026</td><td>POMS Annual</td><td>How Community Health Disparities Affect Dialysis Facility Performance</td><td>Presenter</td></tr>
+        <tr><td>2026</td><td>POMS Annual</td><td>Team Continuity Amid Workforce Fissure</td><td>Presenter</td></tr>
+        <tr><td>2025</td><td>DSI Doctoral Research Showcase</td><td>Healthcare Operating in Fissured Workforce</td><td>Presenter</td></tr>
+        <tr><td>2025</td><td>DSI Healthcare Management</td><td>Empowering Clinicians in Resource-Constrained Dialysis Care</td><td>Presenter</td></tr>
+        <tr><td>2025</td><td>DSI SCM</td><td>Organizational Learning in a Fissured Healthcare Workforce</td><td>Presenter</td></tr>
+        <tr><td>2025</td><td>INFORMS Service Science</td><td>Resilience in Health Care Operations</td><td>Session Chair / Presenter</td></tr>
+        <tr><td>2024</td><td>DSI Healthcare Management</td><td>Clinician Empowerment and the Triple Aim</td><td>Presenter</td></tr>
+        <tr><td>2024</td><td>INFORMS Annual</td><td>Optimizing Oncology Outpatient Flow</td><td>Presenter</td></tr>
+        <tr><td>2023</td><td>INFORMS Annual</td><td>ED Crowding and Diversion Operations</td><td>Presenter</td></tr>
+        <tr><td>2023</td><td>CHOM/POMS</td><td>Clinician Empowerment and the Triple Aim</td><td>Invited Speaker</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section">
+    <div class="section-title">Workshops &amp; Invited Talks</div>
+    <p style="font-size: 13px; color: var(--slate);">
+      <strong>Invited Speaker</strong> — CHOM Synapse: Healthcare Operations Engagement (2023). Shared perspectives on patient-centered scheduling; engaged in practitioner–scholar feedback.
+      <a href="CHOM.pdf" target="_blank" style="font-weight: 600;">Program flyer →</a>
+    </p>
+  </div>
+  <footer class="site-footer">
+    <p>Last updated March 2026 · © 2026 Chenhao Zhou</p>
+    <p style="margin-top: 4px;"><a href="mailto:chenhao.zhou@rutgers.edu">Email</a> · <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank">LinkedIn</a></p>
+  </footer>
 </main>
-
-<button id="backToTop" class="back-to-top" aria-label="Back to top">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <polyline points="18 15 12 9 6 15"></polyline>
-  </svg>
-</button>
-
-<script>
-  (function() {
-    const btn = document.getElementById('backToTop');
-    window.addEventListener('scroll', () => btn.classList.toggle('visible', window.pageYOffset > 300));
-    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-  })();
-</script>
-
 </body>
 </html>

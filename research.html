@@ -3,331 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Research – Chenhao Zhou | Publications & Academic Work</title>
-  <meta name="description" content="Research publications, working papers, and academic contributions by Chenhao Zhou in operations management, healthcare operations, and supply chain optimization." />
-  <meta name="keywords" content="Chenhao Zhou, Research, Publications, Operations Management, Healthcare Operations, Academic Papers" />
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="Research – Chenhao Zhou" />
-  <meta property="og:description" content="Research publications and academic contributions in operations management and healthcare operations." />
-  <meta property="og:url" content="https://www.chenhaozhou.me/research.html" />
-
-  <!-- Favicon -->
+  <title>Research – Chenhao Zhou</title>
+  <meta name="description" content="Research publications, working papers, and academic contributions by Chenhao Zhou." />
   <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
-
-  <!-- Shared Stylesheet -->
-  <link rel="stylesheet" href="styles/main.css" />
-
   <style>
-    .status-text {
-      display: inline-block;
-      margin-left: var(--space-2);
-      font-size: var(--font-size-sm);
-      color: var(--color-text-muted);
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #1a365d; --navy-light: #2b4c7e; --navy-dark: #0f2442; --slate: #475569; --slate-light: #64748b; --slate-pale: #94a3b8; --bg: #ffffff; --bg-alt: #f8fafc; --border: #e2e8f0; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; color: #1e293b; background: var(--bg); -webkit-font-smoothing: antialiased; }
+    a { color: var(--navy); text-decoration: none; } a:hover { color: var(--navy-light); text-decoration: underline; }
+    .topnav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 48px; }
+    .topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+    .topnav-brand { font-weight: 700; font-size: 15px; color: var(--navy-dark); display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+    .topnav-links { display: flex; gap: 4px; }
+    .topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--slate); text-decoration: none; }
+    .topnav-links a:hover { background: var(--bg-alt); color: var(--navy); }
+    .topnav-links a.active { background: var(--bg-alt); color: var(--navy); font-weight: 600; }
+    .page { max-width: 1600px; margin: 0 auto; padding: 48px; }
+    .section { margin-bottom: 40px; }
+    .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--navy); padding-bottom: 8px; border-bottom: 2px solid var(--navy); margin-bottom: 16px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    .pub { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+    .pub:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .pub-t { font-weight: 600; color: var(--navy-dark); font-size: 14px; line-height: 1.4; }
+    .pub-j { font-size: 13px; color: var(--slate); margin-top: 2px; }
+    .pub-j em { color: #1e293b; }
+    .rstatus { display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; vertical-align: middle; margin-left: 6px; }
+    .r3 { background: #e0e7ff; color: #3730a3; } .r2 { background: #dbeafe; color: #1e40af; } .r1 { background: #fef3c7; color: #92400e; }
+    .wp { margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
+    .wp-t { font-weight: 600; color: var(--navy-dark); } .wp-m { color: var(--slate); }
+    .t { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .t th { text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate-pale); padding: 6px 12px 6px 0; border-bottom: 1px solid var(--border); }
+    .t td { padding: 8px 12px 8px 0; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--slate); }
+    .t td:first-child { font-weight: 500; color: var(--navy-dark); } .t tr:last-child td { border-bottom: none; }
+    .note { font-size: 12px; color: var(--slate-pale); margin-top: 8px; }
+    .site-footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--slate-pale); text-align: center; }
+    .site-footer a { color: var(--slate-light); }
+    @media (max-width: 900px) { .page { padding: 24px; } .two-col { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <a href="#main" class="skip-to-main">Skip to main content</a>
+<nav class="topnav"><div class="topnav-inner">
+  <a href="index.html" class="topnav-brand"><img alt="CZ" src="images/profile.jpg" />Chenhao Zhou</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a><a href="research.html" class="active">Research</a><a href="milestones.html">Milestones</a><a href="conference.html">Conferences</a><a href="teaching.html">Teaching</a><a href="professional.html">Professional</a><a href="cv.html">CV</a>
+  </div>
+</div></nav>
 
-  <header>
-    <nav aria-label="Primary">
-      <a href="index.html" class="nav-brand">
-        <img alt="Chenhao Zhou" src="images/profile.jpg" />
-        <span class="nav-brand-text">Chenhao Zhou</span>
-      </a>
-      <div class="nav-menu">
-        <a href="index.html">Home</a>
-        <a href="research.html" class="active">Research</a>
-        <a href="milestones.html">Milestones</a>
-        <a href="conference.html">Conferences</a>
-        <a href="teaching.html">Teaching</a>
-        <a href="professional.html">Professional</a>
-        <a href="cv.html">CV</a>
+<main class="page">
+
+  <div class="two-col">
+    <!-- LEFT: Under Review + Working Papers -->
+    <div>
+      <div class="section">
+        <div class="section-title">Under Review</div>
+        <div class="pub">
+          <div class="pub-t">[1] Balancing Workforce Fissuring and Service Quality <span class="rstatus r3">R3</span></div>
+          <div class="pub-j"><em>Journal of Operations Management</em> (SI) · Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L.</div>
+        </div>
+        <div class="pub">
+          <div class="pub-t">[2] Exploring the Triple Aim Through Clinician Empowerment <span class="rstatus r2">R2</span></div>
+          <div class="pub-j"><em>Journal of Operations Management</em> · Zhou, C.; Dreyfus, D.*; Bagchi, A.</div>
+        </div>
+        <div class="pub">
+          <div class="pub-t">[3] Enhancing Efficiency and Workflow in Oncology Outpatient Services by Simulation-Based Optimization <span class="rstatus r3">R3 Minor</span></div>
+          <div class="pub-j"><em>Annals of Operations Research</em> · Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A.M.</div>
+        </div>
+        <div class="pub">
+          <div class="pub-t">[4] Enhancing Healthcare Operations in Disadvantaged Communities <span class="rstatus r1">R1</span></div>
+          <div class="pub-j"><em>Health Care Management Science</em> (SI) · Dreyfus, D.; Zhou, C.*; Lin, T.</div>
+        </div>
       </div>
-    </nav>
-  </header>
 
-<main id="main" class="container">
-  <div class="page-header">
-    <h1>Research</h1>
-    <p class="page-subtitle">Publications, working papers, and academic contributions</p>
+      <div class="section">
+        <div class="section-title">Working Papers</div>
+        <div class="wp"><span class="wp-t">[5] Engagement Without Responsibility: Ownership Transitions and Stakeholder Welfare in U.S. Nursing Homes.</span> <span class="wp-m">Target: <em>J. Business Ethics</em>. Ready to submit. Zhou, C.*; Li, W.; Wang, P.; Dreyfus, D.</span></div>
+        <div class="wp"><span class="wp-t">[6] Deep Reinforcement Learning for Forward-Looking Chemotherapy Appointment Scheduling.</span> <span class="wp-m">Target: <em>POM</em> (SI). Draft complete. Zhou, C.*; Ding, X.; Chen, W.; Lei, L.</span></div>
+        <div class="wp"><span class="wp-t">[7] Stay, Straddle, or Exit: How Regulatory Seams Shape Organizational Responses to Institutional Disruption.</span> <span class="wp-m">Target: <em>Organization Science</em> (SI). Draft complete. Zhou, C.*</span></div>
+        <div class="wp"><span class="wp-t">[8] Extension Services, Market Remoteness, and Agricultural Productivity: Evidence from Ethiopian Smallholder Farms.</span> <span class="wp-m">Target: <em>M&amp;SOM</em> (SI). Draft complete. Li, W.*; Zhou, C.</span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: In Progress + Proceedings + Service -->
+    <div>
+      <div class="section">
+        <div class="section-title">Research in Progress</div>
+        <div class="wp"><span class="wp-t">[9] Heteroscedasticity-Based Identification in Management Research.</span> <span class="wp-m">Target: <em>AMJ</em>. Zhou, C.*</span></div>
+        <div class="wp"><span class="wp-t">[10] When Stars Fall: Quality Instability, Consumer Choice, and the Demand for Long-Term Care.</span> <span class="wp-m">Target: <em>EJOR</em> or <em>POM</em>. Zhou, C.*</span></div>
+        <div class="wp"><span class="wp-t">[11] Chain-Level Quality Competition Under Yardstick Incentives.</span> <span class="wp-m">Target: <em>Management Science</em>. Zhou, C.*</span></div>
+        <div class="wp"><span class="wp-t">[12] From Triple Aim to Quadruple Aim.</span> <span class="wp-m">Target: <em>JOM</em> or <em>POM</em>. Dreyfus, D.; Zhou, C.*; Wang, P.; Ding, X.; Lin, T.</span></div>
+        <div class="wp"><span class="wp-t">[13] Systems Approach to Addressing Emergency Department Congestion.</span> <span class="wp-m">Target: <em>Management Science</em>. Lim, J.M.*; Zhou, C.; Olaleye, T.</span></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Conference Proceedings</div>
+        <div class="wp"><span class="wp-t">House price prediction using polynomial regression with Particle Swarm Optimization.</span> <span class="wp-m"><em>J. Phys.: Conf. Ser.</em>, 1802(3), 032034, 2021.</span></div>
+        <div class="wp"><span class="wp-t">Quantitative investment strategy analysis based on machine learning for share dealing.</span> <span class="wp-m"><em>ICISCE 2020</em>, 1051–1057.</span></div>
+        <p class="note">Citations: 23 (Google Scholar) · Downloads: 1,784 (IEEE/IOP)</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Books</div>
+        <div class="wp"><span class="wp-t">Strategies for Enhancing the Effectiveness of Internal Audit and Risk Control</span> <span class="wp-m">(Chs. I, II, IX–XI). Eds: Hui, J.; Liu, J.; Zhou, C.; Zhou, W. China Modern Economic Publishing House, 2025. <a href="http://hunan.tsxcfw.com/so.asp?key=9787511934741" target="_blank">Publisher →</a></span></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Service &amp; Leadership</div>
+        <table class="t">
+          <tbody>
+            <tr><td>Session Chair</td><td>POMS Healthcare Analytics (2025, 2026)</td></tr>
+            <tr><td>Session Chair</td><td>INFORMS Service Science: Smart Resource Allocation (2025)</td></tr>
+            <tr><td>Reviewer</td><td><em>Health Care Management Science</em> (2024–present)</td></tr>
+            <tr><td>Reviewer</td><td>POMS Annual (2026)</td></tr>
+            <tr><td>Reviewer</td><td>DSI Annual — PM, Gig Economy, Healthcare (2024–2025)</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Member: AOM · DSI · IEEE · INFORMS · POMS (2022–present)</p>
+      </div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>Journal Articles Under Review</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Title</th>
-          <th>Status</th>
-          <th>Journal</th>
-          <th>Authors</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>[1]</td>
-          <td><strong>Balancing Workforce Fissuring and Service Quality</strong></td>
-          <td>
-            <span class="badge badge-r3">R3</span>
-            <span class="status-text">Resubmitted</span>
-          </td>
-          <td><em>Journal of Operations Management</em> (SI)</td>
-          <td>Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L.</td>
-        </tr>
-        <tr>
-          <td>[2]</td>
-          <td><strong>Exploring the Triple Aim Through Clinician Empowerment</strong></td>
-          <td>
-            <span class="badge badge-r2">R2</span>
-            <span class="status-text">Resubmitted</span>
-          </td>
-          <td><em>Journal of Operations Management</em></td>
-          <td>Zhou, C.; Dreyfus, D.*; Bagchi, A.</td>
-        </tr>
-        <tr>
-          <td>[3]</td>
-          <td><strong>Enhancing Efficiency and Workflow in Oncology Outpatient Services by Simulation-Based Optimization</strong></td>
-          <td>
-            <span class="badge badge-r3">R3</span>
-            <span class="status-text">Minor Revision resubmitted</span>
-          </td>
-          <td><em>Annals of Operations Research</em></td>
-          <td>Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A.M.</td>
-        </tr>
-        <tr>
-          <td>[4]</td>
-          <td><strong>Enhancing Healthcare Operations in Disadvantaged Communities</strong></td>
-          <td>
-            <span class="badge badge-r1">R1</span>
-            <span class="status-text">Submitted Feb 2025</span>
-          </td>
-          <td><em>Health Care Management Science</em> (SI)</td>
-          <td>Dreyfus, D.; Zhou, C.*; Lin, T.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <p class="note" style="text-align: center; margin-top: -16px;">* corresponding author. Titles of manuscripts under double-blind review are paraphrased.</p>
 
-  <div class="card">
-    <h2>Working Papers</h2>
-    <p class="note">Full drafts available upon request.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Title</th>
-          <th>Target Journal</th>
-          <th>Status</th>
-          <th>Authors</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>[5]</td>
-          <td><strong>Engagement Without Responsibility: Ownership Transitions and Stakeholder Welfare in U.S. Nursing Homes</strong></td>
-          <td><em>Journal of Business Ethics</em></td>
-          <td>Ready to submit</td>
-          <td>Zhou, C.*; Li, W.; Wang, P.; Dreyfus, D.</td>
-        </tr>
-        <tr>
-          <td>[6]</td>
-          <td><strong>Deep Reinforcement Learning for Forward-Looking Chemotherapy Appointment Scheduling</strong></td>
-          <td><em>Production and Operations Management</em> (SI)</td>
-          <td>Draft complete; deadline June 2026</td>
-          <td>Zhou, C.*; Ding, X.; Chen, W.; Lei, L.</td>
-        </tr>
-        <tr>
-          <td>[7]</td>
-          <td><strong>Stay, Straddle, or Exit: How Regulatory Seams Shape Organizational Responses to Institutional Disruption</strong></td>
-          <td><em>Organization Science</em> (SI)</td>
-          <td>Draft complete</td>
-          <td>Zhou, C.*</td>
-        </tr>
-        <tr>
-          <td>[8]</td>
-          <td><strong>Extension Services, Market Remoteness, and Agricultural Productivity: Evidence from Ethiopian Smallholder Farms</strong></td>
-          <td><em>Manufacturing &amp; Service Operations Management</em> (SI)</td>
-          <td>Draft complete; deadline June 2026</td>
-          <td>Li, W.*; Zhou, C.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h2>Research in Progress</h2>
-    <p class="note">Preliminary results; drafts in preparation.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Title</th>
-          <th>Target Journal</th>
-          <th>Authors</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>[9]</td>
-          <td><strong>Heteroscedasticity-Based Identification in Management Research: A Review, Tutorial, and Guidelines</strong></td>
-          <td><em>Academy of Management Journal</em></td>
-          <td>Zhou, C.*</td>
-        </tr>
-        <tr>
-          <td>[10]</td>
-          <td><strong>When Stars Fall: Quality Instability, Consumer Choice, and the Demand for Long-Term Care</strong></td>
-          <td><em>European Journal of Operational Research</em> or <em>POM</em></td>
-          <td>Zhou, C.*</td>
-        </tr>
-        <tr>
-          <td>[11]</td>
-          <td><strong>Chain-Level Quality Competition Under Yardstick Incentives: Market Concentration, Strategic Investment, and Health Equity in the U.S. Dialysis Industry</strong></td>
-          <td><em>Management Science</em></td>
-          <td>Zhou, C.*</td>
-        </tr>
-        <tr>
-          <td>[12]</td>
-          <td><strong>From Triple Aim to Quadruple Aim</strong></td>
-          <td><em>Journal of Operations Management</em> or <em>POM</em></td>
-          <td>Dreyfus, D.; Zhou, C.*; Wang, P.; Ding, X.; Lin, T.</td>
-        </tr>
-        <tr>
-          <td>[13]</td>
-          <td><strong>Systems Approach to Addressing Emergency Department Congestion</strong></td>
-          <td><em>Management Science</em></td>
-          <td>Lim, J.M.*; Zhou, C.; Olaleye, T.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h2>Conference Proceedings</h2>
-    <ul>
-      <li>
-        <strong>House price prediction using polynomial regression with Particle Swarm Optimization</strong><br>
-        <em>Journal of Physics: Conference Series</em>, 1802(3), 032034, 2021.
-      </li>
-      <li>
-        <strong>Quantitative investment strategy analysis based on machine learning for share dealing</strong><br>
-        <em>2020 7th International Conference on Information Science and Control Engineering</em>, 1051-1057.
-      </li>
-    </ul>
-    <p class="note">Overall Proceedings Metrics: Citations: 23 (Google Scholar) &middot; Downloads: 1,784 (IEEE and IOP)</p>
-  </div>
-
-  <div class="card">
-    <h2>Books</h2>
-    <p>
-      <strong>Strategies for Enhancing the Effectiveness of Internal Audit and Risk Control</strong><br>
-      Edited by Jie Hui, Jie Liu, Chenhao Zhou, and Wenxuan Zhou. Chapters I, II, IX-XI.<br>
-      China Modern Economic Publishing House, 2025. ISBN: 978-7-5119-3474-1.<br>
-      <a href="http://hunan.tsxcfw.com/so.asp?key=9787511934741&imgbtn.x=35&imgbtn.y=14" target="_blank" rel="noopener">Publisher page</a><br>
-      <em>Adoption: Recommended as a course textbook by Shanxi University of Finance and Economics, China.</em>
-    </p>
-  </div>
-
-  <div class="card">
-    <h2>Editorial &amp; Review Service</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Year(s)</th>
-          <th>Role</th>
-          <th>Venue / Track</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>2024-present</td>
-          <td>Reviewer</td>
-          <td><em>Health Care Management Science</em></td>
-        </tr>
-        <tr>
-          <td>2026</td>
-          <td>Reviewer</td>
-          <td>POMS Annual</td>
-        </tr>
-        <tr>
-          <td>2025</td>
-          <td>Reviewer</td>
-          <td>Annual DSI &mdash; Project Management; Gig Economy &amp; Social Media</td>
-        </tr>
-        <tr>
-          <td>2024</td>
-          <td>Reviewer</td>
-          <td>Annual DSI &mdash; Healthcare</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h2>Session Leadership</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Year(s)</th>
-          <th>Role</th>
-          <th>Venue / Track</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>2026</td>
-          <td>Session Chair</td>
-          <td>POMS Healthcare Operations &amp; Analytics Track</td>
-        </tr>
-        <tr>
-          <td>2025</td>
-          <td>Session Chair</td>
-          <td>POMS Healthcare Analytics Track</td>
-        </tr>
-        <tr>
-          <td>2025</td>
-          <td>Session Chair</td>
-          <td>INFORMS Service Science &mdash; Smart Resource Allocation Under Uncertainty</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h2>Professional Membership</h2>
-    <p>Member, AOM, DSI, IEEE, INFORMS, POMS (2022-present)</p>
-  </div>
-
-  <p class="note" style="text-align: center; margin-top: var(--space-4);">* indicates corresponding author. Titles of manuscripts under double-blind review are paraphrased for public listing.</p>
-
-  <footer>
-    <p>Last updated March 2026 &middot; &copy; 2026 Chenhao Zhou</p>
-    <p style="margin-top: 8px;">
-      <a href="mailto:chenhao.zhou@rutgers.edu">Email</a> &middot;
-      <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank" rel="noopener">LinkedIn</a>
-    </p>
+  <footer class="site-footer">
+    <p>Last updated March 2026 · © 2026 Chenhao Zhou</p>
+    <p style="margin-top: 4px;"><a href="mailto:chenhao.zhou@rutgers.edu">Email</a> · <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank">LinkedIn</a></p>
   </footer>
 </main>
-
-<!-- Back to Top Button -->
-<button id="backToTop" class="back-to-top" aria-label="Back to top">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <polyline points="18 15 12 9 6 15"></polyline>
-  </svg>
-</button>
-
-<script>
-  (function() {
-    const btn = document.getElementById('backToTop');
-    window.addEventListener('scroll', () => {
-      btn.classList.toggle('visible', window.pageYOffset > 300);
-    });
-    btn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  })();
-</script>
 </body>
 </html>

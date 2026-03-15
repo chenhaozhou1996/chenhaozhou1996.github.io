@@ -1,168 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Curriculum Vitae – Chenhao Zhou | Academic CV</title>
-  <meta name="description" content="Curriculum Vitae of Chenhao Zhou, Ph.D. Candidate in Supply Chain Management at Rutgers Business School." />
-  <meta name="keywords" content="Chenhao Zhou, CV, Curriculum Vitae, Academic CV, Resume" />
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="CV – Chenhao Zhou" />
-  <meta property="og:description" content="Academic CV of Chenhao Zhou, Ph.D. Candidate at Rutgers Business School." />
-
-  <!-- Favicon -->
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CV – Chenhao Zhou</title>
   <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
-
-  <!-- Shared Stylesheet -->
-  <link rel="stylesheet" href="styles/main.css" />
-
   <style>
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: var(--space-4);
-    }
-
-    .online-badge {
-      background: var(--color-primary);
-      color: #fff;
-      padding: var(--space-2) var(--space-4);
-      border-radius: var(--radius-full);
-      font-size: var(--font-size-xs);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .pdf-frame {
-      width: 100%;
-      height: 75vh;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      background: #f8fafc;
-    }
-
-    .small { font-size: var(--font-size-sm); color: var(--color-text-muted); }
-
-    @media (max-width: 600px) {
-      .pdf-frame { height: 60vh; }
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #1a365d; --navy-dark: #0f2442; --slate: #475569; --slate-light: #64748b; --slate-pale: #94a3b8; --bg: #ffffff; --bg-alt: #f8fafc; --border: #e2e8f0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; font-size: 15px; line-height: 1.6; color: #1e293b; background: var(--bg); -webkit-font-smoothing: antialiased; }
+    a { color: var(--navy); text-decoration: none; } a:hover { text-decoration: underline; }
+    .topnav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 48px; }
+    .topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+    .topnav-brand { font-weight: 700; font-size: 15px; color: var(--navy-dark); display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+    .topnav-links { display: flex; gap: 4px; } .topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--slate); text-decoration: none; }
+    .topnav-links a:hover { background: var(--bg-alt); } .topnav-links a.active { background: var(--bg-alt); color: var(--navy); font-weight: 600; }
+    .page { max-width: 1600px; margin: 0 auto; padding: 48px; }
+    .section { margin-bottom: 40px; }
+    .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--navy); padding-bottom: 8px; border-bottom: 2px solid var(--navy); margin-bottom: 16px; }
+    .pdf-frame { width: 100%; height: 80vh; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-alt); }
+    .dl-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .dl-btn { display: inline-block; padding: 8px 20px; background: var(--navy); color: #fff; border-radius: 4px; font-size: 13px; font-weight: 600; text-decoration: none; }
+    .dl-btn:hover { background: var(--navy-dark); color: #fff; text-decoration: none; }
+    .wp { margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
+    .wp-t { font-weight: 600; color: var(--navy-dark); } .wp-m { color: var(--slate); }
+    .rstatus { display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 6px; }
+    .r3 { background: #e0e7ff; color: #3730a3; } .r2 { background: #dbeafe; color: #1e40af; } .r1 { background: #fef3c7; color: #92400e; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    .note { font-size: 12px; color: var(--slate-pale); margin-top: 8px; }
+    .site-footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--slate-pale); text-align: center; }
+    .site-footer a { color: var(--slate-light); }
+    @media (max-width: 900px) { .page { padding: 24px; } .two-col { grid-template-columns: 1fr; } .pdf-frame { height: 60vh; } }
   </style>
 </head>
 <body>
-  <a href="#main" class="skip-to-main">Skip to main content</a>
+<nav class="topnav"><div class="topnav-inner">
+  <a href="index.html" class="topnav-brand"><img alt="CZ" src="images/profile.jpg" />Chenhao Zhou</a>
+  <div class="topnav-links"><a href="index.html">Home</a><a href="research.html">Research</a><a href="milestones.html">Milestones</a><a href="conference.html">Conferences</a><a href="teaching.html">Teaching</a><a href="professional.html">Professional</a><a href="cv.html" class="active">CV</a></div>
+</div></nav>
+<main class="page">
 
-  <header>
-    <nav aria-label="Primary">
-      <a href="index.html" class="nav-brand">
-        <img alt="Chenhao Zhou" src="images/profile.jpg" />
-        <span class="nav-brand-text">Chenhao Zhou</span>
-      </a>
-      <div class="nav-menu">
-        <a href="index.html">Home</a>
-        <a href="research.html">Research</a>
-        <a href="milestones.html">Milestones</a>
-        <a href="conference.html">Conferences</a>
-        <a href="teaching.html">Teaching</a>
-        <a href="professional.html">Professional</a>
-        <a href="cv.html" class="active">CV</a>
+  <!-- PDF -->
+  <div class="section">
+    <div class="section-title">Curriculum Vitae</div>
+    <div class="dl-bar">
+      <a class="dl-btn" href="Chenhao_Zhou_CV_2026.pdf" target="_blank">Download PDF</a>
+      <span style="font-size: 12px; color: var(--slate-pale);">Last updated March 2026</span>
+    </div>
+    <object data="Chenhao_Zhou_CV_2026.pdf#view=FitH" type="application/pdf" class="pdf-frame">
+      <iframe src="Chenhao_Zhou_CV_2026.pdf#view=FitH" title="CV" loading="lazy" class="pdf-frame"></iframe>
+      <p style="padding: 24px; font-size: 13px; color: var(--slate);">Cannot preview PDF. <a href="Chenhao_Zhou_CV_2026.pdf" target="_blank">Download here</a>.</p>
+    </object>
+  </div>
+
+  <!-- PAPERS SUMMARY -->
+  <div class="two-col">
+    <div>
+      <div class="section">
+        <div class="section-title">Under Review</div>
+        <div class="wp"><span class="wp-t">[1] Balancing Workforce Fissuring and Service Quality.</span><span class="rstatus r3">R3</span> <span class="wp-m"><em>JOM</em> (SI). Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L.</span></div>
+        <div class="wp"><span class="wp-t">[2] Exploring the Triple Aim Through Clinician Empowerment.</span><span class="rstatus r2">R2</span> <span class="wp-m"><em>JOM</em>. Zhou, C.; Dreyfus, D.*; Bagchi, A.</span></div>
+        <div class="wp"><span class="wp-t">[3] Enhancing Efficiency in Oncology Outpatient Services.</span><span class="rstatus r3">R3 Minor</span> <span class="wp-m"><em>AOR</em>. Zhou, C.*; et al.</span></div>
+        <div class="wp"><span class="wp-t">[4] Enhancing Healthcare Operations in Disadvantaged Communities.</span><span class="rstatus r1">R1</span> <span class="wp-m"><em>HCMS</em> (SI). Dreyfus, D.; Zhou, C.*; Lin, T.</span></div>
       </div>
-    </nav>
-  </header>
-
-  <main id="main" class="container">
-    <div class="page-header">
-      <div>
-        <h1>Curriculum Vitae</h1>
-        <p class="page-subtitle">Academic CV with publications and experience</p>
+      <div class="section">
+        <div class="section-title">Working Papers</div>
+        <div class="wp"><span class="wp-t">[5] Engagement Without Responsibility.</span> <span class="wp-m">Target: <em>JBE</em>. Ready to submit.</span></div>
+        <div class="wp"><span class="wp-t">[6] DRL for Chemo Scheduling.</span> <span class="wp-m">Target: <em>POM</em> (SI). Draft complete.</span></div>
+        <div class="wp"><span class="wp-t">[7] Stay, Straddle, or Exit.</span> <span class="wp-m">Target: <em>Org Science</em> (SI). Draft complete.</span></div>
+        <div class="wp"><span class="wp-t">[8] Extension Services &amp; Agricultural Productivity.</span> <span class="wp-m">Target: <em>M&amp;SOM</em> (SI). Li, W.*; Zhou, C.</span></div>
       </div>
-      <span class="online-badge">Online Version</span>
     </div>
-
-    <!-- PDF Preview -->
-    <div class="card">
-      <h2>CV Preview (PDF)</h2>
-      <object
-        data="Chenhao_Zhou_CV_2026.pdf#view=FitH"
-        type="application/pdf"
-        class="pdf-frame">
-        <iframe
-          src="Chenhao_Zhou_CV_2026.pdf#view=FitH"
-          title="CV PDF Preview"
-          loading="lazy"
-          class="pdf-frame">
-        </iframe>
-        <p class="small">
-          Your browser cannot preview this PDF.
-          <a href="Chenhao_Zhou_CV_2026.pdf" target="_blank" rel="noopener">Download the PDF here</a>.
-        </p>
-      </object>
+    <div>
+      <div class="section">
+        <div class="section-title">Research in Progress</div>
+        <div class="wp"><span class="wp-t">[9] Heteroscedasticity-Based Identification.</span> <span class="wp-m">Target: <em>AMJ</em>.</span></div>
+        <div class="wp"><span class="wp-t">[10] When Stars Fall: Quality Instability.</span> <span class="wp-m">Target: <em>EJOR</em> or <em>POM</em>.</span></div>
+        <div class="wp"><span class="wp-t">[11] Chain-Level Quality Competition Under Yardstick Incentives.</span> <span class="wp-m">Target: <em>MS</em>.</span></div>
+        <div class="wp"><span class="wp-t">[12] From Triple Aim to Quadruple Aim.</span> <span class="wp-m">Target: <em>JOM</em> or <em>POM</em>.</span></div>
+        <div class="wp"><span class="wp-t">[13] ED Congestion.</span> <span class="wp-m">Target: <em>MS</em>. Lim, J.M.*; Zhou, C.; Olaleye, T.</span></div>
+      </div>
     </div>
+  </div>
+  <p class="note" style="text-align: center;">* corresponding author.</p>
 
-    <!-- Working Papers (Under Review) -->
-    <div class="card">
-      <h2>Working Papers (Under Peer Review)</h2>
-      <ul>
-        <li><strong>[1]</strong> Zhou, C.*; Lin, T.; Ding, X.; Chen, W.; Lei, L. &ldquo;Balancing Workforce Fissuring and Service Quality.&rdquo; <em>Journal of Operations Management</em> (SI); R3 under review.</li>
-        <li><strong>[2]</strong> Zhou, C.; Dreyfus, D.*; Bagchi, A. &ldquo;Exploring the Triple Aim Through Clinician Empowerment.&rdquo; <em>Journal of Operations Management</em>; R2 under review.</li>
-        <li><strong>[3]</strong> Zhou, C.*; Ding, X.; Chen, W.; Lei, L.; Norrell, J.; Tray, A.; Evens, A.M. &ldquo;Enhancing Efficiency and Workflow in Oncology Outpatient Services by Simulation-Based Optimization.&rdquo; <em>Annals of Operations Research</em>; R3 Minor Revision.</li>
-        <li><strong>[4]</strong> Dreyfus, D.; Zhou, C.*; Lin, T. &ldquo;Enhancing Healthcare Operations in Disadvantaged Communities.&rdquo; <em>Health Care Management Science</em> (SI); R1 under review.</li>
-      </ul>
-      <p class="note">"*" marks the corresponding author. Some titles paraphrased under double-blind policies.</p>
-    </div>
-
-    <!-- Working Papers -->
-    <div class="card">
-      <h2>Working Papers</h2>
-      <ul>
-        <li><strong>[5]</strong> Zhou, C.* &ldquo;Engagement Without Responsibility: Ownership Transitions and Quality Accountability in Dialysis.&rdquo; Target: <em>Journal of Business Ethics</em>. Ready to submit.</li>
-        <li><strong>[6]</strong> Zhou, C.*; Chen, W.; Ding, X.; Lei, L. &ldquo;Deep Reinforcement Learning for Chemotherapy Scheduling.&rdquo; Target: <em>Production and Operations Management</em> (SI). Draft complete; deadline June 2026.</li>
-        <li><strong>[7]</strong> Zhou, C.* &ldquo;Stay, Straddle, or Exit: Organizational Responses to Market Disruption.&rdquo; Target: <em>Organization Science</em> (SI). Draft complete.</li>
-        <li><strong>[8]</strong> Li, W.*; Zhou, C. &ldquo;Extension Services, Market Remoteness, and Agricultural Supply Chain Performance.&rdquo; Target: <em>M&amp;SOM</em> (SI). Draft complete; deadline June 2026.</li>
-      </ul>
-    </div>
-
-    <!-- Research in Progress -->
-    <div class="card">
-      <h2>Research in Progress</h2>
-      <ul>
-        <li><strong>[9]</strong> Zhou, C.* &ldquo;Heteroscedasticity-Based Identification in Healthcare Panel Data.&rdquo; Target: <em>Academy of Management Journal</em>.</li>
-        <li><strong>[10]</strong> Zhou, C.* &ldquo;When Stars Fall: Quality Instability in Healthcare Facilities.&rdquo; Target: <em>EJOR</em> or <em>POM</em>.</li>
-        <li><strong>[11]</strong> Zhou, C.* &ldquo;Chain-Level Quality Competition in Dialysis Markets.&rdquo; Target: <em>Management Science</em>.</li>
-        <li><strong>[12]</strong> Dreyfus, D.; Zhou, C.*; Wang, P.; Ding, X.; Lin, T. &ldquo;From Triple Aim to Quadruple Aim.&rdquo; Target: <em>JOM</em> or <em>POM</em>.</li>
-        <li><strong>[13]</strong> Lim, J.M.*; Zhou, C.; Olaleye, T. &ldquo;ED Congestion and Inpatient Length-of-Stay Variability.&rdquo; Target: <em>Management Science</em>.</li>
-      </ul>
-    </div>
-
-    <footer>
-      <p>Last updated March 2026 &middot; &copy; 2026 Chenhao Zhou</p>
-      <p style="margin-top: 8px;">
-        <a href="mailto:chenhao.zhou@rutgers.edu">Email</a> &middot;
-        <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank" rel="noopener">LinkedIn</a>
-      </p>
-    </footer>
-  </main>
-
-  <!-- Back to Top Button -->
-  <button id="backToTop" class="back-to-top" aria-label="Back to top">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polyline points="18 15 12 9 6 15"></polyline>
-    </svg>
-  </button>
-
-  <script>
-    (function() {
-      const btn = document.getElementById('backToTop');
-      window.addEventListener('scroll', () => {
-        btn.classList.toggle('visible', window.pageYOffset > 300);
-      });
-      btn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    })();
-  </script>
+  <footer class="site-footer">
+    <p>Last updated March 2026 · © 2026 Chenhao Zhou</p>
+    <p style="margin-top: 4px;"><a href="mailto:chenhao.zhou@rutgers.edu">Email</a> · <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank">LinkedIn</a></p>
+  </footer>
+</main>
 </body>
 </html>
