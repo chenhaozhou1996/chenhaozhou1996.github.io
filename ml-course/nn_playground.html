@@ -1,758 +1,1255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Neural Network Playground — ML Course Module 9</title>
-  <style>
-    /* ============================================================
-       RESET & BASE
-       ============================================================ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html, body {
-      height: 100%;
-      overflow: hidden;
-      font-family: Georgia, 'Times New Roman', serif;
-      background: #f4f4ee;
-      color: #333;
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    /* ============================================================
-       NAVIGATION BAR
-       ============================================================ */
-    nav {
-      background: #003366;
-      color: white;
-      padding: 5px 16px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-shrink: 0;
-      height: 32px;
-    }
-
-    nav .brand {
-      font-size: 13px;
-      font-weight: bold;
-      color: #ffffff;
-      text-decoration: none;
-      letter-spacing: 0.3px;
-    }
-
-    nav .sep { color: #4477aa; font-size: 12px; }
-
-    nav a {
-      color: #99bbee;
-      text-decoration: none;
-      font-size: 12px;
-      transition: color 0.15s;
-    }
-
-    nav a:hover { color: #ffffff; text-decoration: underline; }
-
-    nav .page-title {
-      color: #cce0ff;
-      font-size: 12px;
-      font-style: italic;
-    }
-
-    nav .nav-right { margin-left: auto; display: flex; gap: 14px; }
-
-    /* ============================================================
-       CONTROL BAR
-       ============================================================ */
-    #controls {
-      background: #eeeee6;
-      border-bottom: 2px solid #ccc;
-      padding: 5px 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
-      height: 42px;
-      overflow-x: auto;
-      overflow-y: hidden;
-    }
-
-    .ctrl-sep {
-      width: 1px;
-      height: 24px;
-      background: #ccc;
-      flex-shrink: 0;
-    }
-
-    .ctrl-group {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      flex-shrink: 0;
-      white-space: nowrap;
-    }
-
-    .ctrl-label {
-      font-size: 10px;
-      color: #666;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-
-    select {
-      font-family: Georgia, serif;
-      font-size: 12px;
-      padding: 2px 4px;
-      border: 1px solid #bbb;
-      border-radius: 3px;
-      background: white;
-      cursor: pointer;
-      color: #333;
-    }
-
-    select:focus { outline: none; border-color: #003366; }
-
-    input[type="range"] {
-      -webkit-appearance: none;
-      height: 4px;
-      background: #ccc;
-      border-radius: 2px;
-      cursor: pointer;
-      vertical-align: middle;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #003366;
-      cursor: pointer;
-    }
-
-    input[type="range"]:focus { outline: none; }
-
-    .val-display {
-      font-size: 11px;
-      color: #003366;
-      min-width: 32px;
-      text-align: right;
-      font-weight: bold;
-      font-family: 'Courier New', monospace;
-    }
-
-    /* Dataset toggle buttons */
-    .ds-btn {
-      font-family: Georgia, serif;
-      font-size: 11px;
-      padding: 3px 8px;
-      border: 1px solid #aaa;
-      border-radius: 3px;
-      background: white;
-      cursor: pointer;
-      transition: all 0.15s;
-      color: #444;
-    }
-
-    .ds-btn:hover { background: #e8eeff; border-color: #003366; }
-
-    .ds-btn.active {
-      background: #003366;
-      color: white;
-      border-color: #003366;
-    }
-
-    /* Play / Pause / Reset */
-    .ctrl-btn {
-      font-size: 13px;
-      width: 26px;
-      height: 24px;
-      border: 1px solid #aaa;
-      border-radius: 3px;
-      background: white;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-      flex-shrink: 0;
-    }
-
-    .ctrl-btn:hover { background: #e8eeff; border-color: #003366; }
-    .ctrl-btn.active { background: #003366; color: white; border-color: #003366; }
-
-    /* Per-layer neuron sliders */
-    #layer-sliders {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .layer-n-item {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .layer-n-item label {
-      font-size: 10px;
-      color: #888;
-      min-width: 16px;
-    }
-
-    .layer-n-item input[type="range"] { width: 52px; }
-
-    /* ============================================================
-       PAGE WRAPPER
-       ============================================================ */
-    #page {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-
-    /* ============================================================
-       MAIN GRID
-       ============================================================ */
-    #main-grid {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 290px 410px 1fr;
-      grid-template-rows: 1fr 200px;
-      min-height: 0;
-      background: #ddd;
-      gap: 1px;
-    }
-
-    /* ============================================================
-       PANELS
-       ============================================================ */
-    .panel {
-      background: white;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .panel-header {
-      flex-shrink: 0;
-      padding: 4px 10px;
-      background: #f0f4ff;
-      border-bottom: 1px solid #d8dff0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 26px;
-    }
-
-    .panel-title-text {
-      font-size: 11px;
-      font-weight: bold;
-      color: #003366;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .panel-subtitle {
-      font-size: 10px;
-      color: #888;
-      font-weight: normal;
-    }
-
-    /* Grid placement */
-    #net-panel    { grid-column: 1; grid-row: 1; }
-    #db-panel     { grid-column: 2; grid-row: 1; }
-    #metrics-panel { grid-column: 3; grid-row: 1; }
-    #loss-panel   { grid-column: 1 / 4; grid-row: 2; }
-
-    /* ============================================================
-       CANVASES
-       ============================================================ */
-    canvas {
-      display: block;
-      flex: 1;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* ============================================================
-       METRICS PANEL CONTENT
-       ============================================================ */
-    #metrics-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px 12px;
-    }
-
-    .metric-section {
-      margin-bottom: 12px;
-    }
-
-    .metric-section-title {
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: #999;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 3px;
-      margin-bottom: 7px;
-    }
-
-    .epoch-display {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    .epoch-number {
-      font-size: 28px;
-      font-weight: bold;
-      color: #003366;
-      line-height: 1;
-      font-family: 'Courier New', monospace;
-    }
-
-    .epoch-unit {
-      font-size: 10px;
-      color: #aaa;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .metric-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 5px;
-    }
-
-    .metric-label {
-      font-size: 12px;
-      color: #555;
-    }
-
-    .metric-value {
-      font-size: 13px;
-      font-weight: bold;
-      color: #003366;
-      font-family: 'Courier New', monospace;
-    }
-
-    /* Accuracy progress bars */
-    .acc-bar-wrap {
-      background: #eee;
-      border-radius: 4px;
-      height: 5px;
-      margin-top: 2px;
-      margin-bottom: 6px;
-    }
-
-    .acc-bar {
-      height: 5px;
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-
-    .acc-bar.train { background: linear-gradient(90deg, #0033aa, #3366ff); }
-    .acc-bar.test  { background: linear-gradient(90deg, #cc5500, #ff8833); }
-
-    /* Architecture display */
-    .arch-chip {
-      display: inline-block;
-      background: #f0f4ff;
-      border: 1px solid #c0d0f0;
-      border-radius: 4px;
-      padding: 3px 7px;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      color: #003366;
-      margin-top: 3px;
-    }
-
-    /* Status indicator */
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 5px;
-      background: #ccc;
-      vertical-align: middle;
-    }
-
-    .status-dot.running {
-      background: #22bb44;
-      animation: blink 1.2s ease-in-out infinite;
-    }
-
-    .status-dot.paused { background: #ffaa22; }
-    .status-dot.stopped { background: #cc3333; }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.35; }
-    }
-
-    /* Legend items */
-    .legend {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 10px;
-      color: #666;
-    }
-
-    .legend-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      border: 1px solid rgba(0,0,0,0.2);
-    }
-
-    .legend-line {
-      width: 18px;
-      height: 3px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-
-    /* ============================================================
-       SCROLLBAR STYLING
-       ============================================================ */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; }
-    ::-webkit-scrollbar-thumb { background: #bbb; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #999; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neural Network Playground — ML Course</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:Georgia,'Times New Roman',serif;background:#f4f4ee;color:#333;font-size:13px;line-height:1.4}
+nav{background:#003366;color:#fff;padding:5px 16px;display:flex;align-items:center;gap:14px;flex-shrink:0;height:32px}
+nav .brand{font-size:13px;font-weight:bold;color:#fff;text-decoration:none}
+nav .sep{color:#4477aa;font-size:12px}
+nav a{color:#99bbee;text-decoration:none;font-size:12px;transition:color .15s}
+nav a:hover{color:#fff;text-decoration:underline}
+nav .page-title{color:#cce0ff;font-size:12px;font-style:italic}
+nav .nav-right{margin-left:auto;display:flex;gap:14px}
+#controls{background:#eeeee6;border-bottom:2px solid #ccc;padding:5px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0;height:42px;overflow-x:auto;overflow-y:hidden;white-space:nowrap}
+.ctrl-sep{width:1px;height:24px;background:#ccc;flex-shrink:0}
+.ctrl-group{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.ctrl-label{font-size:10px;color:#666;font-weight:bold;text-transform:uppercase;letter-spacing:.4px}
+select{font-family:Georgia,serif;font-size:12px;padding:2px 4px;border:1px solid #bbb;border-radius:3px;background:#fff;cursor:pointer;color:#333}
+select:focus{outline:none;border-color:#003366}
+input[type=range]{-webkit-appearance:none;height:4px;background:#ccc;border-radius:2px;cursor:pointer;vertical-align:middle}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#003366;cursor:pointer}
+.val-display{font-size:11px;color:#003366;min-width:34px;text-align:right;font-weight:bold;font-family:'Courier New',monospace}
+.ds-btn{font-family:Georgia,serif;font-size:11px;padding:3px 8px;border:1px solid #aaa;border-radius:3px;background:#fff;cursor:pointer;transition:all .15s;color:#444}
+.ds-btn:hover{background:#e8eeff;border-color:#003366}
+.ds-btn.active{background:#003366;color:#fff;border-color:#003366}
+.ctrl-btn{font-size:13px;width:26px;height:24px;border:1px solid #aaa;border-radius:3px;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.ctrl-btn:hover{background:#e8eeff;border-color:#003366}
+.ctrl-btn.pbtn-active{background:#003366;color:#fff;border-color:#003366}
+#page{display:flex;flex-direction:column;height:100vh}
+#main-grid{flex:1;display:grid;grid-template-columns:290px 410px 1fr;grid-template-rows:1fr 185px;min-height:0;background:#ddd;gap:1px}
+.panel{background:#fff;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.panel-header{flex-shrink:0;padding:4px 10px;background:#f0f4ff;border-bottom:1px solid #d8dff0;display:flex;align-items:center;justify-content:space-between;height:26px}
+.panel-title-text{font-size:11px;font-weight:bold;color:#003366;text-transform:uppercase;letter-spacing:.5px}
+.panel-subtitle{font-size:10px;color:#888}
+#net-panel{grid-column:1;grid-row:1}
+#db-panel{grid-column:2;grid-row:1}
+#metrics-panel{grid-column:3;grid-row:1}
+#loss-panel{grid-column:1/4;grid-row:2}
+canvas{display:block;flex:1;width:100%;height:100%}
+#metrics-content{flex:1;overflow-y:auto;padding:10px 12px}
+.metric-section{margin-bottom:12px}
+.metric-section-title{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:#999;border-bottom:1px solid #eee;padding-bottom:3px;margin-bottom:7px}
+.epoch-display{text-align:center;margin-bottom:10px}
+.epoch-number{font-size:28px;font-weight:bold;color:#003366;line-height:1;font-family:'Courier New',monospace}
+.epoch-unit{font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.5px}
+.metric-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.metric-label{font-size:12px;color:#555}
+.metric-value{font-size:13px;font-weight:bold;color:#003366;font-family:'Courier New',monospace}
+.acc-bar-wrap{background:#eee;border-radius:4px;height:5px;margin-top:2px;margin-bottom:6px}
+.acc-bar{height:5px;border-radius:4px;transition:width .3s ease}
+.acc-bar.train{background:linear-gradient(90deg,#0033aa,#3366ff)}
+.acc-bar.test{background:linear-gradient(90deg,#cc5500,#ff8833)}
+.arch-chip{display:inline-block;background:#f0f4ff;border:1px solid #c0d0f0;border-radius:4px;padding:3px 7px;font-family:'Courier New',monospace;font-size:11px;color:#003366;margin-top:3px;word-break:break-all}
+.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;background:#ccc;vertical-align:middle}
+.status-dot.running{background:#22bb44;animation:blink 1.2s ease-in-out infinite}
+.status-dot.paused{background:#ffaa22}
+.status-dot.stopped{background:#cc3333}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.legend{display:flex;gap:10px;align-items:center}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#666}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.2)}
+.legend-line{width:18px;height:3px;border-radius:2px;flex-shrink:0}
+.layer-n-item{display:flex;align-items:center;gap:3px}
+.layer-n-item label{font-size:10px;color:#888;min-width:18px;text-align:right}
+.layer-n-item input[type=range]{width:50px}
+.layer-n-item .nv{font-size:10px;color:#003366;min-width:12px;font-family:'Courier New',monospace}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#f1f1f1}
+::-webkit-scrollbar-thumb{background:#bbb;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#999}
+</style>
 </head>
 <body>
 <div id="page">
 
-  <!-- ============================================================
-       NAVIGATION
-       ============================================================ -->
-  <nav>
-    <a class="brand" href="../teaching.html">ML Course</a>
-    <span class="sep">›</span>
-    <a href="index.html">Modules</a>
-    <span class="sep">›</span>
-    <a href="module8.html">Module 8</a>
-    <span class="sep">›</span>
-    <span class="page-title">Module 9: Neural Network Playground</span>
-    <div class="nav-right">
-      <a href="index.html">← All Modules</a>
-      <a href="../teaching.html">Teaching</a>
+<!-- NAV -->
+<nav>
+  <a class="brand" href="../teaching.html">ML Course</a>
+  <span class="sep">›</span>
+  <a href="index.html">Modules</a>
+  <span class="sep">›</span>
+  <a href="module8.html">Module 8</a>
+  <span class="sep">›</span>
+  <span class="page-title">Module 9: Neural Network Playground</span>
+  <div class="nav-right">
+    <a href="index.html">← All Modules</a>
+    <a href="../teaching.html">Teaching</a>
+  </div>
+</nav>
+
+<!-- CONTROLS -->
+<div id="controls">
+  <div class="ctrl-group">
+    <button id="btn-play"  class="ctrl-btn pbtn-active" title="Play"  onclick="handlePlayPause()">▶</button>
+    <button id="btn-pause" class="ctrl-btn"              title="Pause" onclick="handlePlayPause()">⏸</button>
+    <button id="btn-reset" class="ctrl-btn"              title="Reset" onclick="handleReset()">🔄</button>
+  </div>
+  <div class="ctrl-sep"></div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Data</span>
+    <button class="ds-btn active" id="ds-circle"   onclick="selectDataset('circle')">Circle</button>
+    <button class="ds-btn"        id="ds-xor"      onclick="selectDataset('xor')">XOR</button>
+    <button class="ds-btn"        id="ds-spiral"   onclick="selectDataset('spiral')">Spiral</button>
+    <button class="ds-btn"        id="ds-gaussian" onclick="selectDataset('gaussian')">Gaussian</button>
+  </div>
+  <div class="ctrl-sep"></div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Noise</span>
+    <input type="range" id="noise-range" min="0" max="50" value="10" step="1" style="width:68px" oninput="onNoiseChange(this.value)">
+    <span class="val-display" id="noise-val">10%</span>
+  </div>
+  <div class="ctrl-sep"></div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Layers</span>
+    <select id="num-layers-sel" onchange="onNumLayersChange(this.value)">
+      <option value="1">1</option>
+      <option value="2" selected>2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+  </div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Neurons</span>
+    <div id="layer-sliders" style="display:flex;gap:8px;align-items:center;"></div>
+  </div>
+  <div class="ctrl-sep"></div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Activ.</span>
+    <select id="activation-sel" onchange="onActivationChange(this.value)">
+      <option value="relu" selected>ReLU</option>
+      <option value="sigmoid">Sigmoid</option>
+      <option value="tanh">Tanh</option>
+    </select>
+  </div>
+  <div class="ctrl-sep"></div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">LR</span>
+    <input type="range" id="lr-range" min="0" max="100" value="35" step="1" style="width:72px" oninput="onLRChange(this.value)">
+    <span class="val-display" id="lr-val">0.030</span>
+  </div>
+  <div class="ctrl-sep"></div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Speed</span>
+    <input type="range" id="speed-range" min="1" max="20" value="5" step="1" style="width:65px" oninput="onSpeedChange(this.value)">
+    <span class="val-display" id="speed-val">5×</span>
+  </div>
+</div>
+
+<!-- MAIN GRID -->
+<div id="main-grid">
+
+  <div class="panel" id="net-panel">
+    <div class="panel-header">
+      <span class="panel-title-text">Network Architecture</span>
+      <span class="panel-subtitle" id="arch-summary">2→4→4→1</span>
     </div>
-  </nav>
+    <canvas id="net-canvas"></canvas>
+  </div>
 
-  <!-- ============================================================
-       CONTROL BAR
-       ============================================================ -->
-  <div id="controls">
-
-    <!-- Playback controls -->
-    <div class="ctrl-group">
-      <button id="btn-play"  class="ctrl-btn active" title="Play (Space)"  onclick="handlePlay()">▶</button>
-      <button id="btn-pause" class="ctrl-btn"         title="Pause (Space)" onclick="handlePlay()">⏸</button>
-      <button id="btn-reset" class="ctrl-btn"         title="Reset"         onclick="handleReset()">🔄</button>
-    </div>
-
-    <div class="ctrl-sep"></div>
-
-    <!-- Dataset selection -->
-    <div class="ctrl-group">
-      <span class="ctrl-label">Data</span>
-      <button class="ds-btn active" id="ds-circle"   onclick="selectDataset('circle')">Circle</button>
-      <button class="ds-btn"        id="ds-xor"      onclick="selectDataset('xor')">XOR</button>
-      <button class="ds-btn"        id="ds-spiral"   onclick="selectDataset('spiral')">Spiral</button>
-      <button class="ds-btn"        id="ds-gaussian" onclick="selectDataset('gaussian')">Gaussian</button>
-    </div>
-
-    <div class="ctrl-sep"></div>
-
-    <!-- Noise -->
-    <div class="ctrl-group">
-      <span class="ctrl-label">Noise</span>
-      <input type="range" id="noise-range" min="0" max="50" value="10" step="1"
-             style="width:70px" oninput="onNoiseChange(this.value)">
-      <span class="val-display" id="noise-val">10%</span>
-    </div>
-
-    <div class="ctrl-sep"></div>
-
-    <!-- Hidden layers -->
-    <div class="ctrl-group">
-      <span class="ctrl-label">Layers</span>
-      <select id="num-layers-sel" onchange="onNumLayersChange(this.value)">
-        <option value="1">1</option>
-        <option value="2" selected>2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-      </select>
-    </div>
-
-    <!-- Per-layer neuron sliders (dynamically rendered) -->
-    <div class="ctrl-group" id="neuron-sliders-group">
-      <span class="ctrl-label">Neurons</span>
-      <div id="layer-sliders"><!-- populated by JS --></div>
-    </div>
-
-    <div class="ctrl-sep"></div>
-
-    <!-- Activation function -->
-    <div class="ctrl-group">
-      <span class="ctrl-label">Activation</span>
-      <select id="activation-sel" onchange="onActivationChange(this.value)">
-        <option value="relu" selected>ReLU</option>
-        <option value="sigmoid">Sigmoid</option>
-        <option value="tanh">Tanh</option>
-      </select>
-    </div>
-
-    <div class="ctrl-sep"></div>
-
-    <!-- Learning rate (log scale) -->
-    <div class="ctrl-group">
-      <span class="ctrl-label">LR</span>
-      <input type="range" id="lr-range" min="0" max="100" value="35" step="1"
-             style="width:75px" oninput="onLRChange(this.value)">
-      <span class="val-display" id="lr-val">0.030</span>
-    </div>
-
-    <div class="ctrl-sep"></div>
-
-    <!-- Steps per frame -->
-    <div class="ctrl-group">
-      <span class="ctrl-label">Speed</span>
-      <input type="range" id="speed-range" min="1" max="20" value="5" step="1"
-             style="width:65px" oninput="onSpeedChange(this.value)">
-      <span class="val-display" id="speed-val">5×</span>
-    </div>
-
-  </div><!-- /#controls -->
-
-  <!-- ============================================================
-       MAIN GRID
-       ============================================================ -->
-  <div id="main-grid">
-
-    <!-- LEFT: Network Architecture Diagram -->
-    <div class="panel" id="net-panel">
-      <div class="panel-header">
-        <span class="panel-title-text">Network Architecture</span>
-        <span class="panel-subtitle" id="arch-summary">2 → 4 → 4 → 1</span>
+  <div class="panel" id="db-panel">
+    <div class="panel-header">
+      <span class="panel-title-text">Decision Boundary</span>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#3355dd"></div>Class 0</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#dd3344"></div>Class 1</div>
+        <div class="legend-item" style="color:#aaa;font-size:10px">○=test</div>
       </div>
-      <canvas id="net-canvas"></canvas>
     </div>
+    <canvas id="db-canvas"></canvas>
+  </div>
 
-    <!-- CENTER: Decision Boundary -->
-    <div class="panel" id="db-panel">
-      <div class="panel-header">
-        <span class="panel-title-text">Decision Boundary</span>
-        <div class="legend">
-          <div class="legend-item">
-            <div class="legend-dot" style="background:#3355dd"></div>
-            Class 0
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot" style="background:#dd3344"></div>
-            Class 1
-          </div>
-          <div class="legend-item" style="color:#aaa">
-            ○ = test set
-          </div>
-        </div>
-      </div>
-      <canvas id="db-canvas"></canvas>
+  <div class="panel" id="metrics-panel">
+    <div class="panel-header">
+      <span class="panel-title-text"><span class="status-dot running" id="status-dot"></span>Metrics</span>
+      <span class="panel-subtitle" id="status-text">Running</span>
     </div>
-
-    <!-- RIGHT: Metrics Panel -->
-    <div class="panel" id="metrics-panel">
-      <div class="panel-header">
-        <span class="panel-title-text">
-          <span class="status-dot" id="status-dot"></span>Metrics
-        </span>
-        <span class="panel-subtitle" id="status-text">Initializing…</span>
+    <div id="metrics-content">
+      <div class="epoch-display">
+        <div class="epoch-number" id="m-epoch">0</div>
+        <div class="epoch-unit">epochs</div>
       </div>
-      <div id="metrics-content">
-
-        <!-- Epoch counter -->
-        <div class="epoch-display">
-          <div class="epoch-number" id="m-epoch">0</div>
-          <div class="epoch-unit">epochs</div>
-        </div>
-
-        <!-- Loss -->
-        <div class="metric-section">
-          <div class="metric-section-title">Loss (Binary Cross-Entropy)</div>
-          <div class="metric-row">
-            <span class="metric-label">● Train</span>
-            <span class="metric-value" id="m-train-loss">—</span>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">● Test</span>
-            <span class="metric-value" id="m-test-loss">—</span>
-          </div>
-        </div>
-
-        <!-- Accuracy -->
-        <div class="metric-section">
-          <div class="metric-section-title">Accuracy</div>
-          <div class="metric-row">
-            <span class="metric-label">Train</span>
-            <span class="metric-value" id="m-train-acc">—</span>
-          </div>
-          <div class="acc-bar-wrap">
-            <div class="acc-bar train" id="bar-train-acc" style="width:0%"></div>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">Test</span>
-            <span class="metric-value" id="m-test-acc">—</span>
-          </div>
-          <div class="acc-bar-wrap">
-            <div class="acc-bar test" id="bar-test-acc" style="width:0%"></div>
-          </div>
-        </div>
-
-        <!-- Architecture -->
-        <div class="metric-section">
-          <div class="metric-section-title">Architecture</div>
-          <div class="arch-chip" id="arch-chip">Input(2) → … → Output(1)</div>
-          <div class="metric-row" style="margin-top:6px">
-            <span class="metric-label">Parameters</span>
-            <span class="metric-value" id="m-params">—</span>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">Activation</span>
-            <span class="metric-value" id="m-activ">ReLU</span>
-          </div>
-        </div>
-
-        <!-- Training data -->
-        <div class="metric-section">
-          <div class="metric-section-title">Dataset</div>
-          <div class="metric-row">
-            <span class="metric-label">Train samples</span>
-            <span class="metric-value" id="m-train-n">—</span>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">Test samples</span>
-            <span class="metric-value" id="m-test-n">—</span>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">Learning rate</span>
-            <span class="metric-value" id="m-lr">—</span>
-          </div>
-        </div>
-
-      </div><!-- /#metrics-content -->
-    </div><!-- /#metrics-panel -->
-
-    <!-- BOTTOM: Loss Curve (spans all 3 columns) -->
-    <div class="panel" id="loss-panel">
-      <div class="panel-header">
-        <span class="panel-title-text">Loss Curve</span>
-        <div class="legend">
-          <div class="legend-item">
-            <div class="legend-line" style="background:#3366ff"></div>
-            Train Loss
-          </div>
-          <div class="legend-item">
-            <div class="legend-line" style="background:#ff7722"></div>
-            Test Loss
-          </div>
-        </div>
+      <div class="metric-section">
+        <div class="metric-section-title">Loss (Binary Cross-Entropy)</div>
+        <div class="metric-row"><span class="metric-label">● Train</span><span class="metric-value" id="m-train-loss">—</span></div>
+        <div class="metric-row"><span class="metric-label">● Test</span><span class="metric-value" id="m-test-loss">—</span></div>
       </div>
-      <canvas id="loss-canvas"></canvas>
+      <div class="metric-section">
+        <div class="metric-section-title">Accuracy</div>
+        <div class="metric-row"><span class="metric-label">Train</span><span class="metric-value" id="m-train-acc">—</span></div>
+        <div class="acc-bar-wrap"><div class="acc-bar train" id="bar-train-acc" style="width:0%"></div></div>
+        <div class="metric-row"><span class="metric-label">Test</span><span class="metric-value" id="m-test-acc">—</span></div>
+        <div class="acc-bar-wrap"><div class="acc-bar test" id="bar-test-acc" style="width:0%"></div></div>
+      </div>
+      <div class="metric-section">
+        <div class="metric-section-title">Architecture</div>
+        <div class="arch-chip" id="arch-chip">—</div>
+        <div class="metric-row" style="margin-top:6px"><span class="metric-label">Parameters</span><span class="metric-value" id="m-params">—</span></div>
+        <div class="metric-row"><span class="metric-label">Activation</span><span class="metric-value" id="m-activ">ReLU</span></div>
+      </div>
+      <div class="metric-section">
+        <div class="metric-section-title">Dataset</div>
+        <div class="metric-row"><span class="metric-label">Train samples</span><span class="metric-value" id="m-train-n">—</span></div>
+        <div class="metric-row"><span class="metric-label">Test samples</span><span class="metric-value" id="m-test-n">—</span></div>
+        <div class="metric-row"><span class="metric-label">Learning rate</span><span class="metric-value" id="m-lr">—</span></div>
+      </div>
     </div>
+  </div>
 
-  </div><!-- /#main-grid -->
+  <div class="panel" id="loss-panel">
+    <div class="panel-header">
+      <span class="panel-title-text">Loss Curve</span>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-line" style="background:#3366ff"></div>Train</div>
+        <div class="legend-item"><div class="legend-line" style="background:#ff7722"></div>Test</div>
+      </div>
+    </div>
+    <canvas id="loss-canvas"></canvas>
+  </div>
 
+</div><!-- /#main-grid -->
 </div><!-- /#page -->
 
-<!-- ============================================================
-     JAVASCRIPT — Pure vanilla, zero dependencies
-     ============================================================ -->
 <script>
-"use strict";
-
-/* ============================================================
-   MATRIX CLASS
-   Supports: multiply, add (broadcast), subtract, transpose,
-             map, hadamard, scale, sumRows, from2D, clone
-   ============================================================ */
+// ================================================================
+// MATRIX
+// ================================================================
 class Matrix {
-  /**
-   * @param {number} rows
-   * @param {number} cols
-   */
   constructor(rows, cols) {
     this.rows = rows;
     this.cols = cols;
-    this.data = [];
-    for (let i = 0; i < rows; i++) {
-      this.data[i] = new Float64Array(cols);
-    }
+    this.d = new Float64Array(rows * cols);
   }
-
-  /** Create zero matrix */
-  static zeros(rows, cols) {
-    return new Matrix(rows, cols);
-  }
-
-  /**
-   * Create random matrix with values in [-scale, scale]
-   * Uses Box-Muller if gaussian = true
-   */
-  static random(rows, cols, scale) {
-    scale = (scale === undefined) ? 0.5 : scale;
-    const m = new Matrix(rows, cols);
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        m.data[i][j] = (Math.random() * 2.0 - 1.0) * scale;
-      }
+  get(i, j) { return this.d[i * this.cols + j]; }
+  set(i, j, v) { this.d[i * this.cols + j] = v; }
+  static zeros(r, c) { return new Matrix(r, c); }
+  static random(r, c, scale) {
+    const m = new Matrix(r, c);
+    // He initialization
+    const s = scale !== undefined ? scale : Math.sqrt(2.0 / r);
+    for (let i = 0; i < m.d.length; i++) {
+      // Box-Muller Gaussian
+      const u1 = Math.random() + 1e-10, u2 = Math.random();
+      m.d[i] = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2) * s;
     }
     return m;
   }
-
-  /**
-   * Matrix multiplication: (m×n) × (n×p) → (m×p)
-   * Uses simple triple-loop with early-exit on zero.
-   */
+  clone() {
+    const m = new Matrix(this.rows, this.cols);
+    m.d.set(this.d);
+    return m;
+  }
+  // (m×k) x (k×n) → (m×n)
   multiply(other) {
-    if (this.cols !== other.rows) {
-      throw new Error(
-        `Matrix multiply shape mismatch: ${this.rows}×${this.cols} vs ${other.rows}×${other.cols}`
-      );
-    }
-    const result = new Matrix(this.rows, other.cols);
-    for (let i = 0; i < this.rows; i++) {
-      for (let k = 0; k < this.cols; k++) {
-        const aik = this.data[i][k];
-        if (aik === 0) continue; // sparse optimization
-        const resRow = result.data[i];
-        const otherRow = other.data[k];
-        for (let j = 0; j < other.cols; j++) {
-          resRow[j] += aik * otherRow[j];
+    const r = this.rows, k = this.cols, n = other.cols;
+    if (k !== other.rows) throw new Error(`Shape: ${r}×${k} × ${other.rows}×${n}`);
+    const out = new Matrix(r, n);
+    for (let i = 0; i < r; i++) {
+      for (let p = 0; p < k; p++) {
+        const aip = this.d[i * k + p];
+        if (aip === 0) continue;
+        const base = i * n, pb = p * n;
+        for (let j = 0; j < n; j++) {
+          out.d[base + j] += aip * other.d[pb + j];
         }
       }
     }
-    return result;
+    return out;
+  }
+  // Element-wise add; other can be row-vector (rows=1) for bias broadcast
+  add(other) {
+    const out = new Matrix(this.rows, this.cols);
+    if (other.rows === 1 && other.cols === this.cols) {
+      for (let i = 0; i < this.rows; i++) {
+        for (let j = 0; j < this.cols; j++) {
+          out.d[i * this.cols + j] = this.d[i * this.cols + j] + other.d[j];
+        }
+      }
+    } else {
+      for (let i = 0; i < this.d.length; i++) out.d[i] = this.d[i] + other.d[i];
+    }
+    return out;
+  }
+  subtract(other) {
+    const out = new Matrix(this.rows, this.cols);
+    for (let i = 0; i < this.d.length; i++) out.d[i] = this.d[i] - other.d[i];
+    return out;
+  }
+  // Element-wise multiply (Hadamard)
+  hadamard(other) {
+    const out = new Matrix(this.rows, this.cols);
+    for (let i = 0; i < this.d.length; i++) out.d[i] = this.d[i] * other.d[i];
+    return out;
+  }
+  scale(s) {
+    const out = new Matrix(this.rows, this.cols);
+    for (let i = 0; i < this.d.length; i++) out.d[i] = this.d[i] * s;
+    return out;
+  }
+  transpose() {
+    const out = new Matrix(this.cols, this.rows);
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        out.d[j * this.rows + i] = this.d[i * this.cols + j];
+      }
+    }
+    return out;
+  }
+  // Apply function element-wise
+  map(fn) {
+    const out = new Matrix(this.rows, this.cols);
+    for (let i = 0; i < this.d.length; i++) out.d[i] = fn(this.d[i]);
+    return out;
+  }
+  // Sum along axis=0 → (1 × cols)
+  sumRows() {
+    const out = Matrix.zeros(1, this.cols);
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        out.d[j] += this.d[i * this.cols + j];
+      }
+    }
+    return out;
+  }
+  // Utility: get row i as plain array
+  row(i) {
+    const arr = [];
+    for (let j = 0; j < this.cols; j++) arr.push(this.d[i * this.cols + j]);
+    return arr;
+  }
+  // Build from 2D array
+  static from2D(arr2d) {
+    const r = arr2d.length, c = arr2d[0].length;
+    const m = new Matrix(r, c);
+    for (let i = 0; i < r; i++)
+      for (let j = 0; j < c; j++)
+        m.d[i * c + j] = arr2d[i][j];
+    return m;
+  }
+}
+
+// ================================================================
+// ACTIVATIONS
+// ================================================================
+const Activation = {
+  relu: {
+    fn:  x => x > 0 ? x : 0,
+    der: x => x > 0 ? 1 : 0
+  },
+  sigmoid: {
+    fn:  x => 1 / (1 + Math.exp(-x)),
+    der: x => { const s = 1 / (1 + Math.exp(-x)); return s * (1 - s); }
+  },
+  tanh: {
+    fn:  x => Math.tanh(x),
+    der: x => { const t = Math.tanh(x); return 1 - t * t; }
+  }
+};
+
+// ================================================================
+// LAYER
+// ================================================================
+class Layer {
+  /**
+   * @param {number} inSize   - number of input features
+   * @param {number} outSize  - number of neurons
+   * @param {string} actName  - 'relu' | 'sigmoid' | 'tanh'
+   * @param {boolean} isOutput - if true, use sigmoid (output layer)
+   */
+  constructor(inSize, outSize, actName, isOutput) {
+    this.inSize  = inSize;
+    this.outSize = outSize;
+    this.actName = actName;
+    this.isOutput = isOutput;
+
+    // He initialization for relu, Xavier for others
+    const scale = (actName === 'relu') ? Math.sqrt(2 / inSize) : Math.sqrt(1 / inSize);
+    this.W = Matrix.random(inSize, outSize, scale);  // (inSize × outSize)
+    this.b = Matrix.zeros(1, outSize);                // (1 × outSize)
+
+    // For gradient cache
+    this.dW = null;
+    this.db = null;
+    this.input = null;   // (batch × inSize)
+    this.preact = null;  // (batch × outSize) before activation
+    this.output = null;  // (batch × outSize) after activation
   }
 
+  // Forward: input is (batch × inSize)
+  forward(input) {
+    this.input = input;
+    this.preact = input.multiply(this.W).add(this.b);  // (batch × outSize)
+    const act = this.isOutput
+      ? Activation.sigmoid
+      : Activation[this.actName];
+    this.output = this.preact.map(act.fn);
+    return this.output;
+  }
+
+  // Backward: dLoss_dOutput is (batch × outSize)
+  // Returns dLoss_dInput (batch × inSize)
+  backward(dLoss_dOutput, lr) {
+    const batch = this.input.rows;
+    const act   = this.isOutput ? Activation.sigmoid : Activation[this.actName];
+
+    // Activation derivative → delta (batch × outSize)
+    const delta = dLoss_dOutput.hadamard(this.preact.map(act.der));
+
+    // Gradient of weights: (inSize × batch) × (batch × outSize) = (inSize × outSize)
+    this.dW = this.input.transpose().multiply(delta).scale(1 / batch);
+    // Gradient of biases: sum over batch
+    this.db = delta.sumRows().scale(1 / batch);
+
+    // Gradient to propagate back: (batch × inSize)
+    const dInput = delta.multiply(this.W.transpose());
+
+    // SGD update with optional L2 regularisation (small lambda)
+    const lambda = 1e-4;
+    for (let i = 0; i < this.W.d.length; i++) {
+      this.W.d[i] -= lr * (this.dW.d[i] + lambda * this.W.d[i]);
+    }
+    for (let j = 0; j < this.b.d.length; j++) {
+      this.b.d[j] -= lr * this.db.d[j];
+    }
+
+    return dInput;
+  }
+}
+
+// ================================================================
+// NEURAL NETWORK
+// ================================================================
+class NeuralNetwork {
   /**
-   * Element-wise addition.
-   * If other.rows === 1, broadcasts across all rows (bias addition).
+   * @param {number[]} sizes   - e.g. [2, 4, 4, 1]
+   * @param {string}   actName - 'relu' | 'sigmoid' | 'tanh'
    */
-  add(other) {
-    const result = new Matrix(this.rows, this.cols);
-    const bcast = other.rows === 1;
-    for (let i
+  constructor(sizes, actName) {
+    this.sizes = sizes;
+    this.actName = actName;
+    this.layers = [];
+    for (let i = 0; i < sizes.length - 1; i++) {
+      const isOutput = (i === sizes.length - 2);
+      this.layers.push(new Layer(sizes[i], sizes[i + 1], actName, isOutput));
+    }
+  }
+
+  // Forward pass: input is (batch × inFeatures) Matrix
+  forward(input) {
+    let x = input;
+    for (const layer of this.layers) {
+      x = layer.forward(x);
+    }
+    return x;  // (batch × 1)
+  }
+
+  // Compute binary cross-entropy loss + accuracy
+  // targets: (batch × 1) Matrix of 0/1 values
+  loss(predictions, targets) {
+    const eps = 1e-7;
+    let lossSum = 0, correct = 0;
+    const n = predictions.rows;
+    for (let i = 0; i < n; i++) {
+      const p = Math.min(Math.max(predictions.d[i], eps), 1 - eps);
+      const t = targets.d[i];
+      lossSum += -(t * Math.log(p) + (1 - t) * Math.log(1 - p));
+      if ((p >= 0.5 ? 1 : 0) === t) correct++;
+    }
+    return { loss: lossSum / n, acc: correct / n };
+  }
+
+  // Backpropagation
+  backward(predictions, targets, lr) {
+    const n = predictions.rows;
+    // Binary cross-entropy gradient w.r.t. sigmoid output = (p - t)
+    const grad = new Matrix(n, 1);
+    for (let i = 0; i < n; i++) {
+      grad.d[i] = predictions.d[i] - targets.d[i];
+    }
+    let g = grad;
+    for (let i = this.layers.length - 1; i >= 0; i--) {
+      g = this.layers[i].backward(g, lr);
+    }
+  }
+
+  // Train on one mini-batch
+  trainBatch(inputs, targets, lr) {
+    const X = Matrix.from2D(inputs);
+    const Y = Matrix.from2D(targets.map(t => [t]));
+    const preds = this.forward(X);
+    this.backward(preds, Y, lr);
+    return this.loss(preds, Y);
+  }
+
+  // Predict single input [x1, x2] → probability
+  predict1(x1, x2) {
+    const X = Matrix.from2D([[x1, x2]]);
+    const out = this.forward(X);
+    return out.d[0];
+  }
+
+  // Evaluate on a dataset {inputs, labels}
+  evaluate(data) {
+    const X = Matrix.from2D(data.inputs);
+    const Y = Matrix.from2D(data.labels.map(t => [t]));
+    const preds = this.forward(X);
+    return this.loss(preds, Y);
+  }
+
+  // Count total parameters
+  countParams() {
+    let total = 0;
+    for (const l of this.layers) {
+      total += l.W.d.length + l.b.d.length;
+    }
+    return total;
+  }
+}
+
+// ================================================================
+// DATA GENERATION
+// ================================================================
+function generateData(type, n, noiseLevel) {
+  const inputs = [], labels = [];
+  const noiseSigma = noiseLevel / 100 * 0.5;
+
+  function addNoise(v) {
+    return v + (Math.random() * 2 - 1) * noiseSigma;
+  }
+
+  // Normalise to roughly [-1,1]
+  function rand() { return Math.random() * 2 - 1; }
+
+  if (type === 'circle') {
+    for (let i = 0; i < n; i++) {
+      let x = rand(), y = rand();
+      const r2 = x * x + y * y;
+      const label = r2 < 0.5 ? 1 : 0;
+      inputs.push([addNoise(x), addNoise(y)]);
+      labels.push(label);
+    }
+  } else if (type === 'xor') {
+    for (let i = 0; i < n; i++) {
+      let x = rand(), y = rand();
+      const label = ((x > 0) !== (y > 0)) ? 1 : 0;
+      inputs.push([addNoise(x), addNoise(y)]);
+      labels.push(label);
+    }
+  } else if (type === 'spiral') {
+    const half = Math.floor(n / 2);
+    for (let c = 0; c < 2; c++) {
+      const count = c === 0 ? half : n - half;
+      for (let i = 0; i < count; i++) {
+        const t = i / count;
+        const angle = t * Math.PI * 3 + (c ? Math.PI : 0);
+        const r = t * 0.9;
+        const x = r * Math.cos(angle);
+        const y = r * Math.sin(angle);
+        inputs.push([addNoise(x), addNoise(y)]);
+        labels.push(c);
+      }
+    }
+    // shuffle
+    for (let i = inputs.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [inputs[i], inputs[j]] = [inputs[j], inputs[i]];
+      [labels[i], labels[j]] = [labels[j], labels[i]];
+    }
+  } else if (type === 'gaussian') {
+    for (let i = 0; i < n; i++) {
+      const c = i < n / 2 ? 0 : 1;
+      const cx = c === 0 ? -0.5 : 0.5, cy = c === 0 ? -0.5 : 0.5;
+      // Box-Muller
+      const u1 = Math.random() + 1e-10, u2 = Math.random();
+      const g1 = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2) * 0.3;
+      const g2 = Math.sqrt(-2 * Math.log(u1)) * Math.sin(2 * Math.PI * u2) * 0.3;
+      const x = addNoise(cx + g1), y = addNoise(cy + g2);
+      inputs.push([x, y]);
+      labels.push(c);
+    }
+    // shuffle
+    for (let i = inputs.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [inputs[i], inputs[j]] = [inputs[j], inputs[i]];
+      [labels[i], labels[j]] = [labels[j], labels[i]];
+    }
+  }
+
+  return { inputs, labels };
+}
+
+function splitData(data, trainFrac) {
+  const n = data.inputs.length;
+  const splitIdx = Math.floor(n * trainFrac);
+  return {
+    train: { inputs: data.inputs.slice(0, splitIdx), labels: data.labels.slice(0, splitIdx) },
+    test:  { inputs: data.inputs.slice(splitIdx),    labels: data.labels.slice(splitIdx) }
+  };
+}
+
+// ================================================================
+// STATE
+// ================================================================
+let state = {
+  running: true,
+  dataset: 'circle',
+  noise: 10,
+  numLayers: 2,
+  neuronsPerLayer: [4, 4],   // length == numLayers
+  activation: 'relu',
+  learningRate: 0.03,
+  stepsPerFrame: 5,
+  batchSize: 32,
+  epoch: 0,
+  trainData: null,
+  testData: null,
+  net: null,
+  trainLossHistory: [],
+  testLossHistory: [],
+  rafId: null,
+  dbUpdateFreq: 3,  // update decision boundary every N epochs
+  dbFrameCount: 0
+};
+
+// ================================================================
+// INITIALISE / RESET
+// ================================================================
+function buildNetwork() {
+  const sizes = [2, ...state.neuronsPerLayer, 1];
+  state.net = new NeuralNetwork(sizes, state.activation);
+  return sizes;
+}
+
+function regenerateData() {
+  const raw = generateData(state.dataset, 600, state.noise);
+  const { train, test } = splitData(raw, 0.8);
+  state.trainData = train;
+  state.testData = test;
+}
+
+function fullReset() {
+  state.epoch = 0;
+  state.trainLossHistory = [];
+  state.testLossHistory = [];
+  state.dbFrameCount = 0;
+  regenerateData();
+  buildNetwork();
+  updateArchDisplay();
+  updateMetricsStatic();
+  drawNetDiagram();
+  drawDecisionBoundary();
+  drawLossCurve();
+}
+
+// ================================================================
+// TRAINING LOOP
+// ================================================================
+function trainStep() {
+  const { trainData, net, learningRate, batchSize } = state;
+  const n = trainData.inputs.length;
+  // SGD mini-batch (one epoch = one pass through data)
+  // Shuffle order each epoch
+  const order = Array.from({length: n}, (_, i) => i);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  for (let start = 0; start < n; start += batchSize) {
+    const end = Math.min(start + batchSize, n);
+    const bInputs = [], bLabels = [];
+    for (let k = start; k < end; k++) {
+      bInputs.push(trainData.inputs[order[k]]);
+      bLabels.push(trainData.labels[order[k]]);
+    }
+    net.trainBatch(bInputs, bLabels, learningRate);
+  }
+  state.epoch++;
+
+  // Evaluate
+  const trainStats = net.evaluate(trainData);
+  const testStats  = net.evaluate(state.testData);
+
+  state.trainLossHistory.push(trainStats.loss);
+  state.testLossHistory.push(testStats.loss);
+
+  return { trainStats, testStats };
+}
+
+function loop() {
+  if (!state.running) {
+    state.rafId = null;
+    return;
+  }
+  const steps = state.stepsPerFrame;
+  let trainStats, testStats;
+  for (let s = 0; s < steps; s++) {
+    const r = trainStep();
+    trainStats = r.trainStats;
+    testStats  = r.testStats;
+  }
+
+  // Update metrics display every frame
+  updateMetricsLive(trainStats, testStats);
+  drawNetDiagram();
+  drawLossCurve();
+
+  // Decision boundary is expensive: update every few epochs
+  state.dbFrameCount++;
+  if (state.dbFrameCount % 2 === 0) {
+    drawDecisionBoundary();
+  }
+
+  state.rafId = requestAnimationFrame(loop);
+}
+
+function startLoop() {
+  if (state.rafId) return;
+  state.running = true;
+  updatePlayPauseUI();
+  state.rafId = requestAnimationFrame(loop);
+}
+
+function stopLoop() {
+  state.running = false;
+  updatePlayPauseUI();
+  if (state.rafId) { cancelAnimationFrame(state.rafId); state.rafId = null; }
+}
+
+// ================================================================
+// CONTROL HANDLERS
+// ================================================================
+function handlePlayPause() {
+  if (state.running) stopLoop(); else startLoop();
+}
+
+function handleReset() {
+  stopLoop();
+  fullReset();
+  setTimeout(startLoop, 50);
+}
+
+function selectDataset(ds) {
+  state.dataset = ds;
+  document.querySelectorAll('.ds-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('ds-' + ds).classList.add('active');
+  fullReset();
+}
+
+function onNoiseChange(v) {
+  state.noise = parseInt(v);
+  document.getElementById('noise-val').textContent = v + '%';
+  regenerateData();
+  state.epoch = 0;
+  state.trainLossHistory = [];
+  state.testLossHistory = [];
+}
+
+function onNumLayersChange(v) {
+  const n = parseInt(v);
+  // Preserve existing neuron counts where possible
+  while (state.neuronsPerLayer.length < n) state.neuronsPerLayer.push(4);
+  state.neuronsPerLayer = state.neuronsPerLayer.slice(0, n);
+  state.numLayers = n;
+  renderNeuronSliders();
+  fullReset();
+}
+
+function onActivationChange(v) {
+  state.activation = v;
+  document.getElementById('m-activ').textContent = v.charAt(0).toUpperCase() + v.slice(1);
+  buildNetwork();
+  state.epoch = 0;
+  state.trainLossHistory = [];
+  state.testLossHistory = [];
+}
+
+function lrFromSlider(sliderVal) {
+  // Log scale: 0 → 0.001, 100 → 1.0
+  return Math.pow(10, -3 + 3 * sliderVal / 100);
+}
+
+function onLRChange(v) {
+  const lr = lrFromSlider(parseInt(v));
+  state.learningRate = lr;
+  document.getElementById('lr-val').textContent = lr.toFixed(4);
+  document.getElementById('m-lr').textContent = lr.toFixed(4);
+}
+
+function onSpeedChange(v) {
+  state.stepsPerFrame = parseInt(v);
+  document.getElementById('speed-val').textContent = v + '×';
+}
+
+function renderNeuronSliders() {
+  const container = document.getElementById('layer-sliders');
+  container.innerHTML = '';
+  for (let i = 0; i < state.numLayers; i++) {
+    const val = state.neuronsPerLayer[i];
+    const item = document.createElement('div');
+    item.className = 'layer-n-item';
+    item.innerHTML = `
+      <label>L${i+1}</label>
+      <input type="range" min="1" max="8" value="${val}" step="1"
+             oninput="onNeuronsChange(${i}, this.value, this.nextElementSibling)">
+      <span class="nv">${val}</span>`;
+    container.appendChild(item);
+  }
+}
+
+function onNeuronsChange(layerIdx, v, displayEl) {
+  state.neuronsPerLayer[layerIdx] = parseInt(v);
+  displayEl.textContent = v;
+  fullReset();
+}
+
+// ================================================================
+// UI UPDATES
+// ================================================================
+function updatePlayPauseUI() {
+  const playBtn  = document.getElementById('btn-play');
+  const pauseBtn = document.getElementById('btn-pause');
+  const dot      = document.getElementById('status-dot');
+  const txt      = document.getElementById('status-text');
+  if (state.running) {
+    playBtn.classList.add('pbtn-active');
+    pauseBtn.classList.remove('pbtn-active');
+    dot.className = 'status-dot running';
+    txt.textContent = 'Running';
+  } else {
+    pauseBtn.classList.add('pbtn-active');
+    playBtn.classList.remove('pbtn-active');
+    dot.className = 'status-dot paused';
+    txt.textContent = 'Paused';
+  }
+}
+
+function updateArchDisplay() {
+  const sizes = [2, ...state.neuronsPerLayer, 1];
+  const archStr = sizes.join('→');
+  document.getElementById('arch-summary').textContent = archStr;
+  document.getElementById('arch-chip').textContent    = archStr;
+  document.getElementById('m-params').textContent     = state.net ? state.net.countParams() : '—';
+}
+
+function updateMetricsStatic() {
+  document.getElementById('m-train-n').textContent = state.trainData ? state.trainData.inputs.length : '—';
+  document.getElementById('m-test-n').textContent  = state.testData  ? state.testData.inputs.length  : '—';
+  document.getElementById('m-lr').textContent      = state.learningRate.toFixed(4);
+  document.getElementById('m-activ').textContent   = state.activation.charAt(0).toUpperCase() + state.activation.slice(1);
+  document.getElementById('m-epoch').textContent   = '0';
+  document.getElementById('m-train-loss').textContent = '—';
+  document.getElementById('m-test-loss').textContent  = '—';
+  document.getElementById('m-train-acc').textContent  = '—';
+  document.getElementById('m-test-acc').textContent   = '—';
+  document.getElementById('bar-train-acc').style.width = '0%';
+  document.getElementById('bar-test-acc').style.width  = '0%';
+}
+
+function updateMetricsLive(tr, te) {
+  document.getElementById('m-epoch').textContent = state.epoch;
+  if (tr) {
+    document.getElementById('m-train-loss').textContent = tr.loss.toFixed(4);
+    document.getElementById('m-train-acc').textContent  = (tr.acc * 100).toFixed(1) + '%';
+    document.getElementById('bar-train-acc').style.width = (tr.acc * 100).toFixed(1) + '%';
+  }
+  if (te) {
+    document.getElementById('m-test-loss').textContent = te.loss.toFixed(4);
+    document.getElementById('m-test-acc').textContent  = (te.acc * 100).toFixed(1) + '%';
+    document.getElementById('bar-test-acc').style.width = (te.acc * 100).toFixed(1) + '%';
+  }
+}
+
+// ================================================================
+// CANVAS: NETWORK DIAGRAM
+// ================================================================
+function drawNetDiagram() {
+  const canvas = document.getElementById('net-canvas');
+  const rect   = canvas.getBoundingClientRect();
+  canvas.width  = rect.width  * devicePixelRatio;
+  canvas.height = rect.height * devicePixelRatio;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const W = rect.width, H = rect.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#fafafa';
+  ctx.fillRect(0, 0, W, H);
+
+  if (!state.net) return;
+
+  const sizes = [2, ...state.neuronsPerLayer, 1];
+  const numLayers = sizes.length;
+  const layerX = [];
+  const layerY = [];
+
+  // Compute positions
+  for (let l = 0; l < numLayers; l++) {
+    const x = 28 + (l / (numLayers - 1)) * (W - 56);
+    layerX.push(x);
+    const n = sizes[l];
+    const ys = [];
+    for (let i = 0; i < n; i++) {
+      const y = H / 2 + (i - (n - 1) / 2) * Math.min(36, (H - 40) / Math.max(n, 1));
+      ys.push(y);
+    }
+    layerY.push(ys);
+  }
+
+  const neuronR = Math.min(12, 28 / (Math.max(...sizes)));
+
+  // Draw connections
+  for (let l = 0; l < numLayers - 1; l++) {
+    const layer = state.net.layers[l];
+    for (let i = 0; i < sizes[l]; i++) {
+      for (let j = 0; j < sizes[l + 1]; j++) {
+        const w = layer.W.get(i, j);
+        const maxW = 2.5;
+        const t = Math.min(Math.abs(w) / maxW, 1);
+        const lineW = 0.4 + t * 2.4;
+        let color;
+        if (w > 0) {
+          const alpha = 0.12 + t * 0.7;
+          color = `rgba(30,80,200,${alpha.toFixed(2)})`;
+        } else {
+          const alpha = 0.12 + t * 0.7;
+          color = `rgba(200,40,40,${alpha.toFixed(2)})`;
+        }
+        ctx.beginPath();
+        ctx.moveTo(layerX[l] + neuronR, layerY[l][i]);
+        ctx.lineTo(layerX[l + 1] - neuronR, layerY[l + 1][j]);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineW;
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Draw neurons
+  for (let l = 0; l < numLayers; l++) {
+    for (let i = 0; i < sizes[l]; i++) {
+      const x = layerX[l], y = layerY[l][i];
+
+      // Activation color: try to get actual output from last forward pass
+      let actVal = 0.5;
+      if (l > 0 && state.net.layers[l - 1].output) {
+        const out = state.net.layers[l - 1].output;
+        if (i < out.cols && out.rows > 0) {
+          actVal = Math.min(Math.max(out.d[i], 0), 1);
+        }
+      }
+
+      // Gradient from grey (0) to orange (1)
+      const gv = Math.floor(actVal * 255);
+      const r2 = Math.floor(40 + actVal * 200);
+      const g2 = Math.floor(40 + actVal * 80);
+      const b2 = Math.floor(40 + actVal * 20);
+
+      // Border
+      ctx.beginPath();
+      ctx.arc(x, y, neuronR + 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#ccc';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(x, y, neuronR, 0, Math.PI * 2);
+      ctx.fillStyle = `rgb(${r2},${g2},${b2})`;
+      ctx.fill();
+
+      // Label on first & last layer
+      if (l === 0 || l === numLayers - 1) {
+        ctx.fillStyle = '#555';
+        ctx.font = `bold ${Math.max(8, neuronR * 0.75)}px Georgia,serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const lbl = l === 0 ? (i === 0 ? 'x₁' : 'x₂') : 'ŷ';
+        ctx.fillText(lbl, x, y);
+      }
+    }
+  }
+
+  // Layer labels
+  const lblNames = ['Input', ...Array.from({length: state.numLayers}, (_, i) => `H${i + 1}`), 'Output'];
+  ctx.font = '9px Georgia,serif';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#999';
+  for (let l = 0; l < numLayers; l++) {
+    ctx.fillText(lblNames[l], layerX[l], 12);
+    ctx.fillText(`(${sizes[l]})`, layerX[l], 22);
+  }
+}
+
+// ================================================================
+// CANVAS: DECISION BOUNDARY
+// ================================================================
+function drawDecisionBoundary() {
+  const canvas = document.getElementById('db-canvas');
+  const rect   = canvas.getBoundingClientRect();
+  canvas.width  = rect.width  * devicePixelRatio;
+  canvas.height = rect.height * devicePixelRatio;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const W = rect.width, H = rect.height;
+  ctx.clearRect(0, 0, W, H);
+
+  if (!state.net) return;
+
+  // Grid resolution
+  const RES = 40;
+  const cellW = W / RES, cellH = H / RES;
+
+  // Build grid predictions
+  for (let row = 0; row < RES; row++) {
+    for (let col = 0; col < RES; col++) {
+      const nx = (col / (RES - 1)) * 2 - 1;
+      const ny = -((row / (RES - 1)) * 2 - 1);
+      const p = state.net.predict1(nx, ny);
+
+      // Blue for class 0, red for class 1
+      const r = Math.floor(p * 220 + 40 * (1 - p));
+      const g = Math.floor(40 * p + 40 * (1 - p));
+      const b = Math.floor(40 * p + 220 * (1 - p));
+      const a = 0.35 + 0.3 * Math.abs(p - 0.5) * 2;
+
+      ctx.fillStyle = `rgba(${r},${g},${b},${a.toFixed(2)})`;
+      ctx.fillRect(col * cellW, row * cellH, cellW + 0.5, cellH + 0.5);
+    }
+  }
+
+  // Decision boundary contour (50% line)
+  // Approximate with isoline drawing on the grid
+  // Just draw grid cells near the boundary
+  for (let row = 0; row < RES - 1; row++) {
+    for (let col = 0; col < RES - 1; col++) {
+      const nx0 = (col / (RES - 1)) * 2 - 1;
+      const ny0 = -((row / (RES - 1)) * 2 - 1);
+      const nx1 = ((col + 1) / (RES - 1)) * 2 - 1;
+      const ny1 = -(((row + 1) / (RES - 1)) * 2 - 1);
+      const p00 = state.net.predict1(nx0, ny0);
+      const p10 = state.net.predict1(nx1, ny0);
+      const p01 = state.net.predict1(nx0, ny1);
+      const p11 = state.net.predict1(nx1, ny1);
+      // If any edge crosses 0.5, mark as boundary
+      const crosses = (a, b) => (a - 0.5) * (b - 0.5) < 0;
+      if (crosses(p00, p10) || crosses(p00, p01) || crosses(p10, p11) || crosses(p01, p11)) {
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        ctx.fillRect(col * cellW, row * cellH, cellW, cellH);
+      }
+    }
+  }
+
+  // Data points — train (filled) and test (open circles)
+  function drawPoints(data, open) {
+    const pad = 20;
+    for (let i = 0; i < data.inputs.length; i++) {
+      const x = data.inputs[i][0], y = data.inputs[i][1];
+      const cx = (x + 1) / 2 * W;
+      const cy = (-y + 1) / 2 * H;
+      const label = data.labels[i];
+      const r = open ? 5 : 5;
+
+      if (label === 1) {
+        ctx.fillStyle   = open ? 'rgba(200,40,40,0.4)' : 'rgba(200,40,40,0.85)';
+        ctx.strokeStyle = open ? 'rgba(200,40,40,0.9)' : '#aa1010';
+      } else {
+        ctx.fillStyle   = open ? 'rgba(20,60,200,0.4)' : 'rgba(20,60,200,0.85)';
+        ctx.strokeStyle = open ? 'rgba(20,60,200,0.9)' : '#0a2580';
+      }
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      if (open) {
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      } else {
+        ctx.fill();
+        ctx.lineWidth = 0.8;
+        ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+        ctx.stroke();
+      }
+    }
+  }
+
+  if (state.trainData) drawPoints(state.trainData, false);
+  if (state.testData)  drawPoints(state.testData,  true);
+
+  // Axes
+  ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(W / 2, 0); ctx.lineTo(W / 2, H); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ================================================================
+// CANVAS: LOSS CURVE
+// ================================================================
+function drawLossCurve() {
+  const canvas = document.getElementById('loss-canvas');
+  const rect   = canvas.getBoundingClientRect();
+  canvas.width  = rect.width  * devicePixelRatio;
+  canvas.height = rect.height * devicePixelRatio;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const W = rect.width, H = rect.height;
+  const pad = { top: 10, right: 20, bottom: 28, left: 44 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#fafafa';
+  ctx.fillRect(0, 0, W, H);
+
+  const trH = state.trainLossHistory;
+  const teH = state.testLossHistory;
+  if (trH.length < 2) {
+    ctx.fillStyle = '#bbb';
+    ctx.font = '12px Georgia,serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Waiting for training data…', W / 2, H / 2);
+    return;
+  }
+
+  // Y-axis range
+  const allVals = [...trH, ...teH].filter(isFinite);
+  let yMax = Math.max(...allVals) * 1.05;
+  let yMin = Math.max(0, Math.min(...allVals) * 0.95);
+  if (yMax - yMin < 0.01) { yMax = yMin + 0.1; }
+
+  function toCanvasX(epoch) {
+    return pad.left + (epoch / (trH.length - 1)) * plotW;
+  }
+  function toCanvasY(val) {
+    return pad.top + (1 - (val - yMin) / (yMax - yMin)) * plotH;
+  }
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(0,0,0,0.07)';
+  ctx.lineWidth = 1;
+  ctx.font = '9px Georgia,serif';
+  ctx.fillStyle = '#aaa';
+  ctx.textAlign = 'right';
+  const yTicks = 4;
+  for (let i = 0; i <= yTicks; i++) {
+    const v = yMin + (i / yTicks) * (yMax - yMin);
+    const cy = toCanvasY(v);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, cy);
+    ctx.lineTo(W - pad.right, cy);
+    ctx.stroke();
+    ctx.fillText(v.toFixed(3), pad.left - 4, cy + 3);
+  }
+
+  // X-axis ticks
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#aaa';
+  const xTicks = Math.min(trH.length - 1, 8);
+  for (let i = 0; i <= xTicks; i++) {
+    const ep = Math.floor((i / xTicks) * (trH.length - 1));
+    const cx = toCanvasX(ep);
+    ctx.fillText(ep, cx, H - pad.bottom + 12);
+  }
+
+  // Axis labels
+  ctx.fillStyle = '#888';
+  ctx.font = '9px Georgia,serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Epoch', W / 2, H - 4);
+  ctx.save();
+  ctx.translate(10, H / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('Loss', 0, 0);
+  ctx.restore();
+
+  // Draw border
+  ctx.strokeStyle = '#ddd';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(pad.left, pad.top, plotW, plotH);
+
+  // Draw train loss
+  function drawCurve(history, color) {
+    if (history.length < 2) return;
+    ctx.beginPath();
+    ctx.moveTo(toCanvasX(0), toCanvasY(history[0]));
+    for (let i = 1; i < history.length; i++) {
+      ctx.lineTo(toCanvasX(i), toCanvasY(history[i]));
+    }
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+  }
+
+  drawCurve(trH, '#3366ff');
+  drawCurve(teH, '#ff7722');
+
+  // Endpoint dots
+  if (trH.length > 0) {
+    const lx = toCanvasX(trH.length - 1);
+    ctx.beginPath();
+    ctx.arc(lx, toCanvasY(trH[trH.length - 1]), 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#3366ff'; ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(lx, toCanvasY(teH[teH.length - 1]), 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff7722'; ctx.fill();
+  }
+}
+
+// ================================================================
+// CANVAS RESIZE OBSERVER
+// ================================================================
+const ro = new ResizeObserver(() => {
+  drawNetDiagram();
+  drawDecisionBoundary();
+  drawLossCurve();
+});
+ro.observe(document.getElementById('net-canvas').parentElement);
+ro.observe(document.getElementById('db-canvas').parentElement);
+ro.observe(document.getElementById('loss-canvas').parentElement);
+
+// ================================================================
+// KEYBOARD
+// ================================================================
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
+    e.preventDefault();
+    handlePlayPause();
+  }
+  if (e.code === 'KeyR' && e.target.tagName !== 'INPUT') {
+    handleReset();
+  }
+});
+
+// ================================================================
+// BOOT
+// ================================================================
+(function init() {
+  // Initial LR from slider default
+  const lr = lrFromSlider(35);
+  state.learningRate = lr;
+  document.getElementById('lr-val').textContent = lr.toFixed(4);
+
+  // Render neuron sliders
+  renderNeuronSliders();
+
+  // Full reset and start
+  fullReset();
+  updatePlayPauseUI();
+  startLoop();
+})();
+</script>
+</body>
+</html>
