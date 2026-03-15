@@ -81,9 +81,11 @@ function calc(){
   const np=+document.getElementById('np').value;
   const inv=+document.getElementById('inv').value*1000;
   const br=+document.getElementById('br').value;
-  ['dV','dpV','npV','invV','brV'].forEach(id=>{
-    document.getElementById(id).textContent=document.getElementById(id.replace('V','')).value;
-  });
+  document.getElementById('dV').textContent=d;
+  document.getElementById('dpV').textContent=dp;
+  document.getElementById('npV').textContent=np;
+  document.getElementById('invV').textContent=document.getElementById('inv').value;
+  document.getElementById('brV').textContent=document.getElementById('br').value;
 
   const daysForgo=np-dp;
   const impliedRate=(d/(100-d))*(365/daysForgo)*100;

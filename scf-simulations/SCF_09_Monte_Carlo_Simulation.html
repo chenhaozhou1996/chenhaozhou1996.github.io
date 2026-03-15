@@ -71,7 +71,14 @@ function run(){
   const price=+document.getElementById('price').value,cost=+document.getElementById('cost').value;
   const csd=+document.getElementById('csd').value,fix=+document.getElementById('fix').value*1000;
   const dis=+document.getElementById('dis').value/100,dm=+document.getElementById('dm').value;
-  ['dV','dsV','pV','cV','csV','fV','disV','dmV'].forEach(id=>document.getElementById(id).textContent=document.getElementById(id.replace('V','')).value);
+  document.getElementById('dV').textContent=document.getElementById('dem').value;
+  document.getElementById('dsV').textContent=document.getElementById('dsd').value;
+  document.getElementById('pV').textContent=document.getElementById('price').value;
+  document.getElementById('cV').textContent=document.getElementById('cost').value;
+  document.getElementById('csV').textContent=document.getElementById('csd').value;
+  document.getElementById('fV').textContent=document.getElementById('fix').value;
+  document.getElementById('disV').textContent=document.getElementById('dis').value;
+  document.getElementById('dmV').textContent=document.getElementById('dm').value;
 
   const N=5000;const profits=[];let disCount=0;
   for(let i=0;i<N;i++){
