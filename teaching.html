@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Teaching – Chenhao Zhou</title>
-  <meta name="description" content="Teaching experience, interactive courses, simulations, and materials by Chenhao Zhou at Rutgers Business School." />
+  <meta name="description" content="Teaching experience, self-developed interactive courses, simulations, and materials by Chenhao Zhou." />
   <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -28,29 +28,48 @@
     .topnav-links a.active { background: var(--bg-alt); color: var(--navy); font-weight: 600; }
 
     .page { max-width: 1600px; margin: 0 auto; padding: 48px; }
+    .section { margin-bottom: 40px; }
+    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--navy); padding-bottom: 8px; border-bottom: 2px solid var(--navy); margin-bottom: 16px; }
 
-    /* === MAIN TWO-COL LAYOUT === */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-      align-items: start;
-    }
-
-    .section { margin-bottom: 36px; }
-    .section-title {
-      font-size: 13px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.06em; color: var(--navy);
-      padding-bottom: 8px; border-bottom: 2px solid var(--navy); margin-bottom: 16px;
-    }
-
-    /* === LEFT: Courses & TA === */
+    /* Tables */
     .t { width: 100%; border-collapse: collapse; font-size: 13px; }
     .t th { text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate-pale); padding: 6px 12px 6px 0; border-bottom: 1px solid var(--border); }
     .t td { padding: 8px 12px 8px 0; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--slate); }
     .t td:first-child { font-weight: 500; color: var(--navy-dark); }
     .t tr:last-child td { border-bottom: none; }
 
+    /* Self-developed label */
+    .dev-label {
+      display: inline-block; padding: 2px 8px; border-radius: 3px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+      background: var(--navy); color: #fff; margin-left: 6px; vertical-align: middle;
+    }
+
+    /* Resource table — clickable rows */
+    .rt { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .rt td { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .rt tr:last-child td { border-bottom: none; }
+    .rt tr { transition: background 0.1s; }
+    .rt tr:hover { background: var(--bg-alt); }
+    .rt .rt-name { font-weight: 600; color: var(--navy-dark); }
+    .rt .rt-name a { color: var(--navy-dark); text-decoration: none; }
+    .rt .rt-name a:hover { text-decoration: underline; }
+    .rt .rt-desc { color: var(--slate-light); font-size: 12px; }
+    .rt .rt-type {
+      display: inline-block; padding: 1px 7px; border-radius: 3px;
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .type-course { background: var(--navy); color: #fff; }
+    .type-sim { background: #047857; color: #fff; }
+    .type-pdf { background: #b45309; color: #fff; }
+    .type-cloud { background: #0369a1; color: #fff; }
+    .type-scf { background: #475569; color: #fff; }
+
+    /* Two col */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+
+    /* Eval */
     .eval-table { width: 100%; border-collapse: collapse; font-size: 12px; }
     .eval-table th { text-align: center; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--slate-pale); padding: 5px 6px; border-bottom: 1px solid var(--border); }
     .eval-table th:first-child { text-align: left; }
@@ -64,72 +83,11 @@
     .comments li:last-child { border-bottom: none; }
 
     .note { font-size: 11px; color: var(--slate-pale); margin-top: 6px; }
-
-    /* === RIGHT: Clickable resources === */
-    .res-list { list-style: none; }
-    .res-item {
-      display: block; text-decoration: none;
-      padding: 10px 14px; margin-bottom: 6px;
-      border-radius: 6px; border: 1px solid var(--border);
-      background: var(--bg);
-      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
-    }
-    .res-item:hover {
-      border-color: var(--navy-light); background: var(--bg-alt);
-      box-shadow: 0 2px 8px rgba(26,54,93,0.08);
-      text-decoration: none;
-    }
-    .res-item .res-row {
-      display: flex; align-items: center; gap: 10px;
-    }
-    .res-item .res-icon {
-      flex-shrink: 0; width: 32px; height: 32px;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 6px; font-size: 12px; font-weight: 800; color: #fff;
-    }
-    .res-item h4 { font-size: 13px; font-weight: 600; color: var(--navy-dark); margin: 0; }
-    .res-item p { font-size: 11px; color: var(--slate-light); margin: 1px 0 0; line-height: 1.3; }
-    .res-item .res-tag {
-      display: inline-block; margin-top: 4px;
-      padding: 1px 6px; border-radius: 3px;
-      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
-    }
-    .tag-course { background: var(--navy); }
-    .tag-sim { background: #047857; }
-    .tag-pdf { background: #b45309; }
-    .tag-scf { background: #0369a1; }
-
-    .res-sub {
-      font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.06em; color: var(--slate-pale);
-      margin: 16px 0 8px; padding-top: 12px; border-top: 1px solid var(--border);
-    }
-    .res-sub:first-child { margin-top: 0; padding-top: 0; border-top: none; }
-
-    /* SCF mini row */
-    .scf-row {
-      display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px;
-    }
-    .scf-pill {
-      display: inline-block; padding: 4px 10px; border-radius: 4px;
-      font-size: 11px; font-weight: 500; color: var(--navy-dark);
-      background: var(--bg-alt); border: 1px solid var(--border);
-      text-decoration: none;
-      transition: border-color 0.15s, background 0.15s;
-    }
-    .scf-pill:hover { border-color: var(--navy-light); background: #e8eef5; text-decoration: none; }
-
     .site-footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--slate-pale); text-align: center; }
     .site-footer a { color: var(--slate-light); }
 
-    @media (max-width: 1000px) {
-      .main-grid { grid-template-columns: 1fr; gap: 32px; }
-      .page { padding: 24px; }
-    }
-    @media (max-width: 600px) {
-      .topnav { padding: 0 16px; }
-      .topnav-links a { padding: 4px 8px; font-size: 12px; }
-    }
+    @media (max-width: 900px) { .page { padding: 24px; } .two-col { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .topnav { padding: 0 16px; } .topnav-links a { padding: 4px 8px; font-size: 12px; } }
   </style>
 </head>
 <body>
@@ -142,216 +100,206 @@
 </div></nav>
 
 <main class="page">
-  <div class="main-grid">
 
-    <!-- ========== LEFT COLUMN: Courses, TA, Evaluations ========== -->
-    <div>
-      <div class="section">
-        <div class="section-title">Courses Taught (Instructor of Record)</div>
-        <table class="t">
-          <thead><tr><th>Course</th><th>Term</th><th>Campus</th></tr></thead>
-          <tbody>
-            <tr><td>Supply Chain Analytics (52:620:326)</td><td>Spring 2026</td><td>Camden</td></tr>
-            <tr><td>Demand Planning &amp; Fulfillment (29:799:310)</td><td>Summer 2025, Spring 2026</td><td>Newark</td></tr>
-            <tr><td>Intro to Six Sigma &amp; Lean Mfg (33:799:460)</td><td>TBA</td><td>Livingston</td></tr>
-          </tbody>
-        </table>
-      </div>
+  <!-- COURSES -->
+  <div class="section">
+    <div class="section-title">Courses Taught (Instructor of Record)</div>
+    <table class="t">
+      <thead><tr><th>Course</th><th>Term</th><th>Campus</th></tr></thead>
+      <tbody>
+        <tr><td>Supply Chain Analytics (52:620:326)</td><td>Spring 2026</td><td>Camden</td></tr>
+        <tr><td>Demand Planning &amp; Fulfillment (29:799:310)</td><td>Summer 2025, Spring 2026</td><td>Newark</td></tr>
+        <tr><td>Introduction to Six Sigma &amp; Lean Manufacturing (33:799:460)</td><td>TBA</td><td>Livingston</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-      <div class="section">
-        <div class="section-title">Teaching Assistant</div>
-        <p style="font-size: 12px; color: var(--slate); line-height: 1.6;">
-          <strong>UG:</strong> Demand Planning (2021–25) · Process &amp; Ops Mgmt (2024) · SC Analytics Essentials (2023) · Six Sigma (2023)<br>
-          <strong>Grad:</strong> SC Finance (2024) · Global Procurement (2023–24) · SC Analytics (2023) · Ops Analysis (2023) · Project Mgmt (2022)
-        </p>
-      </div>
+  <!-- SELF-DEVELOPED COURSE MATERIALS -->
+  <div class="section">
+    <div class="section-title">Self-Developed Course Materials &amp; Interactive Tools</div>
+    <p style="font-size: 13px; color: var(--slate); margin-bottom: 16px;">
+      All interactive courses, simulations, and handbooks below were independently designed and built as original teaching resources.
+    </p>
+    <table class="rt">
+      <tr>
+        <td style="width: 50px;"><span class="rt-type type-course">Course</span></td>
+        <td>
+          <div class="rt-name"><a href="ml-course/index.html">Machine Learning: From Business Analytics to Code</a> <span class="dev-label">Self-Built</span></div>
+          <div class="rt-desc">11 modules · 3 capstones · Regression, classification, ensembles, neural nets, NLP · Interactive Python labs</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-course">Course</span></td>
+        <td>
+          <div class="rt-name"><a href="ml-course-2/index.html">ML Frameworks &amp; Applied Analytics</a> <span class="dev-label">Self-Built</span></div>
+          <div class="rt-desc">4 core frameworks · Pipeline engineering · MLOps · Model serving · Production systems</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-sim">Simulation</span></td>
+        <td>
+          <div class="rt-name"><a href="port-simulator-strategy.html">Port Operations Simulator</a> <span class="dev-label">Self-Built</span></div>
+          <div class="rt-desc">4 variance strategies: throughput, cost, wait time, balanced optimization</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-sim">Simulation</span></td>
+        <td>
+          <div class="rt-name"><a href="queueing_simulation.html">Queueing System (M/M/c)</a> <span class="dev-label">Self-Built</span></div>
+          <div class="rt-desc">Exponential, uniform, normal, Erlang, triangular distributions · Real-time visualization</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-cloud">Cloud</span></td>
+        <td>
+          <div class="rt-name"><a href="https://cloud.anylogic.com/model/6e989a57-0048-482d-9d1c-91801471d787" target="_blank">Infusion Center Scheduling</a> <span class="dev-label">Self-Built</span></div>
+          <div class="rt-desc">AnyLogic agent-based model for oncology outpatient operations</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-sim">Simulation</span></td>
+        <td>
+          <div class="rt-name"><a href="newsvendor_game_simulator.html">Newsvendor Model</a> <span class="dev-label">Self-Built</span></div>
+          <div class="rt-desc">Critical ratio, overage/underage costs, optimal order quantity</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-sim">Simulation</span></td>
+        <td>
+          <div class="rt-name"><a href="courier_tsp_simulator.html">Vehicle Routing (TSP)</a> <span class="dev-label">Self-Built</span></div>
+          <div class="rt-desc">Nearest Neighbor, 2-Opt, Insertion, Christofides heuristics</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-sim">Simulation</span></td>
+        <td>
+          <div class="rt-name"><a href="facility_location_simulator.html">Facility Location Strategy</a> <span class="dev-label">Self-Built</span></div>
+          <div class="rt-desc">Capacitated MIP with coverage and cost trade-offs</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-scf">SCF</span></td>
+        <td>
+          <div class="rt-name"><a href="scf-simulations/SCF_Dashboard.html">Supply Chain Finance Master Dashboard</a> <span class="dev-label">Self-Built</span></div>
+          <div class="rt-desc">All-in-one tabbed interface: CCC, reverse factoring, dynamic discounting, working capital, trade credit NPV, factoring, portfolio optimization, VaR, Monte Carlo, credit scoring, EOQ</div>
+        </td>
+      </tr>
+    </table>
+  </div>
 
-      <div class="section">
-        <div class="section-title">Evaluations (Summer 2025)</div>
-        <table class="eval-table">
-          <thead><tr><th>Dimension</th><th>Section</th><th>Dept</th><th>School</th></tr></thead>
-          <tbody>
-            <tr><td>Preparedness</td><td>4.80</td><td>4.54</td><td>4.40</td></tr>
-            <tr><td>Responsiveness</td><td>4.90</td><td>4.62</td><td>4.50</td></tr>
-            <tr><td>Generated Interest</td><td>4.78</td><td>4.50</td><td>4.49</td></tr>
-            <tr><td>Positive Attitude</td><td>4.90</td><td>4.54</td><td>4.56</td></tr>
-            <tr><td>Fairness in Grading</td><td>4.90</td><td>4.62</td><td>4.48</td></tr>
-            <tr><td>Encouragement</td><td>4.90</td><td>4.54</td><td>4.43</td></tr>
-            <tr class="eval-highlight"><td>Overall Effectiveness</td><td>4.91</td><td>4.47</td><td>4.33</td></tr>
-            <tr class="eval-highlight"><td>Course Quality</td><td>5.00</td><td>4.29</td><td>4.30</td></tr>
-          </tbody>
-        </table>
-        <p class="note">Response rate: 85% · <a href="SIRS Summer 2025.pdf" style="font-weight: 600;">Full SIRS report →</a></p>
-      </div>
+  <!-- HANDBOOKS & GUIDES -->
+  <div class="section">
+    <div class="section-title">Authored Handbooks &amp; Student Guides</div>
+    <table class="rt">
+      <tr>
+        <td style="width: 50px;"><span class="rt-type type-pdf">PDF</span></td>
+        <td>
+          <div class="rt-name"><a href="handbooks/Data_Analysis_Handbook.pdf">Data-Driven Analysis Manual</a></div>
+          <div class="rt-desc">EDA, correlation vs. causation, feature engineering, five-stage analysis process</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-pdf">PDF</span></td>
+        <td>
+          <div class="rt-name"><a href="handbooks/ML_Course_Handbook.pdf">Machine Learning for Business Analytics Guide</a></div>
+          <div class="rt-desc">Strategic analysis, predictive modeling, data-driven decisions (2026 edition)</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-pdf">PDF</span></td>
+        <td>
+          <div class="rt-name"><a href="handbooks/SCF_Teaching_Handbook_v6.pdf">Supply Chain Finance &amp; Operations Handbook</a></div>
+          <div class="rt-desc">CCC, dynamic discounting, reverse factoring, Monte Carlo simulation</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-pdf">PDF</span></td>
+        <td>
+          <div class="rt-name"><a href="handbooks/Causal_Inference_Handbook.pdf">Endogeneity &amp; Causal Inference Methods</a></div>
+          <div class="rt-desc">IV, DID, RDD, synthetic control, sensitivity analysis (2026 edition)</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-pdf">PDF</span></td>
+        <td>
+          <div class="rt-name"><a href="handbooks/Claude_Teaching_Handbook_Guide.pdf">Building Teaching Handbooks with Claude AI</a></div>
+          <div class="rt-desc">Using Claude for content generation, formatting, course material workflows</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-pdf">PDF</span></td>
+        <td>
+          <div class="rt-name"><a href="guides/Guide_1_Online_Learning_Resources.pdf">Guide: Online Learning Resources</a></div>
+          <div class="rt-desc">Curated free &amp; premium courses: Coursera, edX, DataCamp</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-pdf">PDF</span></td>
+        <td>
+          <div class="rt-name"><a href="guides/Guide_2_AI_Coding_with_Claude.pdf">Guide: AI-Powered Coding with Claude</a></div>
+          <div class="rt-desc">Claude Desktop, Claude Code, MCP integrations for academic work</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rt-type type-pdf">PDF</span></td>
+        <td>
+          <div class="rt-name"><a href="guides/Guide_3_Professional_Digital_Presence.pdf">Guide: Professional Digital Presence</a></div>
+          <div class="rt-desc">Personal website, GitHub portfolio, online branding</div>
+        </td>
+      </tr>
+    </table>
+  </div>
 
-      <div class="section">
-        <div class="section-title">Student Comments</div>
-        <ul class="comments">
-          <li>"The instructor explained difficult concepts with clarity."</li>
-          <li>"Quick to respond and tailored the course to our needs."</li>
-          <li>"Integrated Stata and Colab into projects effectively."</li>
-          <li>"Respectful, encouraging, made learning fun."</li>
-          <li>"Fast-paced due to summer schedule, but well-organized."</li>
-        </ul>
-      </div>
+  <!-- TA -->
+  <div class="section">
+    <div class="section-title">Teaching Assistant Experience</div>
+    <p style="font-size: 12px; color: var(--slate); line-height: 1.7;">
+      <strong>Undergraduate:</strong> Demand Planning &amp; Fulfillment (2021–2025) · Process &amp; Operations Management (2024) · Supply Chain Analytics Essentials (2023) · Six Sigma &amp; Lean Manufacturing (2023)<br>
+      <strong>Graduate:</strong> Supply Chain Finance (2024) · Global Procurement &amp; Supply (2023–2024) · Supply Chain Analytics (2023) · Operations Analysis (2023) · Project Management (2022)
+    </p>
+  </div>
 
-      <div class="section">
-        <div class="section-title">Certification Support</div>
-        <table class="t">
-          <tbody>
-            <tr><td>Lean Six Sigma Green Belt</td><td>Rutgers, 2022–2025</td></tr>
-            <tr><td>Advanced Certification in Procurement</td><td>Rutgers, 2025</td></tr>
-          </tbody>
-        </table>
-      </div>
+  <!-- EVALUATIONS -->
+  <div class="two-col">
+    <div class="section">
+      <div class="section-title">Teaching Evaluations (Summer 2025)</div>
+      <table class="eval-table">
+        <thead><tr><th>Dimension</th><th>Section</th><th>Dept</th><th>School</th></tr></thead>
+        <tbody>
+          <tr><td>Preparedness</td><td>4.80</td><td>4.54</td><td>4.40</td></tr>
+          <tr><td>Responsiveness</td><td>4.90</td><td>4.62</td><td>4.50</td></tr>
+          <tr><td>Generated Interest</td><td>4.78</td><td>4.50</td><td>4.49</td></tr>
+          <tr><td>Positive Attitude</td><td>4.90</td><td>4.54</td><td>4.56</td></tr>
+          <tr><td>Fairness in Grading</td><td>4.90</td><td>4.62</td><td>4.48</td></tr>
+          <tr><td>Encouragement</td><td>4.90</td><td>4.54</td><td>4.43</td></tr>
+          <tr class="eval-highlight"><td>Overall Effectiveness</td><td>4.91</td><td>4.47</td><td>4.33</td></tr>
+          <tr class="eval-highlight"><td>Course Quality</td><td>5.00</td><td>4.29</td><td>4.30</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Response rate: 85% · <a href="SIRS Summer 2025.pdf" style="font-weight: 600;">Full SIRS report →</a></p>
     </div>
-
-    <!-- ========== RIGHT COLUMN: All clickable resources ========== -->
-    <div>
-
-      <div class="res-sub" style="margin-top: 0; padding-top: 0; border-top: none;">Online Courses</div>
-
-      <a href="ml-course/index.html" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-course">ML</div>
-          <div>
-            <h4>Machine Learning: From Business Analytics to Code</h4>
-            <p>11 modules · 3 capstones · Regression, classification, trees, ensembles, neural nets, NLP · Python labs</p>
-            <span class="res-tag tag-course">Interactive Course</span>
-          </div>
-        </div>
-      </a>
-
-      <a href="ml-course-2/index.html" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-course">F2</div>
-          <div>
-            <h4>ML Frameworks &amp; Applied Analytics</h4>
-            <p>4 core frameworks · Pipeline engineering · MLOps · Model serving · Production systems</p>
-            <span class="res-tag tag-course">Interactive Course</span>
-          </div>
-        </div>
-      </a>
-
-      <div class="res-sub">Handbooks &amp; Guides</div>
-
-      <a href="handbooks/Data_Analysis_Handbook.pdf" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-pdf">DA</div>
-          <div><h4>Data-Driven Analysis Manual</h4><p>EDA, correlation vs. causation, feature engineering, five-stage process</p><span class="res-tag tag-pdf">PDF</span></div>
-        </div>
-      </a>
-      <a href="handbooks/ML_Course_Handbook.pdf" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-pdf">ML</div>
-          <div><h4>ML for Business Analytics Guide</h4><p>Strategic analysis, predictive modeling, data-driven decisions (2026 ed.)</p><span class="res-tag tag-pdf">PDF</span></div>
-        </div>
-      </a>
-      <a href="handbooks/SCF_Teaching_Handbook_v6.pdf" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-pdf">SC</div>
-          <div><h4>Supply Chain Finance &amp; Operations</h4><p>CCC, dynamic discounting, reverse factoring, Monte Carlo</p><span class="res-tag tag-pdf">PDF</span></div>
-        </div>
-      </a>
-      <a href="handbooks/Causal_Inference_Handbook.pdf" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-pdf">CI</div>
-          <div><h4>Endogeneity &amp; Causal Inference Methods</h4><p>IV, DID, RDD, synthetic control, sensitivity analysis (2026 ed.)</p><span class="res-tag tag-pdf">PDF</span></div>
-        </div>
-      </a>
-      <a href="handbooks/Claude_Teaching_Handbook_Guide.pdf" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-pdf">AI</div>
-          <div><h4>Teaching with Claude AI</h4><p>Content generation, formatting, course material workflows</p><span class="res-tag tag-pdf">PDF</span></div>
-        </div>
-      </a>
-      <a href="guides/Guide_1_Online_Learning_Resources.pdf" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-pdf">01</div>
-          <div><h4>Online Learning Resources</h4><p>Curated free &amp; premium: Coursera, edX, DataCamp</p><span class="res-tag tag-pdf">PDF</span></div>
-        </div>
-      </a>
-      <a href="guides/Guide_2_AI_Coding_with_Claude.pdf" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-pdf">02</div>
-          <div><h4>AI-Powered Coding with Claude</h4><p>Claude Desktop, Claude Code, MCP integrations</p><span class="res-tag tag-pdf">PDF</span></div>
-        </div>
-      </a>
-      <a href="guides/Guide_3_Professional_Digital_Presence.pdf" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-pdf">03</div>
-          <div><h4>Professional Digital Presence</h4><p>Website, GitHub portfolio, online branding</p><span class="res-tag tag-pdf">PDF</span></div>
-        </div>
-      </a>
-
-      <div class="res-sub">Interactive Simulations</div>
-
-      <a href="port-simulator-strategy.html" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-sim">🚢</div>
-          <div><h4>Port Operations Simulator</h4><p>4 variance strategies: throughput, cost, wait, balanced</p><span class="res-tag tag-sim">Interactive</span></div>
-        </div>
-      </a>
-      <a href="queueing_simulation.html" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-sim">⏳</div>
-          <div><h4>Queueing System (M/M/c)</h4><p>Exponential, uniform, normal, Erlang, triangular</p><span class="res-tag tag-sim">Interactive</span></div>
-        </div>
-      </a>
-      <a href="https://cloud.anylogic.com/model/6e989a57-0048-482d-9d1c-91801471d787" target="_blank" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-sim">🏥</div>
-          <div><h4>Infusion Center Scheduling</h4><p>AnyLogic cloud model for oncology outpatient ops</p><span class="res-tag tag-sim">AnyLogic Cloud</span></div>
-        </div>
-      </a>
-      <a href="newsvendor_game_simulator.html" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-sim">📰</div>
-          <div><h4>Newsvendor Model</h4><p>Critical ratio, overage/underage costs, optimal order</p><span class="res-tag tag-sim">Interactive</span></div>
-        </div>
-      </a>
-      <a href="courier_tsp_simulator.html" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-sim">🚛</div>
-          <div><h4>Vehicle Routing (TSP)</h4><p>Nearest Neighbor, 2-Opt, Insertion, Christofides</p><span class="res-tag tag-sim">Interactive</span></div>
-        </div>
-      </a>
-      <a href="facility_location_simulator.html" class="res-item">
-        <div class="res-row">
-          <div class="res-icon tag-sim">📍</div>
-          <div><h4>Facility Location</h4><p>Capacitated MIP with coverage trade-offs</p><span class="res-tag tag-sim">Interactive</span></div>
-        </div>
-      </a>
-
-      <div class="res-sub">Supply Chain Finance &amp; Operations Simulations</div>
-
-      <a href="scf-simulations/SCF_Dashboard.html" class="res-item" style="background: var(--navy-dark); border-color: var(--navy-dark);">
-        <div class="res-row">
-          <div class="res-icon" style="background: rgba(255,255,255,0.2);">⚡</div>
-          <div>
-            <h4 style="color: #fff;">Supply Chain Finance Master Dashboard — All 10 Modules</h4>
-            <p style="color: rgba(255,255,255,0.7);">One tabbed interface for all simulations below</p>
-            <span class="res-tag tag-scf">Launch Dashboard</span>
-          </div>
-        </div>
-      </a>
-      <div class="scf-row">
-        <a href="scf-simulations/SCF_01_Cash_Conversion_Cycle.html" class="scf-pill">CCC</a>
-        <a href="scf-simulations/SCF_02_Reverse_Factoring.html" class="scf-pill">Reverse Factoring</a>
-        <a href="scf-simulations/SCF_03_Dynamic_Discounting.html" class="scf-pill">Dynamic Discounting</a>
-        <a href="scf-simulations/SCF_04_Working_Capital_Dashboard.html" class="scf-pill">Working Capital</a>
-        <a href="scf-simulations/SCF_05_Trade_Credit_NPV.html" class="scf-pill">Trade Credit NPV</a>
-        <a href="scf-simulations/SCF_06_Factoring_Analysis.html" class="scf-pill">Factoring</a>
-        <a href="scf-simulations/SCF_07_Portfolio_Optimization.html" class="scf-pill">Portfolio Opt.</a>
-        <a href="scf-simulations/SCF_08_VaR_Risk_Metrics.html" class="scf-pill">VaR &amp; Risk</a>
-        <a href="scf-simulations/SCF_09_Monte_Carlo_Simulation.html" class="scf-pill">Monte Carlo</a>
-        <a href="scf-simulations/SCF_10_Credit_Scoring.html" class="scf-pill">Credit Scoring</a>
-        <a href="scf-simulations/EOQ_Interactive_Demo.html" class="scf-pill">EOQ</a>
-      </div>
-
+    <div class="section">
+      <div class="section-title">Student Comments</div>
+      <ul class="comments">
+        <li>"The instructor explained difficult concepts with clarity."</li>
+        <li>"Quick to respond and tailored the course to our needs."</li>
+        <li>"Integrated Stata and Colab into projects effectively."</li>
+        <li>"Respectful, encouraging, made learning fun."</li>
+        <li>"Fast-paced due to summer schedule, but well-organized."</li>
+      </ul>
     </div>
+  </div>
 
-  </div><!-- /main-grid -->
+  <!-- CERT -->
+  <div class="section">
+    <div class="section-title">Certification Examination Support</div>
+    <table class="t">
+      <tbody>
+        <tr><td>Lean Six Sigma Green Belt Technical Certificate</td><td>Rutgers Business School, 2022–2025</td></tr>
+        <tr><td>Advanced Certification in Procurement</td><td>Rutgers Business School, 2025</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <footer class="site-footer">
     <p>Last updated March 2026 · © 2026 Chenhao Zhou</p>
