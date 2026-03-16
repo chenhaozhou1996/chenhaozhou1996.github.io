@@ -34,7 +34,20 @@
         .takeaway h3{color:#fef3c7;margin-top:0}
         .takeaway ul{color:#fef3c7}
 
-        @media(max-width:640px){body{padding:1rem}.topnav{padding:0 16px;margin:0 -1rem;width:calc(100% + 2rem)}.course-nav{margin:0 -1rem 1em;padding-left:1rem;padding-right:1rem}}
+        .interactive-section{background:#f8fafc;border:2px solid #d97706;border-radius:12px;padding:24px;margin:40px 0}
+        .interactive-section h2{border:none;margin:0 0 16px;font-size:18px;color:#92400e}
+        .slider-group{margin-bottom:14px}
+        .slider-group label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px}
+        .slider-group input[type="range"]{width:100%;height:6px;border-radius:3px;-webkit-appearance:none;background:#e2e8f0;outline:none}
+        .slider-group input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#d97706;cursor:pointer}
+        .result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+        .result-card{background:#fff;border-radius:8px;padding:14px;text-align:center;border:1px solid #e2e8f0}
+        .result-card .label{font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:4px}
+        .result-card .value{font-size:24px;font-weight:800}
+        .result-card .value.positive{color:#dc2626}
+        .result-card .value.negative{color:#16a34a}
+
+        @media(max-width:640px){body{padding:1rem}.topnav{padding:0 16px;margin:0 -1rem;width:calc(100% + 2rem)}.course-nav{margin:0 -1rem 1em;padding-left:1rem;padding-right:1rem}.result-grid{grid-template-columns:repeat(2,1fr)}}
     </style>
 </head>
 <body>
@@ -193,6 +206,133 @@
     <li><strong>Technology enablement:</strong> Cloud platforms, APIs, and blockchain have reduced the transaction costs of SCF programs, making them accessible to mid-market firms.</li>
     <li><strong>Supply chain resilience:</strong> COVID-19 exposed supplier fragility. Firms that had invested in SCF programs were better able to support distressed suppliers and maintain supply continuity.</li>
 </ol>
+
+<!-- ============================================ -->
+<div class="interactive-section">
+    <h2>Interactive: Cash Conversion Cycle Calculator</h2>
+    <p style="font-size:13px;color:#64748b;margin-bottom:16px">Adjust the sliders to see how each component affects the CCC in real time.</p>
+
+    <div class="slider-group">
+        <label><span>Revenue ($M)</span><span id="val-revenue">100</span></label>
+        <input type="range" id="sl-revenue" min="10" max="500" value="100" step="1" oninput="updateCCC()">
+    </div>
+    <div class="slider-group">
+        <label><span>COGS ($M)</span><span id="val-cogs">60</span></label>
+        <input type="range" id="sl-cogs" min="5" max="400" value="60" step="1" oninput="updateCCC()">
+    </div>
+    <div class="slider-group">
+        <label><span>Accounts Receivable ($M)</span><span id="val-ar">25</span></label>
+        <input type="range" id="sl-ar" min="1" max="100" value="25" step="1" oninput="updateCCC()">
+    </div>
+    <div class="slider-group">
+        <label><span>Inventory ($M)</span><span id="val-inv">15</span></label>
+        <input type="range" id="sl-inv" min="1" max="100" value="15" step="1" oninput="updateCCC()">
+    </div>
+    <div class="slider-group">
+        <label><span>Accounts Payable ($M)</span><span id="val-ap">20</span></label>
+        <input type="range" id="sl-ap" min="1" max="100" value="20" step="1" oninput="updateCCC()">
+    </div>
+
+    <div class="result-grid">
+        <div class="result-card"><div class="label">DIO</div><div class="value" id="out-dio" style="color:#3b82f6">--</div></div>
+        <div class="result-card"><div class="label">DSO</div><div class="value" id="out-dso" style="color:#f59e0b">--</div></div>
+        <div class="result-card"><div class="label">DPO</div><div class="value" id="out-dpo" style="color:#16a34a">--</div></div>
+        <div class="result-card"><div class="label">CCC</div><div class="value" id="out-ccc">--</div></div>
+    </div>
+
+    <canvas id="ccc-chart" width="800" height="180" style="width:100%;border-radius:8px;background:#fff;border:1px solid #e2e8f0"></canvas>
+</div>
+
+<script>
+function updateCCC(){
+    var revenue=+document.getElementById('sl-revenue').value;
+    var cogs=+document.getElementById('sl-cogs').value;
+    var ar=+document.getElementById('sl-ar').value;
+    var inv=+document.getElementById('sl-inv').value;
+    var ap=+document.getElementById('sl-ap').value;
+
+    document.getElementById('val-revenue').textContent=revenue;
+    document.getElementById('val-cogs').textContent=cogs;
+    document.getElementById('val-ar').textContent=ar;
+    document.getElementById('val-inv').textContent=inv;
+    document.getElementById('val-ap').textContent=ap;
+
+    var dio=Math.round((inv/cogs)*365);
+    var dso=Math.round((ar/revenue)*365);
+    var dpo=Math.round((ap/cogs)*365);
+    var ccc=dio+dso-dpo;
+
+    document.getElementById('out-dio').textContent=dio+' d';
+    document.getElementById('out-dso').textContent=dso+' d';
+    document.getElementById('out-dpo').textContent=dpo+' d';
+
+    var cccEl=document.getElementById('out-ccc');
+    cccEl.textContent=ccc+' d';
+    cccEl.className='value '+(ccc>=0?'positive':'negative');
+
+    drawChart(dio,dso,dpo,ccc);
+}
+
+function drawChart(dio,dso,dpo,ccc){
+    var canvas=document.getElementById('ccc-chart');
+    var ctx=canvas.getContext('2d');
+    var dpr=window.devicePixelRatio||1;
+    canvas.width=canvas.offsetWidth*dpr;
+    canvas.height=180*dpr;
+    ctx.scale(dpr,dpr);
+    var W=canvas.offsetWidth,H=180;
+    ctx.clearRect(0,0,W,H);
+
+    var items=[
+        {label:'DIO',value:dio,color:'#3b82f6'},
+        {label:'DSO',value:dso,color:'#f59e0b'},
+        {label:'DPO',value:dpo,color:'#16a34a'},
+        {label:'CCC',value:ccc,color:ccc>=0?'#dc2626':'#16a34a'}
+    ];
+    var maxVal=Math.max(Math.abs(dio),Math.abs(dso),Math.abs(dpo),Math.abs(ccc),1);
+    var barH=28,gap=12,left=60,right=40;
+    var barArea=W-left-right;
+    var startY=(H-items.length*(barH+gap)+gap)/2;
+
+    ctx.font='600 12px Inter, sans-serif';
+    ctx.textBaseline='middle';
+
+    for(var i=0;i<items.length;i++){
+        var y=startY+i*(barH+gap);
+        var bw=Math.abs(items[i].value)/maxVal*barArea*0.85;
+        var bx=items[i].value>=0?left:left-bw;
+
+        ctx.fillStyle='#f1f5f9';
+        ctx.beginPath();
+        ctx.roundRect(left,y,barArea,barH,4);
+        ctx.fill();
+
+        ctx.fillStyle=items[i].color;
+        ctx.globalAlpha=0.85;
+        ctx.beginPath();
+        if(items[i].value>=0){
+            ctx.roundRect(left,y,bw,barH,4);
+        }else{
+            ctx.roundRect(left,y,bw,barH,4);
+            ctx.roundRect(left-bw+left-left,y,bw,barH,4);
+        }
+        ctx.fill();
+        ctx.globalAlpha=1;
+
+        ctx.fillStyle='#475569';
+        ctx.textAlign='right';
+        ctx.fillText(items[i].label,left-10,y+barH/2);
+
+        ctx.fillStyle=items[i].color;
+        ctx.textAlign='left';
+        var tx=items[i].value>=0?left+bw+8:left-bw-8;
+        if(items[i].value<0) ctx.textAlign='right';
+        ctx.fillText(items[i].value+' days',items[i].value>=0?left+bw+8:left+bw-8, y+barH/2);
+    }
+}
+
+updateCCC();
+</script>
 
 <div class="takeaway">
     <h3>Chapter 1 Takeaways</h3>

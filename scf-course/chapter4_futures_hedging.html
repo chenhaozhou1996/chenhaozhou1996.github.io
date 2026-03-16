@@ -39,6 +39,22 @@
         .takeaway h3{color:#bfdbfe;margin-top:0}
         .takeaway ul{color:#dbeafe}
 
+        .interactive-section{background:#eff6ff;border:2px solid #3b82f6;border-radius:12px;padding:24px;margin:40px 0}
+        .interactive-section h2{border:none;margin:0 0 16px;font-size:18px;color:#1e40af}
+        .slider-group{margin-bottom:14px}
+        .slider-group label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px}
+        .slider-group input[type="range"]{width:100%;height:6px;border-radius:3px;-webkit-appearance:none;background:#e2e8f0;outline:none}
+        .slider-group input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#3b82f6;cursor:pointer}
+        .result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0}
+        .result-card{background:#fff;border-radius:8px;padding:14px;text-align:center;border:1px solid #e2e8f0}
+        .result-card .label{font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:4px}
+        .result-card .value{font-size:22px;font-weight:800;color:#1e40af}
+        .sim-info{font-size:13px;color:#475569;margin:12px 0;line-height:1.6}
+        .sim-info strong{color:#1e40af}
+        .radio-group{display:flex;gap:16px;margin:10px 0}
+        .radio-group label{font-size:13px;font-weight:600;color:#475569;cursor:pointer;display:flex;align-items:center;gap:5px}
+        .radio-group input[type="radio"]{accent-color:#3b82f6}
+
         @media(max-width:640px){body{padding:1rem}.topnav{padding:0 16px;margin:0 -1rem;width:calc(100% + 2rem)}.course-nav{margin:0 -1rem 1em}.payoff-grid{grid-template-columns:1fr}}
     </style>
 </head>
@@ -215,6 +231,282 @@
 <div class="warning-box">
     <strong>Metallgesellschaft (1993):</strong> The German conglomerate hedged long-term fixed-price oil contracts with short-term (monthly) futures, rolling them forward. When oil prices fell, the futures positions generated massive margin calls ($1.3 billion in losses) even though the long-term contracts were profitable. The maturity mismatch between the hedge and the underlying exposure created a liquidity crisis that nearly bankrupted the firm. This case demonstrates that being "right" on direction is not enough if the hedge creates intermediate cash flow problems.
 </div>
+
+<!-- ============================================ -->
+<div class="interactive-section">
+    <h2>Hedging Payoff Diagram</h2>
+    <p style="font-size:13px;color:#475569;margin-bottom:16px;">See how a futures/forward hedge locks in your effective price regardless of where the spot price ends up.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;align-items:end;">
+        <div class="slider-group">
+            <label><span>Futures/Forward Price</span><span id="v_fp">$100</span></label>
+            <input type="range" id="s_fp" min="50" max="150" value="100" step="1">
+        </div>
+        <div class="radio-group">
+            <label><input type="radio" name="hedge_type" value="long" checked> Long Hedge (buyer)</label>
+            <label><input type="radio" name="hedge_type" value="short"> Short Hedge (seller)</label>
+        </div>
+    </div>
+
+    <canvas id="hedge_chart" width="860" height="340" style="width:100%;border-radius:8px;background:#fff;border:1px solid #e2e8f0;margin-top:8px;"></canvas>
+</div>
+
+<script>
+(function(){
+    document.getElementById('s_fp').addEventListener('input',drawHedge);
+    document.querySelectorAll('input[name="hedge_type"]').forEach(function(el){el.addEventListener('change',drawHedge);});
+
+    function drawHedge(){
+        var F=+document.getElementById('s_fp').value;
+        var isLong=document.querySelector('input[name="hedge_type"]:checked').value==='long';
+        document.getElementById('v_fp').textContent='$'+F;
+
+        var canvas=document.getElementById('hedge_chart');
+        var ctx=canvas.getContext('2d');
+        var dpr=window.devicePixelRatio||1;
+        canvas.width=860*dpr;canvas.height=340*dpr;
+        ctx.scale(dpr,dpr);
+        var cw=860,ch=340;
+        ctx.clearRect(0,0,cw,ch);ctx.fillStyle='#fff';ctx.fillRect(0,0,cw,ch);
+        var pad={l:70,r:20,t:30,b:50};
+        var pw=cw-pad.l-pad.r,ph=ch-pad.t-pad.b;
+
+        var sMin=30,sMax=180;
+        var yMin,yMax;
+        if(isLong){yMin=sMin;yMax=sMax;}
+        else{yMin=sMin;yMax=sMax;}
+        var pnlMin=sMin-F,pnlMax=sMax-F;
+        if(!isLong){pnlMin=F-sMax;pnlMax=F-sMin;}
+        var allMin=Math.min(sMin,F,F+pnlMin);
+        var allMax=Math.max(sMax,F,F+pnlMax);
+        allMin-=5;allMax+=5;
+
+        function xPos(s){return pad.l+(s-sMin)/(sMax-sMin)*pw;}
+        function yPos(v){return pad.t+(1-(v-allMin)/(allMax-allMin))*ph;}
+
+        // Grid
+        ctx.strokeStyle='#f1f5f9';ctx.lineWidth=1;
+        for(var g=0;g<=6;g++){var gy=pad.t+g*ph/6;ctx.beginPath();ctx.moveTo(pad.l,gy);ctx.lineTo(pad.l+pw,gy);ctx.stroke();}
+        for(var g=0;g<=6;g++){var gx=pad.l+g*pw/6;ctx.beginPath();ctx.moveTo(gx,pad.t);ctx.lineTo(gx,pad.t+ph);ctx.stroke();}
+
+        // Zero line
+        if(allMin<0&&allMax>0){
+            ctx.strokeStyle='#cbd5e1';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+            ctx.beginPath();ctx.moveTo(pad.l,yPos(0));ctx.lineTo(pad.l+pw,yPos(0));ctx.stroke();ctx.setLineDash([]);
+        }
+
+        var pts=150;
+        // Unhedged (diagonal): effective cost = spot for buyer, revenue = spot for seller
+        ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();
+        for(var i=0;i<=pts;i++){
+            var s=sMin+i*(sMax-sMin)/pts;
+            var val=s; // unhedged: you pay/receive spot
+            if(i===0) ctx.moveTo(xPos(s),yPos(val));else ctx.lineTo(xPos(s),yPos(val));
+        }
+        ctx.stroke();ctx.setLineDash([]);
+
+        // Hedged (horizontal at F)
+        ctx.strokeStyle='#3b82f6';ctx.lineWidth=2.5;ctx.beginPath();
+        ctx.moveTo(xPos(sMin),yPos(F));ctx.lineTo(xPos(sMax),yPos(F));ctx.stroke();
+
+        // Net P&L from futures
+        ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.beginPath();
+        for(var i=0;i<=pts;i++){
+            var s=sMin+i*(sMax-sMin)/pts;
+            var pnl=isLong?(s-F):(F-s);
+            if(i===0) ctx.moveTo(xPos(s),yPos(pnl));else ctx.lineTo(xPos(s),yPos(pnl));
+        }
+        ctx.stroke();
+
+        // Axes
+        ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,pad.t+ph);ctx.lineTo(pad.l+pw,pad.t+ph);ctx.stroke();
+
+        // X-axis labels
+        ctx.fillStyle='#64748b';ctx.font='11px Inter,sans-serif';ctx.textAlign='center';
+        for(var t=0;t<=6;t++){var sv=sMin+t*(sMax-sMin)/6;ctx.fillText('$'+Math.round(sv),xPos(sv),pad.t+ph+18);}
+        ctx.fillText('Spot Price at Expiry',pad.l+pw/2,pad.t+ph+40);
+
+        // Y-axis labels
+        ctx.textAlign='right';
+        for(var t=0;t<=6;t++){var yv=allMin+t*(allMax-allMin)/6;ctx.fillText('$'+Math.round(yv),pad.l-8,pad.t+ph-t*ph/6+4);}
+        ctx.save();ctx.translate(14,pad.t+ph/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';
+        ctx.fillText(isLong?'Effective Cost / P&L':'Effective Revenue / P&L',0,0);ctx.restore();
+
+        // Legend
+        ctx.font='bold 11px Inter,sans-serif';ctx.textAlign='left';
+        var ly=pad.t+10;
+        ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(pad.l+10,ly);ctx.lineTo(pad.l+28,ly);ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='#64748b';ctx.fillText('Unhedged',pad.l+32,ly+4);
+        ly+=18;ctx.fillStyle='#3b82f6';ctx.fillRect(pad.l+10,ly-2,18,3);ctx.fillText('Hedged (F=$'+F+')',pad.l+32,ly+4);
+        ly+=18;ctx.fillStyle='#ef4444';ctx.fillRect(pad.l+10,ly-2,18,3);ctx.fillText('Futures P&L',pad.l+32,ly+4);
+    }
+    drawHedge();
+})();
+</script>
+
+<!-- ============================================ -->
+<div class="interactive-section" style="margin-top:32px;">
+    <h2>Option Payoff Calculator</h2>
+    <p style="font-size:13px;color:#475569;margin-bottom:16px;">Visualize the hockey-stick payoff of a call or put option at expiry. Adjust spot, strike, and premium to see how profit changes.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;align-items:end;">
+        <div class="radio-group">
+            <label><input type="radio" name="opt_type" value="call" checked> Call Option</label>
+            <label><input type="radio" name="opt_type" value="put"> Put Option</label>
+        </div>
+        <div></div>
+        <div class="slider-group">
+            <label><span>Spot Price at Expiry</span><span id="v_spot">$80</span></label>
+            <input type="range" id="s_spot" min="20" max="150" value="80" step="1">
+        </div>
+        <div class="slider-group">
+            <label><span>Strike Price (K)</span><span id="v_strike">$70</span></label>
+            <input type="range" id="s_strike" min="20" max="150" value="70" step="1">
+        </div>
+        <div class="slider-group">
+            <label><span>Premium Paid</span><span id="v_premium">$5</span></label>
+            <input type="range" id="s_premium" min="0" max="20" value="5" step="0.5">
+        </div>
+    </div>
+
+    <div class="result-grid">
+        <div class="result-card"><div class="label">Payoff at Expiry</div><div class="value" id="r_payoff">--</div></div>
+        <div class="result-card"><div class="label">Net Profit</div><div class="value" id="r_netprofit">--</div></div>
+        <div class="result-card"><div class="label">Break-Even Price</div><div class="value" id="r_breakeven">--</div></div>
+    </div>
+
+    <canvas id="opt_chart" width="860" height="340" style="width:100%;border-radius:8px;background:#fff;border:1px solid #e2e8f0;margin-top:8px;"></canvas>
+</div>
+
+<script>
+(function(){
+    var optIds=['s_spot','s_strike','s_premium'];
+    optIds.forEach(function(id){document.getElementById(id).addEventListener('input',updateOpt);});
+    document.querySelectorAll('input[name="opt_type"]').forEach(function(el){el.addEventListener('change',updateOpt);});
+
+    function updateOpt(){
+        var S=+document.getElementById('s_spot').value;
+        var K=+document.getElementById('s_strike').value;
+        var prem=+document.getElementById('s_premium').value;
+        var isCall=document.querySelector('input[name="opt_type"]:checked').value==='call';
+
+        document.getElementById('v_spot').textContent='$'+S;
+        document.getElementById('v_strike').textContent='$'+K;
+        document.getElementById('v_premium').textContent='$'+prem;
+
+        var payoff=isCall?Math.max(S-K,0):Math.max(K-S,0);
+        var netProfit=payoff-prem;
+        var breakeven=isCall?(K+prem):(K-prem);
+
+        document.getElementById('r_payoff').textContent='$'+payoff.toFixed(1);
+        document.getElementById('r_netprofit').textContent='$'+netProfit.toFixed(1);
+        document.getElementById('r_netprofit').style.color=netProfit>=0?'#065f46':'#dc2626';
+        document.getElementById('r_breakeven').textContent='$'+breakeven.toFixed(1);
+
+        drawOptChart(S,K,prem,isCall);
+    }
+
+    function drawOptChart(S,K,prem,isCall){
+        var canvas=document.getElementById('opt_chart');
+        var ctx=canvas.getContext('2d');
+        var dpr=window.devicePixelRatio||1;
+        canvas.width=860*dpr;canvas.height=340*dpr;
+        ctx.scale(dpr,dpr);
+        var cw=860,ch=340;
+        ctx.clearRect(0,0,cw,ch);ctx.fillStyle='#fff';ctx.fillRect(0,0,cw,ch);
+        var pad={l:70,r:20,t:30,b:50};
+        var pw=cw-pad.l-pad.r,ph=ch-pad.t-pad.b;
+
+        var sMin=10,sMax=170;
+        // Compute Y range
+        var yVals=[];
+        var pts=150;
+        for(var i=0;i<=pts;i++){
+            var sp=sMin+i*(sMax-sMin)/pts;
+            var payoff=isCall?Math.max(sp-K,0):Math.max(K-sp,0);
+            var net=payoff-prem;
+            yVals.push(payoff);yVals.push(net);
+        }
+        yVals.push(-prem);
+        var yMin=Math.min.apply(null,yVals);
+        var yMax=Math.max.apply(null,yVals);
+        var yr=yMax-yMin;if(yr<5) yr=5;
+        yMin-=yr*0.1;yMax+=yr*0.1;
+
+        function xPos(s){return pad.l+(s-sMin)/(sMax-sMin)*pw;}
+        function yPos(v){return pad.t+(1-(v-yMin)/(yMax-yMin))*ph;}
+
+        // Grid
+        ctx.strokeStyle='#f1f5f9';ctx.lineWidth=1;
+        for(var g=0;g<=6;g++){var gy=pad.t+g*ph/6;ctx.beginPath();ctx.moveTo(pad.l,gy);ctx.lineTo(pad.l+pw,gy);ctx.stroke();}
+        for(var g=0;g<=6;g++){var gx=pad.l+g*pw/6;ctx.beginPath();ctx.moveTo(gx,pad.t);ctx.lineTo(gx,pad.t+ph);ctx.stroke();}
+
+        // Zero line
+        if(yMin<0&&yMax>0){
+            ctx.strokeStyle='#cbd5e1';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+            ctx.beginPath();ctx.moveTo(pad.l,yPos(0));ctx.lineTo(pad.l+pw,yPos(0));ctx.stroke();ctx.setLineDash([]);
+        }
+
+        // Premium line (horizontal at -prem)
+        ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+        ctx.beginPath();ctx.moveTo(pad.l,yPos(-prem));ctx.lineTo(pad.l+pw,yPos(-prem));ctx.stroke();ctx.setLineDash([]);
+
+        // Payoff curve (blue, thick)
+        ctx.strokeStyle='#3b82f6';ctx.lineWidth=2.5;ctx.beginPath();
+        for(var i=0;i<=pts;i++){
+            var sp=sMin+i*(sMax-sMin)/pts;
+            var payoff=isCall?Math.max(sp-K,0):Math.max(K-sp,0);
+            if(i===0) ctx.moveTo(xPos(sp),yPos(payoff));else ctx.lineTo(xPos(sp),yPos(payoff));
+        }
+        ctx.stroke();
+
+        // Net profit curve (green)
+        ctx.strokeStyle='#10b981';ctx.lineWidth=2.5;ctx.beginPath();
+        for(var i=0;i<=pts;i++){
+            var sp=sMin+i*(sMax-sMin)/pts;
+            var payoff=isCall?Math.max(sp-K,0):Math.max(K-sp,0);
+            var net=payoff-prem;
+            if(i===0) ctx.moveTo(xPos(sp),yPos(net));else ctx.lineTo(xPos(sp),yPos(net));
+        }
+        ctx.stroke();
+
+        // Vertical line at current spot
+        ctx.strokeStyle='#6366f1';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);
+        ctx.beginPath();ctx.moveTo(xPos(S),pad.t);ctx.lineTo(xPos(S),pad.t+ph);ctx.stroke();ctx.setLineDash([]);
+        ctx.font='bold 11px Inter,sans-serif';ctx.textAlign='center';ctx.fillStyle='#6366f1';
+        ctx.fillText('S=$'+S,xPos(S),pad.t-8);
+
+        // Vertical line at strike
+        ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+        ctx.beginPath();ctx.moveTo(xPos(K),pad.t);ctx.lineTo(xPos(K),pad.t+ph);ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='#475569';ctx.fillText('K=$'+K,xPos(K),pad.t+ph+30);
+
+        // Axes
+        ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,pad.t+ph);ctx.lineTo(pad.l+pw,pad.t+ph);ctx.stroke();
+
+        // X labels
+        ctx.fillStyle='#64748b';ctx.font='11px Inter,sans-serif';ctx.textAlign='center';
+        for(var t=0;t<=6;t++){var sv=sMin+t*(sMax-sMin)/6;ctx.fillText('$'+Math.round(sv),xPos(sv),pad.t+ph+18);}
+        ctx.fillText('Spot Price at Expiry',pad.l+pw/2,pad.t+ph+40);
+
+        // Y labels
+        ctx.textAlign='right';
+        for(var t=0;t<=6;t++){var yv=yMin+t*(yMax-yMin)/6;ctx.fillText('$'+Math.round(yv),pad.l-8,pad.t+ph-t*ph/6+4);}
+        ctx.save();ctx.translate(14,pad.t+ph/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText('Payoff / Profit ($)',0,0);ctx.restore();
+
+        // Legend
+        ctx.font='bold 11px Inter,sans-serif';ctx.textAlign='left';
+        var ly=pad.t+10;
+        ctx.fillStyle='#3b82f6';ctx.fillRect(pad.l+pw-180,ly-2,14,3);ctx.fillText('Payoff',pad.l+pw-162,ly+3);
+        ly+=16;ctx.fillStyle='#10b981';ctx.fillRect(pad.l+pw-180,ly-2,14,3);ctx.fillText('Net Profit',pad.l+pw-162,ly+3);
+        ly+=16;ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(pad.l+pw-180,ly);ctx.lineTo(pad.l+pw-166,ly);ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='#f59e0b';ctx.fillText('Premium (-$'+prem+')',pad.l+pw-162,ly+3);
+    }
+    updateOpt();
+})();
+</script>
 
 <div class="takeaway">
     <h3>Chapter 4 Takeaways</h3>

@@ -36,6 +36,19 @@
         .takeaway h3{color:#a7f3d0;margin-top:0}
         .takeaway ul{color:#d1fae5}
 
+        .interactive-section{background:#f0fdf4;border:2px solid #10b981;border-radius:12px;padding:24px;margin:40px 0}
+        .interactive-section h2{border:none;margin:0 0 16px;font-size:18px;color:#065f46}
+        .slider-group{margin-bottom:14px}
+        .slider-group label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px}
+        .slider-group input[type="range"]{width:100%;height:6px;border-radius:3px;-webkit-appearance:none;background:#e2e8f0;outline:none}
+        .slider-group input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#10b981;cursor:pointer}
+        .result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0}
+        .result-card{background:#fff;border-radius:8px;padding:14px;text-align:center;border:1px solid #e2e8f0}
+        .result-card .label{font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:4px}
+        .result-card .value{font-size:22px;font-weight:800;color:#065f46}
+        .sim-info{font-size:13px;color:#475569;margin:12px 0;line-height:1.6}
+        .sim-info strong{color:#065f46}
+
         @media(max-width:640px){body{padding:1rem}.topnav{padding:0 16px;margin:0 -1rem;width:calc(100% + 2rem)}.course-nav{margin:0 -1rem 1em}}
     </style>
 </head>
@@ -195,6 +208,211 @@
     </tbody>
 </table>
 </div>
+
+<!-- ============================================ -->
+<div class="interactive-section">
+    <h2>Capital-Constrained Newsvendor Simulator</h2>
+    <p style="font-size:13px;color:#475569;margin-bottom:16px;">Adjust the parameters below to see how budget constraints and borrowing costs shift the optimal order quantity and expected profit.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+        <div class="slider-group">
+            <label><span>Selling Price (p)</span><span id="v_price">$20</span></label>
+            <input type="range" id="s_price" min="5" max="50" value="20" step="1">
+        </div>
+        <div class="slider-group">
+            <label><span>Unit Cost (c)</span><span id="v_cost">$10</span></label>
+            <input type="range" id="s_cost" min="2" max="30" value="10" step="1">
+        </div>
+        <div class="slider-group">
+            <label><span>Salvage Value (s)</span><span id="v_salvage">$2</span></label>
+            <input type="range" id="s_salvage" min="0" max="15" value="2" step="1">
+        </div>
+        <div class="slider-group">
+            <label><span>Mean Demand (&mu;)</span><span id="v_mu">1000</span></label>
+            <input type="range" id="s_mu" min="100" max="2000" value="1000" step="10">
+        </div>
+        <div class="slider-group">
+            <label><span>Std Deviation (&sigma;)</span><span id="v_sigma">200</span></label>
+            <input type="range" id="s_sigma" min="20" max="500" value="200" step="5">
+        </div>
+        <div class="slider-group">
+            <label><span>Budget (W)</span><span id="v_budget">$8,000</span></label>
+            <input type="range" id="s_budget" min="500" max="50000" value="8000" step="100">
+        </div>
+        <div class="slider-group">
+            <label><span>Interest Rate (r)</span><span id="v_rate">12%</span></label>
+            <input type="range" id="s_rate" min="0" max="30" value="12" step="0.5">
+        </div>
+    </div>
+
+    <div class="sim-info"><span id="sim_cr"></span> <span id="sim_borrow"></span></div>
+
+    <div class="result-grid">
+        <div class="result-card"><div class="label">Q* Unconstrained</div><div class="value" id="r_qu">--</div></div>
+        <div class="result-card"><div class="label">Q* Constrained</div><div class="value" id="r_qc">--</div></div>
+        <div class="result-card"><div class="label">E[Profit] Uncon.</div><div class="value" id="r_pu">--</div></div>
+        <div class="result-card"><div class="label">E[Profit] Con.</div><div class="value" id="r_pc">--</div></div>
+        <div class="result-card"><div class="label">Financing Cost</div><div class="value" id="r_fc">--</div></div>
+    </div>
+
+    <canvas id="nv_chart" width="860" height="340" style="width:100%;border-radius:8px;background:#fff;border:1px solid #e2e8f0;margin-top:8px;"></canvas>
+</div>
+
+<script>
+(function(){
+    function normCDF(x){
+        if(x<-8) return 0; if(x>8) return 1;
+        var a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,pp=0.3275911;
+        var sign=1; if(x<0){sign=-1;x=-x;}
+        var t=1/(1+pp*x);
+        var y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x/2);
+        return 0.5*(1+sign*y);
+    }
+    function normInv(p){
+        if(p<=0) return -8; if(p>=1) return 8;
+        if(p<0.5) return -normInv(1-p);
+        var t=Math.sqrt(-2*Math.log(1-p));
+        var c0=2.515517,c1=0.802853,c2=0.010328,d1=1.432788,d2=0.189269,d3=0.001308;
+        return t-(c0+c1*t+c2*t*t)/(1+d1*t+d2*t*t+d3*t*t*t);
+    }
+    function normPDF(x){return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI);}
+    function stdLoss(z){return normPDF(z)-z*(1-normCDF(z));}
+    function expectedProfit(Q,p,ceff,s,mu,sigma){
+        var z=(Q-mu)/sigma;
+        var eSales=Q-sigma*stdLoss(z);
+        var eLeftover=Q-eSales;
+        return p*eSales+s*eLeftover-ceff*Q;
+    }
+
+    var ids=['s_price','s_cost','s_salvage','s_mu','s_sigma','s_budget','s_rate'];
+    ids.forEach(function(id){document.getElementById(id).addEventListener('input',update);});
+
+    function update(){
+        var pr=+document.getElementById('s_price').value;
+        var co=+document.getElementById('s_cost').value;
+        var sa=+document.getElementById('s_salvage').value;
+        var mu=+document.getElementById('s_mu').value;
+        var si=+document.getElementById('s_sigma').value;
+        var W=+document.getElementById('s_budget').value;
+        var r=+document.getElementById('s_rate').value/100;
+        if(co>=pr) co=pr-1;
+        if(sa>=co) sa=co-1;
+        if(sa<0) sa=0;
+        document.getElementById('v_price').textContent='$'+pr;
+        document.getElementById('v_cost').textContent='$'+co;
+        document.getElementById('v_salvage').textContent='$'+sa;
+        document.getElementById('v_mu').textContent=mu;
+        document.getElementById('v_sigma').textContent=si;
+        document.getElementById('v_budget').textContent='$'+W.toLocaleString();
+        document.getElementById('v_rate').textContent=(r*100)+'%';
+
+        var CR=(pr-co)/(pr-sa);
+        var zStar=normInv(CR);
+        var Qu=Math.round(mu+zStar*si);
+        if(Qu<0) Qu=0;
+        var Wunits=Math.floor(W/co);
+        var needsBorrow=(Qu>Wunits);
+        var Qc,ceff_avg;
+        if(!needsBorrow){Qc=Qu;ceff_avg=co;}
+        else{
+            var cBorrow=co*(1+r);
+            if(cBorrow>=pr){Qc=Wunits;ceff_avg=co;needsBorrow=(Qc>Wunits);}
+            else{
+                var CR_c=(pr-cBorrow)/(pr-sa);
+                var zC=normInv(CR_c);
+                Qc=Math.round(mu+zC*si);
+                if(Qc<0) Qc=0;
+                if(Qc<=Wunits){needsBorrow=false;ceff_avg=co;}
+            }
+        }
+        var profitU=expectedProfit(Qu,pr,co,sa,mu,si);
+        var profitC;
+        if(!needsBorrow||Qc<=Wunits){profitC=expectedProfit(Qc,pr,co,sa,mu,si);}
+        else{
+            var totalCost=Wunits*co+(Qc-Wunits)*co*(1+r);
+            ceff_avg=totalCost/Qc;
+            profitC=expectedProfit(Qc,pr,ceff_avg,sa,mu,si);
+        }
+        var finCost=needsBorrow?(Qc-Wunits)*co*r:0;
+        if(finCost<0) finCost=0;
+
+        document.getElementById('r_qu').textContent=Qu.toLocaleString();
+        document.getElementById('r_qc').textContent=Qc.toLocaleString();
+        document.getElementById('r_pu').textContent='$'+Math.round(profitU).toLocaleString();
+        document.getElementById('r_pc').textContent='$'+Math.round(profitC).toLocaleString();
+        document.getElementById('r_fc').textContent='$'+Math.round(finCost).toLocaleString();
+
+        document.getElementById('sim_cr').textContent='Critical ratio (unconstrained): '+CR.toFixed(3);
+        if(needsBorrow){
+            document.getElementById('sim_borrow').textContent=' | Needs to borrow: Yes ($'+Math.round((Qc-Wunits)*co).toLocaleString()+' at '+(r*100).toFixed(1)+'%)';
+        } else {
+            document.getElementById('sim_borrow').textContent=' | Needs to borrow: No (budget covers Q*)';
+        }
+        drawChart(pr,co,sa,mu,si,Qu,Qc,W,r,needsBorrow,Wunits);
+    }
+
+    function drawChart(pr,co,sa,mu,si,Qu,Qc,W,r,needsBorrow,Wunits){
+        var canvas=document.getElementById('nv_chart');
+        var ctx=canvas.getContext('2d');
+        var dpr=window.devicePixelRatio||1;
+        canvas.width=860*dpr;canvas.height=340*dpr;
+        ctx.scale(dpr,dpr);
+        var cw=860,ch=340;
+        ctx.clearRect(0,0,cw,ch);ctx.fillStyle='#fff';ctx.fillRect(0,0,cw,ch);
+        var pad={l:70,r:20,t:30,b:50};
+        var pw=cw-pad.l-pad.r,ph=ch-pad.t-pad.b;
+        var qMin=Math.max(0,Math.round(mu-3*si));
+        var qMax=Math.round(mu+3*si);
+        if(qMax<Qu+si) qMax=Qu+si;
+        if(qMax<Qc+si) qMax=Qc+si;
+        var pts=120;
+        var profitsU=[],profitsC=[];
+        var minP=Infinity,maxP=-Infinity;
+        for(var i=0;i<=pts;i++){
+            var q=qMin+i*(qMax-qMin)/pts;
+            var pu=expectedProfit(q,pr,co,sa,mu,si);
+            var pc;
+            if(q<=Wunits){pc=expectedProfit(q,pr,co,sa,mu,si);}
+            else{var tc=Wunits*co+(q-Wunits)*co*(1+r);var ce=tc/q;pc=expectedProfit(q,pr,ce,sa,mu,si);}
+            profitsU.push({q:q,p:pu});profitsC.push({q:q,p:pc});
+            if(pu<minP) minP=pu;if(pu>maxP) maxP=pu;
+            if(pc<minP) minP=pc;if(pc>maxP) maxP=pc;
+        }
+        var pRange=maxP-minP;if(pRange<10) pRange=10;
+        minP-=pRange*0.08;maxP+=pRange*0.08;
+        function xPos(q){return pad.l+(q-qMin)/(qMax-qMin)*pw;}
+        function yPos(p){return pad.t+(1-(p-minP)/(maxP-minP))*ph;}
+        ctx.strokeStyle='#f1f5f9';ctx.lineWidth=1;
+        for(var g=0;g<=5;g++){var gy=pad.t+g*ph/5;ctx.beginPath();ctx.moveTo(pad.l,gy);ctx.lineTo(pad.l+pw,gy);ctx.stroke();}
+        if(minP<0&&maxP>0){ctx.strokeStyle='#cbd5e1';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(pad.l,yPos(0));ctx.lineTo(pad.l+pw,yPos(0));ctx.stroke();ctx.setLineDash([]);}
+        ctx.strokeStyle='#3b82f6';ctx.lineWidth=2.5;ctx.beginPath();
+        profitsU.forEach(function(pt,i){if(i===0) ctx.moveTo(xPos(pt.q),yPos(pt.p));else ctx.lineTo(xPos(pt.q),yPos(pt.p));});
+        ctx.stroke();
+        ctx.strokeStyle='#ef4444';ctx.lineWidth=2.5;ctx.beginPath();
+        profitsC.forEach(function(pt,i){if(i===0) ctx.moveTo(xPos(pt.q),yPos(pt.p));else ctx.lineTo(xPos(pt.q),yPos(pt.p));});
+        ctx.stroke();
+        ctx.strokeStyle='#3b82f6';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);
+        ctx.beginPath();ctx.moveTo(xPos(Qu),pad.t);ctx.lineTo(xPos(Qu),pad.t+ph);ctx.stroke();ctx.setLineDash([]);
+        ctx.strokeStyle='#ef4444';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);
+        ctx.beginPath();ctx.moveTo(xPos(Qc),pad.t);ctx.lineTo(xPos(Qc),pad.t+ph);ctx.stroke();ctx.setLineDash([]);
+        ctx.font='bold 11px Inter,sans-serif';ctx.textAlign='center';
+        ctx.fillStyle='#3b82f6';ctx.fillText('Q*='+Qu,xPos(Qu),pad.t-8);
+        ctx.fillStyle='#ef4444';ctx.fillText('Q*c='+Qc,xPos(Qc),pad.t-8);
+        ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,pad.t+ph);ctx.lineTo(pad.l+pw,pad.t+ph);ctx.stroke();
+        ctx.fillStyle='#64748b';ctx.font='11px Inter,sans-serif';ctx.textAlign='center';
+        for(var t=0;t<=5;t++){var qv=qMin+t*(qMax-qMin)/5;ctx.fillText(Math.round(qv),xPos(qv),pad.t+ph+18);}
+        ctx.fillText('Order Quantity (Q)',pad.l+pw/2,pad.t+ph+40);
+        ctx.textAlign='right';
+        for(var t=0;t<=5;t++){var pv=minP+t*(maxP-minP)/5;ctx.fillText('$'+Math.round(pv).toLocaleString(),pad.l-8,pad.t+ph-t*ph/5+4);}
+        ctx.save();ctx.translate(14,pad.t+ph/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText('Expected Profit',0,0);ctx.restore();
+        ctx.font='bold 12px Inter,sans-serif';
+        ctx.fillStyle='#3b82f6';ctx.fillRect(pad.l+pw-200,pad.t+10,14,3);ctx.textAlign='left';ctx.fillText('Unconstrained',pad.l+pw-182,pad.t+15);
+        ctx.fillStyle='#ef4444';ctx.fillRect(pad.l+pw-200,pad.t+28,14,3);ctx.fillText('Constrained',pad.l+pw-182,pad.t+33);
+    }
+    update();
+})();
+</script>
 
 <div class="takeaway">
     <h3>Chapter 3 Takeaways</h3>

@@ -311,6 +311,394 @@
     <strong>The Central Lesson:</strong> Supply chain decisions are financial decisions. Every inventory order, capacity investment, and hedging strategy involves pricing risk under uncertainty. The models in this chapter provide the language and tools to make those decisions rigorously. The mathematics may look intimidating, but the core ideas are straightforward: time has value, risk requires compensation, and flexibility is worth paying for.
 </div>
 
+<!-- ============================================ -->
+<h2>6.8 Interactive: Black-Scholes Calculator</h2>
+
+<p>Adjust the parameters below to price European call and put options using the Black-Scholes model. The calculator also computes the Greeks for the call option.</p>
+
+<style>
+    .bs-demo{background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:24px;margin:20px 0}
+    .bs-demo h4{color:#1a365d;font-size:15px;font-weight:700;margin-bottom:16px}
+    .bs-slider-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+    .bs-slider-row label{width:180px;font-size:13px;font-weight:600;color:#475569;flex-shrink:0}
+    .bs-slider-row input[type="range"]{flex:1;accent-color:#475569;height:6px}
+    .bs-slider-row .bs-val{width:60px;text-align:center;font-weight:700;font-size:14px;color:#1a365d}
+    .bs-result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}
+    .bs-result-card{background:#fff;border-radius:8px;padding:14px;text-align:center;border:1px solid #cbd5e1}
+    .bs-result-card .bs-label{font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+    .bs-result-card .bs-value{font-size:22px;font-weight:800;color:#1a365d;line-height:1.2}
+    .bs-result-card .bs-sub{font-size:11px;color:#64748b;margin-top:3px}
+    .bs-greeks-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0}
+    .bs-greek-card{background:#fff;border-radius:8px;padding:12px;text-align:center;border:1px solid #e2e8f0}
+    .bs-greek-card .bs-label{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px}
+    .bs-greek-card .bs-value{font-size:18px;font-weight:700;color:#1a365d}
+    .bs-parity-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-top:16px;font-size:13px;color:#166534}
+    .gbm-demo{background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:24px;margin:20px 0}
+    .gbm-demo h4{color:#1a365d;font-size:15px;font-weight:700;margin-bottom:16px}
+    .gbm-slider-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+    .gbm-slider-row label{width:180px;font-size:13px;font-weight:600;color:#475569;flex-shrink:0}
+    .gbm-slider-row input[type="range"]{flex:1;accent-color:#475569;height:6px}
+    .gbm-slider-row .gbm-val{width:60px;text-align:center;font-weight:700;font-size:14px;color:#1a365d}
+    .gbm-btn{display:inline-block;background:#1a365d;color:#fff;border:none;padding:10px 24px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;margin:12px 0}
+    .gbm-btn:hover{background:#2d4a7a}
+    .gbm-canvas-wrap{position:relative;width:100%;margin:16px 0}
+    .gbm-canvas-wrap canvas{width:100%;height:350px;border:1px solid #e2e8f0;border-radius:8px;background:#fff}
+    @media(max-width:640px){.bs-result-grid{grid-template-columns:1fr 1fr}.bs-greeks-grid{grid-template-columns:repeat(3,1fr)}.bs-slider-row,.gbm-slider-row{flex-wrap:wrap}.bs-slider-row label,.gbm-slider-row label{width:100%}}
+</style>
+
+<div class="bs-demo">
+    <h4>Black-Scholes Option Pricing</h4>
+
+    <div class="bs-slider-row">
+        <label>Spot Price S&#8320;</label>
+        <input type="range" id="bs-spot" min="50" max="200" value="100" step="1" oninput="updateBS()">
+        <span class="bs-val" id="bs-spot-val">$100</span>
+    </div>
+    <div class="bs-slider-row">
+        <label>Strike Price K</label>
+        <input type="range" id="bs-strike" min="50" max="200" value="100" step="1" oninput="updateBS()">
+        <span class="bs-val" id="bs-strike-val">$100</span>
+    </div>
+    <div class="bs-slider-row">
+        <label>Risk-free Rate r</label>
+        <input type="range" id="bs-rate" min="0" max="15" value="5" step="0.5" oninput="updateBS()">
+        <span class="bs-val" id="bs-rate-val">5.0%</span>
+    </div>
+    <div class="bs-slider-row">
+        <label>Volatility &sigma;</label>
+        <input type="range" id="bs-vol" min="5" max="80" value="25" step="1" oninput="updateBS()">
+        <span class="bs-val" id="bs-vol-val">25%</span>
+    </div>
+    <div class="bs-slider-row">
+        <label>Time to Expiry T</label>
+        <input type="range" id="bs-time" min="0.1" max="3" value="1" step="0.1" oninput="updateBS()">
+        <span class="bs-val" id="bs-time-val">1.0 yr</span>
+    </div>
+
+    <div class="bs-result-grid">
+        <div class="bs-result-card">
+            <div class="bs-label">d&#8321;</div>
+            <div class="bs-value" id="bs-d1">0.3500</div>
+        </div>
+        <div class="bs-result-card">
+            <div class="bs-label">d&#8322;</div>
+            <div class="bs-value" id="bs-d2">0.1000</div>
+        </div>
+        <div class="bs-result-card">
+            <div class="bs-label">Call Price</div>
+            <div class="bs-value" id="bs-call" style="color:#16a34a">$12.34</div>
+        </div>
+        <div class="bs-result-card">
+            <div class="bs-label">Put Price</div>
+            <div class="bs-value" id="bs-put" style="color:#dc2626">$7.45</div>
+        </div>
+    </div>
+
+    <h4>Greeks (Call)</h4>
+    <div class="bs-greeks-grid">
+        <div class="bs-greek-card"><div class="bs-label">Delta &Delta;</div><div class="bs-value" id="bs-delta">0.637</div></div>
+        <div class="bs-greek-card"><div class="bs-label">Gamma &Gamma;</div><div class="bs-value" id="bs-gamma">0.016</div></div>
+        <div class="bs-greek-card"><div class="bs-label">Theta &Theta;</div><div class="bs-value" id="bs-theta">-6.41</div><div class="bs-sub">per year</div></div>
+        <div class="bs-greek-card"><div class="bs-label">Vega &nu;</div><div class="bs-value" id="bs-vega">39.58</div><div class="bs-sub">per 100%</div></div>
+        <div class="bs-greek-card"><div class="bs-label">Rho &rho;</div><div class="bs-value" id="bs-rho">53.23</div><div class="bs-sub">per 100%</div></div>
+    </div>
+
+    <div class="bs-parity-box" id="bs-parity">
+        Put-Call Parity check: C - P = S - Ke^(-rT) &rarr; verified
+    </div>
+</div>
+
+<script>
+function normCDF(x) {
+    var a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+    var sign = x < 0 ? -1 : 1;
+    x = Math.abs(x) / Math.sqrt(2);
+    var t = 1.0 / (1.0 + p * x);
+    var y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    return 0.5 * (1.0 + sign * y);
+}
+
+function normPDF(x) {
+    return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+}
+
+function updateBS() {
+    var S = +document.getElementById('bs-spot').value;
+    var K = +document.getElementById('bs-strike').value;
+    var r = +document.getElementById('bs-rate').value / 100;
+    var sigma = +document.getElementById('bs-vol').value / 100;
+    var T = +document.getElementById('bs-time').value;
+
+    document.getElementById('bs-spot-val').textContent = '$' + S;
+    document.getElementById('bs-strike-val').textContent = '$' + K;
+    document.getElementById('bs-rate-val').textContent = (r * 100).toFixed(1) + '%';
+    document.getElementById('bs-vol-val').textContent = Math.round(sigma * 100) + '%';
+    document.getElementById('bs-time-val').textContent = T.toFixed(1) + ' yr';
+
+    var sqrtT = Math.sqrt(T);
+    var d1 = (Math.log(S / K) + (r + sigma * sigma / 2) * T) / (sigma * sqrtT);
+    var d2 = d1 - sigma * sqrtT;
+    var Nd1 = normCDF(d1);
+    var Nd2 = normCDF(d2);
+    var Nmd1 = normCDF(-d1);
+    var Nmd2 = normCDF(-d2);
+    var discount = Math.exp(-r * T);
+
+    var callPrice = S * Nd1 - K * discount * Nd2;
+    var putPrice = K * discount * Nmd2 - S * Nmd1;
+
+    document.getElementById('bs-d1').textContent = d1.toFixed(4);
+    document.getElementById('bs-d2').textContent = d2.toFixed(4);
+    document.getElementById('bs-call').textContent = '$' + callPrice.toFixed(2);
+    document.getElementById('bs-put').textContent = '$' + putPrice.toFixed(2);
+
+    // Greeks for call
+    var nd1 = normPDF(d1);
+    var delta = Nd1;
+    var gamma = nd1 / (S * sigma * sqrtT);
+    var theta = -(S * nd1 * sigma) / (2 * sqrtT) - r * K * discount * Nd2;
+    var vega = S * nd1 * sqrtT;
+    var rho = K * T * discount * Nd2;
+
+    document.getElementById('bs-delta').textContent = delta.toFixed(4);
+    document.getElementById('bs-gamma').textContent = gamma.toFixed(4);
+    document.getElementById('bs-theta').textContent = theta.toFixed(2);
+    document.getElementById('bs-vega').textContent = vega.toFixed(2);
+    document.getElementById('bs-rho').textContent = rho.toFixed(2);
+
+    // Put-Call Parity: C - P should equal S - K*exp(-rT)
+    var lhs = callPrice - putPrice;
+    var rhs = S - K * discount;
+    var diff = Math.abs(lhs - rhs);
+    var parityEl = document.getElementById('bs-parity');
+    parityEl.textContent = 'Put-Call Parity: C - P = ' + lhs.toFixed(4) + ', S - Ke^(-rT) = ' + rhs.toFixed(4) + ' \u2192 ' + (diff < 0.01 ? 'Verified (diff = ' + diff.toFixed(6) + ')' : 'Error = ' + diff.toFixed(4));
+}
+updateBS();
+</script>
+
+<!-- ============================================ -->
+<h2>6.9 Interactive: GBM Price Path Simulator</h2>
+
+<p>Generate random price paths following Geometric Brownian Motion. Each click of "Simulate" draws new random paths, showing the mean trajectory and 95% confidence interval.</p>
+
+<div class="gbm-demo">
+    <h4>Geometric Brownian Motion Simulator</h4>
+
+    <div class="gbm-slider-row">
+        <label>Initial Price S&#8320;</label>
+        <input type="range" id="gbm-s0" min="50" max="200" value="100" step="1" oninput="updateGBMLabels()">
+        <span class="gbm-val" id="gbm-s0-val">$100</span>
+    </div>
+    <div class="gbm-slider-row">
+        <label>Drift &mu;</label>
+        <input type="range" id="gbm-mu" min="-20" max="30" value="8" step="1" oninput="updateGBMLabels()">
+        <span class="gbm-val" id="gbm-mu-val">8%</span>
+    </div>
+    <div class="gbm-slider-row">
+        <label>Volatility &sigma;</label>
+        <input type="range" id="gbm-sigma" min="5" max="80" value="25" step="1" oninput="updateGBMLabels()">
+        <span class="gbm-val" id="gbm-sigma-val">25%</span>
+    </div>
+    <div class="gbm-slider-row">
+        <label>Time Horizon T</label>
+        <input type="range" id="gbm-T" min="0.5" max="5" value="2" step="0.5" oninput="updateGBMLabels()">
+        <span class="gbm-val" id="gbm-T-val">2.0 yr</span>
+    </div>
+    <div class="gbm-slider-row">
+        <label>Number of Paths</label>
+        <input type="range" id="gbm-paths" min="1" max="50" value="20" step="1" oninput="updateGBMLabels()">
+        <span class="gbm-val" id="gbm-paths-val">20</span>
+    </div>
+
+    <button class="gbm-btn" onclick="simulateGBM()">Simulate</button>
+
+    <div class="gbm-canvas-wrap">
+        <canvas id="gbm-canvas" width="900" height="350"></canvas>
+    </div>
+</div>
+
+<script>
+function updateGBMLabels() {
+    document.getElementById('gbm-s0-val').textContent = '$' + document.getElementById('gbm-s0').value;
+    document.getElementById('gbm-mu-val').textContent = document.getElementById('gbm-mu').value + '%';
+    document.getElementById('gbm-sigma-val').textContent = document.getElementById('gbm-sigma').value + '%';
+    document.getElementById('gbm-T-val').textContent = (+document.getElementById('gbm-T').value).toFixed(1) + ' yr';
+    document.getElementById('gbm-paths-val').textContent = document.getElementById('gbm-paths').value;
+}
+
+function simulateGBM() {
+    var S0 = +document.getElementById('gbm-s0').value;
+    var mu = +document.getElementById('gbm-mu').value / 100;
+    var sigma = +document.getElementById('gbm-sigma').value / 100;
+    var T = +document.getElementById('gbm-T').value;
+    var nPaths = +document.getElementById('gbm-paths').value;
+    var nSteps = Math.max(100, Math.round(T * 252));
+    var dt = T / nSteps;
+    var sqrtDt = Math.sqrt(dt);
+
+    // Generate paths
+    var paths = [];
+    for (var p = 0; p < nPaths; p++) {
+        var path = [S0];
+        var s = S0;
+        for (var i = 1; i <= nSteps; i++) {
+            // Box-Muller transform for standard normal
+            var u1 = Math.random(), u2 = Math.random();
+            var z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+            s = s * Math.exp((mu - sigma * sigma / 2) * dt + sigma * sqrtDt * z);
+            path.push(s);
+        }
+        paths.push(path);
+    }
+
+    // Compute mean and 95% CI at each step
+    var mean = [], lo95 = [], hi95 = [];
+    for (var i = 0; i <= nSteps; i++) {
+        var vals = [];
+        for (var p = 0; p < nPaths; p++) vals.push(paths[p][i]);
+        vals.sort(function(a,b){return a-b;});
+        var sum = 0;
+        for (var p = 0; p < nPaths; p++) sum += vals[p];
+        mean.push(sum / nPaths);
+        var loIdx = Math.max(0, Math.floor(nPaths * 0.025));
+        var hiIdx = Math.min(nPaths - 1, Math.floor(nPaths * 0.975));
+        lo95.push(vals[loIdx]);
+        hi95.push(vals[hiIdx]);
+    }
+
+    // Also compute analytical 95% CI
+    var analyticLo = [], analyticHi = [], analyticMean = [];
+    for (var i = 0; i <= nSteps; i++) {
+        var t = i * dt;
+        if (t === 0) {
+            analyticLo.push(S0); analyticHi.push(S0); analyticMean.push(S0);
+        } else {
+            var logMean = Math.log(S0) + (mu - sigma * sigma / 2) * t;
+            var logStd = sigma * Math.sqrt(t);
+            analyticMean.push(Math.exp(logMean + logStd * logStd / 2));
+            analyticLo.push(Math.exp(logMean - 1.96 * logStd));
+            analyticHi.push(Math.exp(logMean + 1.96 * logStd));
+        }
+    }
+
+    // Use analytical CI for shaded region (smoother and more accurate)
+    var ciLo = nPaths >= 20 ? analyticLo : lo95;
+    var ciHi = nPaths >= 20 ? analyticHi : hi95;
+
+    // Find y range
+    var yMin = S0, yMax = S0;
+    for (var p = 0; p < nPaths; p++) {
+        for (var i = 0; i <= nSteps; i++) {
+            if (paths[p][i] < yMin) yMin = paths[p][i];
+            if (paths[p][i] > yMax) yMax = paths[p][i];
+        }
+    }
+    for (var i = 0; i <= nSteps; i++) {
+        if (ciLo[i] < yMin) yMin = ciLo[i];
+        if (ciHi[i] > yMax) yMax = ciHi[i];
+    }
+    var yPad = (yMax - yMin) * 0.08;
+    yMin = Math.max(0, yMin - yPad);
+    yMax = yMax + yPad;
+
+    // Draw
+    var canvas = document.getElementById('gbm-canvas');
+    var dpr = window.devicePixelRatio || 1;
+    var rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = 350 * dpr;
+    canvas.style.height = '350px';
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    var W = rect.width, H = 350;
+    var pad = {l:60, r:20, t:20, b:40};
+    var plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
+
+    ctx.clearRect(0, 0, W, H);
+
+    function xPos(i) { return pad.l + (i / nSteps) * plotW; }
+    function yPos(v) { return pad.t + plotH - ((v - yMin) / (yMax - yMin)) * plotH; }
+
+    // Grid lines
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 0.5;
+    var nYGrid = 6;
+    for (var g = 0; g <= nYGrid; g++) {
+        var gy = yMin + (yMax - yMin) * g / nYGrid;
+        ctx.beginPath(); ctx.moveTo(pad.l, yPos(gy)); ctx.lineTo(pad.l + plotW, yPos(gy)); ctx.stroke();
+        ctx.fillStyle = '#94a3b8'; ctx.font = '11px Inter, sans-serif'; ctx.textAlign = 'right';
+        ctx.fillText('$' + gy.toFixed(0), pad.l - 6, yPos(gy) + 4);
+    }
+    var nXGrid = 5;
+    for (var g = 0; g <= nXGrid; g++) {
+        var gi = Math.round(nSteps * g / nXGrid);
+        ctx.beginPath(); ctx.moveTo(xPos(gi), pad.t); ctx.lineTo(xPos(gi), pad.t + plotH); ctx.stroke();
+        ctx.fillStyle = '#94a3b8'; ctx.font = '11px Inter, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText((gi * dt).toFixed(1) + 'y', xPos(gi), pad.t + plotH + 16);
+    }
+
+    // 95% CI shaded region
+    ctx.fillStyle = 'rgba(71, 85, 105, 0.10)';
+    ctx.beginPath();
+    ctx.moveTo(xPos(0), yPos(ciLo[0]));
+    for (var i = 1; i <= nSteps; i++) ctx.lineTo(xPos(i), yPos(ciLo[i]));
+    for (var i = nSteps; i >= 0; i--) ctx.lineTo(xPos(i), yPos(ciHi[i]));
+    ctx.closePath();
+    ctx.fill();
+
+    // Individual paths
+    var colors = ['#6366f1','#f59e0b','#10b981','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16',
+                  '#a855f7','#d946ef','#0ea5e9','#eab308','#22c55e','#e11d48','#7c3aed','#f43f5e','#0891b2','#65a30d',
+                  '#c026d3','#2563eb','#ea580c','#059669','#dc2626','#4f46e5','#db2777','#0d9488','#ca8a04','#16a34a',
+                  '#9333ea','#e879f9','#3b82f6','#fb923c','#34d399','#f87171','#a78bfa','#f472b6','#2dd4bf','#facc15',
+                  '#4ade80','#fb7185','#818cf8','#fbbf24','#6ee7b7','#fca5a5','#c4b5fd','#f9a8d4','#99f6e4','#fde047'];
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.5;
+    for (var p = 0; p < nPaths; p++) {
+        ctx.strokeStyle = colors[p % colors.length];
+        ctx.beginPath();
+        ctx.moveTo(xPos(0), yPos(paths[p][0]));
+        // Draw every few steps for performance
+        var step = Math.max(1, Math.floor(nSteps / 500));
+        for (var i = step; i <= nSteps; i += step) ctx.lineTo(xPos(i), yPos(paths[p][i]));
+        if ((nSteps % step) !== 0) ctx.lineTo(xPos(nSteps), yPos(paths[p][nSteps]));
+        ctx.stroke();
+    }
+    ctx.globalAlpha = 1.0;
+
+    // Mean path (thick black)
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(xPos(0), yPos(mean[0]));
+    var mStep = Math.max(1, Math.floor(nSteps / 500));
+    for (var i = mStep; i <= nSteps; i += mStep) ctx.lineTo(xPos(i), yPos(mean[i]));
+    if ((nSteps % mStep) !== 0) ctx.lineTo(xPos(nSteps), yPos(mean[nSteps]));
+    ctx.stroke();
+
+    // Axes
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + plotH); ctx.lineTo(pad.l + plotW, pad.t + plotH); ctx.stroke();
+
+    // Axis labels
+    ctx.fillStyle = '#475569'; ctx.font = '12px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Time', pad.l + plotW / 2, H - 4);
+    ctx.save(); ctx.translate(14, pad.t + plotH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Price ($)', 0, 0); ctx.restore();
+
+    // Legend
+    ctx.fillStyle = '#0f172a'; ctx.font = 'bold 11px Inter, sans-serif'; ctx.textAlign = 'left';
+    ctx.fillRect(pad.l + 10, pad.t + 6, 20, 3); ctx.fillText('Mean path', pad.l + 34, pad.t + 12);
+    ctx.fillStyle = 'rgba(71, 85, 105, 0.25)'; ctx.fillRect(pad.l + 10, pad.t + 20, 20, 10);
+    ctx.fillStyle = '#475569'; ctx.font = '11px Inter, sans-serif';
+    ctx.fillText('95% CI', pad.l + 34, pad.t + 29);
+}
+
+updateGBMLabels();
+simulateGBM();
+</script>
+
 <div class="takeaway">
     <h3>Chapter 6 Takeaways</h3>
     <ul>

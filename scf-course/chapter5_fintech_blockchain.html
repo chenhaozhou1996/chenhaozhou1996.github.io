@@ -202,6 +202,174 @@
     <p>Greensill Capital, once valued at $4 billion, pioneered "future receivables" financing: lending against invoices that had not yet been issued, based on predicted future revenue. When several key clients (including GFG Alliance) faced financial difficulties, the "prospective receivables" turned out to be speculative. Credit Suisse liquidated $10 billion in Greensill-linked funds, and the firm collapsed. Lessons: SCF instruments must be backed by real, verifiable commercial transactions; "prospective receivables" without confirmed purchase orders are effectively unsecured lending disguised as trade finance.</p>
 </div>
 
+<!-- ============================================ -->
+<h2>5.7 Interactive: Supplier Risk Scoring Demo</h2>
+
+<p>Adjust the sliders below to score a supplier across five risk dimensions. The composite score determines the recommended SCF instrument and financing rate.</p>
+
+<style>
+    .risk-demo{background:#faf5ff;border:1px solid #e9d5ff;border-radius:10px;padding:24px;margin:20px 0}
+    .risk-demo h4{color:#581c87;font-size:15px;font-weight:700;margin-bottom:16px}
+    .risk-slider-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+    .risk-slider-row label{width:200px;font-size:13px;font-weight:600;color:#475569;flex-shrink:0}
+    .risk-slider-row input[type="range"]{flex:1;accent-color:#a855f7;height:6px}
+    .risk-slider-row .slider-val{width:36px;text-align:center;font-weight:700;font-size:14px;color:#581c87}
+    .risk-slider-row .slider-weight{width:40px;text-align:right;font-size:11px;color:#9ca3af}
+    .risk-result-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:20px 0}
+    .risk-result-card{background:#fff;border-radius:8px;padding:16px;text-align:center;border:1px solid #e9d5ff}
+    .risk-result-card .label{font-size:11px;font-weight:600;color:#7c3aed;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+    .risk-result-card .value{font-size:28px;font-weight:800;line-height:1.2}
+    .risk-result-card .sub{font-size:12px;color:#64748b;margin-top:4px}
+    .risk-bar-chart{margin:16px 0}
+    .risk-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .risk-bar-label{width:140px;font-size:12px;font-weight:600;color:#475569;flex-shrink:0}
+    .risk-bar-track{flex:1;height:20px;background:#f1f5f9;border-radius:4px;position:relative;overflow:hidden}
+    .risk-bar-fill{height:100%;border-radius:4px;transition:width 0.3s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:6px}
+    .risk-bar-fill span{font-size:10px;font-weight:700;color:#fff}
+    .risk-instrument-box{background:#fff;border:2px solid #a855f7;border-radius:8px;padding:16px;margin-top:16px;font-size:13px}
+    .risk-instrument-box strong{color:#581c87}
+    @media(max-width:640px){.risk-result-grid{grid-template-columns:1fr}.risk-slider-row{flex-wrap:wrap}.risk-slider-row label{width:100%}}
+</style>
+
+<div class="risk-demo">
+    <h4>Supplier Risk Assessment</h4>
+
+    <div class="risk-slider-row">
+        <label>Payment History</label>
+        <input type="range" id="rs-payment" min="1" max="10" value="7" oninput="updateRiskScore()">
+        <span class="slider-val" id="rs-payment-val">7</span>
+        <span class="slider-weight">30%</span>
+    </div>
+    <div class="risk-slider-row">
+        <label>Order Consistency</label>
+        <input type="range" id="rs-order" min="1" max="10" value="6" oninput="updateRiskScore()">
+        <span class="slider-val" id="rs-order-val">6</span>
+        <span class="slider-weight">20%</span>
+    </div>
+    <div class="risk-slider-row">
+        <label>Financial Health</label>
+        <input type="range" id="rs-financial" min="1" max="10" value="5" oninput="updateRiskScore()">
+        <span class="slider-val" id="rs-financial-val">5</span>
+        <span class="slider-weight">25%</span>
+    </div>
+    <div class="risk-slider-row">
+        <label>Industry Stability</label>
+        <input type="range" id="rs-industry" min="1" max="10" value="6" oninput="updateRiskScore()">
+        <span class="slider-val" id="rs-industry-val">6</span>
+        <span class="slider-weight">15%</span>
+    </div>
+    <div class="risk-slider-row">
+        <label>Relationship Length</label>
+        <input type="range" id="rs-relationship" min="1" max="10" value="8" oninput="updateRiskScore()">
+        <span class="slider-val" id="rs-relationship-val">8</span>
+        <span class="slider-weight">10%</span>
+    </div>
+
+    <div class="risk-result-grid">
+        <div class="risk-result-card">
+            <div class="label">Composite Score</div>
+            <div class="value" id="rs-composite" style="color:#a855f7">6.35</div>
+            <div class="sub">out of 10</div>
+        </div>
+        <div class="risk-result-card">
+            <div class="label">Risk Tier</div>
+            <div class="value" id="rs-tier" style="font-size:18px;color:#a855f7">Medium Risk</div>
+            <div class="sub" id="rs-tier-sub">Score 5 &ndash; 7</div>
+        </div>
+        <div class="risk-result-card">
+            <div class="label">Suggested Rate</div>
+            <div class="value" id="rs-rate" style="color:#a855f7">6.5%</div>
+            <div class="sub">annualized</div>
+        </div>
+    </div>
+
+    <h4 style="margin-top:20px">Factor Contributions</h4>
+    <div class="risk-bar-chart" id="rs-bars">
+        <div class="risk-bar-row"><span class="risk-bar-label">Payment (30%)</span><div class="risk-bar-track"><div class="risk-bar-fill" id="bar-payment" style="width:70%;background:#a855f7"><span>2.10</span></div></div></div>
+        <div class="risk-bar-row"><span class="risk-bar-label">Order (20%)</span><div class="risk-bar-track"><div class="risk-bar-fill" id="bar-order" style="width:60%;background:#c084fc"><span>1.20</span></div></div></div>
+        <div class="risk-bar-row"><span class="risk-bar-label">Financial (25%)</span><div class="risk-bar-track"><div class="risk-bar-fill" id="bar-financial" style="width:50%;background:#7c3aed"><span>1.25</span></div></div></div>
+        <div class="risk-bar-row"><span class="risk-bar-label">Industry (15%)</span><div class="risk-bar-track"><div class="risk-bar-fill" id="bar-industry" style="width:60%;background:#9333ea"><span>0.90</span></div></div></div>
+        <div class="risk-bar-row"><span class="risk-bar-label">Relationship (10%)</span><div class="risk-bar-track"><div class="risk-bar-fill" id="bar-relationship" style="width:80%;background:#d8b4fe"><span>0.80</span></div></div></div>
+    </div>
+
+    <div class="risk-instrument-box" id="rs-instrument">
+        <strong id="rs-instr-label">Recommended Instrument:</strong> <span id="rs-instr-text">Factoring with recourse at 5-8%</span>
+    </div>
+</div>
+
+<script>
+function updateRiskScore() {
+    var payment = +document.getElementById('rs-payment').value;
+    var order = +document.getElementById('rs-order').value;
+    var financial = +document.getElementById('rs-financial').value;
+    var industry = +document.getElementById('rs-industry').value;
+    var relationship = +document.getElementById('rs-relationship').value;
+
+    document.getElementById('rs-payment-val').textContent = payment;
+    document.getElementById('rs-order-val').textContent = order;
+    document.getElementById('rs-financial-val').textContent = financial;
+    document.getElementById('rs-industry-val').textContent = industry;
+    document.getElementById('rs-relationship-val').textContent = relationship;
+
+    var wPayment = payment * 0.30;
+    var wOrder = order * 0.20;
+    var wFinancial = financial * 0.25;
+    var wIndustry = industry * 0.15;
+    var wRelationship = relationship * 0.10;
+    var composite = wPayment + wOrder + wFinancial + wIndustry + wRelationship;
+
+    var scoreColor = composite > 7 ? '#16a34a' : composite >= 5 ? '#ca8a04' : '#dc2626';
+
+    document.getElementById('rs-composite').textContent = composite.toFixed(2);
+    document.getElementById('rs-composite').style.color = scoreColor;
+
+    var tierEl = document.getElementById('rs-tier');
+    var tierSubEl = document.getElementById('rs-tier-sub');
+    if (composite > 7) {
+        tierEl.textContent = 'Low Risk';
+        tierEl.style.color = '#16a34a';
+        tierSubEl.textContent = 'Score > 7';
+    } else if (composite >= 5) {
+        tierEl.textContent = 'Medium Risk';
+        tierEl.style.color = '#ca8a04';
+        tierSubEl.textContent = 'Score 5 \u2013 7';
+    } else {
+        tierEl.textContent = 'High Risk';
+        tierEl.style.color = '#dc2626';
+        tierSubEl.textContent = 'Score < 5';
+    }
+
+    var rate = 15 - (composite - 1) * (13 / 9);
+    document.getElementById('rs-rate').textContent = rate.toFixed(1) + '%';
+    document.getElementById('rs-rate').style.color = scoreColor;
+
+    var factors = [
+        { id: 'bar-payment', val: wPayment, max: 3.0 },
+        { id: 'bar-order', val: wOrder, max: 2.0 },
+        { id: 'bar-financial', val: wFinancial, max: 2.5 },
+        { id: 'bar-industry', val: wIndustry, max: 1.5 },
+        { id: 'bar-relationship', val: wRelationship, max: 1.0 }
+    ];
+    for (var i = 0; i < factors.length; i++) {
+        var f = factors[i];
+        var pct = (f.val / f.max) * 100;
+        var bar = document.getElementById(f.id);
+        bar.style.width = pct + '%';
+        bar.querySelector('span').textContent = f.val.toFixed(2);
+    }
+
+    var instrText = document.getElementById('rs-instr-text');
+    if (composite > 7) {
+        instrText.textContent = 'Reverse Factoring at prime + 1-2%';
+    } else if (composite >= 5) {
+        instrText.textContent = 'Factoring with recourse at 5-8%';
+    } else {
+        instrText.textContent = 'Secured inventory financing at 10-15% or PO finance';
+    }
+}
+updateRiskScore();
+</script>
+
 <div class="takeaway">
     <h3>Chapter 5 Takeaways</h3>
     <ul>

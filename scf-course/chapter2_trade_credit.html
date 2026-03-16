@@ -41,7 +41,24 @@
         .flow-diagram{background:#f8fafc;border:1px solid #e2e8f0;padding:20px;border-radius:8px;margin:20px 0;text-align:center;font-size:14px;color:#475569}
         .flow-diagram .arrow{color:#ea580c;font-weight:700;margin:0 8px}
 
-        @media(max-width:640px){body{padding:1rem}.topnav{padding:0 16px;margin:0 -1rem;width:calc(100% + 2rem)}.course-nav{margin:0 -1rem 1em}.comparison-grid{grid-template-columns:1fr}}
+        .interactive-section{background:#f8fafc;border:2px solid #ea580c;border-radius:12px;padding:24px;margin:40px 0}
+        .interactive-section h2{border:none;margin:0 0 16px;font-size:18px;color:#9a3412}
+        .slider-group{margin-bottom:14px}
+        .slider-group label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px}
+        .slider-group input[type="range"]{width:100%;height:6px;border-radius:3px;-webkit-appearance:none;background:#e2e8f0;outline:none}
+        .slider-group input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#ea580c;cursor:pointer}
+        .result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+        .result-card{background:#fff;border-radius:8px;padding:14px;text-align:center;border:1px solid #e2e8f0}
+        .result-card .label{font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:4px}
+        .result-card .value{font-size:24px;font-weight:800}
+        .result-card .value.positive{color:#dc2626}
+        .result-card .value.negative{color:#16a34a}
+        .result-big{background:#fff;border-radius:8px;padding:20px;text-align:center;border:1px solid #e2e8f0;margin:16px 0}
+        .result-big .label{font-size:12px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:6px}
+        .result-big .value{font-size:32px;font-weight:800;color:#dc2626}
+        .result-big .terms{font-size:15px;font-weight:600;color:#1e293b;margin-top:6px}
+
+        @media(max-width:640px){body{padding:1rem}.topnav{padding:0 16px;margin:0 -1rem;width:calc(100% + 2rem)}.course-nav{margin:0 -1rem 1em}.comparison-grid{grid-template-columns:1fr}.result-grid{grid-template-columns:repeat(2,1fr)}}
     </style>
 </head>
 <body>
@@ -207,6 +224,110 @@
 <div class="key-concept">
     <strong>The Coordination Insight:</strong> The total cost of financing across the supply chain is minimized when the party with the lowest cost of capital provides the financing. SCF instruments achieve this by channeling the buyer's (or bank's) lower borrowing rate to the supplier, rather than having each firm borrow independently at its own rate.
 </div>
+
+<!-- ============================================ -->
+<div class="interactive-section">
+    <h2>Interactive: Trade Credit APR Calculator</h2>
+    <p style="font-size:13px;color:#64748b;margin-bottom:16px">See how expensive it really is to forgo an early payment discount. Adjust the terms below.</p>
+
+    <div class="slider-group">
+        <label><span>Discount (%)</span><span id="val-disc">2</span></label>
+        <input type="range" id="sl-disc" min="0.5" max="5" value="2" step="0.5" oninput="updateAPR()">
+    </div>
+    <div class="slider-group">
+        <label><span>Discount Period (days)</span><span id="val-discper">10</span></label>
+        <input type="range" id="sl-discper" min="5" max="30" value="10" step="1" oninput="updateAPR()">
+    </div>
+    <div class="slider-group">
+        <label><span>Full Period (days)</span><span id="val-fullper">30</span></label>
+        <input type="range" id="sl-fullper" min="15" max="120" value="30" step="1" oninput="updateAPR()">
+    </div>
+
+    <div class="result-big">
+        <div class="label">Annualized Cost of Forgoing the Discount</div>
+        <div class="value" id="out-apr">--</div>
+        <div class="terms" id="out-terms">--</div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<div class="interactive-section" style="margin-top:24px">
+    <h2>Interactive: Factoring Cost Calculator</h2>
+    <p style="font-size:13px;color:#64748b;margin-bottom:16px">Model the cash flows and effective cost of selling a receivable to a factor.</p>
+
+    <div class="slider-group">
+        <label><span>Invoice Amount ($)</span><span id="val-inv-amt">$250,000</span></label>
+        <input type="range" id="sl-inv-amt" min="10000" max="1000000" value="250000" step="10000" oninput="updateFactoring()">
+    </div>
+    <div class="slider-group">
+        <label><span>Advance Rate (%)</span><span id="val-adv">85</span></label>
+        <input type="range" id="sl-adv" min="70" max="95" value="85" step="1" oninput="updateFactoring()">
+    </div>
+    <div class="slider-group">
+        <label><span>Fee (%)</span><span id="val-fee">3</span></label>
+        <input type="range" id="sl-fee" min="1" max="5" value="3" step="0.5" oninput="updateFactoring()">
+    </div>
+    <div class="slider-group">
+        <label><span>Days to Maturity</span><span id="val-mat">60</span></label>
+        <input type="range" id="sl-mat" min="15" max="120" value="60" step="1" oninput="updateFactoring()">
+    </div>
+
+    <div class="result-grid">
+        <div class="result-card"><div class="label">Cash Received</div><div class="value" id="out-cash" style="color:#16a34a;font-size:18px">--</div></div>
+        <div class="result-card"><div class="label">Fee Amount</div><div class="value" id="out-fee-amt" style="color:#dc2626;font-size:18px">--</div></div>
+        <div class="result-card"><div class="label">Balance at Maturity</div><div class="value" id="out-balance" style="color:#3b82f6;font-size:18px">--</div></div>
+        <div class="result-card"><div class="label">Effective APR</div><div class="value" id="out-eff-apr" style="color:#dc2626;font-size:18px">--</div></div>
+    </div>
+</div>
+
+<script>
+function updateAPR(){
+    var disc=+document.getElementById('sl-disc').value;
+    var discPer=+document.getElementById('sl-discper').value;
+    var fullPer=+document.getElementById('sl-fullper').value;
+
+    document.getElementById('val-disc').textContent=disc;
+    document.getElementById('val-discper').textContent=discPer;
+    document.getElementById('val-fullper').textContent=fullPer;
+
+    if(fullPer<=discPer){
+        document.getElementById('out-apr').textContent='N/A';
+        document.getElementById('out-terms').textContent='Full period must exceed discount period';
+        return;
+    }
+
+    var d=disc/100;
+    var apr=(d/(1-d))*(365/(fullPer-discPer))*100;
+
+    document.getElementById('out-apr').textContent=apr.toFixed(1)+'%';
+    document.getElementById('out-terms').textContent=disc+'/'+discPer+' net '+fullPer;
+}
+
+function updateFactoring(){
+    var invAmt=+document.getElementById('sl-inv-amt').value;
+    var adv=+document.getElementById('sl-adv').value;
+    var fee=+document.getElementById('sl-fee').value;
+    var mat=+document.getElementById('sl-mat').value;
+
+    document.getElementById('val-inv-amt').textContent='$'+invAmt.toLocaleString();
+    document.getElementById('val-adv').textContent=adv;
+    document.getElementById('val-fee').textContent=fee;
+    document.getElementById('val-mat').textContent=mat;
+
+    var cash=invAmt*(adv/100);
+    var feeAmt=invAmt*(fee/100);
+    var balance=invAmt-cash-feeAmt;
+    var effAPR=(feeAmt/cash)*(365/mat)*100;
+
+    document.getElementById('out-cash').textContent='$'+Math.round(cash).toLocaleString();
+    document.getElementById('out-fee-amt').textContent='$'+Math.round(feeAmt).toLocaleString();
+    document.getElementById('out-balance').textContent='$'+Math.round(balance).toLocaleString();
+    document.getElementById('out-eff-apr').textContent=effAPR.toFixed(1)+'%';
+}
+
+updateAPR();
+updateFactoring();
+</script>
 
 <div class="takeaway">
     <h3>Chapter 2 Takeaways</h3>
