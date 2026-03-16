@@ -1,19 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
 <meta charset="UTF-8">
 <title>Regression & Regularization Playground | ML Course</title>
 <style>
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* === SITE-WIDE OVERRIDES === */
+.topnav { position: sticky; top: 0; z-index: 200; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; padding: 0 48px; margin: 0 -2rem; width: calc(100% + 4rem); }
+.topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.topnav-brand { font-weight: 700; font-size: 15px; color: #0f2442; display: flex; align-items: center; gap: 10px; text-decoration: none !important; }
+.topnav-brand:hover { text-decoration: none !important; }
+.topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.topnav-links { display: flex; gap: 4px; }
+.topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #475569; text-decoration: none !important; }
+.topnav-links a:hover { background: #f8fafc; color: #1a365d; text-decoration: none !important; }
+.topnav-links a.active { background: #f8fafc; color: #1a365d; font-weight: 600; }
+.course-nav { background: #f8fafc; padding: 10px 0; text-align: center; border-bottom: 1px solid #e2e8f0; margin: 0 -2rem 1.5em; padding-left: 2rem; padding-right: 2rem; position: sticky; top: 56px; z-index: 100; }
+.course-nav a { margin: 0 8px; text-decoration: none !important; color: #1a365d; font-weight: 600; font-size: 13px; padding: 5px 12px; border-radius: 6px; transition: background 0.15s; }
+.course-nav a:hover { background: #e2e8f0; text-decoration: none !important; }
+@media (max-width: 640px) { .topnav { padding: 0 16px; } .topnav-links a { padding: 4px 8px; font-size: 12px; } .course-nav a { margin: 0 4px; font-size: 12px; padding: 4px 8px; } }
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Georgia, serif; background: #f0f2f5; color: #222; line-height: 1.5; min-height: 100vh; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #f0f2f5; color: #222; line-height: 1.5; min-height: 100vh; }
 nav { background: #fff; padding: 0.8em 1.5em; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-nav a { margin: 0 12px; text-decoration: none; color: #0366d6; font-weight: bold; font-size: 0.9em; font-family: 'Helvetica Neue', Arial, sans-serif; }
+nav a { margin: 0 12px; text-decoration: none; color: #0366d6; font-weight: bold; font-size: 0.9em; font-family: 'Inter', -apple-system, sans-serif; }
 nav a:hover { color: #0256c7; text-decoration: underline; }
-h1, h2, h3 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+h1, h2, h3 { font-family: 'Inter', -apple-system, sans-serif; color: #0f2442; }
 
 .page-header { background: linear-gradient(135deg, #003366 0%, #0366d6 50%, #667eea 100%); color: white; padding: 1.5em 2em; text-align: center; }
 .page-header h1 { color: white; font-size: 1.8em; margin-bottom: 0.3em; }
-.page-header p { opacity: 0.9; font-size: 1em; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.page-header p { opacity: 0.9; font-size: 1em; font-family: 'Inter', -apple-system, sans-serif; }
 
 /* Dashboard Layout */
 .dashboard { display: flex; flex-direction: column; gap: 0; padding: 0; }
@@ -21,21 +39,21 @@ h1, h2, h3 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
 /* Control Panel */
 .control-panel { background: #fff; border-bottom: 2px solid #e1e4e8; padding: 1em 1.5em; display: flex; flex-wrap: wrap; gap: 1em; align-items: flex-start; }
 .control-group { background: #f8f9fa; border-radius: 8px; padding: 0.8em 1em; min-width: 180px; flex: 1; border: 1px solid #e1e4e8; }
-.control-group h3 { font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.05em; color: #666; margin-bottom: 0.6em; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.control-group h3 { font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.05em; color: #666; margin-bottom: 0.6em; font-family: 'Inter', -apple-system, sans-serif; }
 .ctrl-row { display: flex; align-items: center; gap: 0.5em; margin-bottom: 0.5em; }
-.ctrl-label { font-size: 0.78em; color: #444; min-width: 90px; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.ctrl-label { font-size: 0.78em; color: #444; min-width: 90px; font-family: 'Inter', -apple-system, sans-serif; }
 .ctrl-val { font-size: 0.78em; color: #0366d6; font-weight: bold; min-width: 30px; text-align: right; font-family: monospace; }
 input[type=range] { flex: 1; height: 6px; border-radius: 3px; background: #ddd; outline: none; -webkit-appearance: none; cursor: pointer; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #0366d6; cursor: pointer; box-shadow: 0 1px 4px rgba(3,102,214,0.4); }
 input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 0 8px rgba(3,102,214,0.6); }
-select { flex: 1; font-size: 0.8em; padding: 0.3em 0.5em; border: 1px solid #ccc; border-radius: 4px; background: white; cursor: pointer; font-family: 'Helvetica Neue', Arial, sans-serif; }
+select { flex: 1; font-size: 0.8em; padding: 0.3em 0.5em; border: 1px solid #ccc; border-radius: 4px; background: white; cursor: pointer; font-family: 'Inter', -apple-system, sans-serif; }
 .elasticnet-row { transition: opacity 0.2s; }
 .elasticnet-row.hidden { opacity: 0; pointer-events: none; height: 0; overflow: hidden; margin: 0; padding: 0; }
 
 /* Metrics Bar */
 .metrics-bar { background: #003366; color: white; padding: 0.6em 1.5em; display: flex; flex-wrap: wrap; gap: 1.5em; align-items: center; justify-content: center; }
 .metric-item { text-align: center; }
-.metric-label { font-size: 0.65em; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.metric-label { font-size: 0.65em; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; font-family: 'Inter', -apple-system, sans-serif; }
 .metric-value { font-size: 1.1em; font-weight: bold; font-family: monospace; color: #61dafb; }
 .metric-value.warn { color: #ffc107; }
 .metric-value.bad { color: #ff6b6b; }
@@ -44,20 +62,20 @@ select { flex: 1; font-size: 0.8em; padding: 0.3em 0.5em; border: 1px solid #ccc
 /* Canvas Grid */
 .canvas-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 2px; background: #ccc; flex: 1; }
 .canvas-panel { background: white; position: relative; }
-.canvas-title { position: absolute; top: 8px; left: 12px; font-size: 0.75em; font-weight: bold; color: #003366; font-family: 'Helvetica Neue', Arial, sans-serif; z-index: 5; text-transform: uppercase; letter-spacing: 0.04em; }
-.canvas-subtitle { position: absolute; top: 26px; left: 12px; font-size: 0.65em; color: #888; font-family: 'Helvetica Neue', Arial, sans-serif; z-index: 5; }
+.canvas-title { position: absolute; top: 8px; left: 12px; font-size: 0.75em; font-weight: bold; color: #0f2442; font-family: 'Inter', -apple-system, sans-serif; z-index: 5; text-transform: uppercase; letter-spacing: 0.04em; }
+.canvas-subtitle { position: absolute; top: 26px; left: 12px; font-size: 0.65em; color: #888; font-family: 'Inter', -apple-system, sans-serif; z-index: 5; }
 canvas { display: block; width: 100%; }
 
 /* Info panel tooltip */
 .info-badge { position: absolute; top: 8px; right: 8px; width: 18px; height: 18px; border-radius: 50%; background: #0366d6; color: white; font-size: 0.7em; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; font-family: sans-serif; }
-.info-tooltip { display: none; position: absolute; top: 30px; right: 8px; background: rgba(0,0,0,0.85); color: white; font-size: 0.72em; padding: 0.5em 0.8em; border-radius: 6px; max-width: 220px; z-index: 20; line-height: 1.4; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.info-tooltip { display: none; position: absolute; top: 30px; right: 8px; background: rgba(0,0,0,0.85); color: white; font-size: 0.72em; padding: 0.5em 0.8em; border-radius: 6px; max-width: 220px; z-index: 20; line-height: 1.4; font-family: 'Inter', -apple-system, sans-serif; }
 .info-badge:hover + .info-tooltip, .info-tooltip:hover { display: block; }
 
 /* Status overlay */
 .status-overlay { position: absolute; bottom: 8px; right: 8px; font-size: 0.65em; color: #aaa; font-family: monospace; z-index: 5; }
 
 /* Legend */
-.legend { position: absolute; bottom: 10px; left: 10px; font-size: 0.65em; font-family: 'Helvetica Neue', Arial, sans-serif; color: #555; z-index: 5; line-height: 1.6; }
+.legend { position: absolute; bottom: 10px; left: 10px; font-size: 0.65em; font-family: 'Inter', -apple-system, sans-serif; color: #555; z-index: 5; line-height: 1.6; }
 .legend-item { display: flex; align-items: center; gap: 4px; }
 .legend-dot { width: 10px; height: 3px; display: inline-block; border-radius: 2px; }
 .legend-circle { width: 8px; height: 8px; display: inline-block; border-radius: 50%; }
@@ -75,12 +93,18 @@ canvas { display: block; width: 100%; }
 </head>
 <body>
 
-<nav>
-  <a href="module2-linear-regression/index.html">📚 Module 2: Linear Regression</a>
-  <a href="module3_regularization_class.html">🔒 Module 3: Regularization</a>
-  <a href="index.html">🏠 Course Home</a>
-  <a href="../teaching.html">👨‍🏫 Teaching</a>
-</nav>
+<nav class="topnav"><div class="topnav-inner">
+  <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+  <div class="topnav-links">
+    <a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a>
+  </div>
+</div></nav>
+<div class="course-nav">
+  <a href="module2-linear-regression/index.html">📚 Module 2: Linear Regression
+  🔒 Module 3: Regularization
+  🏠 Course Home
+  👨‍🏫 Teaching</a>
+</div>
 
 <div class="page-header">
   <h1>🎛️ Regression &amp; Regularization Playground</h1>

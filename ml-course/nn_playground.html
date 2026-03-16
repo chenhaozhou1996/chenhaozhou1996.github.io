@@ -1,10 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Neural Network Playground — ML Course</title>
 <style>
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* === SITE-WIDE OVERRIDES === */
+.topnav { position: sticky; top: 0; z-index: 200; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; padding: 0 48px; margin: 0 -2rem; width: calc(100% + 4rem); }
+.topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.topnav-brand { font-weight: 700; font-size: 15px; color: #0f2442; display: flex; align-items: center; gap: 10px; text-decoration: none !important; }
+.topnav-brand:hover { text-decoration: none !important; }
+.topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.topnav-links { display: flex; gap: 4px; }
+.topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #475569; text-decoration: none !important; }
+.topnav-links a:hover { background: #f8fafc; color: #1a365d; text-decoration: none !important; }
+.topnav-links a.active { background: #f8fafc; color: #1a365d; font-weight: 600; }
+.course-nav { background: #f8fafc; padding: 10px 0; text-align: center; border-bottom: 1px solid #e2e8f0; margin: 0 -2rem 1.5em; padding-left: 2rem; padding-right: 2rem; position: sticky; top: 56px; z-index: 100; }
+.course-nav a { margin: 0 8px; text-decoration: none !important; color: #1a365d; font-weight: 600; font-size: 13px; padding: 5px 12px; border-radius: 6px; transition: background 0.15s; }
+.course-nav a:hover { background: #e2e8f0; text-decoration: none !important; }
+@media (max-width: 640px) { .topnav { padding: 0 16px; } .topnav-links a { padding: 4px 8px; font-size: 12px; } .course-nav a { margin: 0 4px; font-size: 12px; padding: 4px 8px; } }
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;font-family:Georgia,'Times New Roman',serif;background:#f4f4ee;color:#333;font-size:13px;line-height:1.4}
 nav{background:#003366;color:#fff;padding:5px 16px;display:flex;align-items:center;gap:14px;flex-shrink:0;height:32px}
@@ -19,21 +37,21 @@ nav .nav-right{margin-left:auto;display:flex;gap:14px}
 .ctrl-group{display:flex;align-items:center;gap:5px;flex-shrink:0}
 .ctrl-label{font-size:10px;color:#666;font-weight:bold;text-transform:uppercase;letter-spacing:.4px}
 select{font-family:Georgia,serif;font-size:12px;padding:2px 4px;border:1px solid #bbb;border-radius:3px;background:#fff;cursor:pointer;color:#333}
-select:focus{outline:none;border-color:#003366}
+select:focus{outline:none;border-color: #0f2442}
 input[type=range]{-webkit-appearance:none;height:4px;background:#ccc;border-radius:2px;cursor:pointer;vertical-align:middle}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#003366;cursor:pointer}
-.val-display{font-size:11px;color:#003366;min-width:34px;text-align:right;font-weight:bold;font-family:'Courier New',monospace}
+.val-display{font-size:11px;color: #0f2442;min-width:34px;text-align:right;font-weight:bold;font-family:'Courier New',monospace}
 .ds-btn{font-family:Georgia,serif;font-size:11px;padding:3px 8px;border:1px solid #aaa;border-radius:3px;background:#fff;cursor:pointer;transition:all .15s;color:#444}
-.ds-btn:hover{background:#e8eeff;border-color:#003366}
-.ds-btn.active{background:#003366;color:#fff;border-color:#003366}
+.ds-btn:hover{background:#e8eeff;border-color: #0f2442}
+.ds-btn.active{background:#003366;color:#fff;border-color: #0f2442}
 .ctrl-btn{font-size:13px;width:26px;height:24px;border:1px solid #aaa;border-radius:3px;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
-.ctrl-btn:hover{background:#e8eeff;border-color:#003366}
-.ctrl-btn.pbtn-active{background:#003366;color:#fff;border-color:#003366}
+.ctrl-btn:hover{background:#e8eeff;border-color: #0f2442}
+.ctrl-btn.pbtn-active{background:#003366;color:#fff;border-color: #0f2442}
 #page{display:flex;flex-direction:column;height:100vh}
 #main-grid{flex:1;display:grid;grid-template-columns:290px 410px 1fr;grid-template-rows:1fr 185px;min-height:0;background:#ddd;gap:1px}
 .panel{background:#fff;display:flex;flex-direction:column;overflow:hidden;position:relative}
 .panel-header{flex-shrink:0;padding:4px 10px;background:#f0f4ff;border-bottom:1px solid #d8dff0;display:flex;align-items:center;justify-content:space-between;height:26px}
-.panel-title-text{font-size:11px;font-weight:bold;color:#003366;text-transform:uppercase;letter-spacing:.5px}
+.panel-title-text{font-size:11px;font-weight:bold;color: #0f2442;text-transform:uppercase;letter-spacing:.5px}
 .panel-subtitle{font-size:10px;color:#888}
 #net-panel{grid-column:1;grid-row:1}
 #db-panel{grid-column:2;grid-row:1}
@@ -44,16 +62,16 @@ canvas{display:block;flex:1;width:100%;height:100%}
 .metric-section{margin-bottom:12px}
 .metric-section-title{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:#999;border-bottom:1px solid #eee;padding-bottom:3px;margin-bottom:7px}
 .epoch-display{text-align:center;margin-bottom:10px}
-.epoch-number{font-size:28px;font-weight:bold;color:#003366;line-height:1;font-family:'Courier New',monospace}
+.epoch-number{font-size:28px;font-weight:bold;color: #0f2442;line-height:1;font-family:'Courier New',monospace}
 .epoch-unit{font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.5px}
 .metric-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
 .metric-label{font-size:12px;color:#555}
-.metric-value{font-size:13px;font-weight:bold;color:#003366;font-family:'Courier New',monospace}
+.metric-value{font-size:13px;font-weight:bold;color: #0f2442;font-family:'Courier New',monospace}
 .acc-bar-wrap{background:#eee;border-radius:4px;height:5px;margin-top:2px;margin-bottom:6px}
 .acc-bar{height:5px;border-radius:4px;transition:width .3s ease}
 .acc-bar.train{background:linear-gradient(90deg,#0033aa,#3366ff)}
 .acc-bar.test{background:linear-gradient(90deg,#cc5500,#ff8833)}
-.arch-chip{display:inline-block;background:#f0f4ff;border:1px solid #c0d0f0;border-radius:4px;padding:3px 7px;font-family:'Courier New',monospace;font-size:11px;color:#003366;margin-top:3px;word-break:break-all}
+.arch-chip{display:inline-block;background:#f0f4ff;border:1px solid #c0d0f0;border-radius:4px;padding:3px 7px;font-family:'Courier New',monospace;font-size:11px;color: #0f2442;margin-top:3px;word-break:break-all}
 .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;background:#ccc;vertical-align:middle}
 .status-dot.running{background:#22bb44;animation:blink 1.2s ease-in-out infinite}
 .status-dot.paused{background:#ffaa22}
@@ -66,7 +84,7 @@ canvas{display:block;flex:1;width:100%;height:100%}
 .layer-n-item{display:flex;align-items:center;gap:3px}
 .layer-n-item label{font-size:10px;color:#888;min-width:18px;text-align:right}
 .layer-n-item input[type=range]{width:50px}
-.layer-n-item .nv{font-size:10px;color:#003366;min-width:12px;font-family:'Courier New',monospace}
+.layer-n-item .nv{font-size:10px;color: #0f2442;min-width:12px;font-family:'Courier New',monospace}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:#f1f1f1}
 ::-webkit-scrollbar-thumb{background:#bbb;border-radius:3px}
@@ -77,19 +95,15 @@ canvas{display:block;flex:1;width:100%;height:100%}
 <div id="page">
 
 <!-- NAV -->
-<nav>
-  <a class="brand" href="../teaching.html">ML Course</a>
-  <span class="sep">›</span>
-  <a href="index.html">Modules</a>
-  <span class="sep">›</span>
-  <a href="module8.html">Module 8</a>
-  <span class="sep">›</span>
-  <span class="page-title">Module 9: Neural Network Playground</span>
-  <div class="nav-right">
-    <a href="index.html">← All Modules</a>
-    <a href="../teaching.html">Teaching</a>
+<nav class="topnav"><div class="topnav-inner">
+  <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+  <div class="topnav-links">
+    <a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a>
   </div>
-</nav>
+</div></nav>
+<div class="course-nav">
+  <a href="index.html">Course Home</a>
+</div>
 
 <!-- CONTROLS -->
 <div id="controls">

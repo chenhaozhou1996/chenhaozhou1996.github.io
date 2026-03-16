@@ -5,7 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Machine Learning: Theory to Practice | Chenhao Zhou</title>
     <meta name="description" content="Enterprise-grade machine learning course covering theory, implementation, and real-world business applications.">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        /* === GLOBAL TOPNAV === */
+        .topnav { position: sticky; top: 0; z-index: 2000; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; padding: 0 48px; }
+        .topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .topnav-brand { font-weight: 700; font-size: 15px; color: #0f2442; display: flex; align-items: center; gap: 10px; text-decoration: none !important; }
+        .topnav-brand:hover { text-decoration: none !important; color: #0f2442; }
+        .topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+        .topnav-links { display: flex; gap: 4px; }
+        .topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #475569; text-decoration: none !important; }
+        .topnav-links a:hover { background: #f8fafc; color: #1a365d; }
+        .topnav-links a.active { background: #f8fafc; color: #1a365d; font-weight: 600; }
+        @media (max-width: 640px) { .topnav { padding: 0 16px; } .topnav-links a { padding: 4px 8px; font-size: 12px; } }
         :root {
             --primary-gradient: linear-gradient(135deg, #0066ff 0%, #00ccff 100%);
             --primary-dark: #0052cc;
@@ -33,7 +46,7 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--background);
             color: var(--text-primary);
             line-height: 1.6;
@@ -551,8 +564,14 @@
     </style>
 </head>
 <body>
+    <nav class="topnav"><div class="topnav-inner">
+      <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+      <div class="topnav-links">
+        <a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a>
+      </div>
+    </div></nav>
     <div class="scroll-progress" id="scrollProgress"></div>
-    
+
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">

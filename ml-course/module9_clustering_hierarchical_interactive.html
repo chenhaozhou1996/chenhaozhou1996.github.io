@@ -1,16 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
 <meta charset="UTF-8">
 <title>Module 9: Hierarchical Clustering | Chenhao Zhou</title>
 <style>
-body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 950px; margin: auto; padding: 2rem; line-height: 1.6; }
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* === SITE-WIDE OVERRIDES === */
+.topnav { position: sticky; top: 0; z-index: 200; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; padding: 0 48px; margin: 0 -2rem; width: calc(100% + 4rem); }
+.topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.topnav-brand { font-weight: 700; font-size: 15px; color: #0f2442; display: flex; align-items: center; gap: 10px; text-decoration: none !important; }
+.topnav-brand:hover { text-decoration: none !important; }
+.topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.topnav-links { display: flex; gap: 4px; }
+.topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #475569; text-decoration: none !important; }
+.topnav-links a:hover { background: #f8fafc; color: #1a365d; text-decoration: none !important; }
+.topnav-links a.active { background: #f8fafc; color: #1a365d; font-weight: 600; }
+.course-nav { background: #f8fafc; padding: 10px 0; text-align: center; border-bottom: 1px solid #e2e8f0; margin: 0 -2rem 1.5em; padding-left: 2rem; padding-right: 2rem; position: sticky; top: 56px; z-index: 100; }
+.course-nav a { margin: 0 8px; text-decoration: none !important; color: #1a365d; font-weight: 600; font-size: 13px; padding: 5px 12px; border-radius: 6px; transition: background 0.15s; }
+.course-nav a:hover { background: #e2e8f0; text-decoration: none !important; }
+@media (max-width: 640px) { .topnav { padding: 0 16px; } .topnav-links a { padding: 4px 8px; font-size: 12px; } .course-nav a { margin: 0 4px; font-size: 12px; padding: 4px 8px; } }
+
+body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color: #222; max-width: 950px; margin: auto; padding: 2rem; line-height: 1.6; }
 nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #e1e4e8; }
 nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; }
-h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+h1,h2,h3,h4 { font-family: 'Inter', -apple-system, sans-serif; color: #0f2442; }
 .card { background: #fff; padding: 1.2em; margin: 1em 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 .interactive-section { background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); padding: 2em; margin: 2em 0; border-radius: 12px; border: 1px solid #e1e4e8; }
-.button { display: inline-block; padding: 0.8em 1.5em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; transition: all 0.3s ease; margin: 0.5em 0.5em 0.5em 0; font-weight: bold; font-family: Georgia, serif; }
+.button { display: inline-block; padding: 0.8em 1.5em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; transition: all 0.3s ease; margin: 0.5em 0.5em 0.5em 0; font-weight: bold; font-family: 'Inter', -apple-system, sans-serif; }
 .button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
 .button.secondary { background: #6c757d; }
 .button.success { background: #28a745; }
@@ -18,7 +36,7 @@ h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; 
 .button.danger { background: #dc3545; }
 .button.small { padding: 0.4em 0.9em; font-size: 0.85em; }
 .slider-container { margin: 1.5em 0; }
-.slider-container label { font-weight: bold; color: #003366; }
+.slider-container label { font-weight: bold; color: #0f2442; }
 .slider { width: 100%; height: 8px; border-radius: 4px; background: #e1e4e8; outline: none; -webkit-appearance: none; }
 .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #0366d6; cursor: pointer; }
 .progress-bar { height: 30px; background: #e9ecef; border-radius: 15px; margin: 2em 0; overflow: hidden; }
@@ -55,19 +73,25 @@ tr:hover td { background: #f8f9fa; }
 .highlight-box { background: #e7f3ff; border-left: 4px solid #0366d6; padding: 1em 1.5em; border-radius: 0 8px 8px 0; margin: 1em 0; }
 .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1em; margin: 1em 0; }
 .info-card { background: white; border-radius: 8px; padding: 1.2em; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; border-top: 4px solid #003366; }
-.info-card .big-num { font-size: 2em; font-weight: bold; color: #003366; }
+.info-card .big-num { font-size: 2em; font-weight: bold; color: #0f2442; }
 .controls-row { display: flex; gap: 0.8em; flex-wrap: wrap; align-items: center; margin-bottom: 1em; }
-.tag { display: inline-block; padding: 0.2em 0.7em; background: #f0f4ff; border: 1px solid #003366; border-radius: 12px; font-size: 0.85em; color: #003366; margin: 0.2em; }
-#quiz-score-display { font-size: 1.2em; font-weight: bold; color: #003366; }
+.tag { display: inline-block; padding: 0.2em 0.7em; background: #f0f4ff; border: 1px solid #003366; border-radius: 12px; font-size: 0.85em; color: #0f2442; margin: 0.2em; }
+#quiz-score-display { font-size: 1.2em; font-weight: bold; color: #0f2442; }
 </style>
 </head>
 <body>
 
-<nav>
-  <a href="module9_class_material.html">📚 Class Material</a>
-  <a href="module9_clustering_kmeans_interactive.html">🔵 K-Means</a>
-  <a href="index.html">🏠 Course Home</a>
-</nav>
+<nav class="topnav"><div class="topnav-inner">
+  <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+  <div class="topnav-links">
+    <a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a>
+  </div>
+</div></nav>
+<div class="course-nav">
+  <a href="module9_class_material.html">📚 Class Material
+  🔵 K-Means
+  🏠 Course Home</a>
+</div>
 
 <h1>🌳 Module 9B: Hierarchical Clustering — Structure, Not Just Groups</h1>
 
@@ -132,7 +156,7 @@ tr:hover td { background: #f8f9fa; }
     <div style="display:flex;gap:2em;margin-top:0.8em;flex-wrap:wrap;">
       <div><span style="display:inline-block;width:14px;height:14px;background:#0366d6;border-radius:50%;vertical-align:middle;"></span> Current clusters</div>
       <div><span style="display:inline-block;width:14px;height:14px;background:#e1e4e8;border:2px dashed #999;border-radius:50%;vertical-align:middle;"></span> Merged (last step)</div>
-      <div id="agg-step-counter" style="margin-left:auto;font-weight:bold;color:#003366;">Step: 0</div>
+      <div id="agg-step-counter" style="margin-left:auto;font-weight:bold;color: #0f2442;">Step: 0</div>
     </div>
   </div>
 
@@ -157,7 +181,7 @@ tr:hover td { background: #f8f9fa; }
       <button class="button small" onclick="rebuildDendro()">🔄 Regenerate</button>
       <label style="font-weight:bold;">Cut Height:</label>
       <input type="range" min="0" max="100" value="50" id="cut-slider" class="slider" style="width:200px;" oninput="updateCut()">
-      <span id="cut-value" style="font-weight:bold;color:#003366;">50</span>
+      <span id="cut-value" style="font-weight:bold;color: #0f2442;">50</span>
       <span id="cluster-count-display" style="background:#003366;color:white;padding:0.3em 0.8em;border-radius:12px;font-weight:bold;">Clusters: 2</span>
     </div>
     <canvas id="dendro-canvas" width="860" height="400" style="border:1px solid #e1e4e8;border-radius:8px;width:100%;max-width:860px;cursor:ew-resize;"></canvas>
@@ -347,7 +371,7 @@ tr:hover td { background: #f8f9fa; }
   <h3>📋 Discovered Customer Hierarchy (3-level)</h3>
   <div style="background:#f8f9fa;padding:1.5em;border-radius:8px;font-family:monospace;font-size:0.9em;line-height:2;">
     All Customers<br>
-    ├── <span style="color:#003366;font-weight:bold;">💎 Premium Tier</span> (top 20%, avg spend $850/visit)<br>
+    ├── <span style="color: #0f2442;font-weight:bold;">💎 Premium Tier</span> (top 20%, avg spend $850/visit)<br>
     │&nbsp;&nbsp;&nbsp;├── Luxury Loyalists (frequent, high spend, brand-conscious)<br>
     │&nbsp;&nbsp;&nbsp;└── Occasion Splurgers (infrequent but very high single-visit spend)<br>
     ├── <span style="color:#0366d6;font-weight:bold;">📦 Standard Tier</span> (middle 55%, avg spend $210/visit)<br>

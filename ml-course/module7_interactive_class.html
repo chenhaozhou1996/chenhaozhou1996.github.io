@@ -1,25 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
 <meta charset="UTF-8">
 <title>Module 7: Interactive Class - Dimensionality Reduction | Chenhao Zhou</title>
 <style>
-body { font-family: Georgia, serif; background: #fafafa; color: #222; max-width: 970px; margin: auto; padding: 2rem; line-height: 1.7; }
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* === SITE-WIDE OVERRIDES === */
+.topnav { position: sticky; top: 0; z-index: 200; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; padding: 0 48px; margin: 0 -2rem; width: calc(100% + 4rem); }
+.topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.topnav-brand { font-weight: 700; font-size: 15px; color: #0f2442; display: flex; align-items: center; gap: 10px; text-decoration: none !important; }
+.topnav-brand:hover { text-decoration: none !important; }
+.topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.topnav-links { display: flex; gap: 4px; }
+.topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #475569; text-decoration: none !important; }
+.topnav-links a:hover { background: #f8fafc; color: #1a365d; text-decoration: none !important; }
+.topnav-links a.active { background: #f8fafc; color: #1a365d; font-weight: 600; }
+.course-nav { background: #f8fafc; padding: 10px 0; text-align: center; border-bottom: 1px solid #e2e8f0; margin: 0 -2rem 1.5em; padding-left: 2rem; padding-right: 2rem; position: sticky; top: 56px; z-index: 100; }
+.course-nav a { margin: 0 8px; text-decoration: none !important; color: #1a365d; font-weight: 600; font-size: 13px; padding: 5px 12px; border-radius: 6px; transition: background 0.15s; }
+.course-nav a:hover { background: #e2e8f0; text-decoration: none !important; }
+@media (max-width: 640px) { .topnav { padding: 0 16px; } .topnav-links a { padding: 4px 8px; font-size: 12px; } .course-nav a { margin: 0 4px; font-size: 12px; padding: 4px 8px; } }
+
+body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color: #222; max-width: 970px; margin: auto; padding: 2rem; line-height: 1.7; }
 nav { background: #f5f5f5; padding: 1em; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #e1e4e8; }
-nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; font-family: 'Helvetica Neue', Arial, sans-serif; }
-nav a:hover { color: #003366; }
-h1,h2,h3,h4 { font-family: 'Helvetica Neue', Arial, sans-serif; color: #003366; }
+nav a { margin: 0 15px; text-decoration: none; color: #0366d6; font-weight: bold; font-family: 'Inter', -apple-system, sans-serif; }
+nav a:hover { color: #0f2442; }
+h1,h2,h3,h4 { font-family: 'Inter', -apple-system, sans-serif; color: #0f2442; }
 h1 { font-size: 2.2em; margin-bottom: 0.3em; }
 .card { background: #fff; padding: 1.5em; margin: 1.2em 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.09); }
 .interactive-section { background: linear-gradient(135deg, #667eea18 0%, #764ba218 100%); padding: 2em; margin: 2.5em 0; border-radius: 14px; border: 1px solid #d0d7de; }
-.button { display: inline-block; padding: 0.75em 1.5em; background: #003366; color: white; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; transition: all 0.3s ease; margin: 0.4em 0.4em 0.4em 0; font-weight: bold; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.button { display: inline-block; padding: 0.75em 1.5em; background: #003366; color: white; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; transition: all 0.3s ease; margin: 0.4em 0.4em 0.4em 0; font-weight: bold; font-family: 'Inter', -apple-system, sans-serif; }
 .button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
 .button.secondary { background: #6c757d; }
 .button.success { background: #28a745; }
 .button.warning { background: #e88c00; color: white; }
 .button.sm { padding: 0.4em 1em; font-size: 0.9em; }
 .slider-container { margin: 1.2em 0; }
-.slider-label { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: bold; color: #003366; margin-bottom: 0.4em; display: flex; justify-content: space-between; align-items: center; }
+.slider-label { font-family: 'Inter', -apple-system, sans-serif; font-weight: bold; color: #0f2442; margin-bottom: 0.4em; display: flex; justify-content: space-between; align-items: center; }
 .slider { width: 100%; height: 8px; border-radius: 4px; background: #dde1e7; outline: none; -webkit-appearance: none; cursor: pointer; }
 .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #003366; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(0,51,102,0.3); }
 .slider::-webkit-slider-thumb:hover { transform: scale(1.25); background: #0366d6; }
@@ -30,24 +48,24 @@ canvas { display: block; border-radius: 8px; }
 /* Progress Tracker */
 .story-progress { display: flex; justify-content: space-between; margin: 2.5em 0 1em; position: relative; }
 .story-progress::before { content: ""; position: absolute; top: 20px; left: 5%; right: 5%; height: 3px; background: #e1e4e8; z-index: 0; }
-.story-step { background: white; border: 3px solid #e1e4e8; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 0.9em; position: relative; z-index: 1; cursor: pointer; transition: all 0.35s ease; flex-direction: column; }
+.story-step { background: white; border: 3px solid #e1e4e8; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Inter', -apple-system, sans-serif; font-size: 0.9em; position: relative; z-index: 1; cursor: pointer; transition: all 0.35s ease; flex-direction: column; }
 .story-step span.label { position: absolute; top: 48px; font-size: 0.72em; white-space: nowrap; color: #555; font-weight: normal; }
 .story-step.completed { background: #28a745; color: white; border-color: #28a745; }
-.story-step.active { background: #003366; color: white; border-color: #003366; transform: scale(1.2); }
+.story-step.active { background: #003366; color: white; border-color: #0f2442; transform: scale(1.2); }
 .progress-bar { height: 14px; background: #e9ecef; border-radius: 8px; margin: 1em 0 2em; overflow: hidden; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, #003366 0%, #0366d6 100%); border-radius: 8px; transition: width 0.8s ease; }
 
 /* Quiz */
 .quiz-card { background: linear-gradient(135deg, #fff 0%, #f0f4ff 100%); border: 2px solid #003366; border-radius: 12px; padding: 1.8em; margin: 1.8em 0; position: relative; overflow: hidden; }
 .quiz-card::before { content: "?"; position: absolute; top: -15px; right: -15px; font-size: 110px; color: rgba(3,51,102,0.04); font-weight: bold; }
-.quiz-card h3 { margin-top: 0; color: #003366; }
+.quiz-card h3 { margin-top: 0; color: #0f2442; }
 .answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9em; margin: 1.2em 0; }
-.answer-option { padding: 0.9em 1em; background: white; border: 2px solid #dde1e7; border-radius: 8px; cursor: pointer; transition: all 0.25s ease; font-family: Georgia, serif; font-size: 0.97em; text-align: left; }
-.answer-option:hover { border-color: #003366; background: #f0f4ff; }
+.answer-option { padding: 0.9em 1em; background: white; border: 2px solid #dde1e7; border-radius: 8px; cursor: pointer; transition: all 0.25s ease; font-family: 'Inter', -apple-system, sans-serif; font-size: 0.97em; text-align: left; }
+.answer-option:hover { border-color: #0f2442; background: #f0f4ff; }
 .answer-option.correct { background: #d4edda; border-color: #28a745; color: #155724; }
 .answer-option.incorrect { background: #f8d7da; border-color: #dc3545; color: #721c24; }
 .answer-option.disabled { cursor: default; pointer-events: none; }
-.feedback-panel { background: #f0f7ff; border-left: 5px solid #003366; padding: 1.2em 1.5em; margin: 1em 0; border-radius: 6px; display: none; font-family: 'Helvetica Neue', Arial, sans-serif; }
+.feedback-panel { background: #f0f7ff; border-left: 5px solid #003366; padding: 1.2em 1.5em; margin: 1em 0; border-radius: 6px; display: none; font-family: 'Inter', -apple-system, sans-serif; }
 .feedback-panel.show { display: block; animation: fadeSlide 0.4s ease; }
 @keyframes fadeSlide { from { opacity:0; transform: translateY(-10px); } to { opacity:1; transform: translateY(0); } }
 
@@ -68,32 +86,38 @@ canvas { display: block; border-radius: 8px; }
 .ae-canvas-wrapper { text-align: center; position: relative; }
 
 /* Tooltip */
-.tooltip { position: absolute; background: #003366; color: white; padding: 8px 12px; border-radius: 6px; font-size: 0.82em; pointer-events: none; display: none; font-family: 'Helvetica Neue', Arial, sans-serif; z-index: 200; white-space: nowrap; }
+.tooltip { position: absolute; background: #003366; color: white; padding: 8px 12px; border-radius: 6px; font-size: 0.82em; pointer-events: none; display: none; font-family: 'Inter', -apple-system, sans-serif; z-index: 200; white-space: nowrap; }
 
 /* Info box */
 .info-box { background: #e8f4fd; border-left: 4px solid #0366d6; padding: 1em 1.3em; border-radius: 6px; margin: 1em 0; font-size: 0.96em; }
-.info-box strong { color: #003366; }
+.info-box strong { color: #0f2442; }
 .warn-box { background: #fff8e1; border-left: 4px solid #e88c00; padding: 1em 1.3em; border-radius: 6px; margin: 1em 0; font-size: 0.96em; }
 
-.section-tag { display: inline-block; background: #003366; color: white; padding: 0.2em 0.8em; border-radius: 20px; font-size: 0.8em; font-family: 'Helvetica Neue', Arial, sans-serif; margin-bottom: 0.5em; letter-spacing: 0.05em; text-transform: uppercase; }
+.section-tag { display: inline-block; background: #003366; color: white; padding: 0.2em 0.8em; border-radius: 20px; font-size: 0.8em; font-family: 'Inter', -apple-system, sans-serif; margin-bottom: 0.5em; letter-spacing: 0.05em; text-transform: uppercase; }
 
 .shimmer { position: relative; overflow: hidden; }
 .shimmer::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); animation: shimmer 2.5s infinite; }
 @keyframes shimmer { to { left: 120%; } }
 
-.quiz-score { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 1.1em; color: #003366; font-weight: bold; }
+.quiz-score { font-family: 'Inter', -apple-system, sans-serif; font-size: 1.1em; color: #0f2442; font-weight: bold; }
 footer { text-align: center; color: #888; font-size: 0.88em; margin-top: 3em; padding-top: 2em; border-top: 1px solid #e1e4e8; }
 </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav>
-  <a href="index.html">🏠 Course Home</a>
-  <a href="module7-class-notes.html">📚 Class Notes</a>
-  <a href="module7_lab_manual.html">🔬 Lab Manual</a>
-  <a href="module7_interactive_class.html">⚡ Interactive</a>
-</nav>
+<nav class="topnav"><div class="topnav-inner">
+  <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+  <div class="topnav-links">
+    <a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a>
+  </div>
+</div></nav>
+<div class="course-nav">
+  <a href="index.html">🏠 Course Home
+  📚 Class Notes
+  🔬 Lab Manual
+  ⚡ Interactive</a>
+</div>
 
 <!-- HEADER -->
 <h1>📉 Module 7: Dimensionality Reduction</h1>
@@ -144,7 +168,7 @@ footer { text-align: center; color: #888; font-size: 0.88em; margin-top: 3em; pa
   <div class="canvas-wrapper">
     <canvas id="pcaCanvas" width="700" height="360" style="cursor:crosshair; max-width:100%;"></canvas>
     <div class="canvas-caption">🖱️ Click and drag to rotate the principal component axes. Watch how the projected spread changes.</div>
-    <div id="pcaInfo" style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:0.93em; margin-top:0.5em; color:#003366; font-weight:bold;"></div>
+    <div id="pcaInfo" style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:0.93em; margin-top:0.5em; color: #0f2442; font-weight:bold;"></div>
   </div>
 
   <div class="slider-container">
@@ -183,7 +207,7 @@ footer { text-align: center; color: #888; font-size: 0.88em; margin-top: 3em; pa
     <canvas id="varianceCanvas" width="680" height="300" style="max-width:100%;"></canvas>
     <div class="canvas-caption">Cumulative variance explained — look for the "elbow" to find the optimal number of components</div>
   </div>
-  <div id="varianceSummary" style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:0.95em; color:#003366; margin-top:0.5em;"></div>
+  <div id="varianceSummary" style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:0.95em; color: #0f2442; margin-top:0.5em;"></div>
 </div>
 
 <!-- EIGENVALUES -->
@@ -235,12 +259,12 @@ footer { text-align: center; color: #888; font-size: 0.88em; margin-top: 3em; pa
 
   <div class="side-by-side">
     <div class="canvas-wrapper" style="margin:0;">
-      <h4 style="margin:0.3em 0; font-family:'Helvetica Neue',Arial,sans-serif; color:#003366;">PCA</h4>
+      <h4 style="margin:0.3em 0; font-family:'Helvetica Neue',Arial,sans-serif; color: #0f2442;">PCA</h4>
       <canvas id="pcaCompCanvas" width="310" height="280" style="max-width:100%;"></canvas>
       <div class="canvas-caption">✅ Global structure intact<br>❌ Overlapping clusters</div>
     </div>
     <div class="canvas-wrapper" style="margin:0;">
-      <h4 style="margin:0.3em 0; font-family:'Helvetica Neue',Arial,sans-serif; color:#003366;">t-SNE</h4>
+      <h4 style="margin:0.3em 0; font-family:'Helvetica Neue',Arial,sans-serif; color: #0f2442;">t-SNE</h4>
       <canvas id="tsneCompCanvas" width="310" height="280" style="max-width:100%;"></canvas>
       <div class="canvas-caption">✅ Clear cluster separation<br>❌ Distances not meaningful</div>
     </div>
@@ -350,17 +374,17 @@ footer { text-align: center; color: #888; font-size: 0.88em; margin-top: 3em; pa
     <p>A retail company has 500 customer features (purchase history, browsing, demographics...). PCA can collapse these into interpretable composite dimensions.</p>
     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:1em; margin-top:1em;">
       <div style="background:#f0f4ff; border-radius:10px; padding:1em; text-align:center; border:2px solid #003366;">
-        <div style="font-size:1.8em; font-weight:bold; color:#003366;">PC1</div>
+        <div style="font-size:1.8em; font-weight:bold; color: #0f2442;">PC1</div>
         <div style="font-size:0.85em; margin-top:0.3em; color:#555;">Purchasing Power<br><em>income, cart size, returns</em></div>
         <div style="font-size:0.78em; color:#888; margin-top:0.3em;">38% variance</div>
       </div>
       <div style="background:#f0f4ff; border-radius:10px; padding:1em; text-align:center; border:2px solid #003366;">
-        <div style="font-size:1.8em; font-weight:bold; color:#003366;">PC2</div>
+        <div style="font-size:1.8em; font-weight:bold; color: #0f2442;">PC2</div>
         <div style="font-size:0.85em; margin-top:0.3em; color:#555;">Digital Engagement<br><em>clicks, reviews, email opens</em></div>
         <div style="font-size:0.78em; color:#888; margin-top:0.3em;">22% variance</div>
       </div>
       <div style="background:#f0f4ff; border-radius:10px; padding:1em; text-align:center; border:2px solid #003366;">
-        <div style="font-size:1.8em; font-weight:bold; color:#003366;">PC3</div>
+        <div style="font-size:1.8em; font-weight:bold; color: #0f2442;">PC3</div>
         <div style="font-size:0.85em; margin-top:0.3em; color:#555;">Loyalty Recency<br><em>visit frequency, churn risk</em></div>
         <div style="font-size:0.78em; color:#888; margin-top:0.3em;">15% variance</div>
       </div>

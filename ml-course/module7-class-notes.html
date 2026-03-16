@@ -1,19 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Module 7: Dimensionality Reduction for Marketing Analytics - Class Notes</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Georgia', serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 20px; min-height: 100vh; }
+        
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* === SITE-WIDE OVERRIDES === */
+.topnav { position: sticky; top: 0; z-index: 200; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; padding: 0 48px; margin: 0 -2rem; width: calc(100% + 4rem); }
+.topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.topnav-brand { font-weight: 700; font-size: 15px; color: #0f2442; display: flex; align-items: center; gap: 10px; text-decoration: none !important; }
+.topnav-brand:hover { text-decoration: none !important; }
+.topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.topnav-links { display: flex; gap: 4px; }
+.topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #475569; text-decoration: none !important; }
+.topnav-links a:hover { background: #f8fafc; color: #1a365d; text-decoration: none !important; }
+.topnav-links a.active { background: #f8fafc; color: #1a365d; font-weight: 600; }
+.course-nav { background: #f8fafc; padding: 10px 0; text-align: center; border-bottom: 1px solid #e2e8f0; margin: 0 -2rem 1.5em; padding-left: 2rem; padding-right: 2rem; position: sticky; top: 56px; z-index: 100; }
+.course-nav a { margin: 0 8px; text-decoration: none !important; color: #1a365d; font-weight: 600; font-size: 13px; padding: 5px 12px; border-radius: 6px; transition: background 0.15s; }
+.course-nav a:hover { background: #e2e8f0; text-decoration: none !important; }
+@media (max-width: 640px) { .topnav { padding: 0 16px; } .topnav-links a { padding: 4px 8px; font-size: 12px; } .course-nav a { margin: 0 4px; font-size: 12px; padding: 4px 8px; } }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; line-height: 1.8; color: #333; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 20px; min-height: 100vh; }
         .container { max-width: 950px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
         header { background: #003366; color: white; padding: 40px; text-align: center; }
         h1 { font-size: 2.5em; margin-bottom: 10px; }
         .subtitle { font-size: 1.2em; opacity: 0.9; font-style: italic; }
         .content { padding: 40px; }
         section { margin-bottom: 40px; }
-        h2 { color: #003366; font-size: 1.8em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #0366d6; }
+        h2 { color: #0f2442; font-size: 1.8em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #0366d6; }
         h3 { color: #0366d6; font-size: 1.4em; margin: 20px 0 15px 0; }
         .concept-box { background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); border-left: 4px solid #0366d6; padding: 20px; margin: 20px 0; border-radius: 8px; }
         .math-equation { background: #f8f9fa; padding: 15px; border-radius: 6px; margin: 15px 0; font-family: 'Courier New', monospace; overflow-x: auto; border: 1px solid #e0e0e0; }
@@ -33,8 +51,8 @@
 
         /* Interactive Elements */
         .interactive-section { background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); padding: 1.8em; margin: 2em 0; border-radius: 12px; border: 1px solid #e1e4e8; }
-        .interactive-section h3 { color: #003366; margin-top: 0; }
-        .button { display: inline-block; padding: 0.7em 1.4em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; transition: all 0.3s ease; margin: 0.4em; font-weight: bold; font-family: Georgia, serif; }
+        .interactive-section h3 { color: #0f2442; margin-top: 0; }
+        .button { display: inline-block; padding: 0.7em 1.4em; background: #0366d6; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; transition: all 0.3s ease; margin: 0.4em; font-weight: bold; font-family: 'Inter', -apple-system, sans-serif; }
         .button:hover { background: #0256c7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(3,102,214,0.3); }
         .button.success { background: #28a745; }
         .button.secondary { background: #6c757d; }
@@ -42,9 +60,9 @@
         /* Quiz */
         .quiz-card { background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%); border: 2px solid #0366d6; border-radius: 10px; padding: 1.5em; margin: 2em 0; position: relative; overflow: hidden; }
         .quiz-card::before { content: "?"; position: absolute; top: -20px; right: -20px; font-size: 120px; color: rgba(3,102,214,0.05); font-weight: bold; }
-        .quiz-card h4 { color: #003366; margin-bottom: 1em; }
+        .quiz-card h4 { color: #0f2442; margin-bottom: 1em; }
         .answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin: 1em 0; }
-        .answer-option { padding: 0.8em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-align: center; font-family: Georgia, serif; font-size: 0.9em; }
+        .answer-option { padding: 0.8em; background: white; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-align: center; font-family: 'Inter', -apple-system, sans-serif; font-size: 0.9em; }
         .answer-option:hover { border-color: #0366d6; transform: scale(1.02); }
         .answer-option.correct { background: #d4edda; border-color: #28a745; color: #155724; }
         .answer-option.incorrect { background: #f8d7da; border-color: #dc3545; color: #721c24; }
@@ -79,6 +97,16 @@
     </style>
 </head>
 <body>
+<nav class="topnav"><div class="topnav-inner">
+  <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+  <div class="topnav-links">
+    <a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a>
+  </div>
+</div></nav>
+<div class="course-nav">
+  <a href="index.html">Course Home</a>
+</div>
+
     <div class="container">
         <header>
             <h1>Module 7: Dimensionality Reduction</h1>
