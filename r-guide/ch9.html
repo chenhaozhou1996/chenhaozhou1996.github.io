@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ch 9: Reproducible Research – R Guide</title>
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+  <style>
+    h1{color:#1a365d}
+    h2{border-bottom:2px solid #bfdbfe}
+    .book-nav a.current{background:#276DC3}
+    .exercise{border-color:#276DC3;background:#eff6ff}
+    .exercise h4{background:#276DC3;color:#fff}
+  </style>
+  <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<!-- Topnav -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img src="../images/profile.jpg" alt="CZ">Chenhao Zhou</a>
+    <div class="topnav-links">
+      <a href="../index.html">Home</a>
+      <a href="../research.html">Research</a>
+      <a href="../teaching.html" class="active">Teaching</a>
+      <a href="../cv.html">CV</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Book Nav -->
+<nav class="book-nav">
+  <a href="index.html">Index</a>
+  <a href="ch1.html">1 Getting Started</a>
+  <a href="ch2.html">2 Data Structures</a>
+  <a href="ch3.html">3 Wrangling</a>
+  <a href="ch4.html">4 Visualization</a>
+  <a href="ch5.html">5 Stat Testing</a>
+  <a href="ch6.html">6 Linear Models</a>
+  <a href="ch7.html">7 GLMs</a>
+  <a href="ch8.html">8 ML / tidymodels</a>
+  <a href="ch9.html" class="current">9 Reproducible Research</a>
+  <a href="ch10.html">10 Project</a>
+</nav>
+
+<h1>Chapter 9: Reproducible Research</h1>
+<p class="subtitle">R Markdown and Quarto for literate programming, reports, and presentations.</p>
+
+<!-- ────────────────────────────── -->
+<h2>9.1 Why Reproducibility Matters</h2>
+
+<p>A reproducible analysis lets anyone (including your future self) re-run the code and get the same results. R Markdown and Quarto weave narrative text, code, and output into a single document, eliminating copy-paste errors between your analysis and your report.</p>
+
+<!-- ────────────────────────────── -->
+<h2>9.2 R Markdown Basics (.Rmd)</h2>
+
+<p>An <code>.Rmd</code> file has three parts: YAML header, Markdown text, and code chunks.</p>
+
+<pre class="r"><span class="cm">---</span>
+<span class="cm">title: "Quarterly Sales Report"</span>
+<span class="cm">author: "Analyst"</span>
+<span class="cm">date: "`r Sys.Date()`"</span>
+<span class="cm">output:</span>
+<span class="cm">  html_document:</span>
+<span class="cm">    toc: true</span>
+<span class="cm">    toc_float: true</span>
+<span class="cm">    theme: flatly</span>
+<span class="cm">---</span>
+
+<span class="cm">## Introduction</span>
+
+<span class="cm">This report analyzes quarterly sales data.</span>
+
+<span class="cm">```{r setup, include=FALSE}</span>
+<span class="fn">library</span>(tidyverse)
+<span class="fn">library</span>(knitr)
+opts_chunk<span class="op">$</span><span class="fn">set</span>(echo <span class="op">=</span> <span class="nb">TRUE</span>, message <span class="op">=</span> <span class="nb">FALSE</span>, warning <span class="op">=</span> <span class="nb">FALSE</span>)
+<span class="cm">```</span>
+
+<span class="cm">```{r summary-stats}</span>
+mtcars <span class="op">|&gt;</span>
+  <span class="fn">group_by</span>(cyl) <span class="op">|&gt;</span>
+  <span class="fn">summarize</span>(avg_mpg <span class="op">=</span> <span class="fn">mean</span>(mpg)) <span class="op">|&gt;</span>
+  <span class="fn">kable</span>(digits <span class="op">=</span> <span class="nb">1</span>)
+<span class="cm">```</span></pre>
+
+<div class="concept info">
+  <strong>Rendering</strong>
+  Click "Knit" in RStudio or run <code>rmarkdown::render("report.Rmd")</code> from the console. The output format is controlled by the <code>output:</code> field in the YAML header.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>9.3 Code Chunk Options</h2>
+
+<div class="table-wrapper">
+<table>
+  <thead><tr><th>Option</th><th>Default</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>echo</code></td><td><code>TRUE</code></td><td>Show the code in the output</td></tr>
+    <tr><td><code>eval</code></td><td><code>TRUE</code></td><td>Run the code</td></tr>
+    <tr><td><code>include</code></td><td><code>TRUE</code></td><td>Include code AND output (FALSE hides both)</td></tr>
+    <tr><td><code>message</code></td><td><code>TRUE</code></td><td>Show messages (e.g., from library loading)</td></tr>
+    <tr><td><code>warning</code></td><td><code>TRUE</code></td><td>Show warnings</td></tr>
+    <tr><td><code>fig.width</code></td><td><code>7</code></td><td>Figure width in inches</td></tr>
+    <tr><td><code>fig.height</code></td><td><code>5</code></td><td>Figure height in inches</td></tr>
+    <tr><td><code>cache</code></td><td><code>FALSE</code></td><td>Cache chunk results for faster re-rendering</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>9.4 Inline R Code</h2>
+
+<p>Embed computed values directly in your prose:</p>
+
+<pre class="r"><span class="cm">The average mpg is `r round(mean(mtcars$mpg), 1)` across</span>
+<span class="cm">`r nrow(mtcars)` cars in the dataset.</span></pre>
+
+<p>This renders as: "The average mpg is 20.1 across 32 cars in the dataset." Values update automatically when data changes.</p>
+
+<!-- ────────────────────────────── -->
+<h2>9.5 Output Formats</h2>
+
+<pre class="r"><span class="cm"># In the YAML header, change output: to one of:</span>
+<span class="cm">output: html_document     # interactive HTML</span>
+<span class="cm">output: pdf_document      # LaTeX PDF (requires tinytex)</span>
+<span class="cm">output: word_document     # Microsoft Word</span>
+<span class="cm">output:</span>
+<span class="cm">  ioslides_presentation:  # HTML slides</span>
+<span class="cm">    widescreen: true</span></pre>
+
+<div class="concept tip">
+  <strong>Tip: Install tinytex for PDF output</strong>
+  <code>install.packages("tinytex"); tinytex::install_tinytex()</code> gives you a lightweight LaTeX distribution that works seamlessly with R Markdown.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>9.6 Quarto: The Next Generation (.qmd)</h2>
+
+<p>Quarto is R Markdown's successor, supporting R, Python, Julia, and Observable JS. The syntax is nearly identical but uses a different engine.</p>
+
+<pre class="r"><span class="cm">---</span>
+<span class="cm">title: "Sales Analysis"</span>
+<span class="cm">format: html</span>
+<span class="cm">execute:</span>
+<span class="cm">  echo: true</span>
+<span class="cm">  warning: false</span>
+<span class="cm">---</span>
+
+<span class="cm">```{r}</span>
+<span class="fn">library</span>(ggplot2)
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(displ, hwy)) <span class="op">+</span> <span class="fn">geom_point</span>()
+<span class="cm">```</span></pre>
+
+<h3>Key Differences from R Markdown</h3>
+<ul>
+  <li><code>format:</code> instead of <code>output:</code> in YAML</li>
+  <li>Chunk options go inside the chunk with <code>#| echo: false</code> syntax</li>
+  <li>Render with <code>quarto render report.qmd</code> from the terminal</li>
+  <li>Multi-language support and built-in cross-referencing</li>
+</ul>
+
+<!-- ────────────────────────────── -->
+<h2>9.7 Quarto Chunk Options Syntax</h2>
+
+<pre class="r"><span class="cm">```{r}</span>
+<span class="cm">#| label: fig-scatter</span>
+<span class="cm">#| fig-cap: "Displacement vs Highway MPG"</span>
+<span class="cm">#| fig-width: 8</span>
+<span class="cm">#| fig-height: 5</span>
+
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(displ, hwy, color <span class="op">=</span> drv)) <span class="op">+</span>
+  <span class="fn">geom_point</span>() <span class="op">+</span>
+  <span class="fn">theme_minimal</span>()
+<span class="cm">```</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>9.8 Tables in R Markdown/Quarto</h2>
+
+<pre class="r"><span class="cm"># Simple kable table</span>
+<span class="fn">library</span>(knitr)
+<span class="fn">kable</span>(<span class="fn">head</span>(mtcars, <span class="nb">5</span>), caption <span class="op">=</span> <span class="st">"First 5 cars"</span>)
+
+<span class="cm"># Styled table with kableExtra</span>
+<span class="fn">library</span>(kableExtra)
+<span class="fn">kable</span>(<span class="fn">head</span>(mtcars, <span class="nb">5</span>)) <span class="op">|&gt;</span>
+  <span class="fn">kable_styling</span>(bootstrap_options <span class="op">=</span> <span class="fn">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</pre>
+
+<!-- ────────────────────────────── -->
+<h2>Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 9.1</h4>
+  <p>Create an R Markdown document that loads the <code>palmerpenguins</code> dataset, produces a summary table grouped by species (using <code>kable()</code>), and includes a scatterplot of bill length vs. bill depth. Render it to HTML with a table of contents.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 9.2</h4>
+  <p>Convert your R Markdown file from Exercise 9.1 to a Quarto <code>.qmd</code> file. Use the <code>#|</code> chunk option syntax and add a figure caption with cross-referencing (<code>@fig-scatter</code>). Render to both HTML and PDF.</p>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="ext-resources">
+  <h4>External Resources</h4>
+  <ul>
+    <li><a href="https://rmarkdown.rstudio.com" target="_blank" rel="noopener">R Markdown Official Site</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://quarto.org" target="_blank" rel="noopener">Quarto Official Documentation</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://bookdown.org/yihui/rmarkdown/" target="_blank" rel="noopener">R Markdown: The Definitive Guide</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://yihui.org/knitr/" target="_blank" rel="noopener">knitr Documentation</a> <span class="ext-badge">External</span></li>
+  </ul>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="takeaway" style="background:linear-gradient(135deg,#1a365d,#276DC3)">
+  <h3>Key Takeaways</h3>
+  <ul>
+    <li>R Markdown (.Rmd) and Quarto (.qmd) combine code, output, and narrative in one document.</li>
+    <li>Chunk options control what is shown (echo), run (eval), and sized (fig.width/height).</li>
+    <li>Inline R code embeds computed values directly in text, keeping numbers in sync with data.</li>
+    <li>Both formats render to HTML, PDF, Word, and slides from a single source file.</li>
+    <li>Quarto is the successor to R Markdown with multi-language support and improved cross-referencing.</li>
+  </ul>
+</div>
+
+<div class="chapter-nav">
+  <a href="ch8.html">&larr; Chapter 8: ML / tidymodels</a>
+  <a href="ch10.html">Chapter 10: Project &rarr;</a>
+</div>
+
+</body>
+</html>

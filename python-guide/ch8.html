@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 8: Machine Learning Basics | Python Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1 { color: #1e3a5f; }
+        h2 { border-bottom: 2px solid #bfdbfe; }
+        .book-nav a.current { background: #3776AB; }
+        .exercise { border-color: #3776AB; background: #eff6ff; }
+        .exercise h4 { background: #3776AB; color: #fff; }
+        .takeaway { background: linear-gradient(135deg, #1e3a5f, #3776AB); }
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html" class="current">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 8: Machine Learning Basics</h1>
+<p class="subtitle">scikit-learn</p>
+
+<h2>8.1 The ML Workflow</h2>
+<p>Machine learning in practice follows a consistent workflow: prepare features and labels, split the data, train a model, evaluate performance, and iterate. scikit-learn provides a unified API for all these steps.</p>
+
+<pre class="python"><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split, cross_val_score
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression, LogisticRegression
+<span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeClassifier
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> (mean_squared_error, r2_score,
+                             accuracy_score, classification_report, roc_auc_score)
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline</pre>
+
+<h2>8.2 Train-Test Split</h2>
+<p>Always hold out data that the model has never seen for evaluation. A typical split is 80% train / 20% test.</p>
+
+<pre class="python"><span class="cm"># Sample dataset</span>
+np.random.<span class="fn">seed</span>(<span class="nb">42</span>)
+n = <span class="nb">300</span>
+df = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"sq_ft"</span>:    np.random.<span class="fn">uniform</span>(<span class="nb">800</span>, <span class="nb">3000</span>, n),
+    <span class="st">"bedrooms"</span>: np.random.<span class="fn">randint</span>(<span class="nb">1</span>, <span class="nb">6</span>, n),
+    <span class="st">"age"</span>:      np.random.<span class="fn">uniform</span>(<span class="nb">0</span>, <span class="nb">50</span>, n),
+})
+df[<span class="st">"price"</span>] = <span class="nb">50</span> + <span class="nb">0.12</span> * df[<span class="st">"sq_ft"</span>] + <span class="nb">15</span> * df[<span class="st">"bedrooms"</span>] - <span class="nb">0.8</span> * df[<span class="st">"age"</span>] + np.random.<span class="fn">normal</span>(<span class="nb">0</span>, <span class="nb">20</span>, n)
+
+X = df[[<span class="st">"sq_ft"</span>, <span class="st">"bedrooms"</span>, <span class="st">"age"</span>]]
+y = df[<span class="st">"price"</span>]
+
+X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(X, y, test_size=<span class="nb">0.2</span>, random_state=<span class="nb">42</span>)
+<span class="fn">print</span>(<span class="st">f"Train: </span>{X_train.shape[<span class="nb">0</span>]}<span class="st"> rows, Test: </span>{X_test.shape[<span class="nb">0</span>]}<span class="st"> rows"</span>)</pre>
+
+<h2>8.3 Linear Regression</h2>
+
+<pre class="python">lr = <span class="fn">LinearRegression</span>()
+lr.<span class="fn">fit</span>(X_train, y_train)
+
+<span class="cm"># Predictions and evaluation</span>
+y_pred = lr.<span class="fn">predict</span>(X_test)
+rmse = <span class="fn">mean_squared_error</span>(y_test, y_pred, squared=<span class="nb">False</span>)
+r2   = <span class="fn">r2_score</span>(y_test, y_pred)
+
+<span class="fn">print</span>(<span class="st">f"RMSE: </span>{rmse:.2f}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"R2:   </span>{r2:.3f}<span class="st">"</span>)
+
+<span class="cm"># Coefficients</span>
+<span class="kw">for</span> name, coef <span class="kw">in</span> <span class="fn">zip</span>(X.columns, lr.coef_):
+    <span class="fn">print</span>(<span class="st">f"  </span>{name:<span class="nb">10</span>}<span class="st">: </span>{coef:+.4f}<span class="st">"</span>)</pre>
+
+<h2>8.4 Logistic Regression (Classification)</h2>
+
+<pre class="python"><span class="cm"># Binary classification: will the customer churn?</span>
+df[<span class="st">"churn"</span>] = (df[<span class="st">"price"</span>] > df[<span class="st">"price"</span>].<span class="fn">median</span>()).<span class="fn">astype</span>(<span class="nb">int</span>)
+
+X = df[[<span class="st">"sq_ft"</span>, <span class="st">"bedrooms"</span>, <span class="st">"age"</span>]]
+y = df[<span class="st">"churn"</span>]
+
+X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(X, y, test_size=<span class="nb">0.2</span>, random_state=<span class="nb">42</span>)
+
+log_reg = <span class="fn">LogisticRegression</span>(max_iter=<span class="nb">1000</span>)
+log_reg.<span class="fn">fit</span>(X_train, y_train)
+
+y_pred = log_reg.<span class="fn">predict</span>(X_test)
+<span class="fn">print</span>(<span class="st">f"Accuracy: </span>{<span class="fn">accuracy_score</span>(y_test, y_pred):.3f}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="fn">classification_report</span>(y_test, y_pred))</pre>
+
+<h2>8.5 Decision Trees</h2>
+
+<pre class="python">tree = <span class="fn">DecisionTreeClassifier</span>(max_depth=<span class="nb">4</span>, random_state=<span class="nb">42</span>)
+tree.<span class="fn">fit</span>(X_train, y_train)
+
+y_pred_tree = tree.<span class="fn">predict</span>(X_test)
+<span class="fn">print</span>(<span class="st">f"Tree Accuracy: </span>{<span class="fn">accuracy_score</span>(y_test, y_pred_tree):.3f}<span class="st">"</span>)
+
+<span class="cm"># Feature importance</span>
+<span class="kw">for</span> name, imp <span class="kw">in</span> <span class="fn">zip</span>(X.columns, tree.feature_importances_):
+    <span class="fn">print</span>(<span class="st">f"  </span>{name:<span class="nb">10</span>}<span class="st">: </span>{imp:.3f}<span class="st">"</span>)</pre>
+
+<div class="concept warn">
+    <strong>Overfitting warning:</strong> A decision tree without depth constraints will memorize the training data and perform poorly on new data. Always set <code>max_depth</code> or use cross-validation to find the right complexity.
+</div>
+
+<h2>8.6 Cross-Validation</h2>
+<p>Cross-validation gives a more robust performance estimate by averaging over multiple train/test splits.</p>
+
+<pre class="python"><span class="cm"># 5-fold cross-validation</span>
+cv_scores = <span class="fn">cross_val_score</span>(log_reg, X, y, cv=<span class="nb">5</span>, scoring=<span class="st">"accuracy"</span>)
+<span class="fn">print</span>(<span class="st">f"CV Accuracy: </span>{cv_scores.<span class="fn">mean</span>():.3f}<span class="st"> +/- </span>{cv_scores.<span class="fn">std</span>():.3f}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"Fold scores: </span>{cv_scores}<span class="st">"</span>)</pre>
+
+<h2>8.7 Pipelines</h2>
+<p>Pipelines chain preprocessing steps and models together, preventing data leakage and simplifying deployment.</p>
+
+<pre class="python">pipe = <span class="fn">Pipeline</span>([
+    (<span class="st">"scaler"</span>, <span class="fn">StandardScaler</span>()),
+    (<span class="st">"model"</span>,  <span class="fn">LogisticRegression</span>(max_iter=<span class="nb">1000</span>))
+])
+
+<span class="cm"># Fit and predict in one go</span>
+pipe.<span class="fn">fit</span>(X_train, y_train)
+y_pred_pipe = pipe.<span class="fn">predict</span>(X_test)
+<span class="fn">print</span>(<span class="st">f"Pipeline Accuracy: </span>{<span class="fn">accuracy_score</span>(y_test, y_pred_pipe):.3f}<span class="st">"</span>)
+
+<span class="cm"># Cross-validate the entire pipeline</span>
+cv_pipe = <span class="fn">cross_val_score</span>(pipe, X, y, cv=<span class="nb">5</span>, scoring=<span class="st">"accuracy"</span>)
+<span class="fn">print</span>(<span class="st">f"Pipeline CV: </span>{cv_pipe.<span class="fn">mean</span>():.3f}<span class="st">"</span>)</pre>
+
+<h2>8.8 Model Comparison</h2>
+
+<pre class="python"><span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
+
+models = {
+    <span class="st">"Logistic Regression"</span>: <span class="fn">LogisticRegression</span>(max_iter=<span class="nb">1000</span>),
+    <span class="st">"Decision Tree"</span>:       <span class="fn">DecisionTreeClassifier</span>(max_depth=<span class="nb">4</span>),
+    <span class="st">"Random Forest"</span>:       <span class="fn">RandomForestClassifier</span>(n_estimators=<span class="nb">100</span>, max_depth=<span class="nb">5</span>),
+}
+
+<span class="kw">for</span> name, model <span class="kw">in</span> models.<span class="fn">items</span>():
+    scores = <span class="fn">cross_val_score</span>(model, X, y, cv=<span class="nb">5</span>, scoring=<span class="st">"accuracy"</span>)
+    <span class="fn">print</span>(<span class="st">f"</span>{name:<span class="nb">25</span>}<span class="st"> CV Accuracy: </span>{scores.<span class="fn">mean</span>():.3f}<span class="st"> +/- </span>{scores.<span class="fn">std</span>():.3f}<span class="st">"</span>)</pre>
+
+<div class="exercise">
+    <h4>Exercise 8.1</h4>
+    <p>Load the scikit-learn Boston-style dataset (use <code>sklearn.datasets.fetch_california_housing()</code>). Split 80/20, fit a LinearRegression and a DecisionTreeRegressor (max_depth=5). Compare their RMSE and R2 on the test set. Which model performs better and why?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 8.2</h4>
+    <p>Build a Pipeline that applies StandardScaler followed by a RandomForestClassifier. Use 5-fold cross-validation to evaluate accuracy on any classification dataset. Then try changing <code>n_estimators</code> and <code>max_depth</code> to see how performance changes.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://scikit-learn.org/stable/getting_started.html" target="_blank">scikit-learn Getting Started</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">scikit-learn Cross-Validation Guide</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://scikit-learn.org/stable/modules/compose.html#pipeline" target="_blank">scikit-learn Pipeline Guide</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 8 Takeaways</h3>
+    <ul>
+        <li>scikit-learn provides a consistent fit/predict/score API across all model types.</li>
+        <li>Always split data into train and test sets before fitting; never evaluate on training data alone.</li>
+        <li>Cross-validation gives a more reliable performance estimate than a single train-test split.</li>
+        <li>Pipelines chain preprocessing and modeling to prevent data leakage and simplify reproducibility.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch7.html">&larr; Chapter 7: Statistics</a>
+    <a href="ch9.html">Chapter 9: APIs &amp; Web Data &rarr;</a>
+</div>
+
+</body>
+</html>

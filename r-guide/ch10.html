@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ch 10: Project – Statistical Report Pipeline – R Guide</title>
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+  <style>
+    h1{color:#1a365d}
+    h2{border-bottom:2px solid #bfdbfe}
+    .book-nav a.current{background:#276DC3}
+    .exercise{border-color:#276DC3;background:#eff6ff}
+    .exercise h4{background:#276DC3;color:#fff}
+  </style>
+  <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<!-- Topnav -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img src="../images/profile.jpg" alt="CZ">Chenhao Zhou</a>
+    <div class="topnav-links">
+      <a href="../index.html">Home</a>
+      <a href="../research.html">Research</a>
+      <a href="../teaching.html" class="active">Teaching</a>
+      <a href="../cv.html">CV</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Book Nav -->
+<nav class="book-nav">
+  <a href="index.html">Index</a>
+  <a href="ch1.html">1 Getting Started</a>
+  <a href="ch2.html">2 Data Structures</a>
+  <a href="ch3.html">3 Wrangling</a>
+  <a href="ch4.html">4 Visualization</a>
+  <a href="ch5.html">5 Stat Testing</a>
+  <a href="ch6.html">6 Linear Models</a>
+  <a href="ch7.html">7 GLMs</a>
+  <a href="ch8.html">8 ML / tidymodels</a>
+  <a href="ch9.html">9 Reproducible Research</a>
+  <a href="ch10.html" class="current">10 Project</a>
+</nav>
+
+<h1>Chapter 10: Project &mdash; Statistical Report Pipeline</h1>
+<p class="subtitle">An end-to-end workflow tying together every chapter: import, clean, visualize, model, and render.</p>
+
+<!-- ────────────────────────────── -->
+<h2>10.1 Project Overview</h2>
+
+<p>You will build a complete, reproducible statistical report using a publicly available dataset. The pipeline follows the same sequence a working analyst uses every day:</p>
+
+<ol>
+  <li><strong>Import</strong> data with <code>readr::read_csv()</code> (Ch 1, 3)</li>
+  <li><strong>Inspect</strong> structure and types (Ch 2)</li>
+  <li><strong>Clean and transform</strong> with dplyr/tidyr (Ch 3)</li>
+  <li><strong>Visualize</strong> patterns with ggplot2 (Ch 4)</li>
+  <li><strong>Test hypotheses</strong> (Ch 5)</li>
+  <li><strong>Model</strong> with lm/glm (Ch 6, 7)</li>
+  <li><strong>Render</strong> a polished report with R Markdown (Ch 9)</li>
+</ol>
+
+<div class="concept info">
+  <strong>Dataset: Palmer Penguins</strong>
+  We use <code>palmerpenguins::penguins</code>, a clean dataset of 344 penguins from three species measured at Palmer Station, Antarctica. Install with <code>install.packages("palmerpenguins")</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>10.2 Step 1: Setup and Import</h2>
+
+<pre class="r"><span class="cm"># report.Rmd setup chunk</span>
+<span class="fn">library</span>(tidyverse)
+<span class="fn">library</span>(palmerpenguins)
+<span class="fn">library</span>(broom)
+<span class="fn">library</span>(knitr)
+
+<span class="cm"># Load and inspect</span>
+data <span class="op">&lt;-</span> penguins
+<span class="fn">glimpse</span>(data)
+<span class="fn">dim</span>(data)  <span class="cm"># 344 rows, 8 columns</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>10.3 Step 2: Clean and Transform</h2>
+
+<pre class="r"><span class="cm"># Drop rows with missing values</span>
+df <span class="op">&lt;-</span> data <span class="op">|&gt;</span>
+  <span class="fn">drop_na</span>() <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(
+    bill_ratio <span class="op">=</span> bill_length_mm <span class="op">/</span> bill_depth_mm,
+    mass_kg    <span class="op">=</span> body_mass_g <span class="op">/</span> <span class="nb">1000</span>,
+    species    <span class="op">=</span> <span class="fn">fct_relevel</span>(species, <span class="st">"Adelie"</span>, <span class="st">"Chinstrap"</span>, <span class="st">"Gentoo"</span>)
+  )
+
+<span class="fn">cat</span>(<span class="st">"Clean sample:"</span>, <span class="fn">nrow</span>(df), <span class="st">"penguins\n"</span>)
+
+<span class="cm"># Summary by species</span>
+species_summary <span class="op">&lt;-</span> df <span class="op">|&gt;</span>
+  <span class="fn">group_by</span>(species) <span class="op">|&gt;</span>
+  <span class="fn">summarize</span>(
+    n         <span class="op">=</span> <span class="fn">n</span>(),
+    avg_mass  <span class="op">=</span> <span class="fn">mean</span>(mass_kg),
+    avg_bill  <span class="op">=</span> <span class="fn">mean</span>(bill_length_mm),
+    avg_flip  <span class="op">=</span> <span class="fn">mean</span>(flipper_length_mm)
+  )
+
+<span class="fn">kable</span>(species_summary, digits <span class="op">=</span> <span class="nb">1</span>, caption <span class="op">=</span> <span class="st">"Summary by Species"</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>10.4 Step 3: Exploratory Visualization</h2>
+
+<pre class="r"><span class="cm"># Scatterplot: bill length vs. depth, colored by species</span>
+p1 <span class="op">&lt;-</span> <span class="fn">ggplot</span>(df, <span class="fn">aes</span>(x <span class="op">=</span> bill_length_mm, y <span class="op">=</span> bill_depth_mm, color <span class="op">=</span> species)) <span class="op">+</span>
+  <span class="fn">geom_point</span>(size <span class="op">=</span> <span class="nb">2</span>, alpha <span class="op">=</span> <span class="nb">0.7</span>) <span class="op">+</span>
+  <span class="fn">geom_smooth</span>(method <span class="op">=</span> <span class="st">"lm"</span>, se <span class="op">=</span> <span class="nb">FALSE</span>) <span class="op">+</span>
+  <span class="fn">labs</span>(title <span class="op">=</span> <span class="st">"Bill Dimensions by Species"</span>,
+       x <span class="op">=</span> <span class="st">"Bill Length (mm)"</span>, y <span class="op">=</span> <span class="st">"Bill Depth (mm)"</span>) <span class="op">+</span>
+  <span class="fn">theme_minimal</span>(base_size <span class="op">=</span> <span class="nb">13</span>)
+p1
+
+<span class="cm"># Distribution of body mass by species</span>
+p2 <span class="op">&lt;-</span> <span class="fn">ggplot</span>(df, <span class="fn">aes</span>(x <span class="op">=</span> mass_kg, fill <span class="op">=</span> species)) <span class="op">+</span>
+  <span class="fn">geom_histogram</span>(binwidth <span class="op">=</span> <span class="nb">0.25</span>, alpha <span class="op">=</span> <span class="nb">0.7</span>, position <span class="op">=</span> <span class="st">"identity"</span>) <span class="op">+</span>
+  <span class="fn">facet_wrap</span>(<span class="op">~</span> species, ncol <span class="op">=</span> <span class="nb">1</span>) <span class="op">+</span>
+  <span class="fn">labs</span>(x <span class="op">=</span> <span class="st">"Body Mass (kg)"</span>, y <span class="op">=</span> <span class="st">"Count"</span>) <span class="op">+</span>
+  <span class="fn">theme_minimal</span>(base_size <span class="op">=</span> <span class="nb">13</span>)
+p2</pre>
+
+<!-- ────────────────────────────── -->
+<h2>10.5 Step 4: Hypothesis Testing</h2>
+
+<pre class="r"><span class="cm"># Does body mass differ across species? (ANOVA)</span>
+aov_mass <span class="op">&lt;-</span> <span class="fn">aov</span>(mass_kg <span class="op">~</span> species, data <span class="op">=</span> df)
+<span class="fn">summary</span>(aov_mass)
+
+<span class="cm"># Post-hoc pairwise comparisons</span>
+tukey <span class="op">&lt;-</span> <span class="fn">TukeyHSD</span>(aov_mass)
+tukey
+
+<span class="cm"># Correlation between bill length and flipper length</span>
+<span class="fn">cor.test</span>(df<span class="op">$</span>bill_length_mm, df<span class="op">$</span>flipper_length_mm)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>10.6 Step 5: Linear Modeling</h2>
+
+<pre class="r"><span class="cm"># Model 1: body mass predicted by bill dimensions</span>
+fit1 <span class="op">&lt;-</span> <span class="fn">lm</span>(mass_kg <span class="op">~</span> bill_length_mm <span class="op">+</span> bill_depth_mm, data <span class="op">=</span> df)
+
+<span class="cm"># Model 2: add species and flipper length</span>
+fit2 <span class="op">&lt;-</span> <span class="fn">lm</span>(mass_kg <span class="op">~</span> bill_length_mm <span class="op">+</span> bill_depth_mm <span class="op">+</span>
+             flipper_length_mm <span class="op">+</span> species, data <span class="op">=</span> df)
+
+<span class="cm"># Compare models</span>
+<span class="fn">anova</span>(fit1, fit2)
+
+<span class="cm"># Tidy coefficient table for the full model</span>
+<span class="fn">tidy</span>(fit2, conf.int <span class="op">=</span> <span class="nb">TRUE</span>) <span class="op">|&gt;</span>
+  <span class="fn">kable</span>(digits <span class="op">=</span> <span class="nb">3</span>, caption <span class="op">=</span> <span class="st">"Regression Coefficients (Model 2)"</span>)
+
+<span class="cm"># Model fit statistics</span>
+<span class="fn">glance</span>(fit2) <span class="op">|&gt;</span>
+  <span class="fn">select</span>(r.squared, adj.r.squared, AIC, BIC) <span class="op">|&gt;</span>
+  <span class="fn">kable</span>(digits <span class="op">=</span> <span class="nb">3</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>10.7 Step 6: Logistic Regression Extension</h2>
+
+<pre class="r"><span class="cm"># Predict species (Gentoo vs. others) from body measurements</span>
+df <span class="op">&lt;-</span> df <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(is_gentoo <span class="op">=</span> <span class="fn">ifelse</span>(species <span class="op">==</span> <span class="st">"Gentoo"</span>, <span class="nb">1</span>, <span class="nb">0</span>))
+
+logit_fit <span class="op">&lt;-</span> <span class="fn">glm</span>(is_gentoo <span class="op">~</span> bill_length_mm <span class="op">+</span> bill_depth_mm <span class="op">+</span>
+                   flipper_length_mm <span class="op">+</span> mass_kg,
+                 family <span class="op">=</span> <span class="fn">binomial</span>(), data <span class="op">=</span> df)
+
+<span class="cm"># Odds ratios</span>
+<span class="fn">tidy</span>(logit_fit, exponentiate <span class="op">=</span> <span class="nb">TRUE</span>, conf.int <span class="op">=</span> <span class="nb">TRUE</span>) <span class="op">|&gt;</span>
+  <span class="fn">kable</span>(digits <span class="op">=</span> <span class="nb">3</span>, caption <span class="op">=</span> <span class="st">"Logistic Regression: Odds Ratios"</span>)
+
+<span class="cm"># Classification accuracy</span>
+df<span class="op">$</span>pred_gentoo <span class="op">&lt;-</span> <span class="fn">ifelse</span>(<span class="fn">predict</span>(logit_fit, type <span class="op">=</span> <span class="st">"response"</span>) <span class="op">&gt;</span> <span class="nb">0.5</span>, <span class="nb">1</span>, <span class="nb">0</span>)
+accuracy <span class="op">&lt;-</span> <span class="fn">mean</span>(df<span class="op">$</span>pred_gentoo <span class="op">==</span> df<span class="op">$</span>is_gentoo)
+<span class="fn">cat</span>(<span class="st">"Accuracy:"</span>, <span class="fn">round</span>(accuracy <span class="op">*</span> <span class="nb">100</span>, <span class="nb">1</span>), <span class="st">"%\n"</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>10.8 Step 7: Render the Report</h2>
+
+<p>Combine all the code above into a single <code>.Rmd</code> or <code>.qmd</code> file with narrative sections between chunks. Render it to multiple formats:</p>
+
+<pre class="bash"><span class="cm"># From the terminal or R console</span>
+rmarkdown<span class="op">::</span><span class="fn">render</span>(<span class="st">"penguin_report.Rmd"</span>, output_format <span class="op">=</span> <span class="st">"html_document"</span>)
+rmarkdown<span class="op">::</span><span class="fn">render</span>(<span class="st">"penguin_report.Rmd"</span>, output_format <span class="op">=</span> <span class="st">"pdf_document"</span>)
+rmarkdown<span class="op">::</span><span class="fn">render</span>(<span class="st">"penguin_report.Rmd"</span>, output_format <span class="op">=</span> <span class="st">"word_document"</span>)
+
+<span class="cm"># Or with Quarto</span>
+<span class="cm"># quarto render penguin_report.qmd --to html,pdf</span></pre>
+
+<div class="concept tip">
+  <strong>Project structure best practice</strong>
+  Organize your project folder with subfolders: <code>data/</code> for raw files, <code>R/</code> for helper functions, <code>output/</code> for rendered reports, and the <code>.Rmd</code> at the root. Use an <code>.Rproj</code> file to set the working directory.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>10.9 Diagnostic Checks</h2>
+
+<pre class="r"><span class="cm"># Residual diagnostics for the linear model</span>
+<span class="fn">par</span>(mfrow <span class="op">=</span> <span class="fn">c</span>(<span class="nb">2</span>, <span class="nb">2</span>))
+<span class="fn">plot</span>(fit2)
+<span class="fn">par</span>(mfrow <span class="op">=</span> <span class="fn">c</span>(<span class="nb">1</span>, <span class="nb">1</span>))
+
+<span class="cm"># Coefficient plot with ggplot2</span>
+<span class="fn">tidy</span>(fit2, conf.int <span class="op">=</span> <span class="nb">TRUE</span>) <span class="op">|&gt;</span>
+  <span class="fn">filter</span>(term <span class="op">!=</span> <span class="st">"(Intercept)"</span>) <span class="op">|&gt;</span>
+  <span class="fn">ggplot</span>(<span class="fn">aes</span>(x <span class="op">=</span> estimate, y <span class="op">=</span> <span class="fn">fct_reorder</span>(term, estimate))) <span class="op">+</span>
+  <span class="fn">geom_point</span>(size <span class="op">=</span> <span class="nb">3</span>, color <span class="op">=</span> <span class="st">"#276DC3"</span>) <span class="op">+</span>
+  <span class="fn">geom_errorbarh</span>(<span class="fn">aes</span>(xmin <span class="op">=</span> conf.low, xmax <span class="op">=</span> conf.high), height <span class="op">=</span> <span class="nb">0.2</span>) <span class="op">+</span>
+  <span class="fn">geom_vline</span>(xintercept <span class="op">=</span> <span class="nb">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, color <span class="op">=</span> <span class="st">"gray50"</span>) <span class="op">+</span>
+  <span class="fn">labs</span>(title <span class="op">=</span> <span class="st">"Coefficient Plot"</span>, x <span class="op">=</span> <span class="st">"Estimate"</span>, y <span class="op">=</span> <span class="nb">NULL</span>) <span class="op">+</span>
+  <span class="fn">theme_minimal</span>(base_size <span class="op">=</span> <span class="nb">13</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 10.1</h4>
+  <p>Recreate this entire pipeline using the <code>diamonds</code> dataset (from ggplot2). Predict <code>price</code> from <code>carat</code>, <code>cut</code>, <code>color</code>, and <code>clarity</code>. Produce an R Markdown report with summary tables, at least two plots, a linear model, and a brief written interpretation of results.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 10.2</h4>
+  <p>Extend the penguin report by adding a tidymodels section: split the data, build a random forest to classify all three species (not just Gentoo), evaluate with 5-fold CV, and report accuracy. Include the results in your rendered document.</p>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="ext-resources">
+  <h4>External Resources</h4>
+  <ul>
+    <li><a href="https://allisonhorst.github.io/palmerpenguins/" target="_blank" rel="noopener">palmerpenguins Package</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://r4ds.hadley.nz/whole-game" target="_blank" rel="noopener">R4DS: Whole Game</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://quarto.org/docs/get-started/" target="_blank" rel="noopener">Quarto: Getting Started</a> <span class="ext-badge">External</span></li>
+  </ul>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="takeaway" style="background:linear-gradient(135deg,#1a365d,#276DC3)">
+  <h3>Key Takeaways</h3>
+  <ul>
+    <li>A data analysis pipeline flows: import, clean, explore, model, communicate.</li>
+    <li>R Markdown/Quarto ties code and narrative together so results stay in sync with data.</li>
+    <li>Use <code>broom::tidy()</code> and <code>kable()</code> to produce clean tables inside reports.</li>
+    <li>Always include diagnostic checks (residual plots, accuracy metrics) before drawing conclusions.</li>
+    <li>A well-organized project (folders, .Rproj, version control) is as important as the analysis itself.</li>
+  </ul>
+</div>
+
+<div class="chapter-nav">
+  <a href="ch9.html">&larr; Chapter 9: Reproducible Research</a>
+  <a href="index.html">Back to Index &rarr;</a>
+</div>
+
+</body>
+</html>

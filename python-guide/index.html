@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python for Data Science &amp; Analytics | Chenhao Zhou</title>
+    <meta name="description" content="A practical Python guide for business analytics and supply chain management students, covering data wrangling, visualization, statistics, and machine learning.">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        /* === GLOBAL TOPNAV === */
+        .topnav { position: sticky; top: 0; z-index: 2000; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; padding: 0 48px; }
+        .topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .topnav-brand { font-weight: 700; font-size: 15px; color: #0f2442; display: flex; align-items: center; gap: 10px; text-decoration: none !important; }
+        .topnav-brand:hover { text-decoration: none !important; color: #0f2442; }
+        .topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+        .topnav-links { display: flex; gap: 4px; }
+        .topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #475569; text-decoration: none !important; }
+        .topnav-links a:hover { background: #f8fafc; color: #1a365d; }
+        .topnav-links a.active { background: #f8fafc; color: #1a365d; font-weight: 600; }
+        @media (max-width: 640px) { .topnav { padding: 0 16px; } .topnav-links a { padding: 4px 8px; font-size: 12px; } }
+
+        /* === RESET === */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #ffffff; color: #1e293b; line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: #1e3a5f; text-decoration: none; transition: color 0.15s; }
+        a:hover { color: #3776AB; }
+
+        /* === HERO === */
+        .hero {
+            background: linear-gradient(135deg, #1e3a5f 0%, #3776AB 50%, #4b8bbe 100%);
+            color: #fff; padding: 80px 20px 60px; text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: -50%; right: -20%; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+        }
+        .hero::after {
+            content: ''; position: absolute; bottom: -30%; left: -10%; width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        }
+        .hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+        .hero-badge {
+            display: inline-block; padding: 4px 14px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; background: rgba(255,255,255,0.2); margin-bottom: 16px;
+        }
+        .hero h1 { font-size: clamp(28px, 4vw, 42px); font-weight: 800; line-height: 1.15; margin-bottom: 12px; }
+        .hero p { font-size: clamp(14px, 1.8vw, 17px); opacity: 0.9; max-width: 600px; margin: 0 auto 24px; }
+        .hero-stats {
+            display: flex; justify-content: center; gap: 32px;
+            font-size: 13px; font-weight: 600; opacity: 0.85;
+        }
+        .hero-stats span { display: flex; align-items: center; gap: 6px; }
+
+        /* === MODULE GRID === */
+        .main-content { max-width: 1200px; margin: 0 auto; padding: 60px 20px 80px; }
+        .section-label {
+            font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: #3776AB; margin-bottom: 24px;
+        }
+        .modules-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px; margin-bottom: 60px;
+        }
+        .module-card {
+            background: #fff; border-radius: 12px; overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+        }
+        .module-header {
+            padding: 24px 24px 16px; color: #fff;
+            background: linear-gradient(135deg, #1e3a5f, #3776AB);
+        }
+        .module-header.ch2 { background: linear-gradient(135deg, #1e3a5f, #2563eb); }
+        .module-header.ch3 { background: linear-gradient(135deg, #0f4c75, #3282b8); }
+        .module-header.ch4 { background: linear-gradient(135deg, #0b3d91, #3776AB); }
+        .module-header.ch5 { background: linear-gradient(135deg, #1b4332, #2d6a4f); }
+        .module-header.ch6 { background: linear-gradient(135deg, #581c87, #7c3aed); }
+        .module-header.ch7 { background: linear-gradient(135deg, #7c2d12, #c2410c); }
+        .module-header.ch8 { background: linear-gradient(135deg, #065f46, #047857); }
+        .module-header.ch9 { background: linear-gradient(135deg, #1a365d, #475569); }
+        .module-header.ch10 { background: linear-gradient(135deg, #3b0764, #6d28d9); }
+        .module-number {
+            display: inline-block; padding: 2px 10px; border-radius: 4px;
+            font-size: 10px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.08em; background: rgba(255,255,255,0.2); margin-bottom: 8px;
+        }
+        .module-header h3 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+        .module-header p { font-size: 12px; opacity: 0.85; margin: 0; }
+
+        .module-body { padding: 20px 24px 24px; }
+        .module-description { font-size: 13px; color: #475569; line-height: 1.55; margin-bottom: 14px; }
+        .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+        .badge {
+            display: inline-block; padding: 3px 10px; border-radius: 4px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+        }
+        .badge-core { background: #dbeafe; color: #1e40af; }
+        .badge-data { background: #d1fae5; color: #065f46; }
+        .badge-viz { background: #fce7f3; color: #9d174d; }
+        .badge-ml { background: #fef3c7; color: #92400e; }
+        .badge-project { background: #ede9fe; color: #5b21b6; }
+
+        .material-list { list-style: none; }
+        .material-list li { margin-bottom: 6px; }
+        .material-link {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 500;
+            color: #1e293b; background: #f8fafc;
+            transition: background 0.15s, color 0.15s;
+            text-decoration: none !important;
+        }
+        .material-link:hover { background: #dbeafe; color: #1e3a5f; }
+        .material-icon { font-size: 16px; }
+
+        /* === RESOURCES === */
+        .resources-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .resource-card {
+            padding: 20px; border-radius: 10px; background: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+        .resource-card h4 { font-size: 14px; font-weight: 700; color: #1e3a5f; margin-bottom: 8px; }
+        .resource-card ul { list-style: none; margin: 0; padding: 0; }
+        .resource-card li { font-size: 13px; color: #475569; padding: 3px 0; }
+        .resource-card a { color: #1e3a5f; font-weight: 500; }
+        .ext-badge {
+            display: inline-block; padding: 1px 6px; border-radius: 3px;
+            font-size: 9px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.05em; background: #e2e8f0; color: #64748b;
+            margin-left: 6px; vertical-align: middle;
+        }
+
+        /* === FOOTER === */
+        .footer {
+            text-align: center; padding: 32px 20px;
+            border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8;
+        }
+        .footer a { color: #64748b; }
+
+        @media (max-width: 640px) {
+            .hero { padding: 48px 16px 40px; }
+            .hero-stats { flex-direction: column; gap: 8px; }
+            .modules-grid { grid-template-columns: 1fr; }
+            .resources-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links">
+        <a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a>
+    </div>
+</div></nav>
+
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">Complete Guide</div>
+        <h1>Python for Data Science &amp; Analytics</h1>
+        <p>From first script to end-to-end data pipelines. A hands-on guide designed for business analytics and supply chain management students.</p>
+        <div class="hero-stats">
+            <span>10 Chapters</span>
+            <span>Senior UG / Master</span>
+            <span>Practical + Code-First</span>
+        </div>
+    </div>
+</section>
+
+<div class="main-content">
+
+    <div class="section-label">Chapters</div>
+    <div class="modules-grid">
+
+        <!-- Chapter 1 -->
+        <div class="module-card">
+            <div class="module-header">
+                <span class="module-number">Chapter 1</span>
+                <h3>Getting Started</h3>
+                <p>Installation, IDEs, and Your First Script</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Set up your Python environment with Anaconda or pip, choose between Jupyter Notebook and VS Code, and write your first program using variables and print().</p>
+                <div class="badges">
+                    <span class="badge badge-core">Core</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="ch1.html" class="material-link"><span class="material-icon">📖</span><span>Read Chapter</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 2 -->
+        <div class="module-card">
+            <div class="module-header ch2">
+                <span class="module-number">Chapter 2</span>
+                <h3>Data Types &amp; Control Flow</h3>
+                <p>Variables, Collections, Loops, and Conditionals</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Master Python's built-in data types (int, float, str, list, dict, tuple) and control structures including if/elif/else, for/while loops, and list comprehensions.</p>
+                <div class="badges">
+                    <span class="badge badge-core">Core</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="ch2.html" class="material-link"><span class="material-icon">📖</span><span>Read Chapter</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 3 -->
+        <div class="module-card">
+            <div class="module-header ch3">
+                <span class="module-number">Chapter 3</span>
+                <h3>Functions &amp; Modules</h3>
+                <p>Defining, Importing, and Packaging Code</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Write reusable functions with def, work with args/kwargs and lambda expressions, import standard library modules, and install third-party packages with pip.</p>
+                <div class="badges">
+                    <span class="badge badge-core">Core</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="ch3.html" class="material-link"><span class="material-icon">📖</span><span>Read Chapter</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 4 -->
+        <div class="module-card">
+            <div class="module-header ch4">
+                <span class="module-number">Chapter 4</span>
+                <h3>NumPy: Arrays &amp; Numerical Computing</h3>
+                <p>Vectorized Operations and Linear Algebra</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Create and manipulate NumPy arrays with broadcasting, indexing, and vectorized operations. Apply random number generation and linear algebra routines to analytics problems.</p>
+                <div class="badges">
+                    <span class="badge badge-data">Data</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="ch4.html" class="material-link"><span class="material-icon">📖</span><span>Read Chapter</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 5 -->
+        <div class="module-card">
+            <div class="module-header ch5">
+                <span class="module-number">Chapter 5</span>
+                <h3>Pandas: DataFrames &amp; Data Wrangling</h3>
+                <p>Loading, Cleaning, Grouping, and Merging Data</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Read CSV and Excel files into DataFrames, select data with loc/iloc, group and aggregate with groupby, merge datasets, create pivot tables, and handle missing values.</p>
+                <div class="badges">
+                    <span class="badge badge-data">Data</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="ch5.html" class="material-link"><span class="material-icon">📖</span><span>Read Chapter</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 6 -->
+        <div class="module-card">
+            <div class="module-header ch6">
+                <span class="module-number">Chapter 6</span>
+                <h3>Data Visualization</h3>
+                <p>Matplotlib and Seaborn</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Build publication-quality plots with Matplotlib (line, scatter, bar, histogram, subplots) and Seaborn (heatmaps, pairplots), with styling and customization techniques.</p>
+                <div class="badges">
+                    <span class="badge badge-viz">Visualization</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="ch6.html" class="material-link"><span class="material-icon">📖</span><span>Read Chapter</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 7 -->
+        <div class="module-card">
+            <div class="module-header ch7">
+                <span class="module-number">Chapter 7</span>
+                <h3>Statistical Analysis</h3>
+                <p>scipy and statsmodels</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Run hypothesis tests (t-test, chi-square, ANOVA), fit OLS regression models with statsmodels, interpret diagnostics, and compute confidence intervals for business decisions.</p>
+                <div class="badges">
+                    <span class="badge badge-data">Data</span>
+                    <span class="badge badge-core">Core</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="ch7.html" class="material-link"><span class="material-icon">📖</span><span>Read Chapter</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 8 -->
+        <div class="module-card">
+            <div class="module-header ch8">
+                <span class="module-number">Chapter 8</span>
+                <h3>Machine Learning Basics</h3>
+                <p>scikit-learn</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Split data for training and evaluation, fit linear and logistic regression, decision trees, evaluate with accuracy/RMSE/AUC, and build pipelines with cross-validation.</p>
+                <div class="badges">
+                    <span class="badge badge-ml">ML</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="ch8.html" class="material-link"><span class="material-icon">📖</span><span>Read Chapter</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 9 -->
+        <div class="module-card">
+            <div class="module-header ch9">
+                <span class="module-number">Chapter 9</span>
+                <h3>Working with APIs &amp; Web Data</h3>
+                <p>requests, JSON, and BeautifulSoup</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Fetch data from REST APIs with the requests library, parse JSON responses, read HTML tables with pandas, and perform basic web scraping with BeautifulSoup.</p>
+                <div class="badges">
+                    <span class="badge badge-data">Data</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="ch9.html" class="material-link"><span class="material-icon">📖</span><span>Read Chapter</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 10 -->
+        <div class="module-card">
+            <div class="module-header ch10">
+                <span class="module-number">Chapter 10</span>
+                <h3>Project: End-to-End Data Pipeline</h3>
+                <p>Capstone Workflow from Raw Data to Report</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Build a complete analytics workflow: load CSV data, clean and explore, engineer features, train and evaluate a model, and generate a summary report tying together all previous chapters.</p>
+                <div class="badges">
+                    <span class="badge badge-project">Capstone</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="ch10.html" class="material-link"><span class="material-icon">📖</span><span>Read Chapter</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Resources -->
+    <div class="section-label">Official Resources</div>
+    <div class="resources-grid">
+        <div class="resource-card">
+            <h4>Python Documentation</h4>
+            <ul>
+                <li><a href="https://docs.python.org/3/" target="_blank">Python 3 Official Docs</a> <span class="ext-badge">External</span></li>
+                <li><a href="https://docs.python.org/3/tutorial/" target="_blank">The Python Tutorial</a> <span class="ext-badge">External</span></li>
+                <li><a href="https://docs.python.org/3/library/" target="_blank">Standard Library Reference</a> <span class="ext-badge">External</span></li>
+            </ul>
+        </div>
+        <div class="resource-card">
+            <h4>Learning Platforms</h4>
+            <ul>
+                <li><a href="https://realpython.com/" target="_blank">Real Python</a> <span class="ext-badge">External</span></li>
+                <li><a href="https://www.kaggle.com/learn/python" target="_blank">Kaggle Python Course</a> <span class="ext-badge">External</span></li>
+                <li><a href="https://www.w3schools.com/python/" target="_blank">W3Schools Python</a> <span class="ext-badge">External</span></li>
+            </ul>
+        </div>
+        <div class="resource-card">
+            <h4>Key Libraries</h4>
+            <ul>
+                <li><a href="https://pandas.pydata.org/docs/" target="_blank">pandas Documentation</a> <span class="ext-badge">External</span></li>
+                <li><a href="https://numpy.org/doc/" target="_blank">NumPy Documentation</a> <span class="ext-badge">External</span></li>
+                <li><a href="https://scikit-learn.org/stable/" target="_blank">scikit-learn User Guide</a> <span class="ext-badge">External</span></li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <p>&copy; 2026 Chenhao Zhou &middot; Rutgers Business School</p>
+</footer>
+
+</body>
+</html>

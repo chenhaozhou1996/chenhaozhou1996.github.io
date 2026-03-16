@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 9: Causal Inference | Stata Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        .book-nav a.current{background:#1a5276}
+        h1{color:#1a5276}
+        h2{border-bottom:2px solid #a7f3d0}
+        .exercise{border-color:#1a5276;background:#f0f9ff}
+        .exercise h4{background:#1a5276;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#1a5276,#148f77)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html" class="current">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 9: Causal Inference</h1>
+<p class="subtitle">Difference-in-Differences, RDD, and Matching</p>
+
+<h2>9.1 Difference-in-Differences (DID)</h2>
+<p>DID compares the change in outcomes over time between a treatment group and a control group. The key assumption is parallel trends: absent treatment, the two groups would have followed the same trajectory.</p>
+
+<pre class="stata"><span class="cm">* Basic 2x2 DID setup</span>
+<span class="cm">* treatment: 1 if treated group</span>
+<span class="cm">* post: 1 if after treatment</span>
+<span class="kw">gen</span> treat_post = treatment * post
+
+<span class="kw">regress</span> outcome treatment post treat_post controls, vce(cluster state)
+
+<span class="cm">* The DID estimate is the coefficient on treat_post</span></pre>
+
+<h2>9.2 Event Study Design</h2>
+<p>Event study plots are the standard way to assess parallel trends before treatment and to visualize dynamic treatment effects.</p>
+
+<pre class="stata"><span class="cm">* Generate event-time indicators</span>
+<span class="cm">* Assume treat_year is the year of treatment for treated units</span>
+<span class="kw">gen</span> event_time = year - treat_year
+
+<span class="cm">* Create dummies, omitting t=-1 as reference</span>
+<span class="kw">forvalues</span> k = -5/5 {
+    <span class="kw">if</span> `k' < 0 {
+        <span class="kw">gen</span> pre`=abs(`k')' = (event_time == `k')
+    }
+    <span class="kw">else if</span> `k' >= 0 {
+        <span class="kw">gen</span> post`k' = (event_time == `k')
+    }
+}
+<span class="kw">drop</span> pre1  <span class="cm">// reference period</span>
+
+<span class="cm">* Estimate event study</span>
+<span class="kw">reghdfe</span> outcome pre5 pre4 pre3 pre2 post0-post5 controls, ///
+    absorb(unit_id year) vce(cluster unit_id)
+
+<span class="cm">* Plot coefficients (install: ssc install coefplot)</span>
+<span class="kw">coefplot</span>, keep(pre* post*) vertical ///
+    yline(0, lcolor(red) lpattern(dash)) ///
+    xline(4.5, lcolor(gray) lpattern(dash)) ///
+    title(<span class="st">"Event Study: Dynamic Treatment Effects"</span>) ///
+    ytitle(<span class="st">"Coefficient"</span>) xtitle(<span class="st">"Periods Relative to Treatment"</span>)</pre>
+
+<h2>9.3 Modern DID with Staggered Treatment</h2>
+<p>When treatment rolls out at different times across units, the classic two-way FE estimator can be biased. Modern DID estimators address this issue.</p>
+
+<pre class="stata"><span class="cm">* Install modern DID packages</span>
+<span class="kw">ssc install</span> did_multiplegt, replace
+<span class="kw">ssc install</span> csdid, replace
+<span class="kw">ssc install</span> eventstudyinteract, replace
+
+<span class="cm">* de Chaisemartin and D'Haultfoeuille (2020)</span>
+<span class="kw">did_multiplegt</span> outcome unit_id year treatment, ///
+    robust_dynamic dynamic(5) placebo(5) breps(100) cluster(state)
+
+<span class="cm">* Callaway and Sant'Anna (2021)</span>
+<span class="kw">csdid</span> outcome controls, ivar(unit_id) time(year) gvar(treat_year) ///
+    method(dripw)
+<span class="kw">csdid_plot</span>, title(<span class="st">"Callaway-Sant'Anna: Group-Time ATT"</span>)</pre>
+
+<div class="concept warn">
+    <strong>TWFE Bias with Staggered Treatment</strong>
+    The standard two-way FE estimator uses already-treated units as controls for newly-treated units, which introduces bias when treatment effects vary over time. If your treatment rolls out at different dates across units, use one of the modern estimators: Callaway-Sant'Anna, de Chaisemartin-D'Haultfoeuille, or Sun-Abraham.
+</div>
+
+<h2>9.4 Regression Discontinuity Design (RDD)</h2>
+<p>RDD exploits a threshold rule to identify causal effects. Units just above and just below the threshold are comparable, providing a local randomized experiment.</p>
+
+<pre class="stata"><span class="cm">* Install: ssc install rdrobust, replace</span>
+<span class="cm">*          ssc install rddensity, replace</span>
+
+<span class="cm">* Sharp RDD estimation</span>
+<span class="kw">rdrobust</span> outcome running_var, c(0)
+
+<span class="cm">* With controls and different kernel</span>
+<span class="kw">rdrobust</span> outcome running_var, c(0) covs(x1 x2) kernel(triangular)
+
+<span class="cm">* RDD plot</span>
+<span class="kw">rdplot</span> outcome running_var, c(0) ///
+    title(<span class="st">"Regression Discontinuity"</span>) ///
+    x(<span class="st">"Running Variable"</span>) y(<span class="st">"Outcome"</span>)
+
+<span class="cm">* Manipulation test (McCrary density test)</span>
+<span class="kw">rddensity</span> running_var, c(0) plot</pre>
+
+<h2>9.5 Fuzzy RDD</h2>
+<p>In a fuzzy RDD, crossing the threshold increases the probability of treatment but does not determine it perfectly. This is estimated via a local IV approach.</p>
+
+<pre class="stata"><span class="cm">* Fuzzy RDD: treatment is the endogenous variable</span>
+<span class="kw">rdrobust</span> outcome running_var, c(0) fuzzy(treatment)
+
+<span class="cm">* This estimates the LATE at the cutoff</span></pre>
+
+<h2>9.6 Propensity Score Matching</h2>
+<p>Matching pairs treated and control units based on observed characteristics. The assumption is that, conditional on these characteristics, treatment assignment is as good as random (selection on observables).</p>
+
+<pre class="stata"><span class="cm">* Propensity score matching (nearest neighbor)</span>
+<span class="kw">teffects psmatch</span> (outcome) (treatment x1 x2 x3, logit), ///
+    nn(1) atet
+
+<span class="cm">* Check covariate balance after matching</span>
+<span class="kw">tebalance</span> summarize
+
+<span class="cm">* Balance plot</span>
+<span class="kw">tebalance</span> density x1</pre>
+
+<h2>9.7 Other Matching Methods</h2>
+
+<pre class="stata"><span class="cm">* Coarsened Exact Matching (CEM)</span>
+<span class="cm">* Install: ssc install cem, replace</span>
+<span class="kw">cem</span> age (#5) education (#3) income (#4), treatment(treatment)
+<span class="kw">regress</span> outcome treatment [iweight=cem_weights], vce(robust)
+
+<span class="cm">* Inverse probability weighting (IPW)</span>
+<span class="kw">teffects ipw</span> (outcome) (treatment x1 x2 x3, logit), atet
+
+<span class="cm">* Doubly robust: IPW + regression adjustment</span>
+<span class="kw">teffects ipwra</span> (outcome x1 x2 x3) (treatment x1 x2 x3, logit), atet</pre>
+
+<div class="concept info">
+    <strong>Choosing a Matching Estimator</strong>
+    PSM is common but sensitive to propensity score model specification. CEM avoids the propensity score entirely by coarsening covariates and matching exactly within bins. Doubly-robust methods (AIPW/IPWRA) are consistent if either the outcome model or the treatment model is correctly specified.
+</div>
+
+<h2>9.8 Synthetic Control Method</h2>
+
+<pre class="stata"><span class="cm">* Install: ssc install synth, replace</span>
+
+<span class="cm">* Synthetic control estimation</span>
+<span class="kw">synth</span> outcome x1 x2 x3 outcome(2000) outcome(2001) outcome(2002), ///
+    trunit(1) trperiod(2003) ///
+    figure</pre>
+
+<div class="exercise">
+    <h4>Exercise 9.1</h4>
+    <p>Simulate a simple 2x2 DID. Create a dataset with 200 units, 2 periods, half treated in period 2. Set the true treatment effect to 5. Estimate the DID coefficient and verify it recovers the true effect. Plot group means over time.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 9.2</h4>
+    <p>Using <code>rdrobust</code>, simulate a sharp RDD with a known cutoff. Generate a running variable from a uniform distribution, treatment as <code>running_var >= 0</code>, and an outcome with a jump of 3 at the cutoff. Estimate the RDD treatment effect and create an <code>rdplot</code>.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>External Resources</h4>
+    <ul>
+        <li><a href="https://asjadnaqvi.github.io/DiD/" target="_blank" rel="noopener">Difference-in-Differences Literature Review (Naqvi)</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://rdpackages.github.io/rdrobust/" target="_blank" rel="noopener">rdrobust Documentation (Cattaneo, Idrobo, Titiunik)</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.stata.com/manuals/teteffects.pdf" target="_blank" rel="noopener">Stata Manual: Treatment Effects</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Key Takeaways</h3>
+    <ul>
+        <li>DID requires parallel trends; always test with an event study plot before reporting results.</li>
+        <li>Use modern DID estimators (Callaway-Sant'Anna, de Chaisemartin-D'Haultfoeuille) for staggered treatment.</li>
+        <li>RDD provides local causal estimates near the cutoff; run the McCrary density test to check manipulation.</li>
+        <li>Matching relies on selection on observables; always check and report covariate balance.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch8.html">&larr; Chapter 8: Time Series</a>
+    <a href="ch10.html">Chapter 10: Advanced Topics &rarr;</a>
+</div>
+
+</body>
+</html>

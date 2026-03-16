@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 10: Advanced Topics | Stata Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        .book-nav a.current{background:#1a5276}
+        h1{color:#1a5276}
+        h2{border-bottom:2px solid #a7f3d0}
+        .exercise{border-color:#1a5276;background:#f0f9ff}
+        .exercise h4{background:#1a5276;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#1a5276,#148f77)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html" class="current">Ch 10</a>
+</nav>
+
+<h1>Chapter 10: Advanced Topics</h1>
+<p class="subtitle">GMM, Stochastic Frontier, Heckman, and Bootstrap</p>
+
+<h2>10.1 Generalized Method of Moments (GMM)</h2>
+<p>GMM is a flexible estimation framework that nests OLS, IV, and many other estimators as special cases. In panel data, dynamic GMM estimators (Arellano-Bond, Arellano-Bover/Blundell-Bond) handle lagged dependent variables and endogenous regressors using internal instruments.</p>
+
+<pre class="stata"><span class="cm">* --- Stata's built-in gmm command ---</span>
+<span class="cm">* Define moment conditions explicitly</span>
+<span class="kw">webuse</span> abdata, clear
+
+<span class="cm">* Arellano-Bond (difference GMM) with xtabond</span>
+<span class="kw">xtabond</span> n L.n w k, lags(1) vce(robust)
+
+<span class="cm">* --- xtabond2 (Roodman 2009) - the gold standard ---</span>
+<span class="cm">* Install: ssc install xtabond2, replace</span>
+
+<span class="cm">* Difference GMM</span>
+<span class="kw">xtabond2</span> n L.n w k yr1980-yr1984, ///
+    gmm(L.n, lag(2 5)) iv(w k yr1980-yr1984) ///
+    robust noleveleq small
+
+<span class="cm">* System GMM (Blundell-Bond): uses both level and differenced equations</span>
+<span class="kw">xtabond2</span> n L.n w k yr1980-yr1984, ///
+    gmm(L.n, lag(2 5)) iv(w k yr1980-yr1984) ///
+    robust small</pre>
+
+<div class="concept warn">
+    <strong>Instrument Proliferation</strong>
+    With many time periods, GMM generates a large number of instruments. Too many instruments overfit the endogenous variables and weaken the Hansen test. Use the <code>collapse</code> option in <code>xtabond2</code> or limit lag depth with <code>lag(2 4)</code> to keep the instrument count manageable. A rule of thumb: the number of instruments should not exceed the number of groups.
+</div>
+
+<h2>10.2 GMM Diagnostics</h2>
+
+<pre class="stata"><span class="cm">* After xtabond2, check:</span>
+
+<span class="cm">* 1. Hansen J test (overidentification)</span>
+<span class="cm">*    H0: instruments are valid. Do NOT reject.</span>
+<span class="cm">*    p-value too close to 1.0 => suspect instrument proliferation</span>
+
+<span class="cm">* 2. Arellano-Bond AR(1) and AR(2) tests</span>
+<span class="cm">*    Expect AR(1) to reject (by construction)</span>
+<span class="cm">*    AR(2) should NOT reject (validates moment conditions)</span>
+
+<span class="cm">* 3. Number of instruments vs. number of groups</span>
+<span class="cm">*    Instruments should be fewer than groups</span>
+
+<span class="cm">* Collapsed instruments to reduce count</span>
+<span class="kw">xtabond2</span> n L.n w k yr1980-yr1984, ///
+    gmm(L.n, lag(2 5) collapse) iv(w k yr1980-yr1984) ///
+    robust small</pre>
+
+<h2>10.3 Stochastic Frontier Analysis (SFA)</h2>
+<p>SFA estimates a production or cost frontier and decomposes the error into a symmetric noise term and a one-sided inefficiency term. This is widely used in healthcare operations, banking, and agriculture to measure productive efficiency.</p>
+
+<pre class="stata"><span class="cm">* Cross-sectional SFA (production frontier)</span>
+<span class="kw">frontier</span> ln_output ln_labor ln_capital, dist(hnormal)
+
+<span class="cm">* Cost frontier (use cost() option)</span>
+<span class="kw">frontier</span> ln_cost ln_output ln_wage ln_rental, cost dist(exponential)
+
+<span class="cm">* Technical efficiency scores</span>
+<span class="kw">predict</span> te, te
+<span class="kw">summarize</span> te, detail
+
+<span class="cm">* Histogram of efficiency</span>
+<span class="kw">histogram</span> te, frequency ///
+    title(<span class="st">"Distribution of Technical Efficiency"</span>) ///
+    xtitle(<span class="st">"Efficiency Score"</span>)</pre>
+
+<h2>10.4 Panel SFA</h2>
+
+<pre class="stata"><span class="cm">* Time-invariant inefficiency (Battese-Coelli 1988)</span>
+<span class="kw">xtfrontier</span> ln_output ln_labor ln_capital, ti
+
+<span class="cm">* Time-varying decay model (Battese-Coelli 1992)</span>
+<span class="kw">xtfrontier</span> ln_output ln_labor ln_capital, tvd
+
+<span class="cm">* Predict efficiency</span>
+<span class="kw">predict</span> te_panel, te</pre>
+
+<h2>10.5 Heckman Selection Model</h2>
+<p>The Heckman model corrects for sample selection bias. It applies when the dependent variable is observed only for a non-random subsample (e.g., wages observed only for employed individuals).</p>
+
+<pre class="stata"><span class="kw">webuse</span> womenwk, clear
+
+<span class="cm">* Two-step Heckman (Heckit)</span>
+<span class="kw">heckman</span> wage education age, ///
+    select(married children education age) twostep
+
+<span class="cm">* Full MLE estimation (more efficient)</span>
+<span class="kw">heckman</span> wage education age, ///
+    select(married children education age)
+
+<span class="cm">* Key output: rho (correlation between selection and outcome errors)</span>
+<span class="cm">* If rho is insignificant, selection bias may not be a concern</span></pre>
+
+<div class="concept info">
+    <strong>Exclusion Restriction</strong>
+    For the Heckman model to be identified by more than functional form, the selection equation should include at least one variable (the "exclusion restriction") that affects selection into the sample but not the outcome. In the example above, <code>married</code> and <code>children</code> serve this role.
+</div>
+
+<h2>10.6 Heckman Probit</h2>
+
+<pre class="stata"><span class="cm">* When the outcome is also binary</span>
+<span class="kw">heckprobit</span> promoted education tenure, ///
+    select(employed = education experience married children)</pre>
+
+<h2>10.7 Control Function Approach</h2>
+<p>The control function is a two-step method related to both Heckman and IV. In the first step, you estimate the endogenous variable's relationship with instruments and save the residuals. In the second step, you include these residuals as a control in the outcome equation.</p>
+
+<pre class="stata"><span class="cm">* Step 1: First stage (reduced form for endogenous X)</span>
+<span class="kw">regress</span> rn_pp instrument_z controls i.year
+<span class="kw">predict</span> cf_resid, residuals
+
+<span class="cm">* Step 2: Include residuals in structural equation</span>
+<span class="kw">regress</span> qip rn_pp sdi cf_resid controls i.year, vce(cluster facility_id)
+
+<span class="cm">* Test endogeneity: t-test on cf_resid</span>
+<span class="cm">* If significant => endogeneity present, CF is needed</span>
+<span class="cm">* If not => OLS is consistent</span>
+
+<span class="cm">* NOTE: Standard errors in step 2 need bootstrapping</span>
+<span class="cm">* because cf_resid is a generated regressor</span></pre>
+
+<h2>10.8 Bootstrap Inference</h2>
+<p>Bootstrap resamples the data with replacement and re-estimates the model many times to obtain standard errors that do not rely on distributional assumptions. This is particularly useful for two-step estimators where analytical standard errors are complex.</p>
+
+<pre class="stata"><span class="cm">* Bootstrap a simple regression</span>
+<span class="kw">bootstrap</span>, reps(1000) seed(12345) cluster(facility_id): ///
+    regress qip rn_pp sdi controls
+
+<span class="cm">* Bootstrap a two-step procedure</span>
+<span class="kw">capture program drop</span> cf_boot
+<span class="kw">program define</span> cf_boot, eclass
+    <span class="cm">* Step 1</span>
+    <span class="kw">regress</span> rn_pp instrument_z controls
+    <span class="kw">predict</span> double cf_r, residuals
+    <span class="cm">* Step 2</span>
+    <span class="kw">regress</span> qip rn_pp sdi cf_r controls
+    <span class="kw">drop</span> cf_r
+<span class="kw">end</span>
+
+<span class="kw">bootstrap</span>, reps(500) seed(42) cluster(facility_id): cf_boot</pre>
+
+<h2>10.9 Wild Cluster Bootstrap</h2>
+<p>When the number of clusters is small (fewer than 30-50), conventional cluster-robust standard errors can be severely biased. The wild cluster bootstrap provides more reliable inference.</p>
+
+<pre class="stata"><span class="cm">* Install: ssc install boottest, replace</span>
+
+<span class="kw">regress</span> outcome treatment controls, vce(cluster state)
+
+<span class="cm">* Wild cluster bootstrap p-value for treatment</span>
+<span class="kw">boottest</span> treatment, reps(9999) seed(42) cluster(state)</pre>
+
+<div class="exercise">
+    <h4>Exercise 10.1</h4>
+    <p>Using <code>webuse abdata</code>, estimate a system GMM model of employment (<code>n</code>) on lagged employment, wages (<code>w</code>), and capital (<code>k</code>) with <code>xtabond2</code>. Use the <code>collapse</code> option. Check the AR(2) test and Hansen J statistic. Are the moment conditions valid?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 10.2</h4>
+    <p>Using <code>webuse womenwk</code>, estimate a Heckman selection model of <code>wage</code> on <code>education</code> and <code>age</code>, with the selection equation including <code>married</code>, <code>children</code>, <code>education</code>, and <code>age</code>. Compare the two-step and MLE estimates. Is the inverse Mills ratio (lambda) significant?</p>
+</div>
+
+<div class="ext-resources">
+    <h4>External Resources</h4>
+    <ul>
+        <li><a href="https://www.stata.com/manuals/xtxtabond.pdf" target="_blank" rel="noopener">Stata Manual: xtabond</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://journals.sagepub.com/doi/10.1177/1536867X0900900106" target="_blank" rel="noopener">Roodman (2009): xtabond2 in Stata Journal</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.stata.com/manuals/rfrontier.pdf" target="_blank" rel="noopener">Stata Manual: frontier (SFA)</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://stats.oarc.ucla.edu/stata/dae/heckman-selection-model/" target="_blank" rel="noopener">UCLA OARC: Heckman Selection Model</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Key Takeaways</h3>
+    <ul>
+        <li>Use system GMM (<code>xtabond2</code>) for dynamic panels; always check AR(2) and Hansen J, and avoid instrument proliferation.</li>
+        <li>SFA separates noise from inefficiency; choose the distributional assumption carefully.</li>
+        <li>The Heckman model corrects for selection bias but requires a credible exclusion restriction.</li>
+        <li>Bootstrap standard errors for any two-step procedure where the first step generates regressors.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch9.html">&larr; Chapter 9: Causal Inference</a>
+    <a href="index.html">Back to Guide Home &rarr;</a>
+</div>
+
+</body>
+</html>

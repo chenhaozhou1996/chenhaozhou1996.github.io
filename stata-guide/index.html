@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stata for Econometrics & Research | Chenhao Zhou</title>
+    <meta name="description" content="A practical Stata coding guide for graduate students in econometrics and operations management research.">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        /* === TOPNAV === */
+        .topnav{position:sticky;top:0;z-index:2000;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;padding:0 48px}
+        .topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+        .topnav-brand{font-weight:700;font-size:15px;color:#0f2442;display:flex;align-items:center;gap:10px;text-decoration:none!important}
+        .topnav-brand:hover{text-decoration:none!important;color:#0f2442}
+        .topnav-brand img{width:32px;height:32px;border-radius:50%;object-fit:cover}
+        .topnav-links{display:flex;gap:4px}
+        .topnav-links a{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;color:#475569;text-decoration:none!important}
+        .topnav-links a:hover{background:#f8fafc;color:#1a365d}
+        .topnav-links a.active{background:#f8fafc;color:#1a365d;font-weight:600}
+        @media(max-width:640px){.topnav{padding:0 16px}.topnav-links a{padding:4px 8px;font-size:12px}}
+
+        /* === RESET === */
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth}
+        body{font-family:'Inter',-apple-system,sans-serif;background:#fff;color:#1e293b;line-height:1.6;-webkit-font-smoothing:antialiased}
+        a{color:#1a5276;text-decoration:none;transition:color 0.15s}
+        a:hover{color:#148f77}
+
+        /* === HERO === */
+        .hero{background:linear-gradient(135deg,#1a5276 0%,#148f77 50%,#1a8a6e 100%);color:#fff;padding:80px 20px 60px;text-align:center;position:relative;overflow:hidden}
+        .hero::before{content:'';position:absolute;top:-50%;right:-20%;width:600px;height:600px;background:radial-gradient(circle,rgba(255,255,255,0.08) 0%,transparent 70%)}
+        .hero::after{content:'';position:absolute;bottom:-30%;left:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%)}
+        .hero-content{position:relative;z-index:1;max-width:800px;margin:0 auto}
+        .hero-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;background:rgba(255,255,255,0.2);margin-bottom:16px}
+        .hero h1{font-size:clamp(28px,4vw,42px);font-weight:800;line-height:1.15;margin-bottom:12px}
+        .hero p{font-size:clamp(14px,1.8vw,17px);opacity:0.9;max-width:600px;margin:0 auto 24px}
+        .hero-stats{display:flex;justify-content:center;gap:32px;font-size:13px;font-weight:600;opacity:0.85}
+        .hero-stats span{display:flex;align-items:center;gap:6px}
+
+        /* === CHAPTER GRID === */
+        .main-content{max-width:1200px;margin:0 auto;padding:60px 20px 80px}
+        .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#1a5276;margin-bottom:24px}
+        .chapters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:24px;margin-bottom:60px}
+        .chapter-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;transition:transform 0.2s,box-shadow 0.2s;text-decoration:none!important;color:#1e293b;display:block}
+        .chapter-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.1)}
+        .card-header{padding:20px 24px 12px;display:flex;align-items:center;gap:14px}
+        .card-num{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#1a5276,#148f77);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+        .card-title{font-size:15px;font-weight:700;color:#0f2442;line-height:1.3}
+        .card-body{padding:0 24px 20px;font-size:13px;color:#64748b;line-height:1.6}
+
+        /* === RESOURCES === */
+        .resources-section{max-width:1200px;margin:0 auto;padding:0 20px 80px}
+        .resources-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+        .resource-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:24px;transition:transform 0.15s,box-shadow 0.15s}
+        .resource-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+        .resource-card h4{font-size:14px;font-weight:700;color:#1a5276;margin-bottom:8px}
+        .resource-card p{font-size:13px;color:#64748b;margin-bottom:10px}
+        .resource-card a{font-size:13px;font-weight:600;color:#1a5276}
+        .ext-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;background:#e2e8f0;color:#64748b;margin-left:6px;vertical-align:middle}
+
+        @media(max-width:640px){.chapters-grid,.resources-grid{grid-template-columns:1fr}.hero{padding:60px 16px 40px}.hero-stats{flex-direction:column;gap:8px;align-items:center}}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">Coding Guide</div>
+        <h1>Stata for Econometrics &amp; Research</h1>
+        <p>A practical guide for graduate students working with panel data, causal inference, and applied microeconometrics in operations management.</p>
+        <div class="hero-stats">
+            <span>10 Chapters</span>
+            <span>OLS to GMM</span>
+            <span>Research-Ready Code</span>
+        </div>
+    </div>
+</section>
+
+<div class="main-content">
+    <div class="section-label">Chapters</div>
+    <div class="chapters-grid">
+
+        <a href="ch1.html" class="chapter-card">
+            <div class="card-header">
+                <div class="card-num">1</div>
+                <div class="card-title">Getting Started: Interface, Do-Files, Log Files</div>
+            </div>
+            <div class="card-body">Navigate the Stata environment, write reproducible do-files, and capture output with log files.</div>
+        </a>
+
+        <a href="ch2.html" class="chapter-card">
+            <div class="card-header">
+                <div class="card-num">2</div>
+                <div class="card-title">Data Management: Import, Clean, Reshape</div>
+            </div>
+            <div class="card-body">Import data from multiple formats, handle missing values, reshape between long and wide, and merge datasets.</div>
+        </a>
+
+        <a href="ch3.html" class="chapter-card">
+            <div class="card-header">
+                <div class="card-num">3</div>
+                <div class="card-title">Descriptive Statistics &amp; Visualization</div>
+            </div>
+            <div class="card-body">Summarize data with tabstat, create publication-quality tables, and build histograms, scatter plots, and combined graphs.</div>
+        </a>
+
+        <a href="ch4.html" class="chapter-card">
+            <div class="card-header">
+                <div class="card-num">4</div>
+                <div class="card-title">Linear Regression: OLS &amp; Diagnostics</div>
+            </div>
+            <div class="card-body">Estimate OLS models, test for heteroskedasticity and omitted variables, compute VIF, and interpret residual plots.</div>
+        </a>
+
+        <a href="ch5.html" class="chapter-card">
+            <div class="card-header">
+                <div class="card-num">5</div>
+                <div class="card-title">Panel Data Methods: FE, RE, Hausman</div>
+            </div>
+            <div class="card-body">Declare panel structure with xtset, estimate fixed and random effects, run Hausman tests, and use reghdfe for high-dimensional FE.</div>
+        </a>
+
+        <a href="ch6.html" class="chapter-card">
+            <div class="card-header">
+                <div class="card-num">6</div>
+                <div class="card-title">Instrumental Variables &amp; Endogeneity</div>
+            </div>
+            <div class="card-body">Implement 2SLS with ivregress, test for weak instruments, run overidentification tests, and use ivreg2 for robust IV estimation.</div>
+        </a>
+
+        <a href="ch7.html" class="chapter-card">
+            <div class="card-header">
+                <div class="card-num">7</div>
+                <div class="card-title">Limited Dependent Variables</div>
+            </div>
+            <div class="card-body">Estimate logit, probit, tobit, and multinomial models. Compute marginal effects and interpret coefficients correctly.</div>
+        </a>
+
+        <a href="ch8.html" class="chapter-card">
+            <div class="card-header">
+                <div class="card-num">8</div>
+                <div class="card-title">Time Series &amp; Forecasting</div>
+            </div>
+            <div class="card-body">Set up time-series data, use lag and difference operators, estimate ARIMA and VAR models, and test for unit roots.</div>
+        </a>
+
+        <a href="ch9.html" class="chapter-card">
+            <div class="card-header">
+                <div class="card-num">9</div>
+                <div class="card-title">Causal Inference: DID, RDD, Matching</div>
+            </div>
+            <div class="card-body">Implement difference-in-differences, regression discontinuity, and propensity score matching with modern Stata packages.</div>
+        </a>
+
+        <a href="ch10.html" class="chapter-card">
+            <div class="card-header">
+                <div class="card-num">10</div>
+                <div class="card-title">Advanced Topics: GMM, SFA, Heckman</div>
+            </div>
+            <div class="card-body">Estimate GMM with xtabond2, stochastic frontier models, Heckman selection corrections, and bootstrap inference.</div>
+        </a>
+
+    </div>
+</div>
+
+<div class="resources-section">
+    <div class="section-label">Official Resources</div>
+    <div class="resources-grid">
+        <div class="resource-card">
+            <h4>Stata Manuals</h4>
+            <p>Complete official documentation for every Stata command, including detailed examples and technical notes.</p>
+            <a href="https://www.stata.com/manuals/" target="_blank" rel="noopener">stata.com/manuals</a> <span class="ext-badge">External</span>
+        </div>
+        <div class="resource-card">
+            <h4>UCLA OARC Stata Resources</h4>
+            <p>Tutorials, annotated output, and learning modules maintained by the UCLA Office of Advanced Research Computing.</p>
+            <a href="https://stats.oarc.ucla.edu/stata/" target="_blank" rel="noopener">stats.oarc.ucla.edu/stata</a> <span class="ext-badge">External</span>
+        </div>
+        <div class="resource-card">
+            <h4>Statalist Forum</h4>
+            <p>The official Stata user community forum for asking questions, sharing code, and discussing methodology.</p>
+            <a href="https://www.statalist.org/" target="_blank" rel="noopener">statalist.org</a> <span class="ext-badge">External</span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

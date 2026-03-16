@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 8: Time Series & Forecasting | Stata Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        .book-nav a.current{background:#1a5276}
+        h1{color:#1a5276}
+        h2{border-bottom:2px solid #a7f3d0}
+        .exercise{border-color:#1a5276;background:#f0f9ff}
+        .exercise h4{background:#1a5276;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#1a5276,#148f77)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html" class="current">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 8: Time Series &amp; Forecasting</h1>
+<p class="subtitle">ARIMA, VAR, Unit Roots, and Granger Causality</p>
+
+<h2>8.1 Declaring Time Series Data</h2>
+<p>Before using time-series operators and estimation commands, declare the time variable with <code>tsset</code>.</p>
+
+<pre class="stata"><span class="kw">webuse</span> air2, clear
+
+<span class="cm">* Declare time variable</span>
+<span class="kw">tsset</span> t
+
+<span class="cm">* For calendar data (monthly, quarterly)</span>
+<span class="kw">webuse</span> gnp96, clear
+<span class="kw">tsset</span> date, quarterly
+
+<span class="cm">* View time-series structure</span>
+<span class="kw">tsreport</span>, list</pre>
+
+<h2>8.2 Time-Series Operators</h2>
+<p>Stata provides operators for lags, leads, and differences that work directly in estimation commands.</p>
+
+<pre class="stata"><span class="kw">webuse</span> gnp96, clear
+<span class="kw">tsset</span> date, quarterly
+
+<span class="cm">* L. = lag operator</span>
+<span class="kw">gen</span> gnp_lag1 = L.gnp96       <span class="cm">// one-quarter lag</span>
+<span class="kw">gen</span> gnp_lag4 = L4.gnp96      <span class="cm">// four-quarter lag</span>
+
+<span class="cm">* D. = first difference operator</span>
+<span class="kw">gen</span> d_gnp = D.gnp96          <span class="cm">// gnp96 - L.gnp96</span>
+
+<span class="cm">* F. = lead (forward) operator</span>
+<span class="kw">gen</span> gnp_lead = F.gnp96
+
+<span class="cm">* Use operators directly in regressions</span>
+<span class="kw">regress</span> gnp96 L.gnp96 L2.gnp96
+
+<span class="cm">* Percentage change (growth rate)</span>
+<span class="kw">gen</span> gnp_growth = D.gnp96 / L.gnp96 * 100</pre>
+
+<h2>8.3 Unit Root Tests</h2>
+<p>Many time series are nonstationary (they have trends or unit roots). Regressing one nonstationary series on another can produce spurious results. Unit root tests determine whether differencing is needed.</p>
+
+<pre class="stata"><span class="cm">* Augmented Dickey-Fuller test</span>
+<span class="kw">dfuller</span> gnp96, trend lags(4)
+<span class="cm">* H0: unit root (nonstationary)</span>
+<span class="cm">* Reject => series is stationary</span>
+
+<span class="cm">* Phillips-Perron test (robust to serial correlation)</span>
+<span class="kw">pperron</span> gnp96, trend lags(4)
+
+<span class="cm">* Test in first differences</span>
+<span class="kw">dfuller</span> D.gnp96, lags(4)
+<span class="cm">* If level is nonstationary but first difference is stationary</span>
+<span class="cm">* => the series is integrated of order 1, I(1)</span></pre>
+
+<div class="concept info">
+    <strong>Stationarity Matters</strong>
+    Use the series in levels if stationary (I(0)). If the series is I(1), work with first differences. If two I(1) series are cointegrated, you can estimate a Vector Error Correction Model (VECM) instead of differencing.
+</div>
+
+<h2>8.4 ARIMA Models</h2>
+<p>ARIMA(p,d,q) combines autoregressive (AR) terms, differencing (I), and moving average (MA) terms. It is the standard univariate forecasting model.</p>
+
+<pre class="stata"><span class="kw">webuse</span> air2, clear
+<span class="kw">tsset</span> t
+
+<span class="cm">* Examine autocorrelation structure</span>
+<span class="kw">ac</span> air, lags(24) title(<span class="st">"Autocorrelation: Air Passengers"</span>)
+<span class="kw">pac</span> air, lags(24) title(<span class="st">"Partial Autocorrelation"</span>)
+
+<span class="cm">* ARIMA(1,1,1) estimation</span>
+<span class="kw">arima</span> air, arima(1,1,1)
+
+<span class="cm">* ARIMA with seasonal component</span>
+<span class="kw">arima</span> air, arima(1,1,1) sarima(1,1,1,12)
+
+<span class="cm">* Forecast</span>
+<span class="kw">predict</span> air_hat, xb
+<span class="kw">tsline</span> air air_hat, title(<span class="st">"Actual vs. Fitted"</span>) ///
+    legend(order(1 <span class="st">"Actual"</span> 2 <span class="st">"Fitted"</span>))</pre>
+
+<h2>8.5 VAR Models</h2>
+<p>Vector Autoregression (VAR) models capture the dynamic interdependencies among multiple time series. Each variable is regressed on its own lags and the lags of all other variables in the system.</p>
+
+<pre class="stata"><span class="kw">webuse</span> lutkepohl2, clear
+<span class="kw">tsset</span> qtr
+
+<span class="cm">* Lag order selection</span>
+<span class="kw">varsoc</span> dln_inv dln_inc dln_consump, maxlag(8)
+
+<span class="cm">* Estimate VAR(2)</span>
+<span class="kw">var</span> dln_inv dln_inc dln_consump, lags(1/2)
+
+<span class="cm">* VAR stability condition</span>
+<span class="kw">varstable</span>, graph</pre>
+
+<h2>8.6 Impulse Response Functions</h2>
+<p>IRFs trace the effect of a one-standard-deviation shock to one variable on the other variables over time.</p>
+
+<pre class="stata"><span class="cm">* Create IRF file</span>
+<span class="kw">irf create</span> results, set(myirf) replace
+
+<span class="cm">* Plot orthogonalized IRF</span>
+<span class="kw">irf graph</span> oirf, impulse(dln_inc) response(dln_inv) ///
+    title(<span class="st">"Response of Investment to Income Shock"</span>)
+
+<span class="cm">* Forecast error variance decomposition</span>
+<span class="kw">irf graph</span> fevd, impulse(dln_inc) response(dln_inv)</pre>
+
+<h2>8.7 Granger Causality</h2>
+<p>Granger causality tests whether lags of one variable help predict another variable, beyond what the variable's own lags can predict. It is a test of predictive content, not true causality.</p>
+
+<pre class="stata"><span class="cm">* After estimating VAR</span>
+<span class="kw">vargranger</span>
+
+<span class="cm">* Or test specific relationships</span>
+<span class="kw">var</span> dln_inv dln_inc, lags(1/2)
+<span class="kw">vargranger</span>
+<span class="cm">* H0: dln_inc does not Granger-cause dln_inv</span>
+<span class="cm">* Reject => lagged income helps predict investment</span></pre>
+
+<h2>8.8 Forecasting and Model Selection</h2>
+
+<pre class="stata"><span class="cm">* Information criteria after ARIMA</span>
+<span class="kw">arima</span> air, arima(1,1,1)
+<span class="kw">estat</span> ic
+
+<span class="cm">* Compare models</span>
+<span class="kw">quietly arima</span> air, arima(1,1,0)
+<span class="kw">estimates store</span> ar1
+
+<span class="kw">quietly arima</span> air, arima(1,1,1)
+<span class="kw">estimates store</span> arma11
+
+<span class="kw">estimates table</span> ar1 arma11, stats(aic bic ll)</pre>
+
+<div class="exercise">
+    <h4>Exercise 8.1</h4>
+    <p>Load <code>webuse gnp96</code> and set the time variable. Run a Dickey-Fuller test on <code>gnp96</code> in levels and first differences. Is the series I(0) or I(1)? Estimate an ARIMA(1,1,0) model and examine the residual autocorrelation with <code>predict resid, residuals</code> followed by <code>ac resid</code>.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 8.2</h4>
+    <p>Using <code>webuse lutkepohl2</code>, estimate a VAR(2) with <code>dln_inv</code>, <code>dln_inc</code>, and <code>dln_consump</code>. Run <code>vargranger</code>. Which variables Granger-cause which? Generate impulse response functions and interpret the response of consumption to an income shock.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>External Resources</h4>
+    <ul>
+        <li><a href="https://www.stata.com/manuals/ts.pdf" target="_blank" rel="noopener">Stata Time-Series Reference Manual</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://stats.oarc.ucla.edu/stata/faq/how-can-i-do-arima-with-stata/" target="_blank" rel="noopener">UCLA OARC: ARIMA in Stata</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.stata.com/manuals/tsvar.pdf" target="_blank" rel="noopener">Stata Manual: VAR</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Key Takeaways</h3>
+    <ul>
+        <li>Always test for unit roots before modeling time series; nonstationary data requires differencing.</li>
+        <li>Use ACF/PACF plots to identify ARIMA order, and AIC/BIC for model selection.</li>
+        <li>VAR models capture multivariate dynamics; use IRFs to interpret shock propagation.</li>
+        <li>Granger causality tests predictive content, not structural causation.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch7.html">&larr; Chapter 7: Limited Dependent Variables</a>
+    <a href="ch9.html">Chapter 9: Causal Inference &rarr;</a>
+</div>
+
+</body>
+</html>

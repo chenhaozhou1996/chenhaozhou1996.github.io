@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 3: Descriptive Statistics & Visualization | Stata Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        .book-nav a.current{background:#1a5276}
+        h1{color:#1a5276}
+        h2{border-bottom:2px solid #a7f3d0}
+        .exercise{border-color:#1a5276;background:#f0f9ff}
+        .exercise h4{background:#1a5276;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#1a5276,#148f77)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html" class="current">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 3: Descriptive Statistics &amp; Visualization</h1>
+<p class="subtitle">Summary Tables and Publication-Quality Graphs</p>
+
+<h2>3.1 Summary Statistics</h2>
+<p>The first table in nearly every empirical paper is a descriptive statistics table. Stata offers several commands for producing these summaries.</p>
+
+<pre class="stata"><span class="kw">sysuse</span> auto, clear
+
+<span class="cm">* Basic summary</span>
+<span class="kw">summarize</span> price mpg weight length
+
+<span class="cm">* Detailed summary (percentiles, skewness, kurtosis)</span>
+<span class="kw">summarize</span> price, detail
+
+<span class="cm">* Flexible tabstat: choose your own statistics</span>
+<span class="kw">tabstat</span> price mpg weight, stats(n mean sd min p25 p50 p75 max) columns(statistics)
+
+<span class="cm">* Summary by group</span>
+<span class="kw">tabstat</span> price mpg weight, by(foreign) stats(n mean sd) nototal</pre>
+
+<h2>3.2 Frequency Tables and Cross-Tabulations</h2>
+<p>For categorical variables, use <code>tabulate</code>. Two-way tables with <code>chi2</code> test the independence of row and column variables.</p>
+
+<pre class="stata"><span class="cm">* One-way frequency table</span>
+<span class="kw">tabulate</span> rep78
+
+<span class="cm">* Two-way table with chi-squared test</span>
+<span class="kw">tabulate</span> foreign rep78, chi2 row
+
+<span class="cm">* Tabulate with summary statistics</span>
+<span class="kw">tabulate</span> foreign, summarize(price)</pre>
+
+<h2>3.3 Correlation Matrices</h2>
+<p>Pairwise correlations provide a quick check for multicollinearity and help motivate your modeling decisions. Report these in your paper alongside descriptive statistics.</p>
+
+<pre class="stata"><span class="cm">* Pearson correlation matrix</span>
+<span class="kw">correlate</span> price mpg weight length
+
+<span class="cm">* Pairwise (uses all available obs per pair)</span>
+<span class="kw">pwcorr</span> price mpg weight length, star(0.05) sig
+
+<span class="cm">* Spearman rank correlations (robust to outliers)</span>
+<span class="kw">spearman</span> price mpg weight</pre>
+
+<h2>3.4 Exporting Tables with estout</h2>
+<p>The <code>estout</code> / <code>esttab</code> package lets you export summary statistics and regression tables to LaTeX, CSV, or RTF.</p>
+
+<pre class="stata"><span class="cm">* Install if needed: ssc install estout, replace</span>
+
+<span class="cm">* Export summary statistics to LaTeX</span>
+<span class="kw">estpost</span> summarize price mpg weight length, detail
+<span class="kw">esttab</span> using <span class="st">"tables/desc_stats.tex"</span>, ///
+    cells(<span class="st">"count mean(fmt(2)) sd(fmt(2)) min max"</span>) ///
+    noobs label replace booktabs</pre>
+
+<h2>3.5 Histograms</h2>
+<p>Histograms reveal the distributional shape of a variable, which informs decisions about transformations (e.g., logging a right-skewed variable).</p>
+
+<pre class="stata"><span class="cm">* Basic histogram</span>
+<span class="kw">histogram</span> price, frequency ///
+    title(<span class="st">"Distribution of Price"</span>) ///
+    xtitle(<span class="st">"Price (USD)"</span>) ytitle(<span class="st">"Frequency"</span>) ///
+    color(navy%60) lcolor(white)
+
+<span class="cm">* Histogram with normal curve overlay</span>
+<span class="kw">histogram</span> mpg, normal ///
+    title(<span class="st">"Miles per Gallon"</span>) ///
+    note(<span class="st">"Source: auto.dta"</span>)</pre>
+
+<h2>3.6 Scatter Plots</h2>
+<p>Scatter plots are essential for visualizing bivariate relationships and checking for nonlinearity before running regressions.</p>
+
+<pre class="stata"><span class="cm">* Basic scatter with linear fit</span>
+<span class="kw">twoway</span> (scatter mpg weight, mcolor(navy%40) msize(small)) ///
+       (lfit mpg weight, lcolor(cranberry) lwidth(medium)), ///
+    title(<span class="st">"MPG vs. Weight"</span>) ///
+    xtitle(<span class="st">"Weight (lbs)"</span>) ytitle(<span class="st">"Miles per Gallon"</span>) ///
+    legend(order(1 <span class="st">"Observations"</span> 2 <span class="st">"Linear fit"</span>))
+
+<span class="cm">* Scatter with lowess smoother</span>
+<span class="kw">twoway</span> (scatter mpg weight, mcolor(navy%30)) ///
+       (lowess mpg weight, lcolor(orange) lwidth(thick)), ///
+    title(<span class="st">"MPG vs. Weight (Nonparametric)"</span>)</pre>
+
+<h2>3.7 Combining and Exporting Graphs</h2>
+<p>Use <code>graph combine</code> to place multiple graphs in a single figure, and <code>graph export</code> to save in publication formats.</p>
+
+<pre class="stata"><span class="cm">* Create and name individual graphs</span>
+<span class="kw">histogram</span> price, name(g1, replace) title(<span class="st">"Price"</span>) nodraw
+<span class="kw">histogram</span> mpg, name(g2, replace) title(<span class="st">"MPG"</span>) nodraw
+
+<span class="cm">* Combine into one figure</span>
+<span class="kw">graph combine</span> g1 g2, rows(1) ///
+    title(<span class="st">"Variable Distributions"</span>) ///
+    note(<span class="st">"Source: 1978 Automobile Data"</span>)
+
+<span class="cm">* Export to PDF or PNG</span>
+<span class="kw">graph export</span> <span class="st">"figures/distributions.pdf"</span>, replace
+<span class="kw">graph export</span> <span class="st">"figures/distributions.png"</span>, replace width(1200)</pre>
+
+<div class="concept tip">
+    <strong>Tip: Graph Schemes</strong>
+    Stata's default graphs have a blue background that journals dislike. Use <code>set scheme s2mono</code> or <code>set scheme plotplain</code> (install via <code>ssc install blindschemes</code>) for a clean white background.
+</div>
+
+<h2>3.8 Box Plots and Bar Charts</h2>
+
+<pre class="stata"><span class="cm">* Box plot by group</span>
+<span class="kw">graph box</span> price, over(foreign) ///
+    title(<span class="st">"Price by Origin"</span>) ///
+    ytitle(<span class="st">"Price (USD)"</span>)
+
+<span class="cm">* Bar chart of means</span>
+<span class="kw">graph bar</span> (mean) price mpg, over(foreign) ///
+    title(<span class="st">"Average Price and MPG"</span>) ///
+    legend(order(1 <span class="st">"Price"</span> 2 <span class="st">"MPG"</span>)) ///
+    blabel(bar, format(%9.1f))</pre>
+
+<div class="exercise">
+    <h4>Exercise 3.1</h4>
+    <p>Using <code>sysuse auto</code>, create a publication-ready scatter plot of <code>price</code> (y-axis) vs. <code>mpg</code> (x-axis) with separate markers for domestic and foreign cars. Add a quadratic fit line. Export it as a PNG file.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 3.2</h4>
+    <p>Use <code>tabstat</code> to produce a table with mean, standard deviation, and the 5th and 95th percentiles for <code>price</code>, <code>mpg</code>, and <code>weight</code>, separately for domestic and foreign cars. Export it using <code>esttab</code>.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>External Resources</h4>
+    <ul>
+        <li><a href="https://www.stata.com/manuals/g.pdf" target="_blank" rel="noopener">Stata Graphics Manual (PDF)</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://stats.oarc.ucla.edu/stata/modules/graph8/twoway/" target="_blank" rel="noopener">UCLA OARC: Stata Graphs</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://repec.sowi.unibe.ch/stata/estout/" target="_blank" rel="noopener">estout Documentation (Ben Jann)</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Key Takeaways</h3>
+    <ul>
+        <li>Use <code>tabstat</code> for flexible summary statistics and <code>estpost</code>/<code>esttab</code> for export.</li>
+        <li>Always visualize distributions before modeling to identify skewness and outliers.</li>
+        <li>Set a clean graph scheme (e.g., <code>plotplain</code>) for publication-ready output.</li>
+        <li>Combine multiple plots with <code>graph combine</code> and export at high resolution.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch2.html">&larr; Chapter 2: Data Management</a>
+    <a href="ch4.html">Chapter 4: Linear Regression &rarr;</a>
+</div>
+
+</body>
+</html>

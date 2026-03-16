@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ch 5: Statistical Testing &amp; Inference – R Guide</title>
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+  <style>
+    h1{color:#1a365d}
+    h2{border-bottom:2px solid #bfdbfe}
+    .book-nav a.current{background:#276DC3}
+    .exercise{border-color:#276DC3;background:#eff6ff}
+    .exercise h4{background:#276DC3;color:#fff}
+  </style>
+  <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<!-- Topnav -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img src="../images/profile.jpg" alt="CZ">Chenhao Zhou</a>
+    <div class="topnav-links">
+      <a href="../index.html">Home</a>
+      <a href="../research.html">Research</a>
+      <a href="../teaching.html" class="active">Teaching</a>
+      <a href="../cv.html">CV</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Book Nav -->
+<nav class="book-nav">
+  <a href="index.html">Index</a>
+  <a href="ch1.html">1 Getting Started</a>
+  <a href="ch2.html">2 Data Structures</a>
+  <a href="ch3.html">3 Wrangling</a>
+  <a href="ch4.html">4 Visualization</a>
+  <a href="ch5.html" class="current">5 Stat Testing</a>
+  <a href="ch6.html">6 Linear Models</a>
+  <a href="ch7.html">7 GLMs</a>
+  <a href="ch8.html">8 ML / tidymodels</a>
+  <a href="ch9.html">9 Reproducible Research</a>
+  <a href="ch10.html">10 Project</a>
+</nav>
+
+<h1>Chapter 5: Statistical Testing &amp; Inference</h1>
+<p class="subtitle">Hypothesis tests, confidence intervals, and assumption checks in R.</p>
+
+<!-- ────────────────────────────── -->
+<h2>5.1 The Testing Framework</h2>
+
+<p>Most R test functions return an object with a <code>$statistic</code>, <code>$p.value</code>, and <code>$conf.int</code>. You can print the result or extract components programmatically.</p>
+
+<pre class="r"><span class="cm"># Generate sample data</span>
+<span class="fn">set.seed</span>(<span class="nb">42</span>)
+group_a <span class="op">&lt;-</span> <span class="fn">rnorm</span>(<span class="nb">30</span>, mean <span class="op">=</span> <span class="nb">100</span>, sd <span class="op">=</span> <span class="nb">15</span>)
+group_b <span class="op">&lt;-</span> <span class="fn">rnorm</span>(<span class="nb">30</span>, mean <span class="op">=</span> <span class="nb">108</span>, sd <span class="op">=</span> <span class="nb">15</span>)
+
+result <span class="op">&lt;-</span> <span class="fn">t.test</span>(group_a, group_b)
+result               <span class="cm"># full output</span>
+result<span class="op">$</span>p.value       <span class="cm"># just the p-value</span>
+result<span class="op">$</span>conf.int      <span class="cm"># 95% CI for difference in means</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>5.2 t-Tests</h2>
+
+<h3>Two-Sample t-Test</h3>
+<pre class="r"><span class="cm"># Default: Welch's t-test (does not assume equal variance)</span>
+<span class="fn">t.test</span>(group_a, group_b)
+
+<span class="cm"># Equal-variance (Student's) t-test</span>
+<span class="fn">t.test</span>(group_a, group_b, var.equal <span class="op">=</span> <span class="nb">TRUE</span>)</pre>
+
+<h3>One-Sample t-Test</h3>
+<pre class="r"><span class="cm"># Test if group_a mean differs from 100</span>
+<span class="fn">t.test</span>(group_a, mu <span class="op">=</span> <span class="nb">100</span>)</pre>
+
+<h3>Paired t-Test</h3>
+<pre class="r"><span class="cm"># Before-after design</span>
+before <span class="op">&lt;-</span> <span class="fn">c</span>(<span class="nb">82</span>, <span class="nb">76</span>, <span class="nb">91</span>, <span class="nb">88</span>, <span class="nb">73</span>)
+after  <span class="op">&lt;-</span> <span class="fn">c</span>(<span class="nb">88</span>, <span class="nb">80</span>, <span class="nb">95</span>, <span class="nb">90</span>, <span class="nb">78</span>)
+<span class="fn">t.test</span>(before, after, paired <span class="op">=</span> <span class="nb">TRUE</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>5.3 Chi-Squared Test</h2>
+
+<p>Tests for independence between two categorical variables.</p>
+
+<pre class="r"><span class="cm"># Contingency table</span>
+survey <span class="op">&lt;-</span> <span class="fn">matrix</span>(<span class="fn">c</span>(<span class="nb">30</span>, <span class="nb">10</span>, <span class="nb">20</span>, <span class="nb">40</span>), nrow <span class="op">=</span> <span class="nb">2</span>,
+                  dimnames <span class="op">=</span> <span class="fn">list</span>(Gender <span class="op">=</span> <span class="fn">c</span>(<span class="st">"M"</span>,<span class="st">"F"</span>),
+                                  Pref <span class="op">=</span> <span class="fn">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>)))
+<span class="fn">chisq.test</span>(survey)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>5.4 ANOVA</h2>
+
+<p>Analysis of Variance tests whether group means differ across three or more groups.</p>
+
+<pre class="r"><span class="cm"># One-way ANOVA using mpg dataset</span>
+<span class="fn">library</span>(dplyr)
+model_aov <span class="op">&lt;-</span> <span class="fn">aov</span>(hwy <span class="op">~</span> drv, data <span class="op">=</span> mpg)
+<span class="fn">summary</span>(model_aov)
+
+<span class="cm"># Post-hoc pairwise comparisons</span>
+<span class="fn">TukeyHSD</span>(model_aov)</pre>
+
+<div class="concept info">
+  <strong>ANOVA assumptions</strong>
+  One-way ANOVA assumes normality within groups and homogeneity of variance. Check normality with <code>shapiro.test()</code> on residuals and variance equality with <code>bartlett.test()</code> or <code>car::leveneTest()</code>. If assumptions fail, consider <code>kruskal.test()</code> (non-parametric).
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>5.5 Correlation Tests</h2>
+
+<pre class="r"><span class="cm"># Pearson correlation (default)</span>
+<span class="fn">cor.test</span>(mpg<span class="op">$</span>displ, mpg<span class="op">$</span>hwy)
+
+<span class="cm"># Spearman rank correlation (non-parametric)</span>
+<span class="fn">cor.test</span>(mpg<span class="op">$</span>displ, mpg<span class="op">$</span>hwy, method <span class="op">=</span> <span class="st">"spearman"</span>)
+
+<span class="cm"># Correlation matrix for multiple variables</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">select</span>(displ, cty, hwy) <span class="op">|&gt;</span>
+  <span class="fn">cor</span>()</pre>
+
+<!-- ────────────────────────────── -->
+<h2>5.6 Proportion Tests and Normality Checks</h2>
+
+<pre class="r"><span class="cm"># Test if a proportion differs from 0.5</span>
+<span class="fn">prop.test</span>(x <span class="op">=</span> <span class="nb">58</span>, n <span class="op">=</span> <span class="nb">100</span>, p <span class="op">=</span> <span class="nb">0.5</span>)
+
+<span class="cm"># Shapiro-Wilk normality test</span>
+<span class="fn">shapiro.test</span>(group_a)  <span class="cm"># p &gt; 0.05 suggests normality</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>5.7 Confidence Intervals</h2>
+
+<pre class="r"><span class="cm"># The t.test result already includes a CI</span>
+<span class="fn">t.test</span>(group_a)<span class="op">$</span>conf.int
+
+<span class="cm"># Manual CI for a mean</span>
+x_bar <span class="op">&lt;-</span> <span class="fn">mean</span>(group_a)
+se    <span class="op">&lt;-</span> <span class="fn">sd</span>(group_a) <span class="op">/</span> <span class="fn">sqrt</span>(<span class="fn">length</span>(group_a))
+t_crit <span class="op">&lt;-</span> <span class="fn">qt</span>(<span class="nb">0.975</span>, df <span class="op">=</span> <span class="fn">length</span>(group_a) <span class="op">-</span> <span class="nb">1</span>)
+
+<span class="fn">c</span>(x_bar <span class="op">-</span> t_crit <span class="op">*</span> se, x_bar <span class="op">+</span> t_crit <span class="op">*</span> se)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>5.8 Quick Reference Table</h2>
+
+<div class="table-wrapper">
+<table>
+  <thead><tr><th>Scenario</th><th>Function</th><th>Key Argument</th></tr></thead>
+  <tbody>
+    <tr><td>Two-sample means</td><td><code>t.test(x, y)</code></td><td><code>var.equal</code></td></tr>
+    <tr><td>Paired means</td><td><code>t.test(x, y, paired=TRUE)</code></td><td></td></tr>
+    <tr><td>3+ group means</td><td><code>aov(y ~ group)</code></td><td><code>TukeyHSD()</code></td></tr>
+    <tr><td>Categorical independence</td><td><code>chisq.test(table)</code></td><td></td></tr>
+    <tr><td>Correlation</td><td><code>cor.test(x, y)</code></td><td><code>method</code></td></tr>
+    <tr><td>Proportion</td><td><code>prop.test(x, n)</code></td><td><code>p</code></td></tr>
+    <tr><td>Normality</td><td><code>shapiro.test(x)</code></td><td></td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 5.1</h4>
+  <p>Using the <code>mtcars</code> dataset, test whether cars with automatic transmission (<code>am == 0</code>) have different <code>mpg</code> than manual cars (<code>am == 1</code>). Report the t-statistic, p-value, and 95% CI. Is the difference statistically significant?</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 5.2</h4>
+  <p>Run a one-way ANOVA to test whether <code>mpg</code> differs by number of cylinders (<code>cyl</code>) in <code>mtcars</code>. If significant, perform Tukey's HSD. Which pairs of cylinder counts differ?</p>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="ext-resources">
+  <h4>External Resources</h4>
+  <ul>
+    <li><a href="https://www.statmethods.net/stats/index.html" target="_blank" rel="noopener">Quick-R: Statistical Tests</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://r4ds.hadley.nz" target="_blank" rel="noopener">R for Data Science (2e)</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://cran.r-project.org/web/views/SocialSciences.html" target="_blank" rel="noopener">CRAN Task View: Social Sciences</a> <span class="ext-badge">External</span></li>
+  </ul>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="takeaway" style="background:linear-gradient(135deg,#1a365d,#276DC3)">
+  <h3>Key Takeaways</h3>
+  <ul>
+    <li>R test functions return objects with <code>$p.value</code>, <code>$conf.int</code>, <code>$statistic</code>.</li>
+    <li>Welch's t-test (<code>var.equal = FALSE</code>) is the safe default for comparing two means.</li>
+    <li>Always check assumptions: normality (<code>shapiro.test</code>) and variance homogeneity before ANOVA.</li>
+    <li>Use <code>TukeyHSD()</code> for post-hoc pairwise comparisons after a significant ANOVA.</li>
+    <li><code>cor.test()</code> gives both the correlation coefficient and a significance test.</li>
+  </ul>
+</div>
+
+<div class="chapter-nav">
+  <a href="ch4.html">&larr; Chapter 4: Visualization</a>
+  <a href="ch6.html">Chapter 6: Linear Models &rarr;</a>
+</div>
+
+</body>
+</html>

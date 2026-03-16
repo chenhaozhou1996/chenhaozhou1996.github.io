@@ -1,0 +1,129 @@
+/* ═══════════════════════════════════════════════════════
+   Coding Guides — Shared Design System
+   Python / Stata / R online book pages
+   ═══════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 15px; line-height: 1.7; color: #1e293b;
+  background: #fff; -webkit-font-smoothing: antialiased;
+  max-width: 900px; margin: 0 auto; padding: 2rem;
+}
+
+/* ─── Topnav ─── */
+.topnav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid #e2e8f0;padding:0 48px;margin:0 -2rem;width:calc(100% + 4rem)}
+.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+.topnav-brand{font-weight:700;font-size:15px;color:#0f2442;display:flex;align-items:center;gap:10px;text-decoration:none!important}
+.topnav-brand:hover{text-decoration:none!important;opacity:0.8}
+.topnav-brand img{width:32px;height:32px;border-radius:50%;object-fit:cover}
+.topnav-links{display:flex;gap:4px}
+.topnav-links a{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:500;color:#475569;text-decoration:none!important;transition:all 0.15s}
+.topnav-links a:hover{background:rgba(26,54,93,0.06);color:#1a365d}
+.topnav-links a.active{background:#f8fafc;color:#1a365d;font-weight:600}
+
+/* ─── Book Nav ─── */
+.book-nav{background:linear-gradient(180deg,#f8fafc,#f1f5f9);padding:12px 0;text-align:center;border-bottom:1px solid rgba(0,0,0,0.06);margin:0 -2rem 1.5em;padding-left:2rem;padding-right:2rem;position:sticky;top:56px;z-index:100;display:flex;justify-content:center;gap:4px;flex-wrap:wrap}
+.book-nav a{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;font-size:11.5px;font-weight:600;transition:all 0.2s;border:1.5px solid transparent;text-decoration:none!important;color:#475569}
+.book-nav a:hover{background:rgba(26,54,93,0.06);color:#1a365d;transform:translateY(-1px)}
+.book-nav a.current{color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.2);padding-bottom:5px}
+
+/* ─── Typography ─── */
+h1{font-size:clamp(24px,3.5vw,32px);font-weight:800;margin-bottom:8px;line-height:1.2;letter-spacing:-0.02em}
+.subtitle{font-size:16px;font-weight:500;margin-bottom:32px}
+h2{font-size:20px;font-weight:700;color:#1a365d;margin:40px 0 16px;padding-bottom:8px;letter-spacing:-0.01em}
+h3{font-size:16px;font-weight:700;color:#475569;margin:24px 0 10px}
+p{margin-bottom:14px;color:#334155}
+ul,ol{margin:0 0 16px 20px;color:#334155}
+li{margin-bottom:6px}
+strong{color:#1e293b}
+a{transition:color 0.15s}
+
+/* ─── Code Blocks ─── */
+pre{background:#0f172a;color:#e2e8f0;padding:20px 24px;border-radius:10px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.6;margin:16px 0;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);position:relative}
+pre::before{position:absolute;top:8px;right:12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;opacity:0.4;font-family:'Inter',sans-serif}
+pre.python::before{content:'PYTHON'}
+pre.stata::before{content:'STATA'}
+pre.r::before{content:'R'}
+pre.bash::before{content:'TERMINAL'}
+code{font-family:'JetBrains Mono',monospace;font-size:0.9em}
+p code, li code{background:#f1f5f9;padding:2px 6px;border-radius:4px;color:#0f172a;font-size:13px}
+
+/* ─── Syntax Highlighting (minimal) ─── */
+.kw{color:#7dd3fc} /* keywords */
+.fn{color:#c4b5fd} /* functions */
+.st{color:#86efac} /* strings */
+.cm{color:#64748b;font-style:italic} /* comments */
+.nb{color:#fbbf24} /* numbers/builtins */
+.op{color:#94a3b8} /* operators */
+
+/* ─── Concept Boxes ─── */
+.concept{border-left:4px solid;padding:16px 20px;border-radius:0 10px 10px 0;margin:20px 0;font-size:14px;box-shadow:0 1px 2px rgba(0,0,0,0.04);transition:box-shadow 0.2s,transform 0.2s}
+.concept:hover{box-shadow:0 2px 4px rgba(0,0,0,0.08);transform:translateX(2px)}
+.concept strong{display:block;margin-bottom:4px}
+.tip{background:#f0fdf4;border-color:#22c55e}.tip strong{color:#166534}
+.warn{background:#fffbeb;border-color:#f59e0b}.warn strong{color:#92400e}
+.info{background:#eff6ff;border-color:#3b82f6}.info strong{color:#1e40af}
+.output{background:#f8fafc;border-color:#cbd5e1}.output strong{color:#475569}
+
+/* ─── External Resource Links ─── */
+.ext-resources{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin:24px 0}
+.ext-resources h4{font-size:14px;font-weight:700;color:#1a365d;margin-bottom:12px}
+.ext-resources ul{list-style:none;margin:0;padding:0}
+.ext-resources li{padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.ext-resources li:last-child{border-bottom:none}
+.ext-resources a{font-weight:600}
+.ext-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;background:#e2e8f0;color:#64748b;margin-left:6px;vertical-align:middle}
+
+/* ─── Exercise Boxes ─── */
+.exercise{border-left:4px solid;padding:16px 20px;border-radius:0 10px 10px 0;margin:16px 0;font-size:14px;box-shadow:0 1px 2px rgba(0,0,0,0.04)}
+.exercise h4{font-size:13px;font-weight:700;margin-bottom:8px;display:inline-block;padding:2px 10px;border-radius:6px}
+.exercise .solution{color:#64748b;font-style:italic;margin-top:8px}
+
+/* ─── Chapter Navigation ─── */
+.chapter-nav{display:flex;justify-content:space-between;margin:48px 0 24px;padding-top:24px;border-top:2px solid #e2e8f0}
+.chapter-nav a{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;border:1.5px solid #e2e8f0;transition:all 0.15s;color:#475569}
+.chapter-nav a:hover{border-color:#1a365d;color:#1a365d;transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,0.06)}
+
+/* ─── Tables ─── */
+.table-wrapper{overflow-x:auto;margin:20px 0}
+table{width:100%;border-collapse:collapse;font-size:13px;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,0.04)}
+th{background:#f8fafc;color:#1a365d;font-weight:700;text-align:left;padding:10px 14px;border-bottom:2px solid #e2e8f0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em}
+td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#334155}
+tr{transition:background 0.15s}
+tbody tr:hover{background:rgba(26,54,93,0.03)}
+
+/* ─── Takeaway ─── */
+.takeaway{color:#fff;padding:24px;border-radius:14px;margin:40px 0;box-shadow:0 10px 15px -3px rgba(0,0,0,0.08);position:relative;overflow:hidden}
+.takeaway::before{content:'';position:absolute;top:-50%;right:-20%;width:300px;height:300px;background:radial-gradient(circle,rgba(255,255,255,0.06) 0%,transparent 70%);pointer-events:none}
+.takeaway h3{margin-top:0}
+.takeaway ul{padding-left:18px}
+.takeaway li{margin-bottom:4px}
+
+/* ─── Print ─── */
+@media print{.topnav,.book-nav,.chapter-nav{display:none!important}pre{box-shadow:none;border:1px solid #ccc}}
+
+/* ─── Responsive ─── */
+@media(max-width:768px){
+  body{padding:1rem;font-size:14px}
+  h1{font-size:clamp(22px,5vw,28px)!important}
+  h2{font-size:clamp(17px,4vw,20px)!important}
+  .topnav{padding:0 12px;margin:0 -1rem;width:calc(100% + 2rem)}
+  .topnav-inner{height:48px}
+  .topnav-links a{padding:4px 8px;font-size:11px}
+  .book-nav{margin:0 -1rem 1em;padding:8px;top:48px;gap:3px}
+  .book-nav a{padding:4px 8px;font-size:10px}
+  pre{font-size:12px;padding:14px 16px}
+  .chapter-nav{flex-direction:column;gap:8px}
+  .chapter-nav a{justify-content:center}
+}
+@media(max-width:480px){
+  .book-nav a{padding:3px 6px;font-size:9px}
+}
+
+/* ─── Animations ─── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.concept,.exercise,.ext-resources{animation:fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) both}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}

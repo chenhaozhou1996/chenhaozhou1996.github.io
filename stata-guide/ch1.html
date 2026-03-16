@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 1: Getting Started | Stata Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        .book-nav a.current{background:#1a5276}
+        h1{color:#1a5276}
+        h2{border-bottom:2px solid #a7f3d0}
+        .exercise{border-color:#1a5276;background:#f0f9ff}
+        .exercise h4{background:#1a5276;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#1a5276,#148f77)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html" class="current">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 1: Getting Started</h1>
+<p class="subtitle">Interface, Do-Files, and Log Files</p>
+
+<h2>1.1 The Stata Interface</h2>
+<p>When you open Stata, you see five windows. The <strong>Command window</strong> is where you type individual commands. The <strong>Results window</strong> shows output. The <strong>Review window</strong> keeps a history of commands you have run. The <strong>Variables window</strong> lists variables in the current dataset, and the <strong>Properties window</strong> shows metadata for selected variables.</p>
+
+<div class="concept tip">
+    <strong>Tip: Interactive vs. Scripted Work</strong>
+    Use the Command window for quick exploration, but always save your final analysis in a do-file for reproducibility.
+</div>
+
+<h2>1.2 Essential Settings</h2>
+<p>Before doing anything, configure a few global settings that prevent common frustrations.</p>
+
+<pre class="stata"><span class="cm">* --- Essential startup settings ---</span>
+<span class="kw">clear</span> all
+<span class="kw">set</span> more off              <span class="cm">// prevent "-- more --" pauses</span>
+<span class="kw">set</span> linesize 120          <span class="cm">// wider output for log files</span>
+<span class="kw">set</span> maxvar 10000          <span class="cm">// allow more variables (SE/MP)</span>
+<span class="kw">set</span> matsize 5000          <span class="cm">// larger matrix for many regressors</span></pre>
+
+<h2>1.3 Writing Do-Files</h2>
+<p>A do-file is a plain text script that contains Stata commands. It is the backbone of reproducible research. Every analysis you submit with a paper should be fully replicable from a do-file.</p>
+
+<pre class="stata"><span class="cm">* ============================================</span>
+<span class="cm">* Project: Panel analysis of dialysis quality</span>
+<span class="cm">* Author:  Your Name</span>
+<span class="cm">* Date:    2026-03-16</span>
+<span class="cm">* ============================================</span>
+
+<span class="kw">version</span> 17               <span class="cm">// lock Stata version for reproducibility</span>
+<span class="kw">clear</span> all
+<span class="kw">set</span> more off
+
+<span class="cm">* Set working directory</span>
+<span class="kw">cd</span> <span class="st">"~/Documents/my_project/"</span>
+
+<span class="cm">* Load data</span>
+<span class="kw">use</span> <span class="st">"data/analysis_panel.dta"</span>, clear
+
+<span class="cm">* Descriptive statistics</span>
+<span class="kw">summarize</span> qip rn_staffing sdi, detail
+
+<span class="cm">* Main regression</span>
+<span class="kw">regress</span> qip rn_staffing sdi i.year, vce(cluster facility_id)</pre>
+
+<div class="concept info">
+    <strong>Version Control</strong>
+    The <code>version 17</code> command at the top of your do-file ensures that even if you later upgrade Stata, the commands are interpreted using version 17 syntax. This prevents subtle breaking changes.
+</div>
+
+<h2>1.4 Log Files</h2>
+<p>A log file captures all commands and output. Journals increasingly require replication logs, and your future self will thank you for keeping them.</p>
+
+<pre class="stata"><span class="cm">* Start a log (text format for portability)</span>
+<span class="kw">log</span> using <span class="st">"logs/analysis_main.log"</span>, text replace
+
+<span class="cm">* ... all your analysis commands here ...</span>
+
+<span class="cm">* Close the log</span>
+<span class="kw">log</span> close</pre>
+
+<p>Use <code>replace</code> to overwrite an existing log when you re-run the do-file. Use <code>append</code> if you want to add to an existing log. The <code>text</code> option produces a plain-text file; omit it for Stata's native SMCL format.</p>
+
+<h2>1.5 Basic Commands</h2>
+<p>Here are the commands you will use every single session.</p>
+
+<pre class="stata"><span class="cm">* Display text or expressions</span>
+<span class="kw">display</span> <span class="st">"Hello, Stata!"</span>
+<span class="kw">display</span> 2 + 2
+<span class="kw">display</span> sqrt(144)
+
+<span class="cm">* Load a built-in dataset</span>
+<span class="kw">sysuse</span> auto, clear
+
+<span class="cm">* Describe the dataset structure</span>
+<span class="kw">describe</span>
+
+<span class="cm">* Summarize numeric variables</span>
+<span class="kw">summarize</span> price mpg weight
+<span class="kw">summarize</span> price, detail       <span class="cm">// percentiles, skewness, kurtosis</span>
+
+<span class="cm">* List observations</span>
+<span class="kw">list</span> make price mpg in 1/5
+
+<span class="cm">* Count observations</span>
+<span class="kw">count</span>
+<span class="kw">count</span> if foreign == 1</pre>
+
+<h2>1.6 Getting Help</h2>
+<p>Stata has excellent built-in documentation. Use <code>help</code> followed by any command name to open the reference page. Use <code>search</code> to find commands by keyword.</p>
+
+<pre class="stata"><span class="kw">help</span> regress              <span class="cm">// full documentation for regress</span>
+<span class="kw">search</span> panel data         <span class="cm">// find commands related to panel data</span>
+<span class="kw">findit</span> reghdfe            <span class="cm">// search for user-written packages</span></pre>
+
+<h2>1.7 Installing User-Written Packages</h2>
+<p>Many commands used in empirical research (e.g., <code>reghdfe</code>, <code>ivreg2</code>, <code>estout</code>) are contributed by the community. Install them from SSC (the Statistical Software Components archive).</p>
+
+<pre class="stata"><span class="cm">* Install from SSC</span>
+<span class="kw">ssc install</span> reghdfe, replace
+<span class="kw">ssc install</span> estout, replace
+<span class="kw">ssc install</span> ivreg2, replace
+
+<span class="cm">* Update all installed packages</span>
+<span class="kw">adoupdate</span>, update</pre>
+
+<div class="exercise">
+    <h4>Exercise 1.1</h4>
+    <p>Create a do-file that: (1) sets <code>version</code> to your Stata version, (2) opens a log file, (3) loads the built-in <code>auto</code> dataset, (4) runs <code>describe</code> and <code>summarize</code>, and (5) closes the log. Run the do-file and verify the log was created.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 1.2</h4>
+    <p>Use <code>help summarize</code> to find the option that reports the 10th and 90th percentiles. Apply it to the <code>price</code> variable in the <code>auto</code> dataset. What is the interquartile range of <code>price</code>?</p>
+</div>
+
+<div class="ext-resources">
+    <h4>External Resources</h4>
+    <ul>
+        <li><a href="https://www.stata.com/manuals/gsm.pdf" target="_blank" rel="noopener">Stata Getting Started Manual (PDF)</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://stats.oarc.ucla.edu/stata/seminars/stata-class-notes/" target="_blank" rel="noopener">UCLA OARC: Stata Class Notes</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.stata.com/manuals/u.pdf" target="_blank" rel="noopener">Stata User's Guide (PDF)</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Key Takeaways</h3>
+    <ul>
+        <li>Always work from do-files rather than typing commands interactively.</li>
+        <li>Start every do-file with <code>version</code>, <code>clear all</code>, and <code>set more off</code>.</li>
+        <li>Use log files to capture output for replication and review.</li>
+        <li>Install community packages from SSC for advanced econometric methods.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="index.html">&larr; Guide Home</a>
+    <a href="ch2.html">Chapter 2: Data Management &rarr;</a>
+</div>
+
+</body>
+</html>

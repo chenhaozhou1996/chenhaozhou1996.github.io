@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 2: Data Management | Stata Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        .book-nav a.current{background:#1a5276}
+        h1{color:#1a5276}
+        h2{border-bottom:2px solid #a7f3d0}
+        .exercise{border-color:#1a5276;background:#f0f9ff}
+        .exercise h4{background:#1a5276;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#1a5276,#148f77)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html" class="current">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 2: Data Management</h1>
+<p class="subtitle">Import, Clean, and Reshape</p>
+
+<h2>2.1 Importing Data</h2>
+<p>Research data arrives in many formats. Stata can read its native <code>.dta</code> files, delimited text (CSV/TSV), and Excel spreadsheets directly.</p>
+
+<pre class="stata"><span class="cm">* Load a Stata dataset</span>
+<span class="kw">use</span> <span class="st">"data/facility_panel.dta"</span>, clear
+
+<span class="cm">* Import a CSV file</span>
+<span class="kw">import delimited</span> <span class="st">"data/raw_cms_data.csv"</span>, clear varnames(1)
+
+<span class="cm">* Import an Excel file (specify sheet and cell range)</span>
+<span class="kw">import excel</span> <span class="st">"data/sdi_scores.xlsx"</span>, sheet(<span class="st">"Sheet1"</span>) firstrow clear
+
+<span class="cm">* Save the current dataset</span>
+<span class="kw">save</span> <span class="st">"data/cleaned_data.dta"</span>, replace</pre>
+
+<div class="concept warn">
+    <strong>Common Pitfall: String Variables</strong>
+    When importing CSV files, Stata may read numeric columns as strings if any cell contains non-numeric text (e.g., "N/A" or blank with spaces). Always run <code>describe</code> after importing to verify variable types.
+</div>
+
+<h2>2.2 Generating and Replacing Variables</h2>
+<p>The <code>generate</code> and <code>replace</code> commands create and modify variables. Use <code>gen</code> for new variables and <code>replace</code> to update existing ones.</p>
+
+<pre class="stata"><span class="cm">* Create new variables</span>
+<span class="kw">gen</span> ln_price = ln(price)
+<span class="kw">gen</span> price_sq = price^2
+<span class="kw">gen</span> high_mpg = (mpg > 25)           <span class="cm">// indicator variable</span>
+<span class="kw">gen</span> price_per_mpg = price / mpg
+
+<span class="cm">* Replace with conditions</span>
+<span class="kw">replace</span> price = . if price < 0       <span class="cm">// set negatives to missing</span>
+<span class="kw">replace</span> region = <span class="st">"Unknown"</span> if region == <span class="st">""</span>
+
+<span class="cm">* Recode a variable</span>
+<span class="kw">recode</span> rep78 (1 2 = 1 <span class="st">"Poor"</span>) (3 = 2 <span class="st">"Average"</span>) (4 5 = 3 <span class="st">"Good"</span>), gen(rep_cat)</pre>
+
+<h2>2.3 String and Numeric Conversions</h2>
+<p>Converting between string and numeric types is a frequent task when cleaning administrative data.</p>
+
+<pre class="stata"><span class="cm">* Convert string to numeric</span>
+<span class="kw">destring</span> zip_code, replace
+<span class="kw">destring</span> revenue, replace force       <span class="cm">// force: set non-numeric to missing</span>
+
+<span class="cm">* Convert numeric to string</span>
+<span class="kw">tostring</span> fips_code, replace format(%05.0f)
+
+<span class="cm">* Encode string categories to numeric (with labels)</span>
+<span class="kw">encode</span> state_name, gen(state_num)
+
+<span class="cm">* Decode numeric labels back to string</span>
+<span class="kw">decode</span> state_num, gen(state_str)</pre>
+
+<h2>2.4 Labels</h2>
+<p>Variable and value labels make output readable and are expected in any shared dataset.</p>
+
+<pre class="stata"><span class="cm">* Variable labels</span>
+<span class="kw">label variable</span> qip <span class="st">"Quality Incentive Program Score"</span>
+<span class="kw">label variable</span> rn_pp <span class="st">"RN FTE per 100 Patients"</span>
+
+<span class="cm">* Value labels</span>
+<span class="kw">label define</span> yesno 0 <span class="st">"No"</span> 1 <span class="st">"Yes"</span>
+<span class="kw">label values</span> high_mpg yesno
+
+<span class="cm">* Check labels</span>
+<span class="kw">label list</span> yesno
+<span class="kw">describe</span> qip rn_pp</pre>
+
+<h2>2.5 Reshaping Data</h2>
+<p>Panel data often needs to move between wide format (one row per unit, columns for each time period) and long format (one row per unit-period).</p>
+
+<pre class="stata"><span class="cm">* --- Wide to Long ---</span>
+<span class="cm">* Suppose variables: id revenue2015 revenue2016 revenue2017</span>
+<span class="kw">reshape long</span> revenue, i(id) j(year)
+
+<span class="cm">* --- Long to Wide ---</span>
+<span class="kw">reshape wide</span> revenue, i(id) j(year)
+
+<span class="cm">* Verify the reshape</span>
+<span class="kw">describe</span>
+<span class="kw">list</span> in 1/5</pre>
+
+<div class="concept info">
+    <strong>Reshape Checklist</strong>
+    Before reshaping: (1) ensure <code>i()</code> uniquely identifies units, (2) ensure <code>j()</code> values are consistent, (3) check for duplicates with <code>duplicates report id year</code>. Reshape will fail silently or produce errors if these conditions are not met.
+</div>
+
+<h2>2.6 Merging Datasets</h2>
+<p>Combining datasets is central to empirical research. Stata's <code>merge</code> creates a <code>_merge</code> variable that reports match status.</p>
+
+<pre class="stata"><span class="cm">* 1:1 merge (each key appears once in both files)</span>
+<span class="kw">use</span> <span class="st">"data/facility_chars.dta"</span>, clear
+<span class="kw">merge</span> 1:1 facility_id using <span class="st">"data/quality_scores.dta"</span>
+<span class="kw">tab</span> _merge
+
+<span class="cm">* m:1 merge (many observations per key in master)</span>
+<span class="kw">use</span> <span class="st">"data/facility_year.dta"</span>, clear
+<span class="kw">merge</span> m:1 zcta using <span class="st">"data/sdi_by_zcta.dta"</span>
+
+<span class="cm">* Keep only matched observations</span>
+<span class="kw">keep</span> if _merge == 3
+<span class="kw">drop</span> _merge
+
+<span class="cm">* Append datasets (stack vertically)</span>
+<span class="kw">use</span> <span class="st">"data/year2015.dta"</span>, clear
+<span class="kw">append</span> using <span class="st">"data/year2016.dta"</span> <span class="st">"data/year2017.dta"</span></pre>
+
+<h2>2.7 Handling Missing Values</h2>
+<p>Stata represents numeric missing as <code>.</code> (which is treated as positive infinity in comparisons). Always account for this in conditional statements.</p>
+
+<pre class="stata"><span class="cm">* Count missing values per variable</span>
+<span class="kw">misstable</span> summarize
+
+<span class="cm">* Tabulate patterns of missingness</span>
+<span class="kw">misstable</span> patterns
+
+<span class="cm">* Drop observations with missing outcome</span>
+<span class="kw">drop</span> if missing(qip)
+
+<span class="cm">* CAREFUL: this keeps missing values too!</span>
+<span class="kw">list</span> if price > 10000     <span class="cm">// missing > 10000 is TRUE in Stata</span>
+
+<span class="cm">* Correct way</span>
+<span class="kw">list</span> if price > 10000 & !missing(price)</pre>
+
+<div class="exercise">
+    <h4>Exercise 2.1</h4>
+    <p>Load <code>sysuse auto</code>. Create a variable <code>weight_kg</code> that converts <code>weight</code> from pounds to kilograms (divide by 2.205). Label it "Weight (kg)". Save the modified dataset as <code>auto_metric.dta</code>.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 2.2</h4>
+    <p>Using the <code>auto</code> dataset, generate a new string variable <code>origin</code> that equals "Domestic" when <code>foreign == 0</code> and "Foreign" when <code>foreign == 1</code>. Then encode it back to a numeric variable <code>origin_num</code> and verify the labels are correct.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>External Resources</h4>
+    <ul>
+        <li><a href="https://www.stata.com/manuals/dmerge.pdf" target="_blank" rel="noopener">Stata Manual: merge</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.stata.com/manuals/dreshape.pdf" target="_blank" rel="noopener">Stata Manual: reshape</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://stats.oarc.ucla.edu/stata/modules/reshaping-data-wide-to-long/" target="_blank" rel="noopener">UCLA OARC: Reshaping Data</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Key Takeaways</h3>
+    <ul>
+        <li>Always run <code>describe</code> after importing to check variable types.</li>
+        <li>Use <code>reshape long</code> for panel analysis and <code>reshape wide</code> for summary tables.</li>
+        <li>Check <code>_merge</code> after every merge to catch unexpected non-matches.</li>
+        <li>Remember that Stata treats missing values as larger than any number.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch1.html">&larr; Chapter 1: Getting Started</a>
+    <a href="ch3.html">Chapter 3: Descriptive Statistics &rarr;</a>
+</div>
+
+</body>
+</html>

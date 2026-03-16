@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ch 7: Generalized Linear Models – R Guide</title>
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+  <style>
+    h1{color:#1a365d}
+    h2{border-bottom:2px solid #bfdbfe}
+    .book-nav a.current{background:#276DC3}
+    .exercise{border-color:#276DC3;background:#eff6ff}
+    .exercise h4{background:#276DC3;color:#fff}
+  </style>
+  <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<!-- Topnav -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img src="../images/profile.jpg" alt="CZ">Chenhao Zhou</a>
+    <div class="topnav-links">
+      <a href="../index.html">Home</a>
+      <a href="../research.html">Research</a>
+      <a href="../teaching.html" class="active">Teaching</a>
+      <a href="../cv.html">CV</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Book Nav -->
+<nav class="book-nav">
+  <a href="index.html">Index</a>
+  <a href="ch1.html">1 Getting Started</a>
+  <a href="ch2.html">2 Data Structures</a>
+  <a href="ch3.html">3 Wrangling</a>
+  <a href="ch4.html">4 Visualization</a>
+  <a href="ch5.html">5 Stat Testing</a>
+  <a href="ch6.html">6 Linear Models</a>
+  <a href="ch7.html" class="current">7 GLMs</a>
+  <a href="ch8.html">8 ML / tidymodels</a>
+  <a href="ch9.html">9 Reproducible Research</a>
+  <a href="ch10.html">10 Project</a>
+</nav>
+
+<h1>Chapter 7: Generalized Linear Models</h1>
+<p class="subtitle">Logistic regression, Poisson regression, odds ratios, and model selection.</p>
+
+<!-- ────────────────────────────── -->
+<h2>7.1 Why GLMs?</h2>
+
+<p>When the response variable is binary (yes/no), a count, or otherwise non-normal, ordinary least squares is inappropriate. Generalized linear models extend <code>lm()</code> by specifying a <strong>family</strong> (distribution + link function).</p>
+
+<div class="table-wrapper">
+<table>
+  <thead><tr><th>Response Type</th><th>Family</th><th>Link</th><th>Use Case</th></tr></thead>
+  <tbody>
+    <tr><td>Binary (0/1)</td><td><code>binomial</code></td><td>logit</td><td>Classification, pass/fail</td></tr>
+    <tr><td>Count</td><td><code>poisson</code></td><td>log</td><td>Event counts, arrivals</td></tr>
+    <tr><td>Continuous, positive</td><td><code>Gamma</code></td><td>inverse</td><td>Insurance claims, wait times</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>7.2 Logistic Regression</h2>
+
+<pre class="r"><span class="cm"># Create a binary outcome: above-median mpg</span>
+mtcars2 <span class="op">&lt;-</span> mtcars <span class="op">|&gt;</span>
+  dplyr<span class="op">::</span><span class="fn">mutate</span>(high_mpg <span class="op">=</span> <span class="fn">ifelse</span>(mpg <span class="op">&gt;</span> <span class="fn">median</span>(mpg), <span class="nb">1</span>, <span class="nb">0</span>))
+
+<span class="cm"># Fit logistic regression</span>
+logit_fit <span class="op">&lt;-</span> <span class="fn">glm</span>(high_mpg <span class="op">~</span> wt <span class="op">+</span> hp <span class="op">+</span> am,
+                  family <span class="op">=</span> <span class="fn">binomial</span>(link <span class="op">=</span> <span class="st">"logit"</span>),
+                  data <span class="op">=</span> mtcars2)
+<span class="fn">summary</span>(logit_fit)</pre>
+
+<h3>Interpreting Coefficients as Odds Ratios</h3>
+
+<pre class="r"><span class="cm"># Log-odds coefficients</span>
+<span class="fn">coef</span>(logit_fit)
+
+<span class="cm"># Convert to odds ratios</span>
+<span class="fn">exp</span>(<span class="fn">coef</span>(logit_fit))
+
+<span class="cm"># Odds ratios with 95% CI</span>
+<span class="fn">exp</span>(<span class="fn">cbind</span>(OR <span class="op">=</span> <span class="fn">coef</span>(logit_fit), <span class="fn">confint</span>(logit_fit)))</pre>
+
+<div class="concept info">
+  <strong>Reading odds ratios</strong>
+  An OR of 0.75 for <code>wt</code> means: for each 1-unit increase in weight, the odds of high mpg are multiplied by 0.75 (i.e., decrease by 25%), holding other variables constant.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>7.3 Predicted Probabilities</h2>
+
+<pre class="r"><span class="cm"># Predicted probabilities on original data</span>
+mtcars2<span class="op">$</span>pred_prob <span class="op">&lt;-</span> <span class="fn">predict</span>(logit_fit, type <span class="op">=</span> <span class="st">"response"</span>)
+
+<span class="cm"># For new observations</span>
+new_cars <span class="op">&lt;-</span> <span class="fn">data.frame</span>(wt <span class="op">=</span> <span class="fn">c</span>(<span class="nb">2.5</span>, <span class="nb">3.5</span>), hp <span class="op">=</span> <span class="fn">c</span>(<span class="nb">100</span>, <span class="nb">150</span>), am <span class="op">=</span> <span class="fn">c</span>(<span class="nb">1</span>, <span class="nb">0</span>))
+<span class="fn">predict</span>(logit_fit, newdata <span class="op">=</span> new_cars, type <span class="op">=</span> <span class="st">"response"</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>7.4 Marginal Effects</h2>
+
+<p>Since logistic coefficients are on the log-odds scale, marginal effects give the change in probability for a one-unit change in X, evaluated at the mean of all other variables.</p>
+
+<pre class="r"><span class="fn">library</span>(margins)
+
+<span class="cm"># Average marginal effects</span>
+mfx <span class="op">&lt;-</span> <span class="fn">margins</span>(logit_fit)
+<span class="fn">summary</span>(mfx)
+
+<span class="cm"># Plot marginal effects</span>
+<span class="fn">plot</span>(mfx)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>7.5 Poisson Regression</h2>
+
+<p>For count data (non-negative integers), Poisson regression models the log of the expected count.</p>
+
+<pre class="r"><span class="cm"># Simulate count data</span>
+<span class="fn">set.seed</span>(<span class="nb">123</span>)
+n <span class="op">&lt;-</span> <span class="nb">200</span>
+count_df <span class="op">&lt;-</span> <span class="fn">data.frame</span>(
+  x1 <span class="op">=</span> <span class="fn">rnorm</span>(n),
+  x2 <span class="op">=</span> <span class="fn">rnorm</span>(n)
+)
+count_df<span class="op">$</span>y <span class="op">&lt;-</span> <span class="fn">rpois</span>(n, lambda <span class="op">=</span> <span class="fn">exp</span>(<span class="nb">1</span> <span class="op">+</span> <span class="nb">0.5</span> <span class="op">*</span> count_df<span class="op">$</span>x1 <span class="op">-</span> <span class="nb">0.3</span> <span class="op">*</span> count_df<span class="op">$</span>x2))
+
+<span class="cm"># Fit Poisson model</span>
+pois_fit <span class="op">&lt;-</span> <span class="fn">glm</span>(y <span class="op">~</span> x1 <span class="op">+</span> x2, family <span class="op">=</span> <span class="fn">poisson</span>(), data <span class="op">=</span> count_df)
+<span class="fn">summary</span>(pois_fit)
+
+<span class="cm"># Incidence rate ratios</span>
+<span class="fn">exp</span>(<span class="fn">coef</span>(pois_fit))</pre>
+
+<div class="concept warn">
+  <strong>Overdispersion</strong>
+  If the residual deviance is much larger than the residual degrees of freedom, your data may be overdispersed. Use <code>family = quasipoisson()</code> or switch to a negative binomial model via <code>MASS::glm.nb()</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>7.6 Model Comparison: AIC and BIC</h2>
+
+<pre class="r"><span class="cm"># Fit competing models</span>
+m1 <span class="op">&lt;-</span> <span class="fn">glm</span>(high_mpg <span class="op">~</span> wt, family <span class="op">=</span> <span class="fn">binomial</span>(), data <span class="op">=</span> mtcars2)
+m2 <span class="op">&lt;-</span> <span class="fn">glm</span>(high_mpg <span class="op">~</span> wt <span class="op">+</span> hp, family <span class="op">=</span> <span class="fn">binomial</span>(), data <span class="op">=</span> mtcars2)
+m3 <span class="op">&lt;-</span> <span class="fn">glm</span>(high_mpg <span class="op">~</span> wt <span class="op">+</span> hp <span class="op">+</span> am, family <span class="op">=</span> <span class="fn">binomial</span>(), data <span class="op">=</span> mtcars2)
+
+<span class="cm"># Compare AIC (lower is better)</span>
+<span class="fn">AIC</span>(m1, m2, m3)
+<span class="fn">BIC</span>(m1, m2, m3)
+
+<span class="cm"># Likelihood ratio test for nested models</span>
+<span class="fn">anova</span>(m1, m3, test <span class="op">=</span> <span class="st">"Chisq"</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>7.7 Tidy GLM Output</h2>
+
+<pre class="r"><span class="fn">library</span>(broom)
+
+<span class="fn">tidy</span>(logit_fit, conf.int <span class="op">=</span> <span class="nb">TRUE</span>, exponentiate <span class="op">=</span> <span class="nb">TRUE</span>)
+<span class="cm"># Gives odds ratios directly in the estimate column</span>
+
+<span class="fn">glance</span>(logit_fit)
+<span class="cm"># AIC, BIC, deviance, df.residual, nobs</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 7.1</h4>
+  <p>Using the built-in <code>Titanic</code> dataset (convert it to a data frame with <code>as.data.frame(Titanic)</code>), fit a logistic regression predicting <code>Survived</code> from <code>Class</code>, <code>Sex</code>, and <code>Age</code> (use the <code>Freq</code> column as weights). Report the odds ratios and identify the strongest predictor.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 7.2</h4>
+  <p>Simulate 500 Poisson-distributed observations with <code>lambda = exp(0.5 + 0.8*x)</code> where <code>x ~ N(0,1)</code>. Fit a Poisson GLM and verify that the recovered coefficients are close to 0.5 (intercept) and 0.8 (slope). Check for overdispersion.</p>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="ext-resources">
+  <h4>External Resources</h4>
+  <ul>
+    <li><a href="https://stats.oarc.ucla.edu/r/dae/logit-regression/" target="_blank" rel="noopener">UCLA: Logistic Regression in R</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://stats.oarc.ucla.edu/r/dae/poisson-regression/" target="_blank" rel="noopener">UCLA: Poisson Regression in R</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://cran.r-project.org/web/packages/margins/vignettes/Introduction.html" target="_blank" rel="noopener">margins Package Vignette</a> <span class="ext-badge">External</span></li>
+  </ul>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="takeaway" style="background:linear-gradient(135deg,#1a365d,#276DC3)">
+  <h3>Key Takeaways</h3>
+  <ul>
+    <li><code>glm(y ~ x, family = binomial())</code> fits logistic regression for binary outcomes.</li>
+    <li>Exponentiate coefficients with <code>exp(coef())</code> to get odds ratios (logistic) or incidence rate ratios (Poisson).</li>
+    <li>Use <code>margins()</code> to compute average marginal effects on the probability scale.</li>
+    <li>Compare non-nested GLMs with AIC/BIC; use <code>anova(..., test="Chisq")</code> for nested models.</li>
+    <li>Watch for overdispersion in Poisson models; switch to quasi-Poisson or negative binomial if needed.</li>
+  </ul>
+</div>
+
+<div class="chapter-nav">
+  <a href="ch6.html">&larr; Chapter 6: Linear Models</a>
+  <a href="ch8.html">Chapter 8: ML / tidymodels &rarr;</a>
+</div>
+
+</body>
+</html>

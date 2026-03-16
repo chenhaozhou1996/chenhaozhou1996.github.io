@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 4: NumPy | Python Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1 { color: #1e3a5f; }
+        h2 { border-bottom: 2px solid #bfdbfe; }
+        .book-nav a.current { background: #3776AB; }
+        .exercise { border-color: #3776AB; background: #eff6ff; }
+        .exercise h4 { background: #3776AB; color: #fff; }
+        .takeaway { background: linear-gradient(135deg, #1e3a5f, #3776AB); }
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html" class="current">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 4: NumPy</h1>
+<p class="subtitle">Arrays and Numerical Computing</p>
+
+<h2>4.1 Why NumPy?</h2>
+<p>NumPy (Numerical Python) is the foundation of the Python data science stack. It provides the <code>ndarray</code>, a fast, memory-efficient multidimensional array that supports vectorized operations. Pandas, scikit-learn, and matplotlib all build on NumPy arrays internally.</p>
+
+<pre class="python"><span class="kw">import</span> numpy <span class="kw">as</span> np</pre>
+
+<h2>4.2 Creating Arrays</h2>
+
+<pre class="python"><span class="cm"># From a list</span>
+sales = np.<span class="fn">array</span>([<span class="nb">120</span>, <span class="nb">135</span>, <span class="nb">150</span>, <span class="nb">142</span>, <span class="nb">160</span>])
+
+<span class="cm"># Common constructors</span>
+zeros  = np.<span class="fn">zeros</span>((<span class="nb">3</span>, <span class="nb">4</span>))           <span class="cm"># 3x4 matrix of zeros</span>
+ones   = np.<span class="fn">ones</span>(<span class="nb">5</span>)                  <span class="cm"># [1. 1. 1. 1. 1.]</span>
+rng    = np.<span class="fn">arange</span>(<span class="nb">0</span>, <span class="nb">100</span>, <span class="nb">10</span>)      <span class="cm"># [0, 10, 20, ..., 90]</span>
+grid   = np.<span class="fn">linspace</span>(<span class="nb">0</span>, <span class="nb">1</span>, <span class="nb">5</span>)       <span class="cm"># [0. , 0.25, 0.5, 0.75, 1.]</span>
+ident  = np.<span class="fn">eye</span>(<span class="nb">3</span>)                   <span class="cm"># 3x3 identity matrix</span>
+
+<span class="fn">print</span>(sales.<span class="fn">shape</span>)   <span class="cm"># (5,)</span>
+<span class="fn">print</span>(zeros.<span class="fn">shape</span>)   <span class="cm"># (3, 4)</span>
+<span class="fn">print</span>(sales.<span class="fn">dtype</span>)   <span class="cm"># int64</span></pre>
+
+<h2>4.3 Indexing and Slicing</h2>
+
+<pre class="python">data = np.<span class="fn">array</span>([[<span class="nb">10</span>, <span class="nb">20</span>, <span class="nb">30</span>],
+                 [<span class="nb">40</span>, <span class="nb">50</span>, <span class="nb">60</span>],
+                 [<span class="nb">70</span>, <span class="nb">80</span>, <span class="nb">90</span>]])
+
+<span class="fn">print</span>(data[<span class="nb">0</span>, <span class="nb">2</span>])     <span class="cm"># 30  (row 0, col 2)</span>
+<span class="fn">print</span>(data[<span class="nb">1</span>, :])     <span class="cm"># [40, 50, 60]  (entire row 1)</span>
+<span class="fn">print</span>(data[:, <span class="nb">0</span>])     <span class="cm"># [10, 40, 70]  (entire col 0)</span>
+<span class="fn">print</span>(data[:<span class="nb">2</span>, <span class="nb">1</span>:])  <span class="cm"># [[20, 30], [50, 60]]  (submatrix)</span>
+
+<span class="cm"># Boolean indexing</span>
+<span class="fn">print</span>(data[data > <span class="nb">50</span>])  <span class="cm"># [60, 70, 80, 90]</span></pre>
+
+<h2>4.4 Vectorized Operations</h2>
+<p>NumPy operations apply element-wise without explicit loops. This is orders of magnitude faster than Python for-loops on large arrays.</p>
+
+<pre class="python">units  = np.<span class="fn">array</span>([<span class="nb">500</span>, <span class="nb">320</span>, <span class="nb">750</span>, <span class="nb">410</span>])
+prices = np.<span class="fn">array</span>([<span class="nb">29.99</span>, <span class="nb">14.50</span>, <span class="nb">7.25</span>, <span class="nb">45.00</span>])
+
+<span class="cm"># Element-wise operations</span>
+revenue = units * prices
+<span class="fn">print</span>(revenue)  <span class="cm"># [14995. 4640. 5437.5 18450.]</span>
+
+<span class="cm"># Aggregations</span>
+<span class="fn">print</span>(<span class="st">f"Total revenue: $</span>{revenue.<span class="fn">sum</span>():,.2f}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"Average:       $</span>{revenue.<span class="fn">mean</span>():,.2f}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"Std dev:       $</span>{revenue.<span class="fn">std</span>():,.2f}<span class="st">"</span>)</pre>
+
+<h2>4.5 Broadcasting</h2>
+<p>Broadcasting lets NumPy perform operations on arrays of different shapes. A scalar gets "stretched" to match the array dimension.</p>
+
+<pre class="python"><span class="cm"># Apply a 10% price increase to all products</span>
+new_prices = prices * <span class="nb">1.10</span>
+<span class="fn">print</span>(new_prices)  <span class="cm"># [32.989, 15.95, 7.975, 49.5]</span>
+
+<span class="cm"># 2D example: each row is a store, columns are months</span>
+monthly = np.<span class="fn">array</span>([[<span class="nb">100</span>, <span class="nb">120</span>, <span class="nb">110</span>],
+                    [<span class="nb">200</span>, <span class="nb">190</span>, <span class="nb">210</span>]])
+weights = np.<span class="fn">array</span>([<span class="nb">0.3</span>, <span class="nb">0.3</span>, <span class="nb">0.4</span>])  <span class="cm"># month weights</span>
+weighted_avg = (monthly * weights).<span class="fn">sum</span>(axis=<span class="nb">1</span>)
+<span class="fn">print</span>(weighted_avg)  <span class="cm"># [110. 201.]</span></pre>
+
+<h2>4.6 Random Number Generation</h2>
+
+<pre class="python">rng = np.random.<span class="fn">default_rng</span>(seed=<span class="nb">42</span>)
+
+<span class="cm"># Simulate daily demand (normal distribution)</span>
+demand = rng.<span class="fn">normal</span>(loc=<span class="nb">100</span>, scale=<span class="nb">15</span>, size=<span class="nb">365</span>)
+<span class="fn">print</span>(<span class="st">f"Simulated year: mean=</span>{demand.<span class="fn">mean</span>():.1f}<span class="st">, std=</span>{demand.<span class="fn">std</span>():.1f}<span class="st">"</span>)
+
+<span class="cm"># Uniform, integers, choice</span>
+lead_times = rng.<span class="fn">uniform</span>(low=<span class="nb">3</span>, high=<span class="nb">10</span>, size=<span class="nb">50</span>)
+dice_rolls = rng.<span class="fn">integers</span>(low=<span class="nb">1</span>, high=<span class="nb">7</span>, size=<span class="nb">100</span>)
+sample     = rng.<span class="fn">choice</span>([<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>], size=<span class="nb">10</span>, p=[<span class="nb">0.5</span>, <span class="nb">0.3</span>, <span class="nb">0.2</span>])</pre>
+
+<h2>4.7 Linear Algebra Basics</h2>
+
+<pre class="python">A = np.<span class="fn">array</span>([[<span class="nb">2</span>, <span class="nb">1</span>], [<span class="nb">5</span>, <span class="nb">3</span>]])
+b = np.<span class="fn">array</span>([<span class="nb">8</span>, <span class="nb">19</span>])
+
+<span class="cm"># Solve Ax = b</span>
+x = np.linalg.<span class="fn">solve</span>(A, b)
+<span class="fn">print</span>(<span class="st">f"Solution: x = </span>{x}<span class="st">"</span>)  <span class="cm"># [1. 6.]</span>
+
+<span class="cm"># Matrix operations</span>
+<span class="fn">print</span>(<span class="st">f"Determinant: </span>{np.linalg.<span class="fn">det</span>(A):.0f}<span class="st">"</span>)  <span class="cm"># 1</span>
+<span class="fn">print</span>(<span class="st">f"Inverse:\n</span>{np.linalg.<span class="fn">inv</span>(A)}<span class="st">"</span>)
+
+<span class="cm"># Matrix multiplication</span>
+C = A @ A  <span class="cm"># or np.dot(A, A)</span>
+<span class="fn">print</span>(C)</pre>
+
+<div class="concept warn">
+    <strong>Performance tip:</strong> Avoid looping over array elements in Python. Use vectorized NumPy operations instead. A vectorized operation on a million-element array can be 100x faster than a for-loop.
+</div>
+
+<div class="exercise">
+    <h4>Exercise 4.1</h4>
+    <p>Simulate 10,000 days of demand from a normal distribution (mean=500, std=80). Compute the probability that daily demand exceeds 600 units. Then compute the 95th percentile of demand using <code>np.percentile()</code>.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 4.2</h4>
+    <p>Create a 5x3 matrix where each row represents a product and columns are [cost, revenue, units]. Compute a profit column (revenue - cost) using vectorized operations, then find which product has the highest profit.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://numpy.org/doc/stable/user/quickstart.html" target="_blank">NumPy Quickstart Tutorial</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://numpy.org/doc/stable/reference/routines.linalg.html" target="_blank">NumPy Linear Algebra Reference</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://numpy.org/doc/stable/reference/random/index.html" target="_blank">NumPy Random Sampling</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 4 Takeaways</h3>
+    <ul>
+        <li>NumPy's ndarray is the core data structure for numerical computing in Python.</li>
+        <li>Vectorized operations replace explicit loops and run orders of magnitude faster.</li>
+        <li>Broadcasting allows operations between arrays of different shapes without copying data.</li>
+        <li>NumPy provides built-in random number generation for simulation and linear algebra routines for matrix computation.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch3.html">&larr; Chapter 3: Functions</a>
+    <a href="ch5.html">Chapter 5: Pandas &rarr;</a>
+</div>
+
+</body>
+</html>

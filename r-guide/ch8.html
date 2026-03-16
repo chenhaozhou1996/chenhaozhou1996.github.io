@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ch 8: Machine Learning with tidymodels – R Guide</title>
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+  <style>
+    h1{color:#1a365d}
+    h2{border-bottom:2px solid #bfdbfe}
+    .book-nav a.current{background:#276DC3}
+    .exercise{border-color:#276DC3;background:#eff6ff}
+    .exercise h4{background:#276DC3;color:#fff}
+  </style>
+  <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<!-- Topnav -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img src="../images/profile.jpg" alt="CZ">Chenhao Zhou</a>
+    <div class="topnav-links">
+      <a href="../index.html">Home</a>
+      <a href="../research.html">Research</a>
+      <a href="../teaching.html" class="active">Teaching</a>
+      <a href="../cv.html">CV</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Book Nav -->
+<nav class="book-nav">
+  <a href="index.html">Index</a>
+  <a href="ch1.html">1 Getting Started</a>
+  <a href="ch2.html">2 Data Structures</a>
+  <a href="ch3.html">3 Wrangling</a>
+  <a href="ch4.html">4 Visualization</a>
+  <a href="ch5.html">5 Stat Testing</a>
+  <a href="ch6.html">6 Linear Models</a>
+  <a href="ch7.html">7 GLMs</a>
+  <a href="ch8.html" class="current">8 ML / tidymodels</a>
+  <a href="ch9.html">9 Reproducible Research</a>
+  <a href="ch10.html">10 Project</a>
+</nav>
+
+<h1>Chapter 8: Machine Learning with tidymodels</h1>
+<p class="subtitle">Recipes, workflows, cross-validation, tuning, and evaluation in a tidy framework.</p>
+
+<!-- ────────────────────────────── -->
+<h2>8.1 The tidymodels Ecosystem</h2>
+
+<p>tidymodels provides a unified, tidy interface for the full ML pipeline. Its core packages are:</p>
+
+<div class="table-wrapper">
+<table>
+  <thead><tr><th>Package</th><th>Role</th></tr></thead>
+  <tbody>
+    <tr><td><code>rsample</code></td><td>Train/test splits, cross-validation</td></tr>
+    <tr><td><code>recipes</code></td><td>Feature engineering and preprocessing</td></tr>
+    <tr><td><code>parsnip</code></td><td>Unified model specification (engine-agnostic)</td></tr>
+    <tr><td><code>workflows</code></td><td>Bundle recipe + model together</td></tr>
+    <tr><td><code>tune</code></td><td>Hyperparameter tuning</td></tr>
+    <tr><td><code>yardstick</code></td><td>Evaluation metrics</td></tr>
+  </tbody>
+</table>
+</div>
+
+<pre class="r"><span class="fn">library</span>(tidymodels)
+<span class="fn">tidymodels_prefer</span>()  <span class="cm"># resolve naming conflicts</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>8.2 Data Splitting with rsample</h2>
+
+<pre class="r"><span class="fn">data</span>(ames, package <span class="op">=</span> <span class="st">"modeldata"</span>)
+
+<span class="cm"># 75/25 train-test split, stratified by Sale_Price</span>
+<span class="fn">set.seed</span>(<span class="nb">2024</span>)
+split <span class="op">&lt;-</span> <span class="fn">initial_split</span>(ames, prop <span class="op">=</span> <span class="nb">0.75</span>, strata <span class="op">=</span> Sale_Price)
+train <span class="op">&lt;-</span> <span class="fn">training</span>(split)
+test  <span class="op">&lt;-</span> <span class="fn">testing</span>(split)
+
+<span class="fn">nrow</span>(train)  <span class="cm"># ~2198</span>
+<span class="fn">nrow</span>(test)   <span class="cm"># ~732</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>8.3 Feature Engineering with recipes</h2>
+
+<p>A recipe defines preprocessing steps before modeling. Steps are declared but not executed until the workflow runs.</p>
+
+<pre class="r">ames_rec <span class="op">&lt;-</span> <span class="fn">recipe</span>(Sale_Price <span class="op">~</span> Gr_Liv_Area <span class="op">+</span> Year_Built <span class="op">+</span>
+                     Bldg_Type <span class="op">+</span> Neighborhood,
+                   data <span class="op">=</span> train) <span class="op">|&gt;</span>
+  <span class="fn">step_log</span>(Sale_Price, base <span class="op">=</span> <span class="nb">10</span>) <span class="op">|&gt;</span>         <span class="cm"># log-transform DV</span>
+  <span class="fn">step_normalize</span>(<span class="fn">all_numeric_predictors</span>()) <span class="op">|&gt;</span>  <span class="cm"># center and scale</span>
+  <span class="fn">step_dummy</span>(<span class="fn">all_nominal_predictors</span>()) <span class="op">|&gt;</span>     <span class="cm"># one-hot encode categoricals</span>
+  <span class="fn">step_zv</span>(<span class="fn">all_predictors</span>())                   <span class="cm"># remove zero-variance cols</span>
+
+ames_rec</pre>
+
+<div class="concept tip">
+  <strong>Useful recipe steps</strong>
+  <code>step_impute_median()</code> fills missing numerics, <code>step_interact(~ x1:x2)</code> creates interactions, <code>step_pca()</code> adds PCA components.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>8.4 Model Specification with parsnip</h2>
+
+<pre class="r"><span class="cm"># Linear regression</span>
+lm_spec <span class="op">&lt;-</span> <span class="fn">linear_reg</span>() <span class="op">|&gt;</span>
+  <span class="fn">set_engine</span>(<span class="st">"lm"</span>)
+
+<span class="cm"># Random forest</span>
+rf_spec <span class="op">&lt;-</span> <span class="fn">rand_forest</span>(mtry <span class="op">=</span> <span class="nb">3</span>, trees <span class="op">=</span> <span class="nb">500</span>, min_n <span class="op">=</span> <span class="nb">10</span>) <span class="op">|&gt;</span>
+  <span class="fn">set_engine</span>(<span class="st">"ranger"</span>) <span class="op">|&gt;</span>
+  <span class="fn">set_mode</span>(<span class="st">"regression"</span>)
+
+<span class="cm"># XGBoost (requires xgboost package)</span>
+xgb_spec <span class="op">&lt;-</span> <span class="fn">boost_tree</span>(trees <span class="op">=</span> <span class="nb">500</span>, learn_rate <span class="op">=</span> <span class="nb">0.01</span>) <span class="op">|&gt;</span>
+  <span class="fn">set_engine</span>(<span class="st">"xgboost"</span>) <span class="op">|&gt;</span>
+  <span class="fn">set_mode</span>(<span class="st">"regression"</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>8.5 Workflows: Bundle Recipe + Model</h2>
+
+<pre class="r"><span class="cm"># Create and fit a workflow</span>
+lm_wflow <span class="op">&lt;-</span> <span class="fn">workflow</span>() <span class="op">|&gt;</span>
+  <span class="fn">add_recipe</span>(ames_rec) <span class="op">|&gt;</span>
+  <span class="fn">add_model</span>(lm_spec)
+
+lm_fit <span class="op">&lt;-</span> lm_wflow <span class="op">|&gt;</span> <span class="fn">fit</span>(data <span class="op">=</span> train)
+
+<span class="cm"># Predict on test set</span>
+preds <span class="op">&lt;-</span> lm_fit <span class="op">|&gt;</span>
+  <span class="fn">predict</span>(new_data <span class="op">=</span> test) <span class="op">|&gt;</span>
+  <span class="fn">bind_cols</span>(test <span class="op">|&gt;</span> <span class="fn">select</span>(Sale_Price))</pre>
+
+<!-- ────────────────────────────── -->
+<h2>8.6 Cross-Validation with rsample</h2>
+
+<pre class="r"><span class="cm"># 10-fold CV, stratified</span>
+folds <span class="op">&lt;-</span> <span class="fn">vfold_cv</span>(train, v <span class="op">=</span> <span class="nb">10</span>, strata <span class="op">=</span> Sale_Price)
+
+<span class="cm"># Fit workflow across all folds</span>
+lm_cv <span class="op">&lt;-</span> lm_wflow <span class="op">|&gt;</span>
+  <span class="fn">fit_resamples</span>(
+    resamples <span class="op">=</span> folds,
+    metrics   <span class="op">=</span> <span class="fn">metric_set</span>(rmse, rsq, mae)
+  )
+
+<span class="cm"># Aggregate CV metrics</span>
+<span class="fn">collect_metrics</span>(lm_cv)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>8.7 Hyperparameter Tuning with tune_grid</h2>
+
+<pre class="r"><span class="cm"># Specify tunable parameters with tune()</span>
+rf_tune_spec <span class="op">&lt;-</span> <span class="fn">rand_forest</span>(
+  mtry  <span class="op">=</span> <span class="fn">tune</span>(),
+  trees <span class="op">=</span> <span class="nb">500</span>,
+  min_n <span class="op">=</span> <span class="fn">tune</span>()
+) <span class="op">|&gt;</span>
+  <span class="fn">set_engine</span>(<span class="st">"ranger"</span>) <span class="op">|&gt;</span>
+  <span class="fn">set_mode</span>(<span class="st">"regression"</span>)
+
+rf_wflow <span class="op">&lt;-</span> <span class="fn">workflow</span>() <span class="op">|&gt;</span>
+  <span class="fn">add_recipe</span>(ames_rec) <span class="op">|&gt;</span>
+  <span class="fn">add_model</span>(rf_tune_spec)
+
+<span class="cm"># Grid search</span>
+rf_grid <span class="op">&lt;-</span> <span class="fn">grid_regular</span>(
+  <span class="fn">mtry</span>(range <span class="op">=</span> <span class="fn">c</span>(<span class="nb">1</span>, <span class="nb">4</span>)),
+  <span class="fn">min_n</span>(range <span class="op">=</span> <span class="fn">c</span>(<span class="nb">5</span>, <span class="nb">20</span>)),
+  levels <span class="op">=</span> <span class="nb">4</span>
+)
+
+rf_tuned <span class="op">&lt;-</span> rf_wflow <span class="op">|&gt;</span>
+  <span class="fn">tune_grid</span>(
+    resamples <span class="op">=</span> folds,
+    grid      <span class="op">=</span> rf_grid,
+    metrics   <span class="op">=</span> <span class="fn">metric_set</span>(rmse, rsq)
+  )
+
+<span class="cm"># Best hyperparameters</span>
+<span class="fn">show_best</span>(rf_tuned, metric <span class="op">=</span> <span class="st">"rmse"</span>, n <span class="op">=</span> <span class="nb">3</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>8.8 Finalizing and Evaluating</h2>
+
+<pre class="r"><span class="cm"># Select the best hyperparameters</span>
+best_rf <span class="op">&lt;-</span> <span class="fn">select_best</span>(rf_tuned, metric <span class="op">=</span> <span class="st">"rmse"</span>)
+
+<span class="cm"># Finalize workflow and fit on full training set</span>
+final_wflow <span class="op">&lt;-</span> rf_wflow <span class="op">|&gt;</span> <span class="fn">finalize_workflow</span>(best_rf)
+final_fit   <span class="op">&lt;-</span> final_wflow <span class="op">|&gt;</span> <span class="fn">last_fit</span>(split)
+
+<span class="cm"># Test-set metrics</span>
+<span class="fn">collect_metrics</span>(final_fit)
+
+<span class="cm"># Test-set predictions</span>
+<span class="fn">collect_predictions</span>(final_fit) <span class="op">|&gt;</span>
+  <span class="fn">ggplot</span>(<span class="fn">aes</span>(x <span class="op">=</span> Sale_Price, y <span class="op">=</span> .pred)) <span class="op">+</span>
+  <span class="fn">geom_point</span>(alpha <span class="op">=</span> <span class="nb">0.4</span>) <span class="op">+</span>
+  <span class="fn">geom_abline</span>(color <span class="op">=</span> <span class="st">"#276DC3"</span>) <span class="op">+</span>
+  <span class="fn">labs</span>(title <span class="op">=</span> <span class="st">"Predicted vs. Actual (Test Set)"</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 8.1</h4>
+  <p>Build a classification workflow to predict <code>Species</code> in the <code>iris</code> dataset using a decision tree (<code>decision_tree()</code> with engine <code>"rpart"</code>). Use 5-fold CV and report accuracy. Then try a random forest and compare.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 8.2</h4>
+  <p>Using the Ames housing data, create a recipe that includes <code>step_interact(~ Gr_Liv_Area:Year_Built)</code>. Fit an XGBoost model with <code>tune()</code> on <code>learn_rate</code> and <code>trees</code>. Which combination gives the best RMSE?</p>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="ext-resources">
+  <h4>External Resources</h4>
+  <ul>
+    <li><a href="https://www.tidymodels.org" target="_blank" rel="noopener">tidymodels.org</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://www.tmwr.org" target="_blank" rel="noopener">Tidy Modeling with R (book)</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://parsnip.tidymodels.org/reference/" target="_blank" rel="noopener">parsnip Model Reference</a> <span class="ext-badge">External</span></li>
+  </ul>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="takeaway" style="background:linear-gradient(135deg,#1a365d,#276DC3)">
+  <h3>Key Takeaways</h3>
+  <ul>
+    <li>tidymodels provides a consistent pipeline: split &rarr; recipe &rarr; model &rarr; workflow &rarr; evaluate.</li>
+    <li>Recipes declare preprocessing; parsnip declares models. Workflows bundle both.</li>
+    <li>Use <code>vfold_cv()</code> for cross-validation and <code>tune_grid()</code> for hyperparameter search.</li>
+    <li><code>last_fit(split)</code> fits on the full training set and evaluates on the test set in one step.</li>
+    <li><code>collect_metrics()</code> and <code>collect_predictions()</code> retrieve results in tidy tibbles.</li>
+  </ul>
+</div>
+
+<div class="chapter-nav">
+  <a href="ch7.html">&larr; Chapter 7: GLMs</a>
+  <a href="ch9.html">Chapter 9: Reproducible Research &rarr;</a>
+</div>
+
+</body>
+</html>

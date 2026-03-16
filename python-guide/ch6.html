@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 6: Data Visualization | Python Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1 { color: #1e3a5f; }
+        h2 { border-bottom: 2px solid #bfdbfe; }
+        .book-nav a.current { background: #3776AB; }
+        .exercise { border-color: #3776AB; background: #eff6ff; }
+        .exercise h4 { background: #3776AB; color: #fff; }
+        .takeaway { background: linear-gradient(135deg, #1e3a5f, #3776AB); }
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html" class="current">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 6: Data Visualization</h1>
+<p class="subtitle">Matplotlib and Seaborn</p>
+
+<h2>6.1 The Visualization Stack</h2>
+<p>Matplotlib is Python's foundational plotting library. Seaborn builds on top of it with higher-level statistical graphics and better default aesthetics. Together they cover most visualization needs in analytics work.</p>
+
+<pre class="python"><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> seaborn <span class="kw">as</span> sns
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Set a clean style</span>
+sns.<span class="fn">set_theme</span>(style=<span class="st">"whitegrid"</span>, font_scale=<span class="nb">1.1</span>)</pre>
+
+<h2>6.2 Line Plots</h2>
+
+<pre class="python">months = np.<span class="fn">arange</span>(<span class="nb">1</span>, <span class="nb">13</span>)
+revenue = [<span class="nb">42</span>, <span class="nb">45</span>, <span class="nb">48</span>, <span class="nb">52</span>, <span class="nb">55</span>, <span class="nb">60</span>, <span class="nb">58</span>, <span class="nb">62</span>, <span class="nb">65</span>, <span class="nb">70</span>, <span class="nb">72</span>, <span class="nb">78</span>]
+
+plt.<span class="fn">figure</span>(figsize=(<span class="nb">8</span>, <span class="nb">4</span>))
+plt.<span class="fn">plot</span>(months, revenue, marker=<span class="st">"o"</span>, linewidth=<span class="nb">2</span>, color=<span class="st">"#3776AB"</span>)
+plt.<span class="fn">xlabel</span>(<span class="st">"Month"</span>)
+plt.<span class="fn">ylabel</span>(<span class="st">"Revenue ($K)"</span>)
+plt.<span class="fn">title</span>(<span class="st">"Monthly Revenue Trend"</span>)
+plt.<span class="fn">xticks</span>(months)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<h2>6.3 Scatter Plots</h2>
+
+<pre class="python">np.random.<span class="fn">seed</span>(<span class="nb">42</span>)
+ad_spend   = np.random.<span class="fn">uniform</span>(<span class="nb">10</span>, <span class="nb">100</span>, <span class="nb">50</span>)
+sales      = <span class="nb">2.5</span> * ad_spend + np.random.<span class="fn">normal</span>(<span class="nb">0</span>, <span class="nb">20</span>, <span class="nb">50</span>)
+
+plt.<span class="fn">figure</span>(figsize=(<span class="nb">6</span>, <span class="nb">5</span>))
+plt.<span class="fn">scatter</span>(ad_spend, sales, alpha=<span class="nb">0.7</span>, edgecolors=<span class="st">"w"</span>, s=<span class="nb">60</span>)
+plt.<span class="fn">xlabel</span>(<span class="st">"Ad Spend ($K)"</span>)
+plt.<span class="fn">ylabel</span>(<span class="st">"Sales ($K)"</span>)
+plt.<span class="fn">title</span>(<span class="st">"Ad Spend vs. Sales"</span>)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<h2>6.4 Bar Charts</h2>
+
+<pre class="python">categories = [<span class="st">"Electronics"</span>, <span class="st">"Apparel"</span>, <span class="st">"Grocery"</span>, <span class="st">"Home"</span>]
+values = [<span class="nb">340</span>, <span class="nb">215</span>, <span class="nb">520</span>, <span class="nb">180</span>]
+
+plt.<span class="fn">figure</span>(figsize=(<span class="nb">7</span>, <span class="nb">4</span>))
+bars = plt.<span class="fn">bar</span>(categories, values, color=[<span class="st">"#3776AB"</span>, <span class="st">"#4b8bbe"</span>, <span class="st">"#6ba3d6"</span>, <span class="st">"#9dc3e6"</span>])
+plt.<span class="fn">ylabel</span>(<span class="st">"Revenue ($K)"</span>)
+plt.<span class="fn">title</span>(<span class="st">"Revenue by Category"</span>)
+
+<span class="cm"># Add value labels on bars</span>
+<span class="kw">for</span> bar <span class="kw">in</span> bars:
+    plt.<span class="fn">text</span>(bar.<span class="fn">get_x</span>() + bar.<span class="fn">get_width</span>()/<span class="nb">2</span>, bar.<span class="fn">get_height</span>() + <span class="nb">5</span>,
+            <span class="st">f"$</span>{bar.<span class="fn">get_height</span>()}<span class="st">K"</span>, ha=<span class="st">"center"</span>, fontsize=<span class="nb">10</span>)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<h2>6.5 Histograms</h2>
+
+<pre class="python">delivery_times = np.random.<span class="fn">normal</span>(loc=<span class="nb">5.2</span>, scale=<span class="nb">1.1</span>, size=<span class="nb">500</span>)
+
+plt.<span class="fn">figure</span>(figsize=(<span class="nb">7</span>, <span class="nb">4</span>))
+plt.<span class="fn">hist</span>(delivery_times, bins=<span class="nb">25</span>, color=<span class="st">"#3776AB"</span>, edgecolor=<span class="st">"white"</span>, alpha=<span class="nb">0.8</span>)
+plt.<span class="fn">axvline</span>(delivery_times.<span class="fn">mean</span>(), color=<span class="st">"red"</span>, linestyle=<span class="st">"--"</span>, label=<span class="st">"Mean"</span>)
+plt.<span class="fn">xlabel</span>(<span class="st">"Delivery Time (days)"</span>)
+plt.<span class="fn">ylabel</span>(<span class="st">"Frequency"</span>)
+plt.<span class="fn">title</span>(<span class="st">"Distribution of Delivery Times"</span>)
+plt.<span class="fn">legend</span>()
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<h2>6.6 Subplots</h2>
+
+<pre class="python">fig, axes = plt.<span class="fn">subplots</span>(<span class="nb">1</span>, <span class="nb">2</span>, figsize=(<span class="nb">12</span>, <span class="nb">4</span>))
+
+<span class="cm"># Left: line plot</span>
+axes[<span class="nb">0</span>].<span class="fn">plot</span>(months, revenue, marker=<span class="st">"s"</span>, color=<span class="st">"#3776AB"</span>)
+axes[<span class="nb">0</span>].<span class="fn">set_title</span>(<span class="st">"Revenue Over Time"</span>)
+axes[<span class="nb">0</span>].<span class="fn">set_xlabel</span>(<span class="st">"Month"</span>)
+
+<span class="cm"># Right: bar chart</span>
+axes[<span class="nb">1</span>].<span class="fn">bar</span>(categories, values, color=<span class="st">"#4b8bbe"</span>)
+axes[<span class="nb">1</span>].<span class="fn">set_title</span>(<span class="st">"Revenue by Category"</span>)
+
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<h2>6.7 Seaborn: Heatmap</h2>
+
+<pre class="python"><span class="cm"># Correlation heatmap</span>
+df = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"price"</span>: np.random.<span class="fn">uniform</span>(<span class="nb">5</span>, <span class="nb">50</span>, <span class="nb">100</span>),
+    <span class="st">"ads"</span>:   np.random.<span class="fn">uniform</span>(<span class="nb">1</span>, <span class="nb">20</span>, <span class="nb">100</span>),
+    <span class="st">"sales"</span>: np.random.<span class="fn">uniform</span>(<span class="nb">50</span>, <span class="nb">500</span>, <span class="nb">100</span>),
+    <span class="st">"returns"</span>: np.random.<span class="fn">uniform</span>(<span class="nb">0</span>, <span class="nb">50</span>, <span class="nb">100</span>),
+})
+
+plt.<span class="fn">figure</span>(figsize=(<span class="nb">6</span>, <span class="nb">5</span>))
+sns.<span class="fn">heatmap</span>(df.<span class="fn">corr</span>(), annot=<span class="nb">True</span>, cmap=<span class="st">"Blues"</span>, fmt=<span class="st">".2f"</span>, linewidths=<span class="nb">0.5</span>)
+plt.<span class="fn">title</span>(<span class="st">"Correlation Matrix"</span>)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<h2>6.8 Seaborn: Pairplot</h2>
+
+<pre class="python"><span class="cm"># Pairwise scatter plots colored by a category</span>
+iris = sns.<span class="fn">load_dataset</span>(<span class="st">"iris"</span>)
+sns.<span class="fn">pairplot</span>(iris, hue=<span class="st">"species"</span>, palette=<span class="st">"Set2"</span>, height=<span class="nb">2.5</span>)
+plt.<span class="fn">suptitle</span>(<span class="st">"Iris Dataset Pairplot"</span>, y=<span class="nb">1.02</span>)
+plt.<span class="fn">show</span>()</pre>
+
+<h2>6.9 Saving Figures</h2>
+
+<pre class="python">fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="nb">7</span>, <span class="nb">4</span>))
+ax.<span class="fn">bar</span>(categories, values, color=<span class="st">"#3776AB"</span>)
+ax.<span class="fn">set_title</span>(<span class="st">"Revenue by Category"</span>)
+
+<span class="cm"># Save as high-resolution PNG and PDF</span>
+fig.<span class="fn">savefig</span>(<span class="st">"revenue_chart.png"</span>, dpi=<span class="nb">300</span>, bbox_inches=<span class="st">"tight"</span>)
+fig.<span class="fn">savefig</span>(<span class="st">"revenue_chart.pdf"</span>, bbox_inches=<span class="st">"tight"</span>)</pre>
+
+<div class="concept tip">
+    <strong>Style tip:</strong> Always call <code>plt.tight_layout()</code> before <code>plt.show()</code> or <code>savefig()</code>. It prevents labels from being clipped. For publications, use <code>dpi=300</code> and <code>bbox_inches="tight"</code>.
+</div>
+
+<div class="exercise">
+    <h4>Exercise 6.1</h4>
+    <p>Create a 2x2 subplot figure: (top-left) line plot of monthly sales, (top-right) bar chart of sales by region, (bottom-left) histogram of order values, (bottom-right) scatter plot of price vs. quantity. Use a consistent color palette.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 6.2</h4>
+    <p>Load the built-in Seaborn "tips" dataset with <code>sns.load_dataset("tips")</code>. Create a heatmap of the correlation matrix and a boxplot of total bill by day of the week. Save both plots as PNG files.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://matplotlib.org/stable/gallery/index.html" target="_blank">Matplotlib Gallery</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://seaborn.pydata.org/examples/index.html" target="_blank">Seaborn Example Gallery</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://matplotlib.org/stable/tutorials/introductory/pyplot.html" target="_blank">Matplotlib pyplot Tutorial</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 6 Takeaways</h3>
+    <ul>
+        <li>Matplotlib handles low-level plot customization; Seaborn provides high-level statistical graphics with attractive defaults.</li>
+        <li>Use subplots to compare multiple views in a single figure for reports and presentations.</li>
+        <li>Correlation heatmaps and pairplots are essential exploratory tools before modeling.</li>
+        <li>Always save figures at 300 dpi with tight bounding boxes for professional output.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch5.html">&larr; Chapter 5: Pandas</a>
+    <a href="ch7.html">Chapter 7: Statistics &rarr;</a>
+</div>
+
+</body>
+</html>

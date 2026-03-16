@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ch 2: Data Structures – R Guide</title>
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+  <style>
+    h1{color:#1a365d}
+    h2{border-bottom:2px solid #bfdbfe}
+    .book-nav a.current{background:#276DC3}
+    .exercise{border-color:#276DC3;background:#eff6ff}
+    .exercise h4{background:#276DC3;color:#fff}
+  </style>
+  <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<!-- Topnav -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img src="../images/profile.jpg" alt="CZ">Chenhao Zhou</a>
+    <div class="topnav-links">
+      <a href="../index.html">Home</a>
+      <a href="../research.html">Research</a>
+      <a href="../teaching.html" class="active">Teaching</a>
+      <a href="../cv.html">CV</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Book Nav -->
+<nav class="book-nav">
+  <a href="index.html">Index</a>
+  <a href="ch1.html">1 Getting Started</a>
+  <a href="ch2.html" class="current">2 Data Structures</a>
+  <a href="ch3.html">3 Wrangling</a>
+  <a href="ch4.html">4 Visualization</a>
+  <a href="ch5.html">5 Stat Testing</a>
+  <a href="ch6.html">6 Linear Models</a>
+  <a href="ch7.html">7 GLMs</a>
+  <a href="ch8.html">8 ML / tidymodels</a>
+  <a href="ch9.html">9 Reproducible Research</a>
+  <a href="ch10.html">10 Project</a>
+</nav>
+
+<h1>Chapter 2: Data Structures</h1>
+<p class="subtitle">Vectors, matrices, data frames, lists, and factors: the building blocks of R.</p>
+
+<!-- ────────────────────────────── -->
+<h2>2.1 Vectors</h2>
+
+<p>A vector is the most fundamental R data structure. Every element must share the same type (homogeneous).</p>
+
+<pre class="r"><span class="cm"># Create vectors with c()</span>
+nums <span class="op">&lt;-</span> <span class="fn">c</span>(<span class="nb">10</span>, <span class="nb">20</span>, <span class="nb">30</span>, <span class="nb">40</span>)
+chars <span class="op">&lt;-</span> <span class="fn">c</span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>)
+logicals <span class="op">&lt;-</span> <span class="fn">c</span>(<span class="nb">TRUE</span>, <span class="nb">FALSE</span>, <span class="nb">TRUE</span>)
+
+<span class="cm"># Sequence shortcuts</span>
+<span class="nb">1</span><span class="op">:</span><span class="nb">10</span>                       <span class="cm"># 1 2 3 ... 10</span>
+<span class="fn">seq</span>(<span class="nb">0</span>, <span class="nb">1</span>, by <span class="op">=</span> <span class="nb">0.25</span>)      <span class="cm"># 0.00 0.25 0.50 0.75 1.00</span>
+<span class="fn">rep</span>(<span class="st">"x"</span>, <span class="nb">5</span>)                 <span class="cm"># "x" "x" "x" "x" "x"</span>
+
+<span class="cm"># Vectorized operations (no loops needed)</span>
+nums <span class="op">*</span> <span class="nb">2</span>       <span class="cm"># 20 40 60 80</span>
+nums <span class="op">&gt;</span> <span class="nb">25</span>      <span class="cm"># FALSE FALSE TRUE TRUE</span>
+<span class="fn">sum</span>(nums)      <span class="cm"># 100</span>
+<span class="fn">length</span>(nums)   <span class="cm"># 4</span></pre>
+
+<h3>Indexing Vectors</h3>
+
+<pre class="r">x <span class="op">&lt;-</span> <span class="fn">c</span>(<span class="nb">5</span>, <span class="nb">12</span>, <span class="nb">8</span>, <span class="nb">3</span>, <span class="nb">17</span>)
+
+x[<span class="nb">1</span>]           <span class="cm"># 5  — R is 1-indexed!</span>
+x[<span class="fn">c</span>(<span class="nb">2</span>, <span class="nb">4</span>)]     <span class="cm"># 12  3</span>
+x[<span class="op">-</span><span class="nb">1</span>]          <span class="cm"># 12 8 3 17  — exclude first</span>
+x[x <span class="op">&gt;</span> <span class="nb">10</span>]      <span class="cm"># 12 17  — logical indexing</span>
+
+<span class="cm"># Named vectors</span>
+scores <span class="op">&lt;-</span> <span class="fn">c</span>(math <span class="op">=</span> <span class="nb">92</span>, eng <span class="op">=</span> <span class="nb">85</span>, sci <span class="op">=</span> <span class="nb">88</span>)
+scores[<span class="st">"math"</span>]   <span class="cm"># 92</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>2.2 Matrices</h2>
+
+<p>A matrix is a 2D vector: all elements share one type.</p>
+
+<pre class="r">m <span class="op">&lt;-</span> <span class="fn">matrix</span>(<span class="nb">1</span><span class="op">:</span><span class="nb">12</span>, nrow <span class="op">=</span> <span class="nb">3</span>, ncol <span class="op">=</span> <span class="nb">4</span>)
+m
+<span class="cm">#      [,1] [,2] [,3] [,4]</span>
+<span class="cm"># [1,]    1    4    7   10</span>
+<span class="cm"># [2,]    2    5    8   11</span>
+<span class="cm"># [3,]    3    6    9   12</span>
+
+m[<span class="nb">2</span>, <span class="nb">3</span>]        <span class="cm"># 8  — row 2, col 3</span>
+m[<span class="nb">1</span>, ]         <span class="cm"># entire row 1</span>
+m[, <span class="nb">2</span>]         <span class="cm"># entire col 2</span>
+<span class="fn">dim</span>(m)         <span class="cm"># 3 4</span>
+<span class="fn">t</span>(m)           <span class="cm"># transpose</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>2.3 Data Frames</h2>
+
+<p>The data frame is R's workhorse for tabular data. Each column is a vector, but columns can differ in type.</p>
+
+<pre class="r">df <span class="op">&lt;-</span> <span class="fn">data.frame</span>(
+  name   <span class="op">=</span> <span class="fn">c</span>(<span class="st">"Alice"</span>, <span class="st">"Bob"</span>, <span class="st">"Carol"</span>),
+  age    <span class="op">=</span> <span class="fn">c</span>(<span class="nb">28</span>, <span class="nb">34</span>, <span class="nb">25</span>),
+  score  <span class="op">=</span> <span class="fn">c</span>(<span class="nb">91.5</span>, <span class="nb">87.2</span>, <span class="nb">94.0</span>),
+  passed <span class="op">=</span> <span class="fn">c</span>(<span class="nb">TRUE</span>, <span class="nb">TRUE</span>, <span class="nb">TRUE</span>)
+)
+
+<span class="cm"># Inspection</span>
+<span class="fn">str</span>(df)          <span class="cm"># structure — types, dimensions</span>
+<span class="fn">head</span>(df, <span class="nb">2</span>)      <span class="cm"># first 2 rows</span>
+<span class="fn">nrow</span>(df)         <span class="cm"># 3</span>
+<span class="fn">ncol</span>(df)         <span class="cm"># 4</span>
+<span class="fn">names</span>(df)        <span class="cm"># column names</span>
+
+<span class="cm"># Access columns</span>
+df<span class="op">$</span>name          <span class="cm"># "Alice" "Bob" "Carol"</span>
+df[, <span class="st">"score"</span>]   <span class="cm"># same as df$score</span>
+df[<span class="nb">1</span>, ]          <span class="cm"># first row</span>
+df[df<span class="op">$</span>age <span class="op">&gt;</span> <span class="nb">26</span>, ]  <span class="cm"># rows where age &gt; 26</span></pre>
+
+<div class="concept info">
+  <strong>data.frame vs. tibble</strong>
+  The tidyverse uses <code>tibble</code>, a modern data frame variant that prints more cleanly and never converts strings to factors. Create one with <code>tibble::tibble()</code> or <code>as_tibble(df)</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>2.4 Lists</h2>
+
+<p>Lists can hold elements of any type, including other lists. They are the most flexible R structure.</p>
+
+<pre class="r">my_list <span class="op">&lt;-</span> <span class="fn">list</span>(
+  title  <span class="op">=</span> <span class="st">"Experiment 1"</span>,
+  data   <span class="op">=</span> <span class="fn">data.frame</span>(x <span class="op">=</span> <span class="nb">1</span><span class="op">:</span><span class="nb">3</span>, y <span class="op">=</span> <span class="fn">c</span>(<span class="nb">4</span>,<span class="nb">5</span>,<span class="nb">6</span>)),
+  params <span class="op">=</span> <span class="fn">c</span>(<span class="nb">0.05</span>, <span class="nb">100</span>)
+)
+
+<span class="cm"># Access list elements</span>
+my_list[[<span class="nb">1</span>]]          <span class="cm"># "Experiment 1"  — extracts the element</span>
+my_list[<span class="nb">1</span>]            <span class="cm"># a sub-list of length 1</span>
+my_list<span class="op">$</span>data          <span class="cm"># the data frame</span>
+my_list[[<span class="st">"params"</span>]]   <span class="cm"># c(0.05, 100)</span>
+
+<span class="fn">str</span>(my_list)           <span class="cm"># see the nested structure</span></pre>
+
+<div class="concept warn">
+  <strong>[ ] vs. [[ ]]</strong>
+  Single brackets <code>[ ]</code> return a sub-list. Double brackets <code>[[ ]]</code> extract the actual element. Think of <code>[ ]</code> as a boxcar and <code>[[ ]]</code> as pulling the item out of the boxcar.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>2.5 Factors</h2>
+
+<p>Factors represent categorical variables. They store levels (categories) and are used by many statistical functions.</p>
+
+<pre class="r">status <span class="op">&lt;-</span> <span class="fn">factor</span>(<span class="fn">c</span>(<span class="st">"low"</span>, <span class="st">"mid"</span>, <span class="st">"high"</span>, <span class="st">"low"</span>, <span class="st">"mid"</span>))
+<span class="fn">levels</span>(status)   <span class="cm"># "high" "low" "mid"  — alphabetical by default</span>
+
+<span class="cm"># Ordered factor (ordinal)</span>
+status_ord <span class="op">&lt;-</span> <span class="fn">factor</span>(
+  <span class="fn">c</span>(<span class="st">"low"</span>, <span class="st">"mid"</span>, <span class="st">"high"</span>, <span class="st">"low"</span>),
+  levels  <span class="op">=</span> <span class="fn">c</span>(<span class="st">"low"</span>, <span class="st">"mid"</span>, <span class="st">"high"</span>),
+  ordered <span class="op">=</span> <span class="nb">TRUE</span>
+)
+status_ord[<span class="nb">1</span>] <span class="op">&lt;</span> status_ord[<span class="nb">3</span>]  <span class="cm"># TRUE</span>
+
+<span class="cm"># Convert factor to numeric (careful!)</span>
+<span class="fn">as.numeric</span>(status)  <span class="cm"># gives underlying integers 2 3 1 2 3</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>2.6 Useful Inspection Functions</h2>
+
+<div class="table-wrapper">
+<table>
+  <thead><tr><th>Function</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>str(x)</code></td><td>Compact display of structure</td></tr>
+    <tr><td><code>class(x)</code></td><td>High-level type ("data.frame", "list", etc.)</td></tr>
+    <tr><td><code>typeof(x)</code></td><td>Internal storage type ("double", "character")</td></tr>
+    <tr><td><code>length(x)</code></td><td>Number of elements (or columns for df)</td></tr>
+    <tr><td><code>dim(x)</code></td><td>Rows and columns</td></tr>
+    <tr><td><code>summary(x)</code></td><td>Quick statistical summary</td></tr>
+    <tr><td><code>head(x, n)</code></td><td>First n elements/rows</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 2.1</h4>
+  <p>Create a named vector <code>temps</code> with temperatures for Monday through Friday: 72, 68, 75, 80, 77. Extract only the days where temperature exceeds 74 using logical indexing.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 2.2</h4>
+  <p>Build a data frame called <code>products</code> with columns: <code>name</code> (3 product names), <code>price</code> (numeric), and <code>category</code> (factor with levels "electronics", "clothing", "food"). Use <code>str()</code> to verify the types. Then extract only rows where price is above the median price.</p>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="ext-resources">
+  <h4>External Resources</h4>
+  <ul>
+    <li><a href="https://r4ds.hadley.nz/vectors" target="_blank" rel="noopener">R4DS: Vectors</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://adv-r.hadley.nz/vectors-chap.html" target="_blank" rel="noopener">Advanced R: Vectors</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://cran.r-project.org/doc/manuals/R-intro.html#Lists-and-data-frames" target="_blank" rel="noopener">R Manual: Lists and Data Frames</a> <span class="ext-badge">External</span></li>
+  </ul>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="takeaway" style="background:linear-gradient(135deg,#1a365d,#276DC3)">
+  <h3>Key Takeaways</h3>
+  <ul>
+    <li>Vectors (<code>c()</code>) are homogeneous; lists (<code>list()</code>) are heterogeneous.</li>
+    <li>Data frames are lists of equal-length vectors, one per column.</li>
+    <li>R is 1-indexed. Use <code>[</code> for subsetting and <code>[[</code> for element extraction.</li>
+    <li>Factors encode categorical data. Use ordered factors for ordinal variables.</li>
+    <li><code>str()</code> is your best friend for understanding any R object.</li>
+  </ul>
+</div>
+
+<div class="chapter-nav">
+  <a href="ch1.html">&larr; Chapter 1: Getting Started</a>
+  <a href="ch3.html">Chapter 3: Data Wrangling &rarr;</a>
+</div>
+
+</body>
+</html>

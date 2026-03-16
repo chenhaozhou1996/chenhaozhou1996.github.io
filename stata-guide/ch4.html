@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 4: Linear Regression | Stata Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        .book-nav a.current{background:#1a5276}
+        h1{color:#1a5276}
+        h2{border-bottom:2px solid #a7f3d0}
+        .exercise{border-color:#1a5276;background:#f0f9ff}
+        .exercise h4{background:#1a5276;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#1a5276,#148f77)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html" class="current">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 4: Linear Regression</h1>
+<p class="subtitle">OLS Estimation and Diagnostic Testing</p>
+
+<h2>4.1 Basic OLS Regression</h2>
+<p>The <code>regress</code> command is the workhorse of applied econometrics. It estimates parameters by ordinary least squares and reports coefficients, standard errors, t-statistics, and R-squared.</p>
+
+<pre class="stata"><span class="kw">sysuse</span> auto, clear
+
+<span class="cm">* Simple regression</span>
+<span class="kw">regress</span> price mpg
+
+<span class="cm">* Multiple regression</span>
+<span class="kw">regress</span> price mpg weight length foreign
+
+<span class="cm">* Factor variables (categorical dummies)</span>
+<span class="kw">regress</span> price mpg weight i.rep78 i.foreign</pre>
+
+<h2>4.2 Robust Standard Errors</h2>
+<p>OLS standard errors assume homoskedasticity. In practice, error variances differ across observations. Use robust (Huber-White) standard errors as a default in applied work.</p>
+
+<pre class="stata"><span class="cm">* Heteroskedasticity-robust standard errors</span>
+<span class="kw">regress</span> price mpg weight foreign, vce(robust)
+
+<span class="cm">* Clustered standard errors (for grouped data)</span>
+<span class="kw">regress</span> price mpg weight, vce(cluster rep78)</pre>
+
+<div class="concept warn">
+    <strong>When to Cluster</strong>
+    Cluster standard errors at the level where treatment varies or where observations are correlated. In panel data, you typically cluster at the unit level (e.g., firm, facility). Clustering at too fine a level gives standard errors that are too small; too coarse a level gives conservative inference but may have too few clusters.
+</div>
+
+<h2>4.3 Post-Estimation: Testing Hypotheses</h2>
+<p>After running a regression, use <code>test</code> for joint F-tests and <code>lincom</code> for linear combinations of coefficients.</p>
+
+<pre class="stata"><span class="kw">regress</span> price mpg weight length foreign, vce(robust)
+
+<span class="cm">* Test if mpg and weight are jointly significant</span>
+<span class="kw">test</span> mpg weight
+
+<span class="cm">* Test a linear restriction: beta_mpg = beta_weight</span>
+<span class="kw">test</span> mpg = weight
+
+<span class="cm">* Linear combination: effect of mpg + weight</span>
+<span class="kw">lincom</span> mpg + weight</pre>
+
+<h2>4.4 Diagnostics: Heteroskedasticity</h2>
+
+<pre class="stata"><span class="kw">regress</span> price mpg weight foreign
+
+<span class="cm">* Breusch-Pagan / Cook-Weisberg test</span>
+<span class="kw">estat</span> hettest
+<span class="cm">* H0: constant variance. Reject => heteroskedasticity present</span>
+
+<span class="cm">* White's test (more general)</span>
+<span class="kw">estat</span> imtest, white</pre>
+
+<h2>4.5 Diagnostics: Omitted Variables</h2>
+
+<pre class="stata"><span class="cm">* Ramsey RESET test</span>
+<span class="kw">regress</span> price mpg weight foreign
+<span class="kw">estat</span> ovtest
+<span class="cm">* H0: no omitted variables. Reject => model may be misspecified</span></pre>
+
+<h2>4.6 Diagnostics: Multicollinearity</h2>
+<p>The Variance Inflation Factor (VIF) measures how much the variance of a coefficient is inflated due to collinearity with other regressors. A VIF above 10 is a common (though somewhat arbitrary) rule of thumb for concern.</p>
+
+<pre class="stata"><span class="kw">regress</span> price mpg weight length
+<span class="kw">vif</span>
+
+<span class="cm">* Typical output:
+*   Variable |       VIF       1/VIF
+* -----------+-----------------------
+*     weight |      6.34    0.157729
+*     length |      5.89    0.169779
+*        mpg |      3.01    0.332226</span></pre>
+
+<h2>4.7 Predicted Values and Residuals</h2>
+<p>Residual analysis is critical for identifying influential observations, outliers, and model violations.</p>
+
+<pre class="stata"><span class="kw">regress</span> price mpg weight foreign
+
+<span class="cm">* Predicted values (fitted y-hat)</span>
+<span class="kw">predict</span> yhat, xb
+
+<span class="cm">* Residuals</span>
+<span class="kw">predict</span> resid, residuals
+
+<span class="cm">* Standardized residuals</span>
+<span class="kw">predict</span> rstandard, rstandard
+
+<span class="cm">* Cook's distance (influential observations)</span>
+<span class="kw">predict</span> cooksd, cooksd
+<span class="kw">list</span> make price cooksd if cooksd > 4/74   <span class="cm">// 4/N rule of thumb</span></pre>
+
+<h2>4.8 Added-Variable Plots</h2>
+<p>Added-variable (partial regression) plots show the relationship between the outcome and one regressor after partialling out all other regressors. They are useful for detecting nonlinearity and influential points.</p>
+
+<pre class="stata"><span class="kw">regress</span> price mpg weight foreign
+<span class="kw">avplot</span> mpg, title(<span class="st">"Added-Variable Plot: MPG"</span>)
+
+<span class="cm">* All added-variable plots at once</span>
+<span class="kw">avplots</span></pre>
+
+<h2>4.9 Interaction Terms</h2>
+<p>Interactions allow the effect of one variable to depend on the level of another. Stata's factor variable notation makes this straightforward.</p>
+
+<pre class="stata"><span class="cm">* Continuous x continuous interaction</span>
+<span class="kw">regress</span> price c.mpg##c.weight, vce(robust)
+
+<span class="cm">* Categorical x continuous interaction</span>
+<span class="kw">regress</span> price i.foreign##c.mpg, vce(robust)
+
+<span class="cm">* Marginal effects at different levels</span>
+<span class="kw">margins</span> foreign, dydx(mpg)
+<span class="kw">marginsplot</span>, title(<span class="st">"Effect of MPG by Origin"</span>)</pre>
+
+<div class="exercise">
+    <h4>Exercise 4.1</h4>
+    <p>Using <code>sysuse auto</code>, regress <code>price</code> on <code>mpg</code>, <code>weight</code>, <code>length</code>, and <code>foreign</code> with robust standard errors. Run the RESET test and the Breusch-Pagan test. Based on the results, is there evidence of misspecification or heteroskedasticity?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 4.2</h4>
+    <p>Estimate a model with the interaction <code>c.mpg##i.foreign</code>. Use <code>margins</code> to compute the marginal effect of <code>mpg</code> separately for domestic and foreign cars. Create a <code>marginsplot</code>. Interpret the interaction.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>External Resources</h4>
+    <ul>
+        <li><a href="https://www.stata.com/manuals/rregress.pdf" target="_blank" rel="noopener">Stata Manual: regress</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.stata.com/manuals/rregpostestimation.pdf" target="_blank" rel="noopener">Stata Manual: Regression Post-Estimation</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://stats.oarc.ucla.edu/stata/webbooks/reg/" target="_blank" rel="noopener">UCLA OARC: Regression with Stata</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Key Takeaways</h3>
+    <ul>
+        <li>Always use <code>vce(robust)</code> or <code>vce(cluster)</code> in applied work.</li>
+        <li>Run diagnostic tests (RESET, Breusch-Pagan, VIF) before interpreting results.</li>
+        <li>Examine residuals and Cook's distance to identify influential outliers.</li>
+        <li>Use Stata's factor variable notation (<code>c.</code>, <code>i.</code>, <code>##</code>) for interactions.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch3.html">&larr; Chapter 3: Descriptive Statistics</a>
+    <a href="ch5.html">Chapter 5: Panel Data Methods &rarr;</a>
+</div>
+
+</body>
+</html>

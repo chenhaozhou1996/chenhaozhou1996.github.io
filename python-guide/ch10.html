@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 10: End-to-End Data Pipeline | Python Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1 { color: #1e3a5f; }
+        h2 { border-bottom: 2px solid #bfdbfe; }
+        .book-nav a.current { background: #3776AB; }
+        .exercise { border-color: #3776AB; background: #eff6ff; }
+        .exercise h4 { background: #3776AB; color: #fff; }
+        .takeaway { background: linear-gradient(135deg, #1e3a5f, #3776AB); }
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html" class="current">Ch 10</a>
+</nav>
+
+<h1>Chapter 10: End-to-End Data Pipeline</h1>
+<p class="subtitle">Capstone Project: From Raw Data to Report</p>
+
+<div class="concept info">
+    <strong>Project overview:</strong> This chapter ties together everything from Chapters 1 through 9 into a single, realistic analytics workflow. We will load a raw CSV dataset, clean and explore it, engineer features, build a predictive model, evaluate results, and generate a summary. Each step maps directly to a previous chapter.
+</div>
+
+<h2>10.1 Step 1: Load the Data (Ch 1, 5)</h2>
+
+<pre class="python"><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> seaborn <span class="kw">as</span> sns
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">import</span> statsmodels.formula.api <span class="kw">as</span> smf
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split, cross_val_score
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestRegressor
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> mean_squared_error, r2_score
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+
+sns.<span class="fn">set_theme</span>(style=<span class="st">"whitegrid"</span>)
+
+<span class="cm"># --- Simulate a realistic supply chain dataset ---</span>
+np.random.<span class="fn">seed</span>(<span class="nb">42</span>)
+n = <span class="nb">500</span>
+
+df = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"order_id"</span>:       <span class="fn">range</span>(<span class="nb">1</span>, n + <span class="nb">1</span>),
+    <span class="st">"warehouse"</span>:      np.random.<span class="fn">choice</span>([<span class="st">"Newark"</span>, <span class="st">"Chicago"</span>, <span class="st">"Dallas"</span>], n),
+    <span class="st">"product_cat"</span>:    np.random.<span class="fn">choice</span>([<span class="st">"Electronics"</span>, <span class="st">"Apparel"</span>, <span class="st">"Grocery"</span>], n),
+    <span class="st">"units"</span>:          np.random.<span class="fn">randint</span>(<span class="nb">1</span>, <span class="nb">50</span>, n),
+    <span class="st">"unit_price"</span>:     np.random.<span class="fn">uniform</span>(<span class="nb">5</span>, <span class="nb">120</span>, n).<span class="fn">round</span>(<span class="nb">2</span>),
+    <span class="st">"lead_time_days"</span>: np.random.<span class="fn">normal</span>(<span class="nb">5</span>, <span class="nb">1.5</span>, n).<span class="fn">round</span>(<span class="nb">1</span>),
+    <span class="st">"distance_miles"</span>: np.random.<span class="fn">uniform</span>(<span class="nb">50</span>, <span class="nb">2000</span>, n).<span class="fn">round</span>(<span class="nb">0</span>),
+})
+
+<span class="cm"># Introduce some missing values (realistic)</span>
+mask = np.random.<span class="fn">random</span>(n) < <span class="nb">0.05</span>
+df.<span class="fn">loc</span>[mask, <span class="st">"lead_time_days"</span>] = np.nan
+
+<span class="fn">print</span>(df.<span class="fn">shape</span>)
+df.<span class="fn">head</span>()</pre>
+
+<h2>10.2 Step 2: Data Cleaning (Ch 2, 5)</h2>
+
+<pre class="python"><span class="cm"># Check for missing values</span>
+<span class="fn">print</span>(<span class="st">"Missing values:"</span>)
+<span class="fn">print</span>(df.<span class="fn">isnull</span>().<span class="fn">sum</span>())
+
+<span class="cm"># Fill missing lead times with median by warehouse</span>
+df[<span class="st">"lead_time_days"</span>] = df.<span class="fn">groupby</span>(<span class="st">"warehouse"</span>)[<span class="st">"lead_time_days"</span>].<span class="fn">transform</span>(
+    <span class="kw">lambda</span> x: x.<span class="fn">fillna</span>(x.<span class="fn">median</span>())
+)
+
+<span class="cm"># Remove negative lead times (data errors)</span>
+df = df[df[<span class="st">"lead_time_days"</span>] > <span class="nb">0</span>].<span class="fn">copy</span>()
+
+<span class="cm"># Verify</span>
+<span class="fn">print</span>(<span class="st">f"\nClean dataset: </span>{df.shape[<span class="nb">0</span>]}<span class="st"> rows, </span>{df.<span class="fn">isnull</span>().<span class="fn">sum</span>().<span class="fn">sum</span>()}<span class="st"> missing values"</span>)</pre>
+
+<h2>10.3 Step 3: Exploratory Data Analysis (Ch 5, 6)</h2>
+
+<pre class="python"><span class="cm"># Compute revenue</span>
+df[<span class="st">"revenue"</span>] = df[<span class="st">"units"</span>] * df[<span class="st">"unit_price"</span>]
+
+<span class="cm"># Summary by warehouse</span>
+summary = df.<span class="fn">groupby</span>(<span class="st">"warehouse"</span>).<span class="fn">agg</span>(
+    orders=(<span class="st">"order_id"</span>, <span class="st">"count"</span>),
+    total_revenue=(<span class="st">"revenue"</span>, <span class="st">"sum"</span>),
+    avg_lead_time=(<span class="st">"lead_time_days"</span>, <span class="st">"mean"</span>),
+    avg_distance=(<span class="st">"distance_miles"</span>, <span class="st">"mean"</span>)
+).<span class="fn">round</span>(<span class="nb">2</span>)
+<span class="fn">print</span>(summary)
+
+<span class="cm"># Visualization: 2x2 dashboard</span>
+fig, axes = plt.<span class="fn">subplots</span>(<span class="nb">2</span>, <span class="nb">2</span>, figsize=(<span class="nb">12</span>, <span class="nb">8</span>))
+
+<span class="cm"># Revenue by warehouse</span>
+df.<span class="fn">groupby</span>(<span class="st">"warehouse"</span>)[<span class="st">"revenue"</span>].<span class="fn">sum</span>().<span class="fn">plot</span>(
+    kind=<span class="st">"bar"</span>, ax=axes[<span class="nb">0</span>, <span class="nb">0</span>], color=<span class="st">"#3776AB"</span>)
+axes[<span class="nb">0</span>, <span class="nb">0</span>].<span class="fn">set_title</span>(<span class="st">"Revenue by Warehouse"</span>)
+axes[<span class="nb">0</span>, <span class="nb">0</span>].<span class="fn">set_ylabel</span>(<span class="st">"Revenue ($)"</span>)
+
+<span class="cm"># Lead time distribution</span>
+axes[<span class="nb">0</span>, <span class="nb">1</span>].<span class="fn">hist</span>(df[<span class="st">"lead_time_days"</span>], bins=<span class="nb">20</span>, color=<span class="st">"#4b8bbe"</span>, edgecolor=<span class="st">"white"</span>)
+axes[<span class="nb">0</span>, <span class="nb">1</span>].<span class="fn">set_title</span>(<span class="st">"Lead Time Distribution"</span>)
+axes[<span class="nb">0</span>, <span class="nb">1</span>].<span class="fn">set_xlabel</span>(<span class="st">"Days"</span>)
+
+<span class="cm"># Distance vs. lead time</span>
+axes[<span class="nb">1</span>, <span class="nb">0</span>].<span class="fn">scatter</span>(df[<span class="st">"distance_miles"</span>], df[<span class="st">"lead_time_days"</span>], alpha=<span class="nb">0.4</span>, s=<span class="nb">15</span>)
+axes[<span class="nb">1</span>, <span class="nb">0</span>].<span class="fn">set_title</span>(<span class="st">"Distance vs. Lead Time"</span>)
+axes[<span class="nb">1</span>, <span class="nb">0</span>].<span class="fn">set_xlabel</span>(<span class="st">"Distance (miles)"</span>)
+axes[<span class="nb">1</span>, <span class="nb">0</span>].<span class="fn">set_ylabel</span>(<span class="st">"Lead Time (days)"</span>)
+
+<span class="cm"># Revenue by product category</span>
+df.<span class="fn">groupby</span>(<span class="st">"product_cat"</span>)[<span class="st">"revenue"</span>].<span class="fn">sum</span>().<span class="fn">plot</span>(
+    kind=<span class="st">"barh"</span>, ax=axes[<span class="nb">1</span>, <span class="nb">1</span>], color=<span class="st">"#6ba3d6"</span>)
+axes[<span class="nb">1</span>, <span class="nb">1</span>].<span class="fn">set_title</span>(<span class="st">"Revenue by Product Category"</span>)
+
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<h2>10.4 Step 4: Feature Engineering (Ch 3, 4)</h2>
+
+<pre class="python"><span class="cm"># Create new features</span>
+df[<span class="st">"log_distance"</span>]   = np.<span class="fn">log1p</span>(df[<span class="st">"distance_miles"</span>])
+df[<span class="st">"revenue_per_unit"</span>] = df[<span class="st">"revenue"</span>] / df[<span class="st">"units"</span>]
+df[<span class="st">"is_express"</span>]      = (df[<span class="st">"lead_time_days"</span>] < <span class="nb">3</span>).<span class="fn">astype</span>(<span class="nb">int</span>)
+
+<span class="cm"># One-hot encode categoricals</span>
+df_model = pd.<span class="fn">get_dummies</span>(df, columns=[<span class="st">"warehouse"</span>, <span class="st">"product_cat"</span>], drop_first=<span class="nb">True</span>)
+
+<span class="fn">print</span>(<span class="st">f"Feature matrix: </span>{df_model.shape}<span class="st">"</span>)
+<span class="fn">print</span>(df_model.columns.<span class="fn">tolist</span>())</pre>
+
+<h2>10.5 Step 5: Statistical Testing (Ch 7)</h2>
+
+<pre class="python"><span class="cm"># Is there a significant difference in lead time across warehouses?</span>
+groups = [g[<span class="st">"lead_time_days"</span>].<span class="fn">values</span> <span class="kw">for</span> _, g <span class="kw">in</span> df.<span class="fn">groupby</span>(<span class="st">"warehouse"</span>)]
+f_stat, p_val = stats.<span class="fn">f_oneway</span>(*groups)
+<span class="fn">print</span>(<span class="st">f"ANOVA: F={f_stat:.2f}, p={p_val:.4f}"</span>)
+
+<span class="cm"># OLS regression: what drives lead time?</span>
+ols_model = smf.<span class="fn">ols</span>(
+    <span class="st">"lead_time_days ~ distance_miles + units + unit_price + C(warehouse)"</span>,
+    data=df
+).<span class="fn">fit</span>()
+<span class="fn">print</span>(ols_model.<span class="fn">summary</span>().<span class="fn">tables</span>[<span class="nb">1</span>])</pre>
+
+<h2>10.6 Step 6: Predictive Modeling (Ch 8)</h2>
+
+<pre class="python"><span class="cm"># Target: lead_time_days</span>
+feature_cols = [<span class="st">"units"</span>, <span class="st">"unit_price"</span>, <span class="st">"distance_miles"</span>, <span class="st">"log_distance"</span>,
+                <span class="st">"warehouse_Chicago"</span>, <span class="st">"warehouse_Newark"</span>,
+                <span class="st">"product_cat_Electronics"</span>, <span class="st">"product_cat_Grocery"</span>]
+
+X = df_model[feature_cols]
+y = df_model[<span class="st">"lead_time_days"</span>]
+
+X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(
+    X, y, test_size=<span class="nb">0.2</span>, random_state=<span class="nb">42</span>
+)
+
+<span class="cm"># Model 1: Linear Regression Pipeline</span>
+lr_pipe = <span class="fn">Pipeline</span>([
+    (<span class="st">"scaler"</span>, <span class="fn">StandardScaler</span>()),
+    (<span class="st">"model"</span>,  <span class="fn">LinearRegression</span>())
+])
+lr_pipe.<span class="fn">fit</span>(X_train, y_train)
+lr_pred = lr_pipe.<span class="fn">predict</span>(X_test)
+
+<span class="cm"># Model 2: Random Forest</span>
+rf_pipe = <span class="fn">Pipeline</span>([
+    (<span class="st">"scaler"</span>, <span class="fn">StandardScaler</span>()),
+    (<span class="st">"model"</span>,  <span class="fn">RandomForestRegressor</span>(n_estimators=<span class="nb">100</span>, max_depth=<span class="nb">8</span>, random_state=<span class="nb">42</span>))
+])
+rf_pipe.<span class="fn">fit</span>(X_train, y_train)
+rf_pred = rf_pipe.<span class="fn">predict</span>(X_test)
+
+<span class="cm"># Compare</span>
+<span class="fn">print</span>(<span class="st">"Model Comparison:"</span>)
+<span class="fn">print</span>(<span class="st">f"  Linear Regression  RMSE: </span>{<span class="fn">mean_squared_error</span>(y_test, lr_pred, squared=<span class="nb">False</span>):.3f}<span class="st">, R2: </span>{<span class="fn">r2_score</span>(y_test, lr_pred):.3f}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"  Random Forest      RMSE: </span>{<span class="fn">mean_squared_error</span>(y_test, rf_pred, squared=<span class="nb">False</span>):.3f}<span class="st">, R2: </span>{<span class="fn">r2_score</span>(y_test, rf_pred):.3f}<span class="st">"</span>)</pre>
+
+<h2>10.7 Step 7: Evaluate and Visualize Results (Ch 6, 8)</h2>
+
+<pre class="python">fig, axes = plt.<span class="fn">subplots</span>(<span class="nb">1</span>, <span class="nb">2</span>, figsize=(<span class="nb">12</span>, <span class="nb">5</span>))
+
+<span class="cm"># Actual vs. predicted (best model)</span>
+axes[<span class="nb">0</span>].<span class="fn">scatter</span>(y_test, rf_pred, alpha=<span class="nb">0.5</span>, s=<span class="nb">20</span>, color=<span class="st">"#3776AB"</span>)
+axes[<span class="nb">0</span>].<span class="fn">plot</span>([y_test.<span class="fn">min</span>(), y_test.<span class="fn">max</span>()],
+           [y_test.<span class="fn">min</span>(), y_test.<span class="fn">max</span>()], <span class="st">"r--"</span>, linewidth=<span class="nb">2</span>)
+axes[<span class="nb">0</span>].<span class="fn">set_xlabel</span>(<span class="st">"Actual Lead Time"</span>)
+axes[<span class="nb">0</span>].<span class="fn">set_ylabel</span>(<span class="st">"Predicted Lead Time"</span>)
+axes[<span class="nb">0</span>].<span class="fn">set_title</span>(<span class="st">"Random Forest: Actual vs. Predicted"</span>)
+
+<span class="cm"># Feature importance</span>
+rf_model = rf_pipe.<span class="fn">named_steps</span>[<span class="st">"model"</span>]
+importance = pd.<span class="fn">Series</span>(rf_model.feature_importances_, index=feature_cols)
+importance.<span class="fn">sort_values</span>().<span class="fn">plot</span>(kind=<span class="st">"barh"</span>, ax=axes[<span class="nb">1</span>], color=<span class="st">"#4b8bbe"</span>)
+axes[<span class="nb">1</span>].<span class="fn">set_title</span>(<span class="st">"Feature Importance"</span>)
+axes[<span class="nb">1</span>].<span class="fn">set_xlabel</span>(<span class="st">"Importance"</span>)
+
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">savefig</span>(<span class="st">"pipeline_results.png"</span>, dpi=<span class="nb">300</span>, bbox_inches=<span class="st">"tight"</span>)
+plt.<span class="fn">show</span>()</pre>
+
+<h2>10.8 Step 8: Generate a Summary Report (Ch 3)</h2>
+
+<pre class="python"><span class="kw">def</span> <span class="fn">generate_report</span>(df, model_name, rmse, r2):
+    <span class="st">"""Print a formatted summary report."""</span>
+    <span class="fn">print</span>(<span class="st">"="</span> * <span class="nb">50</span>)
+    <span class="fn">print</span>(<span class="st">"  SUPPLY CHAIN ANALYTICS REPORT"</span>)
+    <span class="fn">print</span>(<span class="st">"="</span> * <span class="nb">50</span>)
+    <span class="fn">print</span>(<span class="st">f"  Dataset:       </span>{df.shape[<span class="nb">0</span>]}<span class="st"> orders, </span>{df.shape[<span class="nb">1</span>]}<span class="st"> features"</span>)
+    <span class="fn">print</span>(<span class="st">f"  Total Revenue:  $</span>{df[<span class="st">'revenue'</span>].<span class="fn">sum</span>():,.0f}<span class="st">"</span>)
+    <span class="fn">print</span>(<span class="st">f"  Avg Lead Time:  </span>{df[<span class="st">'lead_time_days'</span>].<span class="fn">mean</span>():.1f}<span class="st"> days"</span>)
+    <span class="fn">print</span>(<span class="st">f"  Best Model:     </span>{model_name}<span class="st">"</span>)
+    <span class="fn">print</span>(<span class="st">f"  RMSE:           </span>{rmse:.3f}<span class="st">"</span>)
+    <span class="fn">print</span>(<span class="st">f"  R-squared:      </span>{r2:.3f}<span class="st">"</span>)
+    <span class="fn">print</span>(<span class="st">"="</span> * <span class="nb">50</span>)
+
+rf_rmse = <span class="fn">mean_squared_error</span>(y_test, rf_pred, squared=<span class="nb">False</span>)
+rf_r2   = <span class="fn">r2_score</span>(y_test, rf_pred)
+
+<span class="fn">generate_report</span>(df, <span class="st">"Random Forest (depth=8, trees=100)"</span>, rf_rmse, rf_r2)</pre>
+
+<div class="concept tip">
+    <strong>Reproducibility:</strong> Package all steps into functions (load_data, clean_data, build_features, train_model, evaluate, report). This lets you re-run the entire pipeline with a single command when the data updates.
+</div>
+
+<div class="exercise">
+    <h4>Exercise 10.1</h4>
+    <p>Extend this pipeline by adding a third model (GradientBoostingRegressor from scikit-learn). Compare all three models using 5-fold cross-validation and select the best one. Add the cross-validation results to the summary report.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 10.2</h4>
+    <p>Refactor the entire pipeline into a single Python script with separate functions for each step. The script should accept a CSV filename as a command-line argument (use <code>import sys; filename = sys.argv[1]</code>) and produce both a PNG chart and a printed summary.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://scikit-learn.org/stable/modules/compose.html" target="_blank">scikit-learn Pipelines and Composite Estimators</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://pandas.pydata.org/docs/user_guide/cookbook.html" target="_blank">pandas Cookbook</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://realpython.com/python-project-documentation/" target="_blank">Real Python: Documenting Python Projects</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 10 Takeaways</h3>
+    <ul>
+        <li>A real analytics project follows a linear pipeline: load, clean, explore, engineer, model, evaluate, report.</li>
+        <li>Feature engineering (log transforms, dummies, derived variables) often matters more than model choice.</li>
+        <li>Always compare multiple models and use cross-validation for reliable performance estimates.</li>
+        <li>Package your pipeline into functions for reproducibility; future you will thank present you.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch9.html">&larr; Chapter 9: APIs &amp; Web Data</a>
+    <a href="index.html">Guide Home &rarr;</a>
+</div>
+
+</body>
+</html>

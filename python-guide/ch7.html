@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 7: Statistical Analysis | Python Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1 { color: #1e3a5f; }
+        h2 { border-bottom: 2px solid #bfdbfe; }
+        .book-nav a.current { background: #3776AB; }
+        .exercise { border-color: #3776AB; background: #eff6ff; }
+        .exercise h4 { background: #3776AB; color: #fff; }
+        .takeaway { background: linear-gradient(135deg, #1e3a5f, #3776AB); }
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html" class="current">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 7: Statistical Analysis</h1>
+<p class="subtitle">scipy and statsmodels</p>
+
+<h2>7.1 The Two Libraries</h2>
+<p><code>scipy.stats</code> provides hypothesis tests and probability distributions. <code>statsmodels</code> provides regression models, diagnostics, and econometric tools. Together they cover the statistical analysis workflow from testing to modeling.</p>
+
+<pre class="python"><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">import</span> statsmodels.api <span class="kw">as</span> sm
+<span class="kw">import</span> statsmodels.formula.api <span class="kw">as</span> smf</pre>
+
+<h2>7.2 Two-Sample t-Test</h2>
+<p>Test whether two groups have different means. This is one of the most commonly used tests in business analytics.</p>
+
+<pre class="python"><span class="cm"># Delivery times for two carriers</span>
+carrier_a = np.random.<span class="fn">normal</span>(loc=<span class="nb">4.8</span>, scale=<span class="nb">0.9</span>, size=<span class="nb">50</span>)
+carrier_b = np.random.<span class="fn">normal</span>(loc=<span class="nb">5.3</span>, scale=<span class="nb">1.1</span>, size=<span class="nb">50</span>)
+
+<span class="cm"># Independent samples t-test</span>
+t_stat, p_value = stats.<span class="fn">ttest_ind</span>(carrier_a, carrier_b)
+<span class="fn">print</span>(<span class="st">f"t-statistic: </span>{t_stat:.3f}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"p-value:     </span>{p_value:.4f}<span class="st">"</span>)
+
+<span class="kw">if</span> p_value < <span class="nb">0.05</span>:
+    <span class="fn">print</span>(<span class="st">"Reject H0: The carriers have significantly different delivery times."</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"Fail to reject H0: No significant difference detected."</span>)</pre>
+
+<div class="concept info">
+    <strong>Paired vs. independent:</strong> Use <code>ttest_ind()</code> for independent samples (different groups). Use <code>ttest_rel()</code> for paired samples (same subjects measured twice, e.g., before/after a policy change).
+</div>
+
+<h2>7.3 Chi-Square Test</h2>
+<p>Test for independence between two categorical variables.</p>
+
+<pre class="python"><span class="cm"># Contingency table: defect rate by shift</span>
+observed = np.<span class="fn">array</span>([[<span class="nb">80</span>, <span class="nb">20</span>],    <span class="cm"># Day shift: [good, defective]</span>
+                     [<span class="nb">65</span>, <span class="nb">35</span>]])   <span class="cm"># Night shift</span>
+
+chi2, p_val, dof, expected = stats.<span class="fn">chi2_contingency</span>(observed)
+<span class="fn">print</span>(<span class="st">f"Chi-square: </span>{chi2:.2f}<span class="st">, p-value: </span>{p_val:.4f}<span class="st">, df: </span>{dof}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"Expected frequencies:\n</span>{expected}<span class="st">"</span>)</pre>
+
+<h2>7.4 One-Way ANOVA</h2>
+<p>Compare means across three or more groups.</p>
+
+<pre class="python"><span class="cm"># Customer satisfaction scores by region</span>
+east    = [<span class="nb">7.2</span>, <span class="nb">6.8</span>, <span class="nb">7.5</span>, <span class="nb">7.0</span>, <span class="nb">7.3</span>, <span class="nb">6.9</span>, <span class="nb">7.1</span>]
+central = [<span class="nb">6.5</span>, <span class="nb">6.2</span>, <span class="nb">6.8</span>, <span class="nb">6.1</span>, <span class="nb">6.7</span>, <span class="nb">6.4</span>, <span class="nb">6.3</span>]
+west    = [<span class="nb">7.8</span>, <span class="nb">8.1</span>, <span class="nb">7.5</span>, <span class="nb">7.9</span>, <span class="nb">8.0</span>, <span class="nb">7.6</span>, <span class="nb">7.7</span>]
+
+f_stat, p_val = stats.<span class="fn">f_oneway</span>(east, central, west)
+<span class="fn">print</span>(<span class="st">f"F-statistic: </span>{f_stat:.2f}<span class="st">, p-value: </span>{p_val:.4f}<span class="st">"</span>)</pre>
+
+<h2>7.5 OLS Regression with statsmodels</h2>
+<p>Ordinary Least Squares (OLS) regression is the starting point for predictive modeling and causal inference in business research.</p>
+
+<pre class="python"><span class="cm"># Generate sample data</span>
+np.random.<span class="fn">seed</span>(<span class="nb">42</span>)
+n = <span class="nb">200</span>
+df = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"ad_spend"</span>:    np.random.<span class="fn">uniform</span>(<span class="nb">10</span>, <span class="nb">100</span>, n),
+    <span class="st">"price"</span>:       np.random.<span class="fn">uniform</span>(<span class="nb">15</span>, <span class="nb">45</span>, n),
+    <span class="st">"competitors"</span>: np.random.<span class="fn">randint</span>(<span class="nb">1</span>, <span class="nb">6</span>, n),
+})
+df[<span class="st">"sales"</span>] = <span class="nb">50</span> + <span class="nb">2.5</span> * df[<span class="st">"ad_spend"</span>] - <span class="nb">1.8</span> * df[<span class="st">"price"</span>] + np.random.<span class="fn">normal</span>(<span class="nb">0</span>, <span class="nb">15</span>, n)
+
+<span class="cm"># Formula API (R-style)</span>
+model = smf.<span class="fn">ols</span>(<span class="st">"sales ~ ad_spend + price + competitors"</span>, data=df).<span class="fn">fit</span>()
+<span class="fn">print</span>(model.<span class="fn">summary</span>())</pre>
+
+<h2>7.6 Interpreting Regression Output</h2>
+<p>The key sections of the OLS summary table include:</p>
+<ul>
+    <li><strong>R-squared:</strong> Proportion of variance in the DV explained by the model (0 to 1).</li>
+    <li><strong>Coefficients:</strong> The estimated effect of each predictor. A one-unit increase in ad_spend is associated with a ~2.5 unit increase in sales, holding other variables constant.</li>
+    <li><strong>p-values:</strong> Test H0 that the coefficient is zero. p &lt; 0.05 indicates statistical significance at the 5% level.</li>
+    <li><strong>F-statistic:</strong> Tests whether the overall model is statistically significant.</li>
+</ul>
+
+<pre class="python"><span class="cm"># Access specific results</span>
+<span class="fn">print</span>(<span class="st">f"R-squared:  </span>{model.rsquared:.3f}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"Adj R-sq:   </span>{model.rsquared_adj:.3f}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"Coefficients:\n</span>{model.params}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"P-values:\n</span>{model.pvalues}<span class="st">"</span>)</pre>
+
+<h2>7.7 Diagnostics</h2>
+
+<pre class="python"><span class="cm"># Residuals vs. fitted values (check for heteroskedasticity)</span>
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+residuals = model.resid
+fitted    = model.fittedvalues
+
+plt.<span class="fn">figure</span>(figsize=(<span class="nb">7</span>, <span class="nb">4</span>))
+plt.<span class="fn">scatter</span>(fitted, residuals, alpha=<span class="nb">0.5</span>, s=<span class="nb">20</span>)
+plt.<span class="fn">axhline</span>(y=<span class="nb">0</span>, color=<span class="st">"red"</span>, linestyle=<span class="st">"--"</span>)
+plt.<span class="fn">xlabel</span>(<span class="st">"Fitted Values"</span>)
+plt.<span class="fn">ylabel</span>(<span class="st">"Residuals"</span>)
+plt.<span class="fn">title</span>(<span class="st">"Residuals vs. Fitted"</span>)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<h2>7.8 Confidence Intervals</h2>
+
+<pre class="python"><span class="cm"># 95% confidence intervals for coefficients</span>
+ci = model.<span class="fn">conf_int</span>(alpha=<span class="nb">0.05</span>)
+ci.columns = [<span class="st">"Lower 95%"</span>, <span class="st">"Upper 95%"</span>]
+<span class="fn">print</span>(ci)
+
+<span class="cm"># Confidence interval for the mean of a variable</span>
+sample = df[<span class="st">"sales"</span>]
+mean = sample.<span class="fn">mean</span>()
+se   = stats.<span class="fn">sem</span>(sample)
+ci_low, ci_high = stats.t.<span class="fn">interval</span>(<span class="nb">0.95</span>, df=<span class="fn">len</span>(sample)-<span class="nb">1</span>, loc=mean, scale=se)
+<span class="fn">print</span>(<span class="st">f"Sales mean: </span>{mean:.1f}<span class="st"> [</span>{ci_low:.1f}<span class="st">, </span>{ci_high:.1f}<span class="st">]"</span>)</pre>
+
+<div class="exercise">
+    <h4>Exercise 7.1</h4>
+    <p>Generate two samples of 100 observations each from normal distributions with means of 50 and 53 and a standard deviation of 10. Run a two-sample t-test. Increase the sample size to 500 and observe how the p-value changes. Discuss the relationship between sample size and statistical power.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 7.2</h4>
+    <p>Create a DataFrame with 300 rows and columns for square_footage, bedrooms, and age_years. Generate a house_price column as a linear function of those predictors plus noise. Fit an OLS model, print the summary, and plot the residuals vs. fitted values. Discuss whether the assumptions appear met.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://docs.scipy.org/doc/scipy/reference/stats.html" target="_blank">scipy.stats Reference</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.statsmodels.org/stable/regression.html" target="_blank">statsmodels OLS Regression</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.statsmodels.org/stable/diagnostic.html" target="_blank">statsmodels Diagnostics</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 7 Takeaways</h3>
+    <ul>
+        <li>scipy.stats provides classical hypothesis tests: t-test, chi-square, ANOVA, and more.</li>
+        <li>statsmodels provides OLS regression with full diagnostic output similar to Stata or R.</li>
+        <li>Always check residual plots for heteroskedasticity and non-linearity after fitting a regression.</li>
+        <li>Report confidence intervals alongside p-values for a more complete picture of your estimates.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch6.html">&larr; Chapter 6: Visualization</a>
+    <a href="ch8.html">Chapter 8: Machine Learning &rarr;</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ch 6: Linear Models – R Guide</title>
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+  <style>
+    h1{color:#1a365d}
+    h2{border-bottom:2px solid #bfdbfe}
+    .book-nav a.current{background:#276DC3}
+    .exercise{border-color:#276DC3;background:#eff6ff}
+    .exercise h4{background:#276DC3;color:#fff}
+  </style>
+  <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<!-- Topnav -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img src="../images/profile.jpg" alt="CZ">Chenhao Zhou</a>
+    <div class="topnav-links">
+      <a href="../index.html">Home</a>
+      <a href="../research.html">Research</a>
+      <a href="../teaching.html" class="active">Teaching</a>
+      <a href="../cv.html">CV</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Book Nav -->
+<nav class="book-nav">
+  <a href="index.html">Index</a>
+  <a href="ch1.html">1 Getting Started</a>
+  <a href="ch2.html">2 Data Structures</a>
+  <a href="ch3.html">3 Wrangling</a>
+  <a href="ch4.html">4 Visualization</a>
+  <a href="ch5.html">5 Stat Testing</a>
+  <a href="ch6.html" class="current">6 Linear Models</a>
+  <a href="ch7.html">7 GLMs</a>
+  <a href="ch8.html">8 ML / tidymodels</a>
+  <a href="ch9.html">9 Reproducible Research</a>
+  <a href="ch10.html">10 Project</a>
+</nav>
+
+<h1>Chapter 6: Linear Models &mdash; lm() &amp; Diagnostics</h1>
+<p class="subtitle">Fit OLS regressions, interpret output, check assumptions, and produce publication tables.</p>
+
+<!-- ────────────────────────────── -->
+<h2>6.1 Fitting a Linear Model</h2>
+
+<p>The <code>lm()</code> function fits an ordinary least squares regression. The formula interface uses <code>~</code> to separate the dependent variable from predictors.</p>
+
+<pre class="r"><span class="cm"># Simple regression: mpg predicted by weight</span>
+fit1 <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> wt, data <span class="op">=</span> mtcars)
+<span class="fn">summary</span>(fit1)
+
+<span class="cm"># Multiple regression</span>
+fit2 <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> wt <span class="op">+</span> hp <span class="op">+</span> am, data <span class="op">=</span> mtcars)
+<span class="fn">summary</span>(fit2)</pre>
+
+<div class="concept info">
+  <strong>Formula shortcuts</strong>
+  <code>y ~ .</code> uses all other columns as predictors. <code>y ~ x1 * x2</code> includes main effects and the interaction. <code>y ~ x + I(x^2)</code> adds a quadratic term.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>6.2 Reading the summary() Output</h2>
+
+<pre class="r"><span class="cm"># Key components of summary(fit2):</span>
+<span class="cm"># Coefficients table: Estimate, Std. Error, t value, Pr(&gt;|t|)</span>
+<span class="cm"># Multiple R-squared, Adjusted R-squared</span>
+<span class="cm"># F-statistic and its p-value</span>
+
+<span class="cm"># Extract individual pieces</span>
+<span class="fn">coef</span>(fit2)                   <span class="cm"># coefficients vector</span>
+<span class="fn">confint</span>(fit2)                <span class="cm"># 95% confidence intervals</span>
+<span class="fn">summary</span>(fit2)<span class="op">$</span>r.squared     <span class="cm"># R-squared</span>
+<span class="fn">summary</span>(fit2)<span class="op">$</span>adj.r.squared <span class="cm"># Adjusted R-squared</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>6.3 ANOVA Table for Model Comparison</h2>
+
+<pre class="r"><span class="cm"># Test whether hp and am contribute beyond wt alone</span>
+<span class="fn">anova</span>(fit1, fit2)
+
+<span class="cm"># Type II ANOVA table for each predictor</span>
+<span class="fn">anova</span>(fit2)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>6.4 Prediction</h2>
+
+<pre class="r"><span class="cm"># Point predictions</span>
+new_data <span class="op">&lt;-</span> <span class="fn">data.frame</span>(wt <span class="op">=</span> <span class="fn">c</span>(<span class="nb">2.5</span>, <span class="nb">3.0</span>, <span class="nb">3.5</span>),
+                        hp <span class="op">=</span> <span class="fn">c</span>(<span class="nb">100</span>, <span class="nb">120</span>, <span class="nb">150</span>),
+                        am <span class="op">=</span> <span class="fn">c</span>(<span class="nb">1</span>, <span class="nb">0</span>, <span class="nb">0</span>))
+
+<span class="fn">predict</span>(fit2, newdata <span class="op">=</span> new_data)
+
+<span class="cm"># With confidence and prediction intervals</span>
+<span class="fn">predict</span>(fit2, newdata <span class="op">=</span> new_data, interval <span class="op">=</span> <span class="st">"confidence"</span>)
+<span class="fn">predict</span>(fit2, newdata <span class="op">=</span> new_data, interval <span class="op">=</span> <span class="st">"prediction"</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>6.5 Diagnostic Plots</h2>
+
+<p>Four standard diagnostic plots help assess OLS assumptions:</p>
+
+<pre class="r"><span class="cm"># Base R diagnostics (4 plots in one window)</span>
+<span class="fn">par</span>(mfrow <span class="op">=</span> <span class="fn">c</span>(<span class="nb">2</span>, <span class="nb">2</span>))
+<span class="fn">plot</span>(fit2)
+<span class="fn">par</span>(mfrow <span class="op">=</span> <span class="fn">c</span>(<span class="nb">1</span>, <span class="nb">1</span>))</pre>
+
+<div class="table-wrapper">
+<table>
+  <thead><tr><th>Plot</th><th>Checks</th><th>Look For</th></tr></thead>
+  <tbody>
+    <tr><td>Residuals vs Fitted</td><td>Linearity, homoscedasticity</td><td>Random scatter around 0</td></tr>
+    <tr><td>Q-Q Plot</td><td>Normality of residuals</td><td>Points on the diagonal line</td></tr>
+    <tr><td>Scale-Location</td><td>Homoscedasticity</td><td>Flat trend line</td></tr>
+    <tr><td>Residuals vs Leverage</td><td>Influential observations</td><td>Points inside Cook's distance contours</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="concept warn">
+  <strong>Heteroscedasticity?</strong>
+  If residuals fan out, use heteroscedasticity-robust standard errors: <code>lmtest::coeftest(fit2, vcov = sandwich::vcovHC(fit2, type = "HC1"))</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>6.6 Tidy Output with broom</h2>
+
+<p>The <code>broom</code> package converts model objects into tidy data frames, perfect for further analysis or visualization.</p>
+
+<pre class="r"><span class="fn">library</span>(broom)
+
+<span class="fn">tidy</span>(fit2)       <span class="cm"># coefficient table as a tibble</span>
+<span class="fn">glance</span>(fit2)     <span class="cm"># model-level statistics (R2, AIC, etc.)</span>
+<span class="fn">augment</span>(fit2)    <span class="cm"># original data + fitted values + residuals</span>
+
+<span class="cm"># Tidy with confidence intervals</span>
+<span class="fn">tidy</span>(fit2, conf.int <span class="op">=</span> <span class="nb">TRUE</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>6.7 Publication Tables with stargazer</h2>
+
+<pre class="r"><span class="fn">library</span>(stargazer)
+
+<span class="cm"># Side-by-side regression table</span>
+<span class="fn">stargazer</span>(fit1, fit2,
+          type <span class="op">=</span> <span class="st">"text"</span>,          <span class="cm"># "latex" or "html" for documents</span>
+          title <span class="op">=</span> <span class="st">"Regression Results"</span>,
+          dep.var.labels <span class="op">=</span> <span class="st">"Miles per Gallon"</span>,
+          covariate.labels <span class="op">=</span> <span class="fn">c</span>(<span class="st">"Weight"</span>, <span class="st">"Horsepower"</span>, <span class="st">"Manual Trans."</span>),
+          out <span class="op">=</span> <span class="st">"regression_table.html"</span>)  <span class="cm"># save to file</span></pre>
+
+<div class="concept tip">
+  <strong>Alternative: modelsummary</strong>
+  The <code>modelsummary</code> package is a modern alternative to stargazer with better customization and output to Word/LaTeX/HTML. Install with <code>install.packages("modelsummary")</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 6.1</h4>
+  <p>Using the <code>mtcars</code> dataset, fit two models: (1) <code>mpg ~ wt</code>, and (2) <code>mpg ~ wt + hp + cyl</code>. Compare them with <code>anova()</code>. Use <code>broom::glance()</code> to compare R-squared and AIC side-by-side. Which model fits better?</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 6.2</h4>
+  <p>Fit <code>mpg ~ wt + hp</code> and produce the four diagnostic plots. Do the residuals appear roughly normal? Is there evidence of heteroscedasticity? If so, compute robust standard errors using <code>lmtest</code> and <code>sandwich</code>.</p>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="ext-resources">
+  <h4>External Resources</h4>
+  <ul>
+    <li><a href="https://broom.tidymodels.org" target="_blank" rel="noopener">broom Package Documentation</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://cran.r-project.org/web/packages/stargazer/vignettes/stargazer.pdf" target="_blank" rel="noopener">stargazer Vignette (PDF)</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://modelsummary.com" target="_blank" rel="noopener">modelsummary Documentation</a> <span class="ext-badge">External</span></li>
+  </ul>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="takeaway" style="background:linear-gradient(135deg,#1a365d,#276DC3)">
+  <h3>Key Takeaways</h3>
+  <ul>
+    <li><code>lm(y ~ x1 + x2, data)</code> fits OLS. <code>summary()</code> gives coefficients, SEs, p-values, R-squared.</li>
+    <li>Use <code>anova(model1, model2)</code> for nested model comparison.</li>
+    <li>Four diagnostic plots check linearity, normality, homoscedasticity, and leverage.</li>
+    <li><code>broom::tidy()</code> converts output to tidy data frames for programmatic use.</li>
+    <li><code>stargazer</code> or <code>modelsummary</code> produce publication-quality regression tables.</li>
+  </ul>
+</div>
+
+<div class="chapter-nav">
+  <a href="ch5.html">&larr; Chapter 5: Statistical Testing</a>
+  <a href="ch7.html">Chapter 7: GLMs &rarr;</a>
+</div>
+
+</body>
+</html>

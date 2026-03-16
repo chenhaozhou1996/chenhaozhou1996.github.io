@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ch 4: Data Visualization with ggplot2 – R Guide</title>
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+  <style>
+    h1{color:#1a365d}
+    h2{border-bottom:2px solid #bfdbfe}
+    .book-nav a.current{background:#276DC3}
+    .exercise{border-color:#276DC3;background:#eff6ff}
+    .exercise h4{background:#276DC3;color:#fff}
+  </style>
+  <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<!-- Topnav -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img src="../images/profile.jpg" alt="CZ">Chenhao Zhou</a>
+    <div class="topnav-links">
+      <a href="../index.html">Home</a>
+      <a href="../research.html">Research</a>
+      <a href="../teaching.html" class="active">Teaching</a>
+      <a href="../cv.html">CV</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Book Nav -->
+<nav class="book-nav">
+  <a href="index.html">Index</a>
+  <a href="ch1.html">1 Getting Started</a>
+  <a href="ch2.html">2 Data Structures</a>
+  <a href="ch3.html">3 Wrangling</a>
+  <a href="ch4.html" class="current">4 Visualization</a>
+  <a href="ch5.html">5 Stat Testing</a>
+  <a href="ch6.html">6 Linear Models</a>
+  <a href="ch7.html">7 GLMs</a>
+  <a href="ch8.html">8 ML / tidymodels</a>
+  <a href="ch9.html">9 Reproducible Research</a>
+  <a href="ch10.html">10 Project</a>
+</nav>
+
+<h1>Chapter 4: Data Visualization with ggplot2</h1>
+<p class="subtitle">Build layered, publication-quality graphics using the grammar of graphics.</p>
+
+<!-- ────────────────────────────── -->
+<h2>4.1 The Grammar of Graphics</h2>
+
+<p>Every ggplot2 plot follows a consistent template: <strong>data</strong> + <strong>aesthetic mappings</strong> + <strong>geometric objects</strong>. Additional layers control scales, facets, coordinate systems, and themes.</p>
+
+<pre class="r"><span class="fn">library</span>(ggplot2)
+
+<span class="cm"># Template</span>
+<span class="fn">ggplot</span>(data <span class="op">=</span> &lt;DATA&gt;, mapping <span class="op">=</span> <span class="fn">aes</span>(&lt;MAPPINGS&gt;)) <span class="op">+</span>
+  <span class="fn">&lt;GEOM_FUNCTION&gt;</span>()</pre>
+
+<!-- ────────────────────────────── -->
+<h2>4.2 Scatterplot: geom_point()</h2>
+
+<pre class="r"><span class="cm"># mpg dataset: engine displacement vs. highway mpg</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_point</span>()
+
+<span class="cm"># Map color and shape to categorical variables</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy, color <span class="op">=</span> drv, shape <span class="op">=</span> drv)) <span class="op">+</span>
+  <span class="fn">geom_point</span>(size <span class="op">=</span> <span class="nb">2.5</span>, alpha <span class="op">=</span> <span class="nb">0.7</span>)
+
+<span class="cm"># Add a smoothed trend line</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_point</span>(alpha <span class="op">=</span> <span class="nb">0.5</span>) <span class="op">+</span>
+  <span class="fn">geom_smooth</span>(method <span class="op">=</span> <span class="st">"lm"</span>, se <span class="op">=</span> <span class="nb">TRUE</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>4.3 Line Chart: geom_line()</h2>
+
+<pre class="r"><span class="cm"># Time series with economics dataset</span>
+<span class="fn">ggplot</span>(economics, <span class="fn">aes</span>(x <span class="op">=</span> date, y <span class="op">=</span> unemploy)) <span class="op">+</span>
+  <span class="fn">geom_line</span>(color <span class="op">=</span> <span class="st">"#276DC3"</span>, linewidth <span class="op">=</span> <span class="nb">0.8</span>) <span class="op">+</span>
+  <span class="fn">labs</span>(title <span class="op">=</span> <span class="st">"US Unemployment Over Time"</span>,
+       x <span class="op">=</span> <span class="st">"Date"</span>, y <span class="op">=</span> <span class="st">"Unemployed (thousands)"</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>4.4 Bar Chart: geom_bar() and geom_col()</h2>
+
+<pre class="r"><span class="cm"># geom_bar() counts observations</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> class)) <span class="op">+</span>
+  <span class="fn">geom_bar</span>(fill <span class="op">=</span> <span class="st">"#276DC3"</span>)
+
+<span class="cm"># geom_col() plots precomputed values</span>
+avg_mpg <span class="op">&lt;-</span> mpg <span class="op">|&gt;</span>
+  dplyr<span class="op">::</span><span class="fn">group_by</span>(class) <span class="op">|&gt;</span>
+  dplyr<span class="op">::</span><span class="fn">summarize</span>(avg_hwy <span class="op">=</span> <span class="fn">mean</span>(hwy))
+
+<span class="fn">ggplot</span>(avg_mpg, <span class="fn">aes</span>(x <span class="op">=</span> <span class="fn">reorder</span>(class, avg_hwy), y <span class="op">=</span> avg_hwy)) <span class="op">+</span>
+  <span class="fn">geom_col</span>(fill <span class="op">=</span> <span class="st">"#276DC3"</span>) <span class="op">+</span>
+  <span class="fn">coord_flip</span>() <span class="op">+</span>
+  <span class="fn">labs</span>(x <span class="op">=</span> <span class="st">"Vehicle Class"</span>, y <span class="op">=</span> <span class="st">"Mean Highway MPG"</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>4.5 Histogram and Density: geom_histogram(), geom_density()</h2>
+
+<pre class="r"><span class="cm"># Histogram</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_histogram</span>(binwidth <span class="op">=</span> <span class="nb">2</span>, fill <span class="op">=</span> <span class="st">"#276DC3"</span>, color <span class="op">=</span> <span class="st">"white"</span>)
+
+<span class="cm"># Density overlay by group</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> hwy, fill <span class="op">=</span> drv)) <span class="op">+</span>
+  <span class="fn">geom_density</span>(alpha <span class="op">=</span> <span class="nb">0.4</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>4.6 Faceting</h2>
+
+<p>Facets split a plot into panels by one or two categorical variables.</p>
+
+<pre class="r"><span class="cm"># facet_wrap — one variable</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_point</span>() <span class="op">+</span>
+  <span class="fn">facet_wrap</span>(<span class="op">~</span> drv, nrow <span class="op">=</span> <span class="nb">1</span>)
+
+<span class="cm"># facet_grid — two variables</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_point</span>() <span class="op">+</span>
+  <span class="fn">facet_grid</span>(drv <span class="op">~</span> cyl)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>4.7 Themes and Labels</h2>
+
+<pre class="r">p <span class="op">&lt;-</span> <span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy, color <span class="op">=</span> class)) <span class="op">+</span>
+  <span class="fn">geom_point</span>(size <span class="op">=</span> <span class="nb">2</span>)
+
+p <span class="op">+</span>
+  <span class="fn">labs</span>(
+    title    <span class="op">=</span> <span class="st">"Engine Size vs. Fuel Efficiency"</span>,
+    subtitle <span class="op">=</span> <span class="st">"Data from EPA, 1999-2008"</span>,
+    x <span class="op">=</span> <span class="st">"Displacement (L)"</span>,
+    y <span class="op">=</span> <span class="st">"Highway MPG"</span>,
+    color <span class="op">=</span> <span class="st">"Vehicle Class"</span>,
+    caption <span class="op">=</span> <span class="st">"Source: mpg dataset"</span>
+  ) <span class="op">+</span>
+  <span class="fn">theme_minimal</span>(base_size <span class="op">=</span> <span class="nb">13</span>)</pre>
+
+<div class="concept tip">
+  <strong>Tip: Built-in themes</strong>
+  Try <code>theme_classic()</code>, <code>theme_bw()</code>, <code>theme_light()</code>, or install the <code>ggthemes</code> package for more options like <code>theme_economist()</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>4.8 Saving Plots with ggsave()</h2>
+
+<pre class="r"><span class="cm"># Save the last plot</span>
+<span class="fn">ggsave</span>(<span class="st">"my_plot.png"</span>, width <span class="op">=</span> <span class="nb">8</span>, height <span class="op">=</span> <span class="nb">5</span>, dpi <span class="op">=</span> <span class="nb">300</span>)
+
+<span class="cm"># Save a specific plot object</span>
+<span class="fn">ggsave</span>(<span class="st">"my_plot.pdf"</span>, plot <span class="op">=</span> p, width <span class="op">=</span> <span class="nb">8</span>, height <span class="op">=</span> <span class="nb">5</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 4.1</h4>
+  <p>Using the <code>diamonds</code> dataset, create a scatterplot of <code>carat</code> (x) vs. <code>price</code> (y) colored by <code>cut</code>. Add <code>geom_smooth(method = "lm")</code>, apply <code>theme_minimal()</code>, and save it as a PNG at 300 DPI.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 4.2</h4>
+  <p>Build a bar chart showing the count of vehicles per <code>manufacturer</code> in the <code>mpg</code> dataset. Sort bars from most to least using <code>fct_infreq()</code> from the forcats package. Use <code>coord_flip()</code> for readability.</p>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="ext-resources">
+  <h4>External Resources</h4>
+  <ul>
+    <li><a href="https://ggplot2.tidyverse.org/reference/" target="_blank" rel="noopener">ggplot2 Function Reference</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://r4ds.hadley.nz/data-visualize" target="_blank" rel="noopener">R4DS: Data Visualization</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://r-graph-gallery.com" target="_blank" rel="noopener">R Graph Gallery</a> <span class="ext-badge">External</span></li>
+  </ul>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="takeaway" style="background:linear-gradient(135deg,#1a365d,#276DC3)">
+  <h3>Key Takeaways</h3>
+  <ul>
+    <li>ggplot2 = data + aes() + geom_*(). Layers stack with <code>+</code>.</li>
+    <li>Map variables to aesthetics (color, shape, size) inside <code>aes()</code>; set constants outside.</li>
+    <li><code>facet_wrap</code> and <code>facet_grid</code> create small multiples for group comparisons.</li>
+    <li>Use <code>labs()</code> for labels and a <code>theme_*()</code> for consistent styling.</li>
+    <li><code>ggsave()</code> exports plots in any format (PNG, PDF, SVG) at specified resolution.</li>
+  </ul>
+</div>
+
+<div class="chapter-nav">
+  <a href="ch3.html">&larr; Chapter 3: Data Wrangling</a>
+  <a href="ch5.html">Chapter 5: Statistical Testing &rarr;</a>
+</div>
+
+</body>
+</html>

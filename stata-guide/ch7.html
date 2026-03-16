@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 7: Limited Dependent Variables | Stata Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        .book-nav a.current{background:#1a5276}
+        h1{color:#1a5276}
+        h2{border-bottom:2px solid #a7f3d0}
+        .exercise{border-color:#1a5276;background:#f0f9ff}
+        .exercise h4{background:#1a5276;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#1a5276,#148f77)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html" class="current">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 7: Limited Dependent Variables</h1>
+<p class="subtitle">Logit, Probit, Tobit, and Multinomial Models</p>
+
+<h2>7.1 Binary Outcome Models</h2>
+<p>When the dependent variable is binary (0/1), linear probability models (LPM) are simple but can produce predictions outside [0,1]. Logit and probit address this by using nonlinear link functions.</p>
+
+<pre class="stata"><span class="kw">webuse</span> lbw, clear
+<span class="kw">describe</span>
+
+<span class="cm">* Linear Probability Model (for comparison)</span>
+<span class="kw">regress</span> low age lwt i.race smoke, vce(robust)
+
+<span class="cm">* Logit model</span>
+<span class="kw">logit</span> low age lwt i.race smoke, vce(robust)
+
+<span class="cm">* Probit model</span>
+<span class="kw">probit</span> low age lwt i.race smoke, vce(robust)</pre>
+
+<div class="concept info">
+    <strong>Logit vs. Probit</strong>
+    Logit uses the logistic CDF; probit uses the normal CDF. In practice, they produce very similar results. Logit coefficients can be exponentiated to get odds ratios, which some audiences find more intuitive. Use whichever is conventional in your field.
+</div>
+
+<h2>7.2 Interpreting Coefficients</h2>
+<p>Raw logit/probit coefficients give the change in log-odds (logit) or the z-score (probit) for a unit change in X. These are difficult to interpret directly. Use marginal effects instead.</p>
+
+<pre class="stata"><span class="cm">* Odds ratios (logit only)</span>
+<span class="kw">logit</span> low age lwt i.race smoke, or
+
+<span class="cm">* Average marginal effects (AME)</span>
+<span class="kw">logit</span> low age lwt i.race smoke
+<span class="kw">margins</span>, dydx(*) post
+
+<span class="cm">* Marginal effects at the mean (MEM)</span>
+<span class="kw">logit</span> low age lwt i.race smoke
+<span class="kw">margins</span>, dydx(*) atmeans</pre>
+
+<div class="concept warn">
+    <strong>AME vs. MEM</strong>
+    Average marginal effects (AME) compute the marginal effect for each observation and then average. Marginal effects at the mean (MEM) evaluate at the sample means of all variables. AME is generally preferred because MEM evaluates at a potentially nonexistent "average" observation.
+</div>
+
+<h2>7.3 Predicted Probabilities</h2>
+<p>You can compute predicted probabilities at specific covariate values to make results more tangible for your audience.</p>
+
+<pre class="stata"><span class="kw">logit</span> low age lwt i.race smoke
+
+<span class="cm">* Predicted probability for each observation</span>
+<span class="kw">predict</span> phat, pr
+
+<span class="cm">* Predicted probability at specific values</span>
+<span class="kw">margins</span>, at(smoke=(0 1) age=(20 30 40)) vsquish
+
+<span class="cm">* Plot predicted probabilities</span>
+<span class="kw">margins</span>, at(age=(15(5)45)) over(smoke)
+<span class="kw">marginsplot</span>, title(<span class="st">"Predicted Probability of Low Birth Weight"</span>) ///
+    ytitle(<span class="st">"Pr(Low Birth Weight)"</span>) xtitle(<span class="st">"Mother's Age"</span>)</pre>
+
+<h2>7.4 Tobit: Censored Outcomes</h2>
+<p>When the dependent variable is censored (e.g., hours worked cannot be negative, expenditure data piles up at zero), the tobit model accounts for this truncation.</p>
+
+<pre class="stata"><span class="kw">webuse</span> womenwk, clear
+
+<span class="cm">* Tobit with left-censoring at zero</span>
+<span class="kw">tobit</span> hours age education married children, ll(0)
+
+<span class="cm">* Marginal effects (on the latent variable)</span>
+<span class="kw">margins</span>, dydx(*) predict(ystar(0,.))
+
+<span class="cm">* Marginal effects (on the observed, censored outcome)</span>
+<span class="kw">margins</span>, dydx(*) predict(e(0,.))</pre>
+
+<h2>7.5 Ordered Logit and Probit</h2>
+<p>When the dependent variable has ordered categories (e.g., satisfaction: low/medium/high), use ordered logit or probit.</p>
+
+<pre class="stata"><span class="kw">webuse</span> fullauto, clear
+
+<span class="cm">* Ordered logit</span>
+<span class="kw">ologit</span> rep77 foreign length mpg
+
+<span class="cm">* Ordered probit</span>
+<span class="kw">oprobit</span> rep77 foreign length mpg
+
+<span class="cm">* Predicted probabilities for each category</span>
+<span class="kw">margins</span>, predict(outcome(1)) predict(outcome(2)) predict(outcome(3)) ///
+    predict(outcome(4)) predict(outcome(5))</pre>
+
+<h2>7.6 Multinomial Logit</h2>
+<p>When the dependent variable is categorical without a natural ordering (e.g., mode of transportation: car, bus, train), use multinomial logit. The model estimates separate coefficients for each category relative to a base category.</p>
+
+<pre class="stata"><span class="kw">webuse</span> sysdsn1, clear
+
+<span class="cm">* Multinomial logit</span>
+<span class="kw">mlogit</span> insure age male nonwhite, baseoutcome(1)
+
+<span class="cm">* Relative risk ratios (exponentiated coefficients)</span>
+<span class="kw">mlogit</span> insure age male nonwhite, baseoutcome(1) rrr
+
+<span class="cm">* Average marginal effects</span>
+<span class="kw">margins</span>, dydx(*) predict(outcome(1))
+<span class="kw">margins</span>, dydx(*) predict(outcome(2))
+<span class="kw">margins</span>, dydx(*) predict(outcome(3))</pre>
+
+<h2>7.7 Model Fit and Classification</h2>
+
+<pre class="stata"><span class="kw">logit</span> low age lwt i.race smoke
+
+<span class="cm">* Classification table</span>
+<span class="kw">estat</span> classification
+
+<span class="cm">* ROC curve and AUC</span>
+<span class="kw">lroc</span>, title(<span class="st">"ROC Curve"</span>)
+
+<span class="cm">* Goodness-of-fit (Hosmer-Lemeshow)</span>
+<span class="kw">estat</span> gof, group(10)
+
+<span class="cm">* Information criteria for model comparison</span>
+<span class="kw">estat</span> ic</pre>
+
+<div class="exercise">
+    <h4>Exercise 7.1</h4>
+    <p>Using <code>webuse lbw</code>, estimate a logit model of <code>low</code> on <code>age</code>, <code>lwt</code>, <code>smoke</code>, and <code>i.race</code>. Compute average marginal effects with <code>margins, dydx(*)</code>. What is the marginal effect of smoking on the probability of low birth weight?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 7.2</h4>
+    <p>Using <code>webuse fullauto</code>, estimate an ordered logit of <code>rep77</code> on <code>foreign</code>, <code>length</code>, and <code>mpg</code>. Use <code>margins</code> to predict the probability of each outcome category for foreign vs. domestic cars. Create a <code>marginsplot</code>.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>External Resources</h4>
+    <ul>
+        <li><a href="https://www.stata.com/manuals/rlogit.pdf" target="_blank" rel="noopener">Stata Manual: logit</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://stats.oarc.ucla.edu/stata/dae/logistic-regression/" target="_blank" rel="noopener">UCLA OARC: Logistic Regression</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://stats.oarc.ucla.edu/stata/dae/multinomiallogistic-regression/" target="_blank" rel="noopener">UCLA OARC: Multinomial Logistic Regression</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Key Takeaways</h3>
+    <ul>
+        <li>Report marginal effects (AME preferred), not raw logit/probit coefficients.</li>
+        <li>Odds ratios are convenient for logit but can be misinterpreted with common outcomes.</li>
+        <li>Use tobit for censored continuous outcomes, ordered logit for ordinal data, and multinomial logit for unordered categories.</li>
+        <li>Assess model fit with classification tables, ROC curves, and the Hosmer-Lemeshow test.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch6.html">&larr; Chapter 6: Instrumental Variables</a>
+    <a href="ch8.html">Chapter 8: Time Series &rarr;</a>
+</div>
+
+</body>
+</html>

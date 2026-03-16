@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 1: Getting Started | Python Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1 { color: #1e3a5f; }
+        h2 { border-bottom: 2px solid #bfdbfe; }
+        .book-nav a.current { background: #3776AB; }
+        .exercise { border-color: #3776AB; background: #eff6ff; }
+        .exercise h4 { background: #3776AB; color: #fff; }
+        .takeaway { background: linear-gradient(135deg, #1e3a5f, #3776AB); }
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html" class="current">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 1: Getting Started</h1>
+<p class="subtitle">Installation, IDEs, and Your First Script</p>
+
+<h2>1.1 Why Python for Analytics?</h2>
+<p>Python has become the default language for data science in industry and academia. It is open source, has a massive ecosystem of analytics libraries, and reads almost like pseudocode. Whether you plan to work in consulting, supply chain, finance, or tech, Python literacy gives you a significant advantage.</p>
+
+<div class="concept tip">
+    <strong>Key advantage:</strong> Python's ecosystem includes pandas for data wrangling, scikit-learn for machine learning, matplotlib for visualization, and statsmodels for econometrics, all within a single language.
+</div>
+
+<h2>1.2 Installing Python</h2>
+<p>The two most common installation routes are Anaconda (recommended for beginners) and pip with python.org. Anaconda bundles Python with 250+ data science packages and the conda package manager.</p>
+
+<h3>Option A: Anaconda (Recommended)</h3>
+<p>Download the installer from <a href="https://www.anaconda.com/download" target="_blank">anaconda.com/download</a>. After installation, open the Anaconda Navigator to launch Jupyter Notebook or Spyder.</p>
+
+<pre class="bash"><span class="cm"># Verify installation in your terminal</span>
+conda --version
+python --version</pre>
+
+<h3>Option B: pip + python.org</h3>
+<p>Download from <a href="https://www.python.org/downloads/" target="_blank">python.org/downloads</a>. After installing, use pip to add packages as needed.</p>
+
+<pre class="bash"><span class="cm"># Install common data science packages</span>
+pip install numpy pandas matplotlib seaborn scikit-learn statsmodels jupyter</pre>
+
+<h2>1.3 Choosing an IDE</h2>
+
+<div class="table-wrapper">
+<table>
+    <thead><tr><th>Tool</th><th>Best For</th><th>Key Feature</th></tr></thead>
+    <tbody>
+        <tr><td>Jupyter Notebook</td><td>Exploration, EDA, reports</td><td>Cell-by-cell execution with inline plots</td></tr>
+        <tr><td>VS Code</td><td>Larger projects, scripts</td><td>Debugger, Git integration, extensions</td></tr>
+        <tr><td>Google Colab</td><td>Cloud, collaboration</td><td>Free GPU, zero setup, shareable links</td></tr>
+    </tbody>
+</table>
+</div>
+
+<div class="concept info">
+    <strong>Recommendation:</strong> Start with Jupyter Notebook for interactive exploration. Move to VS Code when writing reusable scripts and modules.
+</div>
+
+<h2>1.4 Your First Script</h2>
+<p>Create a new file called <code>hello.py</code> or open a Jupyter cell and type the following:</p>
+
+<pre class="python"><span class="cm"># hello.py — Your first Python script</span>
+<span class="fn">print</span>(<span class="st">"Hello, Data Science!"</span>)
+
+<span class="cm"># Variables and basic arithmetic</span>
+revenue = <span class="nb">150000</span>
+cost    = <span class="nb">95000</span>
+profit  = revenue - cost
+
+<span class="fn">print</span>(<span class="st">f"Revenue: $</span>{revenue:,}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"Cost:    $</span>{cost:,}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"Profit:  $</span>{profit:,}<span class="st">"</span>)</pre>
+
+<div class="concept output">
+    <strong>Output:</strong>
+    Hello, Data Science!<br>
+    Revenue: $150,000<br>
+    Cost:    $95,000<br>
+    Profit:  $55,000
+</div>
+
+<h2>1.5 Variables and print()</h2>
+<p>Python variables do not need type declarations. The interpreter infers the type from the assigned value. Use <code>print()</code> to display output and f-strings for formatting.</p>
+
+<pre class="python"><span class="cm"># Variable assignment — no type declaration needed</span>
+product_name = <span class="st">"Widget A"</span>       <span class="cm"># str</span>
+units_sold   = <span class="nb">1250</span>              <span class="cm"># int</span>
+unit_price   = <span class="nb">29.99</span>             <span class="cm"># float</span>
+in_stock     = <span class="nb">True</span>              <span class="cm"># bool</span>
+
+<span class="cm"># f-string formatting</span>
+total = units_sold * unit_price
+<span class="fn">print</span>(<span class="st">f"</span>{product_name}<span class="st">: sold </span>{units_sold}<span class="st"> units at $</span>{unit_price}<span class="st"> each"</span>)
+<span class="fn">print</span>(<span class="st">f"Total revenue: $</span>{total:,.2f}<span class="st">"</span>)
+
+<span class="cm"># Check type</span>
+<span class="fn">print</span>(<span class="fn">type</span>(unit_price))  <span class="cm"># &lt;class 'float'&gt;</span></pre>
+
+<h2>1.6 Comments and Code Style</h2>
+<p>Good code is readable code. Follow PEP 8 conventions: use snake_case for variables, add comments to explain why (not what), and keep lines under 79 characters.</p>
+
+<pre class="python"><span class="cm"># GOOD: descriptive variable names</span>
+order_quantity = <span class="nb">500</span>
+lead_time_days = <span class="nb">14</span>
+
+<span class="cm"># AVOID: cryptic single-letter names</span>
+<span class="cm"># q = 500</span>
+<span class="cm"># l = 14</span></pre>
+
+<div class="exercise">
+    <h4>Exercise 1.1</h4>
+    <p>Create a script that calculates the <strong>Economic Order Quantity (EOQ)</strong>. Define variables for annual demand (10,000 units), ordering cost ($50 per order), and holding cost ($2 per unit per year). Compute EOQ = sqrt(2 * D * S / H) and print the result with a formatted message.</p>
+    <p class="solution">Hint: import math and use math.sqrt(), or use the ** 0.5 exponent.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 1.2</h4>
+    <p>Open a Jupyter Notebook and create three cells: (1) import the <code>math</code> module, (2) define a variable <code>radius = 5</code> and compute the area of a circle, (3) print the result. Run each cell individually and observe the output.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://docs.python.org/3/tutorial/introduction.html" target="_blank">Python Tutorial: An Informal Introduction</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://realpython.com/installing-python/" target="_blank">Real Python: Installing Python</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank">PEP 8 Style Guide</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 1 Takeaways</h3>
+    <ul>
+        <li>Anaconda provides a batteries-included Python environment for data science.</li>
+        <li>Jupyter Notebook is ideal for interactive exploration; VS Code is better for scripts and larger projects.</li>
+        <li>Variables in Python are dynamically typed; use descriptive names and f-strings for clean output.</li>
+        <li>Follow PEP 8 conventions from the start to build good habits.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="index.html">&larr; Guide Home</a>
+    <a href="ch2.html">Chapter 2: Data Types &rarr;</a>
+</div>
+
+</body>
+</html>

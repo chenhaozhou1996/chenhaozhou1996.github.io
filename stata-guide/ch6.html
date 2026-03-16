@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 6: Instrumental Variables | Stata Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        .book-nav a.current{background:#1a5276}
+        h1{color:#1a5276}
+        h2{border-bottom:2px solid #a7f3d0}
+        .exercise{border-color:#1a5276;background:#f0f9ff}
+        .exercise h4{background:#1a5276;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#1a5276,#148f77)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html" class="current">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 6: Instrumental Variables &amp; Endogeneity</h1>
+<p class="subtitle">2SLS, Weak Instruments, and Overidentification Tests</p>
+
+<h2>6.1 The Endogeneity Problem</h2>
+<p>Endogeneity arises when a regressor is correlated with the error term, which can occur through omitted variables, simultaneity, or measurement error. OLS estimates are biased and inconsistent in this case. Instrumental variables (IV) estimation provides a solution when you can find a variable (the instrument) that is correlated with the endogenous regressor but uncorrelated with the error.</p>
+
+<div class="concept info">
+    <strong>Two IV Conditions</strong>
+    An instrument Z must satisfy: (1) <strong>Relevance</strong>: Cov(Z, X) is not zero, and (2) <strong>Exclusion</strong>: Cov(Z, u) = 0. Condition (1) is testable; condition (2) is not (it relies on economic reasoning).
+</div>
+
+<h2>6.2 Two-Stage Least Squares (2SLS)</h2>
+<p>Stata's <code>ivregress 2sls</code> command estimates 2SLS models. The syntax separates exogenous variables from the endogenous regressor and its instruments.</p>
+
+<pre class="stata"><span class="kw">webuse</span> hsng2, clear
+
+<span class="cm">* OLS baseline (likely biased)</span>
+<span class="kw">regress</span> rent hsngval pcturban
+
+<span class="cm">* 2SLS: hsngval is endogenous, instrumented by faminc and region</span>
+<span class="kw">ivregress</span> 2sls rent pcturban (hsngval = faminc i.region), vce(robust)
+
+<span class="cm">* Equivalent syntax: first() option shows first-stage results</span>
+<span class="kw">ivregress</span> 2sls rent pcturban (hsngval = faminc i.region), first vce(robust)</pre>
+
+<h2>6.3 First-Stage Diagnostics</h2>
+<p>A weak instrument produces IV estimates that are biased toward OLS and have unreliable inference. The first-stage F-statistic is the primary diagnostic.</p>
+
+<pre class="stata"><span class="cm">* After ivregress, test first-stage strength</span>
+<span class="kw">estat</span> firststage
+
+<span class="cm">* Rule of thumb: F-statistic > 10 (Staiger-Stock)</span>
+<span class="cm">* For rigorous testing, use Stock-Yogo critical values</span>
+<span class="cm">* reported by ivreg2</span></pre>
+
+<div class="concept warn">
+    <strong>The Stock-Yogo Threshold</strong>
+    An F-statistic above 10 is a rough heuristic. The more rigorous approach uses Stock and Yogo (2005) critical values, which depend on the number of instruments and the acceptable bias relative to OLS. The <code>ivreg2</code> package reports these automatically.
+</div>
+
+<h2>6.4 Overidentification Tests</h2>
+<p>When you have more instruments than endogenous variables (overidentification), you can test whether the instruments as a group satisfy the exclusion restriction. The Sargan/Hansen J-test is the standard approach.</p>
+
+<pre class="stata"><span class="cm">* After ivregress</span>
+<span class="kw">estat</span> overid
+<span class="cm">* H0: all instruments are valid (exogenous)</span>
+<span class="cm">* Reject => at least one instrument may be invalid</span></pre>
+
+<h2>6.5 The ivreg2 Package</h2>
+<p>The user-written <code>ivreg2</code> package provides more comprehensive IV diagnostics than the built-in <code>ivregress</code>, including Kleibergen-Paap statistics for heteroskedastic data and Stock-Yogo critical values.</p>
+
+<pre class="stata"><span class="cm">* Install: ssc install ivreg2, replace</span>
+<span class="cm">*          ssc install ranktest, replace</span>
+
+<span class="cm">* Estimate with ivreg2</span>
+<span class="kw">ivreg2</span> rent pcturban (hsngval = faminc i.region), robust first
+
+<span class="cm">* Key diagnostics reported automatically:</span>
+<span class="cm">* - Kleibergen-Paap rk Wald F (robust first-stage F)</span>
+<span class="cm">* - Kleibergen-Paap rk LM (underidentification test)</span>
+<span class="cm">* - Hansen J statistic (overidentification test with robust SEs)</span></pre>
+
+<h2>6.6 Endogeneity Test (Durbin-Wu-Hausman)</h2>
+<p>Before running IV, you may want to test whether the suspected endogenous variable is actually endogenous. If it is not, OLS is preferred because it is more efficient.</p>
+
+<pre class="stata"><span class="cm">* After ivregress 2sls</span>
+<span class="kw">estat</span> endogenous
+<span class="cm">* H0: variable is exogenous. Reject => endogeneity present, IV justified</span>
+
+<span class="cm">* Manual Durbin-Wu-Hausman approach:</span>
+<span class="cm">* 1. Run first stage, save residuals</span>
+<span class="kw">regress</span> hsngval faminc i.region pcturban
+<span class="kw">predict</span> v_hat, residuals
+
+<span class="cm">* 2. Include residuals in structural equation</span>
+<span class="kw">regress</span> rent hsngval pcturban v_hat
+<span class="cm">* If v_hat is significant => endogeneity confirmed</span></pre>
+
+<h2>6.7 IV with Panel Data</h2>
+<p>For panel data IV estimation, combine <code>xtivreg</code> (built-in) or <code>ivreghdfe</code> (user-written) with fixed effects.</p>
+
+<pre class="stata"><span class="cm">* Panel IV with fixed effects</span>
+<span class="kw">xtivreg</span> qip (rn_pp = instrument_z) sdi i.year, fe vce(cluster facility_id)
+
+<span class="cm">* Or with reghdfe-style syntax (install: ssc install ivreghdfe)</span>
+<span class="kw">ivreghdfe</span> qip (rn_pp = instrument_z) sdi, ///
+    absorb(facility_id year) cluster(facility_id)</pre>
+
+<h2>6.8 Heteroskedasticity-Based IV (Lewbel)</h2>
+<p>When external instruments are unavailable, Lewbel (2012) instruments exploit heteroskedasticity in the first-stage residuals to generate internal instruments. This approach requires that the error terms exhibit heteroskedasticity related to some exogenous variables.</p>
+
+<pre class="stata"><span class="cm">* Install: ssc install ivreg2h, replace</span>
+
+<span class="cm">* Lewbel HBIV estimation</span>
+<span class="kw">ivreg2h</span> qip (rn_pp = ) sdi controls i.year, robust</pre>
+
+<div class="exercise">
+    <h4>Exercise 6.1</h4>
+    <p>Using <code>webuse hsng2</code>, estimate the effect of <code>hsngval</code> on <code>rent</code> using 2SLS with <code>faminc</code> as the instrument. Report the first-stage F-statistic. Is <code>faminc</code> a strong instrument by the Staiger-Stock criterion?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 6.2</h4>
+    <p>Re-estimate the model from Exercise 6.1 using <code>ivreg2</code> with the <code>robust</code> and <code>first</code> options. Compare the Kleibergen-Paap F-statistic to the conventional F-statistic. Run <code>estat endogenous</code> to test whether IV is necessary.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>External Resources</h4>
+    <ul>
+        <li><a href="https://www.stata.com/manuals/rivregress.pdf" target="_blank" rel="noopener">Stata Manual: ivregress</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://stats.oarc.ucla.edu/stata/dae/two-stage-least-squares/" target="_blank" rel="noopener">UCLA OARC: Two-Stage Least Squares</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://ideas.repec.org/c/boc/bocode/s425401.html" target="_blank" rel="noopener">ivreg2 on SSC (Baum, Schaffer, Stillman)</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Key Takeaways</h3>
+    <ul>
+        <li>IV estimation corrects for endogeneity but requires credible instruments.</li>
+        <li>Always check the first-stage F-statistic; weak instruments produce misleading inference.</li>
+        <li>Use <code>ivreg2</code> over <code>ivregress</code> for better diagnostics with heteroskedastic data.</li>
+        <li>The exclusion restriction is untestable; overidentification tests can only reject joint validity.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch5.html">&larr; Chapter 5: Panel Data Methods</a>
+    <a href="ch7.html">Chapter 7: Limited Dependent Variables &rarr;</a>
+</div>
+
+</body>
+</html>

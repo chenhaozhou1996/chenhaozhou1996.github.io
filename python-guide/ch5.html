@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 5: Pandas | Python Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1 { color: #1e3a5f; }
+        h2 { border-bottom: 2px solid #bfdbfe; }
+        .book-nav a.current { background: #3776AB; }
+        .exercise { border-color: #3776AB; background: #eff6ff; }
+        .exercise h4 { background: #3776AB; color: #fff; }
+        .takeaway { background: linear-gradient(135deg, #1e3a5f, #3776AB); }
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html" class="current">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 5: Pandas</h1>
+<p class="subtitle">DataFrames and Data Wrangling</p>
+
+<h2>5.1 Why Pandas?</h2>
+<p>Pandas provides the DataFrame, a two-dimensional labeled data structure that is the standard tool for tabular data manipulation in Python. If you have worked with Excel pivot tables or SQL queries, pandas will feel familiar but far more powerful and reproducible.</p>
+
+<pre class="python"><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np</pre>
+
+<h2>5.2 Reading Data</h2>
+
+<pre class="python"><span class="cm"># CSV (most common)</span>
+df = pd.<span class="fn">read_csv</span>(<span class="st">"orders.csv"</span>)
+
+<span class="cm"># Excel</span>
+df_xl = pd.<span class="fn">read_excel</span>(<span class="st">"inventory.xlsx"</span>, sheet_name=<span class="st">"Sheet1"</span>)
+
+<span class="cm"># Quick inspection</span>
+<span class="fn">print</span>(df.<span class="fn">shape</span>)        <span class="cm"># (rows, cols)</span>
+<span class="fn">print</span>(df.<span class="fn">dtypes</span>)       <span class="cm"># column types</span>
+df.<span class="fn">head</span>()               <span class="cm"># first 5 rows</span>
+df.<span class="fn">describe</span>()           <span class="cm"># summary statistics</span>
+df.<span class="fn">info</span>()               <span class="cm"># non-null counts and memory</span></pre>
+
+<h2>5.3 Creating DataFrames</h2>
+
+<pre class="python"><span class="cm"># From a dictionary</span>
+data = {
+    <span class="st">"product"</span>:  [<span class="st">"Widget"</span>, <span class="st">"Gadget"</span>, <span class="st">"Bracket"</span>, <span class="st">"Bolt"</span>],
+    <span class="st">"price"</span>:    [<span class="nb">29.99</span>, <span class="nb">14.50</span>, <span class="nb">7.25</span>, <span class="nb">1.10</span>],
+    <span class="st">"quantity"</span>: [<span class="nb">500</span>, <span class="nb">320</span>, <span class="nb">750</span>, <span class="nb">4000</span>],
+    <span class="st">"category"</span>: [<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"C"</span>]
+}
+df = pd.<span class="fn">DataFrame</span>(data)
+<span class="fn">print</span>(df)</pre>
+
+<h2>5.4 Selecting Data: loc and iloc</h2>
+
+<pre class="python"><span class="cm"># loc: label-based selection</span>
+df.<span class="fn">loc</span>[<span class="nb">0</span>, <span class="st">"product"</span>]          <span class="cm"># "Widget"</span>
+df.<span class="fn">loc</span>[:<span class="nb">2</span>, [<span class="st">"product"</span>, <span class="st">"price"</span>]]  <span class="cm"># first 3 rows, 2 columns</span>
+
+<span class="cm"># iloc: integer-position based</span>
+df.<span class="fn">iloc</span>[<span class="nb">0</span>, <span class="nb">1</span>]               <span class="cm"># 29.99 (row 0, col 1)</span>
+df.<span class="fn">iloc</span>[:<span class="nb">2</span>, :<span class="nb">3</span>]             <span class="cm"># first 2 rows, first 3 cols</span>
+
+<span class="cm"># Boolean filtering</span>
+expensive = df[df[<span class="st">"price"</span>] > <span class="nb">10</span>]
+<span class="fn">print</span>(expensive)</pre>
+
+<div class="concept info">
+    <strong>loc vs iloc:</strong> Use <code>loc</code> when selecting by column names and row labels. Use <code>iloc</code> when selecting by integer position. When in doubt, prefer <code>loc</code> for clarity.
+</div>
+
+<h2>5.5 Adding and Transforming Columns</h2>
+
+<pre class="python"><span class="cm"># New computed column</span>
+df[<span class="st">"revenue"</span>] = df[<span class="st">"price"</span>] * df[<span class="st">"quantity"</span>]
+
+<span class="cm"># Apply a function</span>
+df[<span class="st">"price_tier"</span>] = df[<span class="st">"price"</span>].<span class="fn">apply</span>(
+    <span class="kw">lambda</span> p: <span class="st">"Premium"</span> <span class="kw">if</span> p > <span class="nb">20</span> <span class="kw">else</span> <span class="st">"Standard"</span>
+)
+
+<span class="fn">print</span>(df)</pre>
+
+<h2>5.6 GroupBy and Aggregation</h2>
+
+<pre class="python"><span class="cm"># Group by category and compute summary stats</span>
+summary = df.<span class="fn">groupby</span>(<span class="st">"category"</span>).<span class="fn">agg</span>(
+    total_revenue=(<span class="st">"revenue"</span>, <span class="st">"sum"</span>),
+    avg_price=(<span class="st">"price"</span>, <span class="st">"mean"</span>),
+    n_products=(<span class="st">"product"</span>, <span class="st">"count"</span>)
+).<span class="fn">reset_index</span>()
+
+<span class="fn">print</span>(summary)</pre>
+
+<h2>5.7 Merging DataFrames</h2>
+
+<pre class="python"><span class="cm"># Supplier table</span>
+suppliers = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"product"</span>:  [<span class="st">"Widget"</span>, <span class="st">"Gadget"</span>, <span class="st">"Bracket"</span>, <span class="st">"Bolt"</span>],
+    <span class="st">"supplier"</span>: [<span class="st">"Acme"</span>, <span class="st">"Globex"</span>, <span class="st">"Acme"</span>, <span class="st">"Initech"</span>],
+    <span class="st">"lead_days"</span>: [<span class="nb">7</span>, <span class="nb">14</span>, <span class="nb">5</span>, <span class="nb">3</span>]
+})
+
+<span class="cm"># Inner join on product name</span>
+merged = pd.<span class="fn">merge</span>(df, suppliers, on=<span class="st">"product"</span>, how=<span class="st">"left"</span>)
+<span class="fn">print</span>(merged[[<span class="st">"product"</span>, <span class="st">"revenue"</span>, <span class="st">"supplier"</span>, <span class="st">"lead_days"</span>]])</pre>
+
+<h2>5.8 Pivot Tables</h2>
+
+<pre class="python"><span class="cm"># Pivot: rows=category, values=revenue</span>
+pivot = df.<span class="fn">pivot_table</span>(
+    values=<span class="st">"revenue"</span>,
+    index=<span class="st">"category"</span>,
+    aggfunc=[<span class="st">"sum"</span>, <span class="st">"mean"</span>]
+)
+<span class="fn">print</span>(pivot)</pre>
+
+<h2>5.9 Handling Missing Data</h2>
+
+<pre class="python"><span class="cm"># Detect missing values</span>
+<span class="fn">print</span>(df.<span class="fn">isnull</span>().<span class="fn">sum</span>())
+
+<span class="cm"># Fill missing values</span>
+df[<span class="st">"price"</span>].<span class="fn">fillna</span>(df[<span class="st">"price"</span>].<span class="fn">median</span>(), inplace=<span class="nb">True</span>)
+
+<span class="cm"># Drop rows with any missing value</span>
+df_clean = df.<span class="fn">dropna</span>()
+
+<span class="cm"># Forward fill (useful for time series)</span>
+df[<span class="st">"stock"</span>].<span class="fn">fillna</span>(method=<span class="st">"ffill"</span>, inplace=<span class="nb">True</span>)</pre>
+
+<h2>5.10 Sorting and Exporting</h2>
+
+<pre class="python"><span class="cm"># Sort by revenue descending</span>
+df_sorted = df.<span class="fn">sort_values</span>(<span class="st">"revenue"</span>, ascending=<span class="nb">False</span>)
+
+<span class="cm"># Export</span>
+df_sorted.<span class="fn">to_csv</span>(<span class="st">"output.csv"</span>, index=<span class="nb">False</span>)
+df_sorted.<span class="fn">to_excel</span>(<span class="st">"output.xlsx"</span>, index=<span class="nb">False</span>)</pre>
+
+<div class="exercise">
+    <h4>Exercise 5.1</h4>
+    <p>Create a DataFrame of 20 fictitious orders with columns: order_id, customer, product, quantity, unit_price, and region (East/West/Central). Compute total_price, then use groupby to find the region with the highest total revenue and the product with the highest average order size.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 5.2</h4>
+    <p>Download any public CSV dataset (e.g., from Kaggle). Read it with <code>pd.read_csv()</code>, check for missing values with <code>.isnull().sum()</code>, fill or drop them, and create a pivot table summarizing a numeric column by a categorical column.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://pandas.pydata.org/docs/getting_started/intro_tutorials/index.html" target="_blank">pandas Getting Started Tutorials</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.merge.html" target="_blank">pandas merge() Reference</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://pandas.pydata.org/docs/user_guide/10min.html" target="_blank">10 Minutes to pandas</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 5 Takeaways</h3>
+    <ul>
+        <li>The DataFrame is the central data structure in pandas, analogous to a spreadsheet or SQL table.</li>
+        <li>Use loc for label-based selection and iloc for position-based selection.</li>
+        <li>groupby + agg is the pandas equivalent of SQL GROUP BY; pivot_table adds a spreadsheet-style crosstab.</li>
+        <li>Always check for missing data early; use fillna() or dropna() depending on your analysis needs.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch4.html">&larr; Chapter 4: NumPy</a>
+    <a href="ch6.html">Chapter 6: Visualization &rarr;</a>
+</div>
+
+</body>
+</html>

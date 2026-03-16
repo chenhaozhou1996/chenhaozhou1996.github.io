@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 3: Functions &amp; Modules | Python Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1 { color: #1e3a5f; }
+        h2 { border-bottom: 2px solid #bfdbfe; }
+        .book-nav a.current { background: #3776AB; }
+        .exercise { border-color: #3776AB; background: #eff6ff; }
+        .exercise h4 { background: #3776AB; color: #fff; }
+        .takeaway { background: linear-gradient(135deg, #1e3a5f, #3776AB); }
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html" class="current">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 3: Functions &amp; Modules</h1>
+<p class="subtitle">Defining, Importing, and Packaging Code</p>
+
+<h2>3.1 Defining Functions with def</h2>
+<p>Functions let you wrap reusable logic behind a name. They take inputs (parameters), do work, and return outputs. Writing functions makes your analysis reproducible and your code easier to test.</p>
+
+<pre class="python"><span class="kw">def</span> <span class="fn">eoq</span>(demand, order_cost, holding_cost):
+    <span class="st">"""Calculate Economic Order Quantity."""</span>
+    <span class="kw">return</span> (<span class="nb">2</span> * demand * order_cost / holding_cost) ** <span class="nb">0.5</span>
+
+<span class="cm"># Call the function</span>
+q_star = <span class="fn">eoq</span>(<span class="nb">10000</span>, <span class="nb">50</span>, <span class="nb">2</span>)
+<span class="fn">print</span>(<span class="st">f"Optimal order quantity: </span>{q_star:.0f}<span class="st"> units"</span>)  <span class="cm"># 707 units</span></pre>
+
+<h2>3.2 Default Arguments and Keyword Arguments</h2>
+<p>Default values make parameters optional. Keyword arguments improve readability when calling functions with many parameters.</p>
+
+<pre class="python"><span class="kw">def</span> <span class="fn">shipping_cost</span>(weight, rate_per_kg=<span class="nb">2.50</span>, surcharge=<span class="nb">0</span>):
+    <span class="st">"""Calculate shipping cost with optional surcharge."""</span>
+    <span class="kw">return</span> weight * rate_per_kg + surcharge
+
+<span class="cm"># Positional</span>
+<span class="fn">print</span>(<span class="fn">shipping_cost</span>(<span class="nb">10</span>))                     <span class="cm"># $25.00</span>
+
+<span class="cm"># Keyword arguments (order doesn't matter)</span>
+<span class="fn">print</span>(<span class="fn">shipping_cost</span>(weight=<span class="nb">10</span>, surcharge=<span class="nb">5</span>))   <span class="cm"># $30.00</span></pre>
+
+<h2>3.3 *args and **kwargs</h2>
+<p>Use <code>*args</code> to accept any number of positional arguments and <code>**kwargs</code> for any number of keyword arguments.</p>
+
+<pre class="python"><span class="kw">def</span> <span class="fn">total_revenue</span>(*sales):
+    <span class="st">"""Sum any number of sales figures."""</span>
+    <span class="kw">return</span> <span class="fn">sum</span>(sales)
+
+<span class="fn">print</span>(<span class="fn">total_revenue</span>(<span class="nb">1200</span>, <span class="nb">3400</span>, <span class="nb">2800</span>))  <span class="cm"># 7400</span>
+
+<span class="kw">def</span> <span class="fn">build_order</span>(**items):
+    <span class="st">"""Print order details from keyword arguments."""</span>
+    <span class="kw">for</span> product, qty <span class="kw">in</span> items.<span class="fn">items</span>():
+        <span class="fn">print</span>(<span class="st">f"  </span>{product}<span class="st">: </span>{qty}<span class="st"> units"</span>)
+
+<span class="fn">build_order</span>(widgets=<span class="nb">50</span>, brackets=<span class="nb">120</span>, bolts=<span class="nb">500</span>)</pre>
+
+<h2>3.4 Lambda Functions</h2>
+<p>Lambda functions are anonymous, single-expression functions. They are useful as short callbacks for sorting and filtering.</p>
+
+<pre class="python">products = [
+    {<span class="st">"name"</span>: <span class="st">"Widget"</span>, <span class="st">"price"</span>: <span class="nb">29.99</span>},
+    {<span class="st">"name"</span>: <span class="st">"Gadget"</span>, <span class="st">"price"</span>: <span class="nb">14.50</span>},
+    {<span class="st">"name"</span>: <span class="st">"Bracket"</span>, <span class="st">"price"</span>: <span class="nb">7.25</span>},
+]
+
+<span class="cm"># Sort by price descending</span>
+products.<span class="fn">sort</span>(key=<span class="kw">lambda</span> p: p[<span class="st">"price"</span>], reverse=<span class="nb">True</span>)
+<span class="kw">for</span> p <span class="kw">in</span> products:
+    <span class="fn">print</span>(<span class="st">f"</span>{p[<span class="st">'name'</span>]:<span class="nb">10</span>}<span class="st"> $</span>{p[<span class="st">'price'</span>]:.2f}<span class="st">"</span>)</pre>
+
+<h2>3.5 Return Values</h2>
+<p>Functions can return multiple values as a tuple. This is common when a calculation produces several related outputs.</p>
+
+<pre class="python"><span class="kw">def</span> <span class="fn">inventory_stats</span>(levels):
+    <span class="st">"""Return mean, min, and max of inventory levels."""</span>
+    avg = <span class="fn">sum</span>(levels) / <span class="fn">len</span>(levels)
+    <span class="kw">return</span> avg, <span class="fn">min</span>(levels), <span class="fn">max</span>(levels)
+
+daily_stock = [<span class="nb">120</span>, <span class="nb">95</span>, <span class="nb">110</span>, <span class="nb">88</span>, <span class="nb">102</span>, <span class="nb">130</span>, <span class="nb">75</span>]
+mean_val, min_val, max_val = <span class="fn">inventory_stats</span>(daily_stock)
+<span class="fn">print</span>(<span class="st">f"Avg: </span>{mean_val:.1f}<span class="st">, Min: </span>{min_val}<span class="st">, Max: </span>{max_val}<span class="st">"</span>)</pre>
+
+<h2>3.6 Importing Modules</h2>
+<p>Python's standard library and third-party packages extend the language. Use <code>import</code> to bring them into your script.</p>
+
+<pre class="python"><span class="cm"># Standard library</span>
+<span class="kw">import</span> math
+<span class="kw">import</span> os
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime, timedelta
+
+<span class="cm"># Common alias conventions</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Using a module</span>
+today = datetime.<span class="fn">now</span>()
+lead_date = today + <span class="fn">timedelta</span>(days=<span class="nb">14</span>)
+<span class="fn">print</span>(<span class="st">f"Order due by: </span>{lead_date:<span class="st">%Y-%m-%d</span>}<span class="st">"</span>)</pre>
+
+<h2>3.7 Installing Packages with pip</h2>
+
+<pre class="bash"><span class="cm"># Install a single package</span>
+pip install openpyxl
+
+<span class="cm"># Install from a requirements file</span>
+pip install -r requirements.txt
+
+<span class="cm"># Check installed packages</span>
+pip list</pre>
+
+<h2>3.8 Creating Your Own Module</h2>
+<p>Any <code>.py</code> file is a module. Save reusable functions in a file and import them elsewhere.</p>
+
+<pre class="python"><span class="cm"># File: sc_utils.py</span>
+<span class="kw">def</span> <span class="fn">eoq</span>(demand, order_cost, holding_cost):
+    <span class="kw">return</span> (<span class="nb">2</span> * demand * order_cost / holding_cost) ** <span class="nb">0.5</span>
+
+<span class="kw">def</span> <span class="fn">safety_stock</span>(z, std_demand, lead_time):
+    <span class="kw">return</span> z * std_demand * lead_time ** <span class="nb">0.5</span></pre>
+
+<pre class="python"><span class="cm"># File: analysis.py</span>
+<span class="kw">from</span> sc_utils <span class="kw">import</span> eoq, safety_stock
+
+q = <span class="fn">eoq</span>(<span class="nb">10000</span>, <span class="nb">50</span>, <span class="nb">2</span>)
+ss = <span class="fn">safety_stock</span>(<span class="nb">1.96</span>, <span class="nb">20</span>, <span class="nb">7</span>)
+<span class="fn">print</span>(<span class="st">f"EOQ: </span>{q:.0f}<span class="st">, Safety stock: </span>{ss:.0f}<span class="st">"</span>)</pre>
+
+<div class="exercise">
+    <h4>Exercise 3.1</h4>
+    <p>Write a function <code>classify_abc(items)</code> that takes a list of (name, annual_revenue) tuples and returns three lists: A items (top 80% of cumulative revenue), B items (next 15%), and C items (remaining 5%). Test it with at least five products.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 3.2</h4>
+    <p>Create a module called <code>metrics.py</code> with functions for <code>fill_rate(fulfilled, requested)</code> and <code>otif(on_time_count, total_orders)</code>. Import them in a separate script and compute both metrics for sample data.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://docs.python.org/3/tutorial/controlflow.html#defining-functions" target="_blank">Python Tutorial: Defining Functions</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://docs.python.org/3/tutorial/modules.html" target="_blank">Python Tutorial: Modules</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://realpython.com/python-lambda/" target="_blank">Real Python: Lambda Functions</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 3 Takeaways</h3>
+    <ul>
+        <li>Functions encapsulate reusable logic; always include a docstring describing what the function does.</li>
+        <li>Default arguments and **kwargs make functions flexible; lambda provides shorthand for simple one-liners.</li>
+        <li>Use <code>import module</code> or <code>from module import func</code> to access standard-library and third-party code.</li>
+        <li>Any .py file is a module; organize your analytics helpers into separate files as your project grows.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch2.html">&larr; Chapter 2: Data Types</a>
+    <a href="ch4.html">Chapter 4: NumPy &rarr;</a>
+</div>
+
+</body>
+</html>

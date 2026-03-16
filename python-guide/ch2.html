@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 2: Data Types &amp; Control Flow | Python Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1 { color: #1e3a5f; }
+        h2 { border-bottom: 2px solid #bfdbfe; }
+        .book-nav a.current { background: #3776AB; }
+        .exercise { border-color: #3776AB; background: #eff6ff; }
+        .exercise h4 { background: #3776AB; color: #fff; }
+        .takeaway { background: linear-gradient(135deg, #1e3a5f, #3776AB); }
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html" class="current">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 2: Data Types &amp; Control Flow</h1>
+<p class="subtitle">Variables, Collections, Loops, and Conditionals</p>
+
+<h2>2.1 Numeric Types: int and float</h2>
+<p>Python distinguishes integers (whole numbers) from floating-point numbers (decimals). Arithmetic follows standard precedence, and division with <code>/</code> always returns a float.</p>
+
+<pre class="python">units   = <span class="nb">500</span>          <span class="cm"># int</span>
+price   = <span class="nb">24.99</span>        <span class="cm"># float</span>
+revenue = units * price  <span class="cm"># 12495.0 (float)</span>
+
+<span class="cm"># Integer division and modulo</span>
+boxes   = units // <span class="nb">12</span>   <span class="cm"># 41 (floor division)</span>
+leftover = units % <span class="nb">12</span>   <span class="cm"># 8  (remainder)</span>
+
+<span class="fn">print</span>(<span class="st">f"</span>{boxes}<span class="st"> full boxes, </span>{leftover}<span class="st"> loose units"</span>)</pre>
+
+<h2>2.2 Strings</h2>
+<p>Strings are sequences of characters. They support indexing, slicing, and a rich set of methods for cleaning text data.</p>
+
+<pre class="python">sku = <span class="st">"  WDG-2024-A  "</span>
+
+<span class="cm"># Common string methods</span>
+<span class="fn">print</span>(sku.<span class="fn">strip</span>())        <span class="cm"># "WDG-2024-A"</span>
+<span class="fn">print</span>(sku.<span class="fn">strip</span>().<span class="fn">lower</span>()) <span class="cm"># "wdg-2024-a"</span>
+<span class="fn">print</span>(sku.<span class="fn">strip</span>().<span class="fn">split</span>(<span class="st">"-"</span>))  <span class="cm"># ['WDG', '2024', 'A']</span>
+
+<span class="cm"># Slicing: string[start:stop:step]</span>
+code = <span class="st">"ABCDEFGH"</span>
+<span class="fn">print</span>(code[<span class="nb">0</span>:<span class="nb">3</span>])   <span class="cm"># "ABC"</span>
+<span class="fn">print</span>(code[::<span class="nb">2</span>])    <span class="cm"># "ACEG"</span></pre>
+
+<h2>2.3 Booleans</h2>
+<p>Boolean values (<code>True</code>/<code>False</code>) are the backbone of conditional logic. Comparison operators return booleans.</p>
+
+<pre class="python">on_time = <span class="nb">True</span>
+lead_time = <span class="nb">7</span>
+
+<span class="fn">print</span>(lead_time > <span class="nb">5</span>)           <span class="cm"># True</span>
+<span class="fn">print</span>(lead_time == <span class="nb">7</span> <span class="kw">and</span> on_time) <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="kw">not</span> on_time)              <span class="cm"># False</span></pre>
+
+<h2>2.4 Lists</h2>
+<p>Lists are ordered, mutable collections. They are the workhorse data structure for storing sequences of items.</p>
+
+<pre class="python"><span class="cm"># Create and modify lists</span>
+warehouses = [<span class="st">"Newark"</span>, <span class="st">"Chicago"</span>, <span class="st">"Dallas"</span>]
+warehouses.<span class="fn">append</span>(<span class="st">"Seattle"</span>)
+warehouses.<span class="fn">insert</span>(<span class="nb">1</span>, <span class="st">"Atlanta"</span>)
+
+<span class="fn">print</span>(warehouses)        <span class="cm"># ['Newark', 'Atlanta', 'Chicago', 'Dallas', 'Seattle']</span>
+<span class="fn">print</span>(<span class="fn">len</span>(warehouses))   <span class="cm"># 5</span>
+<span class="fn">print</span>(warehouses[<span class="nb">-1</span>])    <span class="cm"># "Seattle" (last element)</span>
+
+<span class="cm"># Slicing returns a new list</span>
+first_three = warehouses[:<span class="nb">3</span>]
+<span class="fn">print</span>(first_three)       <span class="cm"># ['Newark', 'Atlanta', 'Chicago']</span></pre>
+
+<h2>2.5 Dictionaries</h2>
+<p>Dictionaries store key-value pairs. They are ideal for lookup tables, configuration settings, and mapping IDs to records.</p>
+
+<pre class="python"><span class="cm"># Product catalog as a dictionary</span>
+product = {
+    <span class="st">"sku"</span>:    <span class="st">"WDG-2024"</span>,
+    <span class="st">"name"</span>:   <span class="st">"Widget A"</span>,
+    <span class="st">"price"</span>:  <span class="nb">29.99</span>,
+    <span class="st">"stock"</span>:  <span class="nb">1250</span>
+}
+
+<span class="cm"># Access and update</span>
+<span class="fn">print</span>(product[<span class="st">"name"</span>])          <span class="cm"># "Widget A"</span>
+product[<span class="st">"stock"</span>] -= <span class="nb">100</span>        <span class="cm"># Sell 100 units</span>
+product[<span class="st">"category"</span>] = <span class="st">"Hardware"</span>  <span class="cm"># Add new key</span>
+
+<span class="cm"># Safe access with .get()</span>
+weight = product.<span class="fn">get</span>(<span class="st">"weight"</span>, <span class="st">"N/A"</span>)  <span class="cm"># "N/A" (key missing)</span></pre>
+
+<h2>2.6 Tuples</h2>
+<p>Tuples are immutable sequences. Use them for fixed collections like coordinates, database records, or function return values.</p>
+
+<pre class="python"><span class="cm"># Warehouse coordinates (lat, lon)</span>
+location = (<span class="nb">40.7128</span>, <span class="nb">-74.0060</span>)
+lat, lon = location  <span class="cm"># Tuple unpacking</span>
+<span class="fn">print</span>(<span class="st">f"Latitude: </span>{lat}<span class="st">, Longitude: </span>{lon}<span class="st">"</span>)</pre>
+
+<h2>2.7 Conditionals: if / elif / else</h2>
+
+<pre class="python">service_level = <span class="nb">0.92</span>
+
+<span class="kw">if</span> service_level >= <span class="nb">0.95</span>:
+    rating = <span class="st">"Excellent"</span>
+<span class="kw">elif</span> service_level >= <span class="nb">0.90</span>:
+    rating = <span class="st">"Good"</span>
+<span class="kw">elif</span> service_level >= <span class="nb">0.80</span>:
+    rating = <span class="st">"Acceptable"</span>
+<span class="kw">else</span>:
+    rating = <span class="st">"Below Standard"</span>
+
+<span class="fn">print</span>(<span class="st">f"Service level </span>{service_level:.0%}<span class="st"> — Rating: </span>{rating}<span class="st">"</span>)</pre>
+
+<h2>2.8 Loops</h2>
+<p>Use <code>for</code> to iterate over a known collection and <code>while</code> when you need to loop until a condition changes.</p>
+
+<pre class="python"><span class="cm"># For loop with enumerate</span>
+products = [<span class="st">"Widget"</span>, <span class="st">"Gadget"</span>, <span class="st">"Bracket"</span>]
+<span class="kw">for</span> i, name <span class="kw">in</span> <span class="fn">enumerate</span>(products, start=<span class="nb">1</span>):
+    <span class="fn">print</span>(<span class="st">f"</span>{i}<span class="st">. </span>{name}<span class="st">"</span>)
+
+<span class="cm"># While loop: reorder point check</span>
+inventory = <span class="nb">200</span>
+daily_demand = <span class="nb">15</span>
+day = <span class="nb">0</span>
+<span class="kw">while</span> inventory > <span class="nb">50</span>:
+    inventory -= daily_demand
+    day += <span class="nb">1</span>
+<span class="fn">print</span>(<span class="st">f"Reorder needed on day </span>{day}<span class="st"> (stock: </span>{inventory}<span class="st">)"</span>)</pre>
+
+<h2>2.9 List Comprehensions</h2>
+<p>A concise way to create lists by combining a loop and an optional condition in a single line.</p>
+
+<pre class="python">prices = [<span class="nb">12.5</span>, <span class="nb">8.0</span>, <span class="nb">25.0</span>, <span class="nb">3.5</span>, <span class="nb">19.99</span>, <span class="nb">45.0</span>]
+
+<span class="cm"># Filter and transform</span>
+premium = [p <span class="kw">for</span> p <span class="kw">in</span> prices <span class="kw">if</span> p > <span class="nb">15</span>]
+<span class="fn">print</span>(premium)  <span class="cm"># [25.0, 19.99, 45.0]</span>
+
+<span class="cm"># Apply 10% discount</span>
+discounted = [p * <span class="nb">0.9</span> <span class="kw">for</span> p <span class="kw">in</span> prices]
+<span class="fn">print</span>(discounted)</pre>
+
+<div class="exercise">
+    <h4>Exercise 2.1</h4>
+    <p>Given the dictionary <code>inventory = {"A": 120, "B": 45, "C": 200, "D": 30, "E": 95}</code>, write a loop that prints each SKU that has stock below 50 units. Then rewrite it as a list comprehension that returns the SKU names.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 2.2</h4>
+    <p>Create a list of monthly sales figures for 12 months. Use a for loop to compute the running cumulative total and store each month's cumulative value in a new list. Print both lists side by side.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://docs.python.org/3/library/stdtypes.html" target="_blank">Python Built-in Types</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://docs.python.org/3/tutorial/controlflow.html" target="_blank">Python Control Flow Tutorial</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://realpython.com/list-comprehension-python/" target="_blank">Real Python: List Comprehensions</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 2 Takeaways</h3>
+    <ul>
+        <li>Python has five core data types for analytics: int, float, str, bool, and NoneType.</li>
+        <li>Lists are mutable ordered sequences; dictionaries map keys to values; tuples are immutable.</li>
+        <li>if/elif/else controls branching logic; for loops iterate over collections; while loops run until a condition fails.</li>
+        <li>List comprehensions provide a compact, readable alternative to simple for-loop-plus-append patterns.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch1.html">&larr; Chapter 1: Getting Started</a>
+    <a href="ch3.html">Chapter 3: Functions &rarr;</a>
+</div>
+
+</body>
+</html>

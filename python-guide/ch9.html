@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 9: APIs &amp; Web Data | Python Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1 { color: #1e3a5f; }
+        h2 { border-bottom: 2px solid #bfdbfe; }
+        .book-nav a.current { background: #3776AB; }
+        .exercise { border-color: #3776AB; background: #eff6ff; }
+        .exercise h4 { background: #3776AB; color: #fff; }
+        .takeaway { background: linear-gradient(135deg, #1e3a5f, #3776AB); }
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html" class="current">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 9: Working with APIs &amp; Web Data</h1>
+<p class="subtitle">requests, JSON, and BeautifulSoup</p>
+
+<h2>9.1 What is an API?</h2>
+<p>An API (Application Programming Interface) lets your Python code communicate with external services over the internet. Most modern APIs follow the REST architecture: you send an HTTP request (usually GET or POST) and receive structured data back, typically in JSON format.</p>
+
+<div class="concept info">
+    <strong>Why this matters for analytics:</strong> Many valuable datasets are accessible through APIs: weather data, financial markets, government statistics, social media metrics, and logistics tracking. Learning to pull data from APIs is a core data engineering skill.
+</div>
+
+<h2>9.2 The requests Library</h2>
+
+<pre class="python"><span class="kw">import</span> requests
+
+<span class="cm"># GET request to a public API</span>
+url = <span class="st">"https://api.exchangerate-api.com/v4/latest/USD"</span>
+response = requests.<span class="fn">get</span>(url)
+
+<span class="fn">print</span>(<span class="st">f"Status code: </span>{response.status_code}<span class="st">"</span>)  <span class="cm"># 200 = success</span>
+<span class="fn">print</span>(<span class="st">f"Content type: </span>{response.headers[<span class="st">'Content-Type'</span>]}<span class="st">"</span>)</pre>
+
+<h2>9.3 Parsing JSON Responses</h2>
+
+<pre class="python"><span class="cm"># Convert JSON response to a Python dictionary</span>
+data = response.<span class="fn">json</span>()
+
+<span class="fn">print</span>(<span class="st">f"Base currency: </span>{data[<span class="st">'base'</span>]}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"EUR rate:      </span>{data[<span class="st">'rates'</span>][<span class="st">'EUR'</span>]}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"GBP rate:      </span>{data[<span class="st">'rates'</span>][<span class="st">'GBP'</span>]}<span class="st">"</span>)
+
+<span class="cm"># Convert rates to a DataFrame</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+rates_df = pd.<span class="fn">DataFrame</span>(
+    <span class="fn">list</span>(data[<span class="st">"rates"</span>].<span class="fn">items</span>()),
+    columns=[<span class="st">"Currency"</span>, <span class="st">"Rate"</span>]
+)
+<span class="fn">print</span>(rates_df.<span class="fn">head</span>(<span class="nb">10</span>))</pre>
+
+<h2>9.4 API Parameters and Headers</h2>
+
+<pre class="python"><span class="cm"># Many APIs accept query parameters</span>
+url = <span class="st">"https://jsonplaceholder.typicode.com/posts"</span>
+params = {<span class="st">"userId"</span>: <span class="nb">1</span>}
+response = requests.<span class="fn">get</span>(url, params=params)
+
+posts = response.<span class="fn">json</span>()
+<span class="fn">print</span>(<span class="st">f"Found </span>{<span class="fn">len</span>(posts)}<span class="st"> posts by user 1"</span>)
+<span class="kw">for</span> post <span class="kw">in</span> posts[:<span class="nb">3</span>]:
+    <span class="fn">print</span>(<span class="st">f"  - </span>{post[<span class="st">'title'</span>]}<span class="st">"</span>)
+
+<span class="cm"># APIs that require authentication use headers</span>
+headers = {
+    <span class="st">"Authorization"</span>: <span class="st">"Bearer YOUR_API_KEY"</span>,
+    <span class="st">"Content-Type"</span>:  <span class="st">"application/json"</span>
+}
+<span class="cm"># response = requests.get(url, headers=headers)</span></pre>
+
+<div class="concept warn">
+    <strong>Rate limits:</strong> Most APIs limit how many requests you can make per minute or per day. Always check the API documentation and add a delay between requests using <code>time.sleep()</code> when making many calls.
+</div>
+
+<h2>9.5 POST Requests</h2>
+
+<pre class="python"><span class="kw">import</span> json
+
+<span class="cm"># Sending data to an API</span>
+url = <span class="st">"https://jsonplaceholder.typicode.com/posts"</span>
+new_post = {
+    <span class="st">"title"</span>:  <span class="st">"Supply Chain Optimization"</span>,
+    <span class="st">"body"</span>:   <span class="st">"Using Python for demand forecasting..."</span>,
+    <span class="st">"userId"</span>: <span class="nb">1</span>
+}
+
+response = requests.<span class="fn">post</span>(url, json=new_post)
+<span class="fn">print</span>(<span class="st">f"Status: </span>{response.status_code}<span class="st">"</span>)  <span class="cm"># 201 = created</span>
+<span class="fn">print</span>(response.<span class="fn">json</span>())</pre>
+
+<h2>9.6 Reading HTML Tables with pandas</h2>
+
+<pre class="python"><span class="cm"># pandas can scrape HTML tables directly</span>
+url = <span class="st">"https://en.wikipedia.org/wiki/List_of_largest_companies_by_revenue"</span>
+tables = pd.<span class="fn">read_html</span>(url)
+
+<span class="fn">print</span>(<span class="st">f"Found </span>{<span class="fn">len</span>(tables)}<span class="st"> tables on the page"</span>)
+df = tables[<span class="nb">0</span>]  <span class="cm"># First table</span>
+<span class="fn">print</span>(df.<span class="fn">head</span>())</pre>
+
+<h2>9.7 Web Scraping with BeautifulSoup</h2>
+<p>When data is embedded in HTML (not in a table or API), BeautifulSoup lets you parse and extract it.</p>
+
+<pre class="python"><span class="kw">from</span> bs4 <span class="kw">import</span> BeautifulSoup
+
+<span class="cm"># Fetch and parse a webpage</span>
+url = <span class="st">"https://quotes.toscrape.com/"</span>
+response = requests.<span class="fn">get</span>(url)
+soup = <span class="fn">BeautifulSoup</span>(response.text, <span class="st">"html.parser"</span>)
+
+<span class="cm"># Extract all quotes</span>
+quotes = soup.<span class="fn">find_all</span>(<span class="st">"span"</span>, class_=<span class="st">"text"</span>)
+authors = soup.<span class="fn">find_all</span>(<span class="st">"small"</span>, class_=<span class="st">"author"</span>)
+
+<span class="kw">for</span> q, a <span class="kw">in</span> <span class="fn">zip</span>(quotes[:<span class="nb">5</span>], authors[:<span class="nb">5</span>]):
+    <span class="fn">print</span>(<span class="st">f"</span>{a.<span class="fn">get_text</span>()}<span class="st">: </span>{q.<span class="fn">get_text</span>()[:<span class="nb">60</span>]}<span class="st">..."</span>)</pre>
+
+<h2>9.8 Error Handling</h2>
+
+<pre class="python"><span class="kw">def</span> <span class="fn">safe_api_call</span>(url, params=<span class="nb">None</span>):
+    <span class="st">"""Make an API call with error handling."""</span>
+    <span class="kw">try</span>:
+        response = requests.<span class="fn">get</span>(url, params=params, timeout=<span class="nb">10</span>)
+        response.<span class="fn">raise_for_status</span>()  <span class="cm"># Raises exception for 4xx/5xx</span>
+        <span class="kw">return</span> response.<span class="fn">json</span>()
+    <span class="kw">except</span> requests.exceptions.Timeout:
+        <span class="fn">print</span>(<span class="st">"Request timed out."</span>)
+    <span class="kw">except</span> requests.exceptions.HTTPError <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="st">f"HTTP error: </span>{e}<span class="st">"</span>)
+    <span class="kw">except</span> requests.exceptions.RequestException <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="st">f"Request failed: </span>{e}<span class="st">"</span>)
+    <span class="kw">return</span> <span class="nb">None</span>
+
+data = <span class="fn">safe_api_call</span>(<span class="st">"https://api.exchangerate-api.com/v4/latest/USD"</span>)
+<span class="kw">if</span> data:
+    <span class="fn">print</span>(<span class="st">f"Success: </span>{<span class="fn">len</span>(data[<span class="st">'rates'</span>])}<span class="st"> currencies"</span>)</pre>
+
+<div class="exercise">
+    <h4>Exercise 9.1</h4>
+    <p>Use the JSONPlaceholder API (<code>https://jsonplaceholder.typicode.com/users</code>) to fetch all users. Convert the response to a pandas DataFrame and extract the columns: name, email, and company name. Sort by company name.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 9.2</h4>
+    <p>Use <code>pd.read_html()</code> to scrape a table from a Wikipedia page of your choice. Clean the column names (strip whitespace, lowercase), drop any rows with all NaN values, and export the result to a CSV file.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://docs.python-requests.org/en/latest/" target="_blank">requests Documentation</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/" target="_blank">BeautifulSoup Documentation</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://realpython.com/python-api/" target="_blank">Real Python: API Integration Guide</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 9 Takeaways</h3>
+    <ul>
+        <li>The requests library handles HTTP communication; <code>.json()</code> converts API responses to Python dictionaries.</li>
+        <li>Always check status codes (200 = success) and handle errors gracefully with try/except.</li>
+        <li><code>pd.read_html()</code> is the fastest way to grab tables from web pages without writing scraping code.</li>
+        <li>BeautifulSoup provides fine-grained HTML parsing when data is not in a clean table format.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch8.html">&larr; Chapter 8: Machine Learning</a>
+    <a href="ch10.html">Chapter 10: Capstone Project &rarr;</a>
+</div>
+
+</body>
+</html>
