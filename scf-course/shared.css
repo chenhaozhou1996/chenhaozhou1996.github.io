@@ -1,0 +1,479 @@
+/* ═══════════════════════════════════════════════════════════
+   SCF Course — Shared Design System
+   Overrides inline chapter styles for visual polish.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Design Tokens ─── */
+:root {
+  --scf-navy: #1a365d;
+  --scf-navy-light: #2b4c7e;
+  --scf-slate: #475569;
+  --scf-slate-light: #64748b;
+  --scf-slate-pale: #94a3b8;
+  --scf-border: #e2e8f0;
+  --scf-bg: #ffffff;
+  --scf-bg-alt: #f8fafc;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.04);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Global Smoothing ─── */
+* { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body { text-rendering: optimizeLegibility; }
+
+/* ─── Enhanced Topnav ─── */
+.topnav {
+  background: rgba(255,255,255,0.92) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+}
+.topnav-brand { transition: opacity 0.2s; }
+.topnav-brand:hover { opacity: 0.8; }
+.topnav-links a {
+  transition: all 0.15s var(--ease-out) !important;
+  border-radius: 8px !important;
+}
+.topnav-links a:hover {
+  background: rgba(26,54,93,0.06) !important;
+  transform: translateY(-1px);
+}
+
+/* ─── Course Nav Polish ─── */
+.course-nav {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
+  border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+  padding: 12px 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  flex-wrap: wrap !important;
+}
+.course-nav a {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 6px 14px !important;
+  border-radius: 20px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s var(--ease-out) !important;
+  border: 1.5px solid transparent !important;
+  text-decoration: none !important;
+  color: var(--scf-slate) !important;
+}
+.course-nav a:hover {
+  background: rgba(26,54,93,0.06) !important;
+  color: var(--scf-navy) !important;
+  transform: translateY(-1px) !important;
+  text-decoration: none !important;
+}
+.course-nav a.current {
+  background: var(--scf-navy) !important;
+  color: #fff !important;
+  border-color: var(--scf-navy) !important;
+  box-shadow: 0 2px 8px rgba(26,54,93,0.25) !important;
+  padding-bottom: 6px !important;
+  border-bottom: 1.5px solid var(--scf-navy) !important;
+}
+
+/* ─── Typography Refinement ─── */
+h1 { letter-spacing: -0.02em !important; }
+h2 {
+  letter-spacing: -0.01em !important;
+  position: relative !important;
+}
+h3 { letter-spacing: -0.005em !important; }
+
+/* ─── Key Concept Boxes ─── */
+.key-concept, [class*="key-concept"] {
+  position: relative !important;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
+  box-shadow: var(--shadow-xs) !important;
+  transition: box-shadow 0.2s, transform 0.2s !important;
+}
+.key-concept:hover {
+  box-shadow: var(--shadow-sm) !important;
+  transform: translateX(2px) !important;
+}
+
+/* ─── Formula Boxes ─── */
+.formula-box {
+  position: relative !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-xs) !important;
+  font-family: 'Georgia', 'Times New Roman', serif !important;
+  letter-spacing: 0.01em !important;
+  padding: 24px 28px !important;
+  transition: box-shadow 0.2s !important;
+}
+.formula-box:hover {
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* ─── Example Boxes ─── */
+.example-box {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
+  box-shadow: var(--shadow-xs) !important;
+}
+
+/* ─── Exercise Boxes ─── */
+.exercise-box {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
+  box-shadow: var(--shadow-xs) !important;
+  transition: all 0.2s !important;
+}
+.exercise-box:hover {
+  box-shadow: var(--shadow-sm) !important;
+  transform: translateX(2px) !important;
+}
+.exercise-box h4 {
+  border-radius: 6px !important;
+  font-size: 13px !important;
+}
+
+/* ─── Tables ─── */
+table {
+  border-radius: var(--radius-md) !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-xs) !important;
+}
+th {
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+tr { transition: background 0.15s !important; }
+tbody tr:hover { background: rgba(26,54,93,0.03) !important; }
+
+/* ─── Slider System ─── */
+input[type="range"] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 100% !important;
+  height: 6px !important;
+  border-radius: 3px !important;
+  background: linear-gradient(to right, #e2e8f0, #cbd5e1) !important;
+  outline: none !important;
+  cursor: pointer !important;
+  transition: background 0.2s !important;
+}
+input[type="range"]:hover {
+  background: linear-gradient(to right, #cbd5e1, #94a3b8) !important;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.06) !important;
+  cursor: grab !important;
+  transition: transform 0.15s var(--ease-spring), box-shadow 0.15s !important;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.08) !important;
+}
+input[type="range"]::-webkit-slider-thumb:active {
+  cursor: grabbing !important;
+  transform: scale(1.05) !important;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.06) !important;
+  cursor: grab !important;
+}
+input[type="range"]:focus-visible {
+  outline: 2px solid rgba(59,130,246,0.5) !important;
+  outline-offset: 4px !important;
+  border-radius: 3px !important;
+}
+
+/* ─── Interactive Sections ─── */
+.interactive-section,
+.bs-demo,
+.gbm-demo,
+.risk-demo,
+[class*="interactive"] {
+  box-shadow: var(--shadow-md) !important;
+  transition: box-shadow 0.3s var(--ease-out) !important;
+}
+.interactive-section:hover,
+.bs-demo:hover,
+.gbm-demo:hover,
+.risk-demo:hover {
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* ─── Result Cards ─── */
+.result-card,
+.bs-result-card,
+.bs-greek-card,
+.risk-result-card {
+  box-shadow: var(--shadow-xs) !important;
+  transition: all 0.2s var(--ease-out) !important;
+  border-radius: var(--radius-md) !important;
+}
+.result-card:hover,
+.bs-result-card:hover,
+.risk-result-card:hover {
+  box-shadow: var(--shadow-sm) !important;
+  transform: translateY(-2px) !important;
+}
+.result-card .value,
+.result-card .label,
+.bs-result-card .bs-value,
+.bs-result-card .bs-label,
+.risk-result-card .value {
+  transition: color 0.3s !important;
+}
+
+/* ─── Slider Labels ─── */
+.slider-group label,
+.bs-slider-row label,
+.gbm-slider-row label,
+.risk-slider-row label {
+  user-select: none !important;
+}
+.slider-group label span:last-child,
+.bs-slider-row .bs-val,
+.gbm-slider-row .gbm-val,
+.risk-slider-row .slider-val {
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" !important;
+  min-width: 3em !important;
+  text-align: right !important;
+}
+
+/* ─── Canvas Charts ─── */
+canvas {
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-xs) !important;
+  max-width: 100% !important;
+}
+
+/* ─── Buttons ─── */
+.gbm-btn,
+button {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: all 0.15s var(--ease-out) !important;
+  box-shadow: var(--shadow-sm) !important;
+  letter-spacing: 0.01em !important;
+}
+.gbm-btn:hover,
+button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+.gbm-btn:active,
+button:active {
+  transform: translateY(0) !important;
+  box-shadow: var(--shadow-xs) !important;
+}
+
+/* ─── Takeaway Boxes ─── */
+.takeaway {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+.takeaway::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -50% !important;
+  right: -20% !important;
+  width: 300px !important;
+  height: 300px !important;
+  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%) !important;
+  pointer-events: none !important;
+}
+
+/* ─── Flow Diagrams ─── */
+.flow-diagram {
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-xs) !important;
+  line-height: 1.8 !important;
+}
+
+/* ─── Warning Boxes ─── */
+.warning-box {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
+  box-shadow: var(--shadow-xs) !important;
+}
+
+/* ─── Case Study Boxes ─── */
+.case-study {
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* ─── Comparison / Platform Grids ─── */
+.comparison-grid > *,
+.platform-grid > *,
+.comp-card,
+.platform-card,
+.payoff-card {
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-xs) !important;
+  transition: all 0.2s var(--ease-out) !important;
+}
+.comp-card:hover,
+.platform-card:hover,
+.payoff-card:hover {
+  box-shadow: var(--shadow-sm) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ─── Risk Bar Chart ─── */
+.risk-bar-fill {
+  transition: width 0.4s var(--ease-out) !important;
+  border-radius: 4px !important;
+}
+
+/* ─── Parity Box ─── */
+.bs-parity-box {
+  border-radius: var(--radius-md) !important;
+}
+
+/* ─── Smooth Scroll ─── */
+html { scroll-behavior: smooth; }
+
+/* ─── Selection Color ─── */
+::selection {
+  background: rgba(26,54,93,0.15);
+  color: inherit;
+}
+
+/* ─── Print ─── */
+@media print {
+  .topnav, .course-nav { display: none !important; }
+  .interactive-section, .bs-demo, .gbm-demo, .risk-demo { break-inside: avoid; }
+  body { font-size: 12px !important; }
+  .takeaway { box-shadow: none !important; border: 2px solid #1a365d !important; }
+}
+
+/* ─── Mobile Responsive ─── */
+@media (max-width: 768px) {
+  body { padding: 1rem !important; font-size: 14px !important; }
+
+  h1 { font-size: clamp(22px, 5vw, 28px) !important; }
+  h2 { font-size: clamp(17px, 4vw, 20px) !important; }
+  h3 { font-size: 15px !important; }
+
+  .topnav {
+    padding: 0 12px !important;
+    margin: 0 -1rem !important;
+    width: calc(100% + 2rem) !important;
+  }
+  .topnav-inner { height: 48px !important; }
+  .topnav-brand { font-size: 13px !important; }
+  .topnav-brand img { width: 26px !important; height: 26px !important; }
+  .topnav-links a { padding: 4px 8px !important; font-size: 11px !important; }
+
+  .course-nav {
+    margin: 0 -1rem 1em !important;
+    padding: 8px 8px !important;
+    top: 48px !important;
+    gap: 3px !important;
+  }
+  .course-nav a {
+    padding: 4px 10px !important;
+    font-size: 11px !important;
+  }
+
+  .result-grid,
+  .bs-result-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .bs-greeks-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .comparison-grid,
+  .platform-grid,
+  .payoff-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .formula-box {
+    font-size: 14px !important;
+    padding: 16px !important;
+    overflow-x: auto !important;
+  }
+
+  .slider-group label,
+  .bs-slider-row,
+  .gbm-slider-row,
+  .risk-slider-row {
+    flex-wrap: wrap !important;
+  }
+  .bs-slider-row label,
+  .gbm-slider-row label,
+  .risk-slider-row label {
+    width: 100% !important;
+    margin-bottom: 4px !important;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  table { font-size: 12px !important; }
+  th, td { padding: 8px 10px !important; }
+
+  .radio-group {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .result-grid,
+  .bs-result-grid,
+  .risk-result-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .bs-greeks-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* ─── Fade-In Animation ─── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.interactive-section,
+.bs-demo,
+.gbm-demo,
+.risk-demo,
+.takeaway {
+  animation: fadeInUp 0.5s var(--ease-out) both !important;
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
