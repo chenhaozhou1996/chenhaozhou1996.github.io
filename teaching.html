@@ -70,7 +70,7 @@
     }
 
     /* Featured courses */
-    .featured-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .featured-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
     .fc {
       display: block; text-decoration: none; color: #fff;
       padding: 28px; border-radius: 10px;
@@ -79,6 +79,7 @@
     .fc:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); text-decoration: none; color: #fff; }
     .fc-1 { background: linear-gradient(135deg, #1a365d, #2b4c7e); }
     .fc-2 { background: linear-gradient(135deg, #1a6b5a, #2a8a7a); }
+    .fc-3 { background: linear-gradient(135deg, #78350f, #b45309); }
     .fc .fc-badge {
       display: inline-block; padding: 3px 10px; border-radius: 4px;
       font-size: 10px; font-weight: 700; text-transform: uppercase;
@@ -247,6 +248,13 @@
           <h3>ML Frameworks &amp; Applied Analytics</h3>
           <div class="fc-desc">Building scalable ML systems from architecture to deployment. Covers pipeline engineering, MLOps, model serving, and production-ready frameworks.</div>
           <div class="fc-stats">4 Core Frameworks · Pipeline Engineering · MLOps</div>
+          <span class="fc-cta">Launch Course →</span>
+        </a>
+        <a href="scf-course/index.html" class="fc fc-3">
+          <div class="fc-badge">Full Course</div>
+          <h3>Supply Chain Finance</h3>
+          <div class="fc-desc">From working capital fundamentals to stochastic pricing models. Trade credit, inventory finance, futures hedging, FinTech platforms, and Black-Scholes derivations.</div>
+          <div class="fc-stats">6 Chapters · Senior UG / Master · Applied + Quantitative</div>
           <span class="fc-cta">Launch Course →</span>
         </a>
       </div>

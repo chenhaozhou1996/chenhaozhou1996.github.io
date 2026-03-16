@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4: Futures &amp; Hedging</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        .topnav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;padding:0 48px;margin:0 -2rem;width:calc(100% + 4rem)}.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}.topnav-brand{font-weight:700;font-size:15px;color:#0f2442;display:flex;align-items:center;gap:10px;text-decoration:none!important}.topnav-brand:hover{text-decoration:none!important}.topnav-brand img{width:32px;height:32px;border-radius:50%;object-fit:cover}.topnav-links{display:flex;gap:4px}.topnav-links a{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;color:#475569;text-decoration:none!important}.topnav-links a:hover{background:#f8fafc;color:#1a365d}.topnav-links a.active{background:#f8fafc;color:#1a365d;font-weight:600}
+        .course-nav{background:#f8fafc;padding:10px 0;text-align:center;border-bottom:1px solid #e2e8f0;margin:0 -2rem 1.5em;padding-left:2rem;padding-right:2rem;position:sticky;top:56px;z-index:100}.course-nav a{margin:0 8px;color:#1a365d;font-weight:600;font-size:13px;text-decoration:none}.course-nav a:hover{color:#92400e;text-decoration:underline}.course-nav a.current{color:#92400e;border-bottom:2px solid #92400e;padding-bottom:2px}
+
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',-apple-system,sans-serif;max-width:900px;margin:0 auto;padding:2rem;background:#fff;color:#1e293b;line-height:1.7;font-size:15px;-webkit-font-smoothing:antialiased}
+        h1{font-size:clamp(24px,3.5vw,32px);font-weight:800;color:#1e3a5f;margin-bottom:8px;line-height:1.2}
+        .subtitle{font-size:16px;color:#2563eb;font-weight:500;margin-bottom:32px}
+        h2{font-size:20px;font-weight:700;color:#1a365d;margin:40px 0 16px;padding-bottom:8px;border-bottom:2px solid #bfdbfe}
+        h3{font-size:16px;font-weight:700;color:#475569;margin:24px 0 10px}
+        p{margin-bottom:14px;color:#334155}
+        ul,ol{margin:0 0 16px 20px;color:#334155}
+        li{margin-bottom:6px}
+        strong{color:#1e293b}
+
+        .key-concept{background:#eff6ff;border-left:4px solid #3b82f6;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .key-concept strong{color:#1e40af}
+        .formula-box{background:#f1f5f9;border:1px solid #e2e8f0;padding:20px;border-radius:8px;margin:20px 0;text-align:center;font-size:16px;font-weight:600;color:#1e293b}
+        .example-box{background:#f0fdf4;border-left:4px solid #22c55e;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .example-box strong{color:#166534}
+        .warning-box{background:#fef2f2;border-left:4px solid #ef4444;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .warning-box strong{color:#991b1b}
+        .table-wrapper{overflow-x:auto;margin:20px 0}
+        table{width:100%;border-collapse:collapse;font-size:13px}
+        th{background:#f8fafc;color:#1a365d;font-weight:700;text-align:left;padding:10px 14px;border-bottom:2px solid #e2e8f0}
+        td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#334155}
+        .payoff-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+        .payoff-card{padding:18px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;background:#f8fafc}
+        .payoff-card h4{font-size:14px;font-weight:700;color:#1e40af;margin-bottom:8px}
+        .takeaway{background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;padding:24px;border-radius:10px;margin:40px 0}
+        .takeaway h3{color:#bfdbfe;margin-top:0}
+        .takeaway ul{color:#dbeafe}
+
+        @media(max-width:640px){body{padding:1rem}.topnav{padding:0 16px;margin:0 -1rem;width:calc(100% + 2rem)}.course-nav{margin:0 -1rem 1em}.payoff-grid{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+<div class="course-nav">
+    <a href="index.html">🏠 Course Home</a>
+    <a href="chapter1_foundations.html">Ch 1</a>
+    <a href="chapter2_trade_credit.html">Ch 2</a>
+    <a href="chapter3_inventory_finance.html">Ch 3</a>
+    <a href="chapter4_futures_hedging.html" class="current">Ch 4</a>
+    <a href="chapter5_fintech_blockchain.html">Ch 5</a>
+    <a href="chapter6_quantitative_models.html">Ch 6</a>
+</div>
+
+<h1>Chapter 4: Futures &amp; Hedging</h1>
+<p class="subtitle">Forwards, Futures, Options, and Managing Price Risk in Supply Chains</p>
+
+<!-- ============================================ -->
+<h2>4.1 Forward Contracts</h2>
+
+<p>A forward contract is a private agreement between two parties to buy or sell an asset at a specified future date for a price agreed upon today. Forwards are the simplest derivative instruments and form the conceptual foundation for all hedging in supply chains.</p>
+
+<h3>Key Features</h3>
+<ul>
+    <li><strong>Customizable:</strong> Quantity, quality, delivery date, and location are negotiated bilaterally.</li>
+    <li><strong>No upfront cost:</strong> The forward price is set so that the contract has zero initial value (no premium).</li>
+    <li><strong>Counterparty risk:</strong> Since forwards trade over-the-counter (OTC), each party bears the risk that the other may default.</li>
+    <li><strong>Settlement at expiry:</strong> Profit or loss is realized at maturity, not before.</li>
+</ul>
+
+<div class="formula-box">
+    Forward Price (cost-of-carry model): &nbsp; F<sub>0</sub> = S<sub>0</sub> &times; e<sup>(r &minus; y) &times; T</sup>
+</div>
+
+<p>Where S<sub>0</sub> is the spot price, r is the risk-free rate, y is the convenience yield (benefit of holding the physical commodity), and T is time to maturity in years.</p>
+
+<div class="key-concept">
+    <strong>Convenience Yield:</strong> Physical commodities provide a "convenience yield" that financial assets do not. Holding crude oil in a refinery allows you to keep producing even if supply is disrupted. This yield reduces the forward price below the pure cost-of-carry level. When inventories are tight, convenience yields spike, and futures can trade below spot (backwardation).
+</div>
+
+<!-- ============================================ -->
+<h2>4.2 Futures Contracts</h2>
+
+<p>Futures contracts are standardized, exchange-traded versions of forwards. Standardization enables liquidity, and the exchange clearinghouse eliminates counterparty risk through daily margining.</p>
+
+<h3>Forwards vs. Futures</h3>
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Feature</th><th>Forward</th><th>Futures</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Trading venue</td><td>OTC (bilateral)</td><td>Exchange (CME, ICE, LME)</td></tr>
+        <tr><td>Standardization</td><td>Fully customizable</td><td>Standardized (size, delivery, dates)</td></tr>
+        <tr><td>Counterparty risk</td><td>Yes (credit risk)</td><td>Eliminated (clearinghouse guarantees)</td></tr>
+        <tr><td>Margin</td><td>None or negotiated</td><td>Daily mark-to-market; initial + maintenance margin</td></tr>
+        <tr><td>Liquidity</td><td>Low (must find counterparty)</td><td>High (active secondary market)</td></tr>
+        <tr><td>Settlement</td><td>Physical delivery typical</td><td>Cash settlement or physical</td></tr>
+    </tbody>
+</table>
+</div>
+
+<h3>The Margin System</h3>
+<p>When entering a futures position, the trader deposits an <strong>initial margin</strong> (typically 5-15% of contract value). Each day, the contract is marked to market: gains are credited and losses are debited. If the account falls below the <strong>maintenance margin</strong>, the trader receives a margin call and must deposit additional funds.</p>
+
+<div class="example-box">
+    <strong>Example:</strong> An airline buys 10 crude oil futures (1,000 barrels each) at $75/barrel. Contract value = 10 &times; 1,000 &times; $75 = $750,000. Initial margin = 10% = $75,000. Maintenance margin = $60,000.<br><br>
+    <strong>Day 1:</strong> Oil drops to $73. Loss = 10,000 &times; $2 = $20,000. Account = $55,000 (below $60,000). Margin call: deposit $20,000 to restore to $75,000.<br>
+    <strong>Day 2:</strong> Oil rises to $76. Gain = 10,000 &times; $3 = $30,000. Account = $105,000. No margin call; excess can be withdrawn.
+</div>
+
+<!-- ============================================ -->
+<h2>4.3 Hedging Strategies for Supply Chains</h2>
+
+<p>Supply chain managers use futures to lock in input costs or output prices, converting uncertain margins into predictable ones.</p>
+
+<h3>Long Hedge (Input Price Lock)</h3>
+<p>A firm that will <em>purchase</em> a commodity in the future buys futures today to lock in the purchase price.</p>
+
+<div class="example-box">
+    <strong>Example:</strong> A chocolate manufacturer needs 100 tons of cocoa in 3 months. Current spot = $3,200/ton. Worried about price increases, the firm buys cocoa futures at $3,250/ton.<br><br>
+    <strong>Scenario A (price rises to $3,500):</strong><br>
+    Physical purchase cost: 100 &times; $3,500 = $350,000<br>
+    Futures gain: 100 &times; ($3,500 &minus; $3,250) = $25,000<br>
+    <strong>Net cost: $325,000</strong> (effective price = $3,250/ton)<br><br>
+    <strong>Scenario B (price falls to $3,000):</strong><br>
+    Physical purchase cost: 100 &times; $3,000 = $300,000<br>
+    Futures loss: 100 &times; ($3,000 &minus; $3,250) = &minus;$25,000<br>
+    <strong>Net cost: $325,000</strong> (effective price = $3,250/ton)<br><br>
+    In both scenarios, the effective cost is locked at $3,250/ton.
+</div>
+
+<h3>Short Hedge (Output Price Lock)</h3>
+<p>A firm that will <em>sell</em> a commodity in the future sells futures today to lock in the selling price. Common for producers (farmers, miners, oil companies).</p>
+
+<!-- ============================================ -->
+<h2>4.4 Basis Risk</h2>
+
+<p>In practice, hedges are rarely perfect. <strong>Basis risk</strong> arises when the futures contract does not perfectly match the hedger's physical exposure. The basis is defined as:</p>
+
+<div class="formula-box">
+    Basis = Spot Price &minus; Futures Price
+</div>
+
+<p>Basis risk occurs because:</p>
+<ul>
+    <li><strong>Quality mismatch:</strong> The futures contract specifies a standard grade, but the physical product may differ (e.g., Brent crude futures vs. Nigerian Bonny Light).</li>
+    <li><strong>Location mismatch:</strong> The delivery point differs from where the firm operates (e.g., natural gas futures delivery in Louisiana vs. firm's plant in Ohio).</li>
+    <li><strong>Timing mismatch:</strong> The futures expiry does not align with the physical transaction date.</li>
+</ul>
+
+<div class="key-concept">
+    <strong>Cross-Hedging:</strong> When no futures contract exists for the exact commodity, firms use a correlated contract. A jet fuel consumer might hedge with crude oil or heating oil futures. The effectiveness depends on the historical correlation between the two prices. The <em>optimal hedge ratio</em> minimizes variance of the hedged position:
+</div>
+
+<div class="formula-box">
+    h* = &rho; &times; (&sigma;<sub>S</sub> / &sigma;<sub>F</sub>)
+</div>
+
+<p>Where &rho; is the correlation between spot and futures price changes, &sigma;<sub>S</sub> is the standard deviation of spot price changes, and &sigma;<sub>F</sub> is the standard deviation of futures price changes.</p>
+
+<div class="example-box">
+    <strong>Example:</strong> An airline hedges jet fuel with heating oil futures. Historical data shows &rho; = 0.92, &sigma;<sub>S</sub> = $0.035/gallon, &sigma;<sub>F</sub> = $0.040/gallon.<br><br>
+    h* = 0.92 &times; (0.035 / 0.040) = 0.805<br><br>
+    For every gallon of jet fuel exposure, the airline should hedge with 0.805 gallons of heating oil futures. A 1:1 hedge would over-hedge and increase variance.
+</div>
+
+<!-- ============================================ -->
+<h2>4.5 Introduction to Options</h2>
+
+<p>Options give the holder the <em>right but not the obligation</em> to buy or sell an asset at a predetermined price. Unlike forwards and futures, which lock in a price symmetrically, options provide asymmetric protection: they cap losses while preserving upside potential.</p>
+
+<h3>Option Types and Payoffs</h3>
+<div class="payoff-grid">
+    <div class="payoff-card">
+        <h4>Call Option (Right to Buy)</h4>
+        <p><strong>Buyer pays premium</strong> upfront for the right to purchase at strike price K.</p>
+        <p><strong>Payoff at expiry:</strong> max(S<sub>T</sub> &minus; K, 0)</p>
+        <p><strong>Use case:</strong> Buyer worried about price increases. Locks in maximum purchase price while benefiting if price falls.</p>
+    </div>
+    <div class="payoff-card">
+        <h4>Put Option (Right to Sell)</h4>
+        <p><strong>Buyer pays premium</strong> upfront for the right to sell at strike price K.</p>
+        <p><strong>Payoff at expiry:</strong> max(K &minus; S<sub>T</sub>, 0)</p>
+        <p><strong>Use case:</strong> Producer worried about price declines. Locks in minimum selling price while benefiting if price rises.</p>
+    </div>
+</div>
+
+<div class="example-box">
+    <strong>Collar Strategy for Supply Chains:</strong> A manufacturer buys a call option at $80/barrel (ceiling) and sells a put option at $60/barrel (floor) on crude oil. The premium received from selling the put offsets (partially or fully) the premium paid for the call. Result: the firm's effective cost is bounded between $60 and $80, regardless of market movements. This "zero-cost collar" is widely used in corporate hedging programs.
+</div>
+
+<h3>Options vs. Futures for Hedging</h3>
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Criterion</th><th>Futures</th><th>Options</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Upfront cost</td><td>None (margin deposit only)</td><td>Premium required</td></tr>
+        <tr><td>Protection</td><td>Symmetric (locks price exactly)</td><td>Asymmetric (caps loss, keeps upside)</td></tr>
+        <tr><td>When to use</td><td>High certainty of quantity and timing</td><td>Uncertain quantity or desire to keep upside</td></tr>
+        <tr><td>Margin calls</td><td>Yes (daily mark-to-market)</td><td>No (for buyer); yes (for writer)</td></tr>
+        <tr><td>Complexity</td><td>Lower</td><td>Higher (Greeks, volatility)</td></tr>
+    </tbody>
+</table>
+</div>
+
+<div class="warning-box">
+    <strong>Metallgesellschaft (1993):</strong> The German conglomerate hedged long-term fixed-price oil contracts with short-term (monthly) futures, rolling them forward. When oil prices fell, the futures positions generated massive margin calls ($1.3 billion in losses) even though the long-term contracts were profitable. The maturity mismatch between the hedge and the underlying exposure created a liquidity crisis that nearly bankrupted the firm. This case demonstrates that being "right" on direction is not enough if the hedge creates intermediate cash flow problems.
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 4 Takeaways</h3>
+    <ul>
+        <li>Forward contracts lock in prices bilaterally but carry counterparty risk. Futures solve this through standardization and daily margining.</li>
+        <li>Long hedges protect input buyers against price rises; short hedges protect sellers against price falls. Both lock in a known effective price.</li>
+        <li>Basis risk (quality, location, timing mismatches) means no hedge is perfect. The optimal hedge ratio accounts for correlation between spot and futures.</li>
+        <li>Options provide asymmetric protection (cap losses, keep upside) but require paying a premium. Collars combine puts and calls to create bounded cost ranges.</li>
+        <li>Hedging strategy must account for intermediate cash flows (margin calls), not just final payoffs. Maturity mismatches can create liquidity crises even when the directional bet is correct.</li>
+    </ul>
+</div>
+
+</body>
+</html>

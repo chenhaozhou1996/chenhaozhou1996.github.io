@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply Chain Finance | Chenhao Zhou</title>
+    <meta name="description" content="Supply Chain Finance course covering trade credit, inventory finance, futures hedging, and quantitative pricing models.">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        /* === GLOBAL TOPNAV === */
+        .topnav { position: sticky; top: 0; z-index: 2000; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; padding: 0 48px; }
+        .topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .topnav-brand { font-weight: 700; font-size: 15px; color: #0f2442; display: flex; align-items: center; gap: 10px; text-decoration: none !important; }
+        .topnav-brand:hover { text-decoration: none !important; color: #0f2442; }
+        .topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+        .topnav-links { display: flex; gap: 4px; }
+        .topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #475569; text-decoration: none !important; }
+        .topnav-links a:hover { background: #f8fafc; color: #1a365d; }
+        .topnav-links a.active { background: #f8fafc; color: #1a365d; font-weight: 600; }
+        @media (max-width: 640px) { .topnav { padding: 0 16px; } .topnav-links a { padding: 4px 8px; font-size: 12px; } }
+
+        /* === RESET === */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #ffffff; color: #1e293b; line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: #92400e; text-decoration: none; transition: color 0.15s; }
+        a:hover { color: #78350f; }
+
+        /* === HERO === */
+        .hero {
+            background: linear-gradient(135deg, #78350f 0%, #b45309 50%, #d97706 100%);
+            color: #fff; padding: 80px 20px 60px; text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: -50%; right: -20%; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+        }
+        .hero::after {
+            content: ''; position: absolute; bottom: -30%; left: -10%; width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        }
+        .hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+        .hero-badge {
+            display: inline-block; padding: 4px 14px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; background: rgba(255,255,255,0.2); margin-bottom: 16px;
+        }
+        .hero h1 { font-size: clamp(28px, 4vw, 42px); font-weight: 800; line-height: 1.15; margin-bottom: 12px; }
+        .hero p { font-size: clamp(14px, 1.8vw, 17px); opacity: 0.9; max-width: 600px; margin: 0 auto 24px; }
+        .hero-stats {
+            display: flex; justify-content: center; gap: 32px;
+            font-size: 13px; font-weight: 600; opacity: 0.85;
+        }
+        .hero-stats span { display: flex; align-items: center; gap: 6px; }
+
+        /* === MODULE GRID === */
+        .main-content { max-width: 1200px; margin: 0 auto; padding: 60px 20px 80px; }
+        .section-label {
+            font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: #92400e; margin-bottom: 24px;
+        }
+        .modules-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px; margin-bottom: 60px;
+        }
+        .module-card {
+            background: #fff; border-radius: 12px; overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+        }
+        .module-header {
+            padding: 24px 24px 16px; color: #fff;
+            background: linear-gradient(135deg, #78350f, #b45309);
+        }
+        .module-header.ch2 { background: linear-gradient(135deg, #7c2d12, #c2410c); }
+        .module-header.ch3 { background: linear-gradient(135deg, #065f46, #047857); }
+        .module-header.ch4 { background: linear-gradient(135deg, #1e3a5f, #2563eb); }
+        .module-header.ch5 { background: linear-gradient(135deg, #581c87, #7c3aed); }
+        .module-header.ch6 { background: linear-gradient(135deg, #1a365d, #475569); }
+        .module-number {
+            display: inline-block; padding: 2px 10px; border-radius: 4px;
+            font-size: 10px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.08em; background: rgba(255,255,255,0.2); margin-bottom: 8px;
+        }
+        .module-header h3 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+        .module-header p { font-size: 12px; opacity: 0.85; }
+
+        .module-body { padding: 20px 24px 24px; }
+        .module-description { font-size: 13px; color: #475569; line-height: 1.55; margin-bottom: 14px; }
+        .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+        .badge {
+            display: inline-block; padding: 3px 10px; border-radius: 4px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+        }
+        .badge-applied { background: #fef3c7; color: #92400e; }
+        .badge-theory { background: #fce7f3; color: #9d174d; }
+        .badge-quant { background: #dbeafe; color: #1e40af; }
+        .badge-case { background: #d1fae5; color: #065f46; }
+
+        .material-list { list-style: none; }
+        .material-list li { margin-bottom: 6px; }
+        .material-link {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 500;
+            color: #1e293b; background: #f8fafc;
+            transition: background 0.15s, color 0.15s;
+            text-decoration: none !important;
+        }
+        .material-link:hover { background: #fef3c7; color: #92400e; }
+        .material-icon { font-size: 16px; }
+
+        /* === RESOURCES === */
+        .resources-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .resource-card {
+            padding: 20px; border-radius: 10px; background: #fffbeb;
+            border: 1px solid #fde68a;
+        }
+        .resource-card h4 { font-size: 14px; font-weight: 700; color: #78350f; margin-bottom: 8px; }
+        .resource-card ul { list-style: none; }
+        .resource-card li { font-size: 13px; color: #475569; padding: 3px 0; }
+        .resource-card a { color: #92400e; font-weight: 500; }
+
+        /* === FOOTER === */
+        .footer {
+            text-align: center; padding: 32px 20px;
+            border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8;
+        }
+        .footer a { color: #64748b; }
+
+        @media (max-width: 640px) {
+            .hero { padding: 48px 16px 40px; }
+            .hero-stats { flex-direction: column; gap: 8px; }
+            .modules-grid { grid-template-columns: 1fr; }
+            .resources-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links">
+        <a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a>
+    </div>
+</div></nav>
+
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">Full Course</div>
+        <h1>Supply Chain Finance</h1>
+        <p>From working capital fundamentals to stochastic pricing models. A practical and quantitative guide to financial flows across supply chains.</p>
+        <div class="hero-stats">
+            <span>6 Chapters</span>
+            <span>Senior UG / Master</span>
+            <span>Applied + Quantitative</span>
+        </div>
+    </div>
+</section>
+
+<div class="main-content">
+
+    <div class="section-label">Course Chapters</div>
+    <div class="modules-grid">
+
+        <!-- Chapter 1 -->
+        <div class="module-card">
+            <div class="module-header">
+                <span class="module-number">Chapter 1</span>
+                <h3>Foundations of Supply Chain Finance</h3>
+                <p>Working Capital and the SCF Ecosystem</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Why firms run out of cash even when profitable. The cash conversion cycle, working capital trade-offs, and the ecosystem of buyers, suppliers, and financial intermediaries that power modern supply chain finance.</p>
+                <div class="badges">
+                    <span class="badge badge-applied">Applied</span>
+                    <span class="badge badge-case">Case Study</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="chapter1_foundations.html" class="material-link"><span class="material-icon">📖</span><span>Class Material</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 2 -->
+        <div class="module-card">
+            <div class="module-header ch2">
+                <span class="module-number">Chapter 2</span>
+                <h3>Trade Credit &amp; Receivables Finance</h3>
+                <p>Factoring, Reverse Factoring, Dynamic Discounting</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">How suppliers convert future receivables into immediate cash. Traditional factoring, buyer-led reverse factoring programs, and dynamic discounting as competing SCF instruments with different risk and cost profiles.</p>
+                <div class="badges">
+                    <span class="badge badge-applied">Applied</span>
+                    <span class="badge badge-theory">Theory</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="chapter2_trade_credit.html" class="material-link"><span class="material-icon">📖</span><span>Class Material</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 3 -->
+        <div class="module-card">
+            <div class="module-header ch3">
+                <span class="module-number">Chapter 3</span>
+                <h3>Inventory Finance</h3>
+                <p>Warehouse Receipts, Commodity Lending, Capital Constraints</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Using physical inventory as collateral to unlock financing. Warehouse receipt systems, commodity-backed lending structures, and how capital constraints reshape classical inventory decisions like the newsvendor problem.</p>
+                <div class="badges">
+                    <span class="badge badge-applied">Applied</span>
+                    <span class="badge badge-quant">Quantitative</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="chapter3_inventory_finance.html" class="material-link"><span class="material-icon">📖</span><span>Class Material</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 4 -->
+        <div class="module-card">
+            <div class="module-header ch4">
+                <span class="module-number">Chapter 4</span>
+                <h3>Futures &amp; Hedging</h3>
+                <p>Forwards, Futures, Options, and Basis Risk</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">Managing commodity price risk across the supply chain. Forward and futures contract mechanics, hedging strategies, basis risk, and an introduction to options for supply chain managers who need to lock in costs without sacrificing upside.</p>
+                <div class="badges">
+                    <span class="badge badge-quant">Quantitative</span>
+                    <span class="badge badge-applied">Applied</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="chapter4_futures_hedging.html" class="material-link"><span class="material-icon">📖</span><span>Class Material</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 5 -->
+        <div class="module-card">
+            <div class="module-header ch5">
+                <span class="module-number">Chapter 5</span>
+                <h3>FinTech &amp; Platform-Based SCF</h3>
+                <p>Digital Platforms, Blockchain, Credit Analytics</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">How technology is reshaping trade finance. Digital SCF platforms that connect multi-tier supply chains, blockchain and smart contracts for automated settlement, and data-driven credit scoring that replaces traditional relationship lending.</p>
+                <div class="badges">
+                    <span class="badge badge-applied">Applied</span>
+                    <span class="badge badge-case">Case Study</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="chapter5_fintech_blockchain.html" class="material-link"><span class="material-icon">📖</span><span>Class Material</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chapter 6 -->
+        <div class="module-card">
+            <div class="module-header ch6">
+                <span class="module-number">Chapter 6</span>
+                <h3>Stochastic Models &amp; Capital Pricing</h3>
+                <p>CAPM, Black-Scholes, Real Options</p>
+            </div>
+            <div class="module-body">
+                <p class="module-description">The quantitative backbone of financial decision-making. From the Capital Asset Pricing Model to geometric Brownian motion and the Black-Scholes formula, with derivation sketches and applications to real options in supply chain investment.</p>
+                <div class="badges">
+                    <span class="badge badge-quant">Quantitative</span>
+                    <span class="badge badge-theory">Theory</span>
+                </div>
+                <ul class="material-list">
+                    <li><a href="chapter6_quantitative_models.html" class="material-link"><span class="material-icon">📖</span><span>Class Material</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Resources -->
+    <div class="section-label">Course Resources</div>
+    <div class="resources-grid">
+        <div class="resource-card">
+            <h4>Recommended Textbooks</h4>
+            <ul>
+                <li>Hofmann et al., <em>Supply Chain Finance and Blockchain Technology</em> (Springer)</li>
+                <li>Hull, <em>Options, Futures, and Other Derivatives</em> (Pearson)</li>
+                <li>Brealey, Myers &amp; Allen, <em>Principles of Corporate Finance</em></li>
+            </ul>
+        </div>
+        <div class="resource-card">
+            <h4>Interactive Simulations</h4>
+            <ul>
+                <li><a href="../scf-simulations/SCF_01_Cash_Conversion_Cycle.html">Cash Conversion Cycle</a></li>
+                <li><a href="../scf-simulations/SCF_02_Reverse_Factoring.html">Reverse Factoring</a></li>
+                <li><a href="../scf-simulations/SCF_05_Trade_Credit_NPV.html">Trade Credit NPV</a></li>
+                <li><a href="../scf-simulations/SCF_07_Portfolio_Optimization.html">Portfolio Optimization</a></li>
+            </ul>
+        </div>
+        <div class="resource-card">
+            <h4>Prerequisites</h4>
+            <ul>
+                <li>Financial Accounting (balance sheets, income statements)</li>
+                <li>Basic Statistics (mean, variance, distributions)</li>
+                <li>Introductory Calculus (derivatives, integrals)</li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <p>&copy; 2026 Chenhao Zhou &middot; Rutgers Business School</p>
+</footer>
+
+</body>
+</html>

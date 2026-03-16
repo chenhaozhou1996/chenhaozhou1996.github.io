@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3: Inventory Finance</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        .topnav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;padding:0 48px;margin:0 -2rem;width:calc(100% + 4rem)}.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}.topnav-brand{font-weight:700;font-size:15px;color:#0f2442;display:flex;align-items:center;gap:10px;text-decoration:none!important}.topnav-brand:hover{text-decoration:none!important}.topnav-brand img{width:32px;height:32px;border-radius:50%;object-fit:cover}.topnav-links{display:flex;gap:4px}.topnav-links a{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;color:#475569;text-decoration:none!important}.topnav-links a:hover{background:#f8fafc;color:#1a365d}.topnav-links a.active{background:#f8fafc;color:#1a365d;font-weight:600}
+        .course-nav{background:#f8fafc;padding:10px 0;text-align:center;border-bottom:1px solid #e2e8f0;margin:0 -2rem 1.5em;padding-left:2rem;padding-right:2rem;position:sticky;top:56px;z-index:100}.course-nav a{margin:0 8px;color:#1a365d;font-weight:600;font-size:13px;text-decoration:none}.course-nav a:hover{color:#92400e;text-decoration:underline}.course-nav a.current{color:#92400e;border-bottom:2px solid #92400e;padding-bottom:2px}
+
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',-apple-system,sans-serif;max-width:900px;margin:0 auto;padding:2rem;background:#fff;color:#1e293b;line-height:1.7;font-size:15px;-webkit-font-smoothing:antialiased}
+        h1{font-size:clamp(24px,3.5vw,32px);font-weight:800;color:#065f46;margin-bottom:8px;line-height:1.2}
+        .subtitle{font-size:16px;color:#047857;font-weight:500;margin-bottom:32px}
+        h2{font-size:20px;font-weight:700;color:#1a365d;margin:40px 0 16px;padding-bottom:8px;border-bottom:2px solid #a7f3d0}
+        h3{font-size:16px;font-weight:700;color:#475569;margin:24px 0 10px}
+        p{margin-bottom:14px;color:#334155}
+        ul,ol{margin:0 0 16px 20px;color:#334155}
+        li{margin-bottom:6px}
+        strong{color:#1e293b}
+
+        .key-concept{background:#ecfdf5;border-left:4px solid #10b981;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .key-concept strong{color:#065f46}
+        .formula-box{background:#f1f5f9;border:1px solid #e2e8f0;padding:20px;border-radius:8px;margin:20px 0;text-align:center;font-size:16px;font-weight:600;color:#1e293b}
+        .example-box{background:#fffbeb;border-left:4px solid #f59e0b;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .example-box strong{color:#92400e}
+        .warning-box{background:#fef2f2;border-left:4px solid #ef4444;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .warning-box strong{color:#991b1b}
+        .table-wrapper{overflow-x:auto;margin:20px 0}
+        table{width:100%;border-collapse:collapse;font-size:13px}
+        th{background:#f8fafc;color:#1a365d;font-weight:700;text-align:left;padding:10px 14px;border-bottom:2px solid #e2e8f0}
+        td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#334155}
+        .takeaway{background:linear-gradient(135deg,#065f46,#047857);color:#fff;padding:24px;border-radius:10px;margin:40px 0}
+        .takeaway h3{color:#a7f3d0;margin-top:0}
+        .takeaway ul{color:#d1fae5}
+
+        @media(max-width:640px){body{padding:1rem}.topnav{padding:0 16px;margin:0 -1rem;width:calc(100% + 2rem)}.course-nav{margin:0 -1rem 1em}}
+    </style>
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+<div class="course-nav">
+    <a href="index.html">🏠 Course Home</a>
+    <a href="chapter1_foundations.html">Ch 1</a>
+    <a href="chapter2_trade_credit.html">Ch 2</a>
+    <a href="chapter3_inventory_finance.html" class="current">Ch 3</a>
+    <a href="chapter4_futures_hedging.html">Ch 4</a>
+    <a href="chapter5_fintech_blockchain.html">Ch 5</a>
+    <a href="chapter6_quantitative_models.html">Ch 6</a>
+</div>
+
+<h1>Chapter 3: Inventory Finance</h1>
+<p class="subtitle">Warehouse Receipts, Commodity Lending, and Capital-Constrained Inventory Decisions</p>
+
+<!-- ============================================ -->
+<h2>3.1 Inventory as Collateral</h2>
+
+<p>Inventory finance uses physical goods as collateral for short-term borrowing. For firms that hold significant inventories (manufacturers, commodity traders, agricultural cooperatives), the inventory sitting in warehouses represents locked-up capital. Inventory finance converts that dead stock into working liquidity.</p>
+
+<p>The lender's primary concern is the collateral's value. Unlike financial assets with transparent market prices, physical inventory raises several questions:</p>
+
+<ul>
+    <li><strong>Valuation:</strong> What is the inventory actually worth? Market prices can fluctuate, and specialized goods may have limited resale markets.</li>
+    <li><strong>Physical control:</strong> How does the lender ensure the borrower doesn't sell the collateral? This is where warehouse receipts and field warehousing become critical.</li>
+    <li><strong>Perishability:</strong> Agricultural products, chemicals, and certain manufactured goods degrade over time, eroding collateral value.</li>
+    <li><strong>Liquidity:</strong> How quickly can the lender sell the collateral in case of default? Standardized commodities (oil, grain, metals) are far more liquid than custom-manufactured parts.</li>
+</ul>
+
+<div class="key-concept">
+    <strong>The Advance Rate:</strong> Lenders never finance 100% of inventory value. The <em>advance rate</em> (typically 50-80%) reflects the lender's assessment of liquidation risk. Standardized, exchange-traded commodities receive higher advance rates; specialized, perishable, or fashion-sensitive goods receive lower rates.
+</div>
+
+<!-- ============================================ -->
+<h2>3.2 Warehouse Receipt Financing</h2>
+
+<p>A warehouse receipt is a document issued by a licensed warehouse operator certifying that specific goods of a stated quantity and quality have been deposited. The receipt serves as both proof of ownership and a negotiable financial instrument.</p>
+
+<h3>How It Works</h3>
+<ol>
+    <li><strong>Deposit:</strong> The borrower deposits goods in a licensed, independent warehouse.</li>
+    <li><strong>Receipt issuance:</strong> The warehouse operator issues a receipt specifying quantity, grade, and condition.</li>
+    <li><strong>Pledge:</strong> The borrower pledges the receipt to a lender as collateral for a loan.</li>
+    <li><strong>Monitoring:</strong> The warehouse operator controls access. Goods cannot be released without the lender's consent.</li>
+    <li><strong>Repayment and release:</strong> When the loan is repaid, the lender releases the receipt, and the borrower retrieves the goods.</li>
+</ol>
+
+<h3>Types of Warehouse Arrangements</h3>
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Type</th><th>Description</th><th>Control Level</th><th>Cost</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Public warehouse</strong></td><td>Goods stored in an independent, third-party facility</td><td>High (full separation)</td><td>Higher (storage + handling fees)</td></tr>
+        <tr><td><strong>Field warehouse</strong></td><td>A section of the borrower's own facility is legally segregated and controlled by an independent custodian</td><td>Medium (depends on custodian quality)</td><td>Lower (goods don't move)</td></tr>
+        <tr><td><strong>Trust receipt</strong></td><td>Goods released to borrower for processing/sale under trust agreement</td><td>Low (borrower has possession)</td><td>Lowest (no warehousing cost)</td></tr>
+    </tbody>
+</table>
+</div>
+
+<div class="example-box">
+    <strong>Example (Agricultural):</strong> A coffee cooperative in Colombia harvests 500 metric tons of Arabica coffee. At $4,000/ton, the crop is worth $2M. The cooperative deposits the coffee in a certified warehouse and pledges the receipt to a local bank. At a 70% advance rate, the bank lends $1.4M. The cooperative uses this cash to fund the next planting season. When the coffee is sold to an exporter 4 months later, the loan is repaid.
+</div>
+
+<div class="warning-box">
+    <strong>Risk Alert (The Allied Crude Vegetable Oil Scandal, 1963):</strong> Anthony "Tino" De Angelis filled storage tanks with water and floated a thin layer of soybean oil on top, deceiving inspectors. When the fraud was discovered, banks holding warehouse receipts as collateral for $175M in loans found the tanks were nearly empty. The scandal bankrupted two major brokerage firms. This case established the principle that lenders must independently verify warehouse contents rather than rely solely on documentation.
+</div>
+
+<!-- ============================================ -->
+<h2>3.3 Commodity-Backed Lending</h2>
+
+<p>Commodity finance extends inventory financing to standardized, exchange-traded commodities such as crude oil, metals, and grains. The key difference from general inventory finance is that commodities have transparent market prices and established hedging instruments.</p>
+
+<h3>Structured Commodity Finance</h3>
+<p>In a typical structure:</p>
+<ol>
+    <li>A commodity trader purchases 10,000 metric tons of copper at $8,500/ton ($85M).</li>
+    <li>The copper is stored in a London Metal Exchange (LME) approved warehouse.</li>
+    <li>A bank finances 85% of the purchase ($72.25M) secured by the warehouse warrants.</li>
+    <li>The trader hedges price risk by selling copper futures on the LME.</li>
+    <li>When the physical copper is sold to an end-user, the bank is repaid.</li>
+</ol>
+
+<div class="key-concept">
+    <strong>Self-Liquidating Structure:</strong> The loan is repaid from the sale proceeds of the very commodity that serves as collateral. This "self-liquidating" nature makes commodity finance lower risk than general corporate lending, which is why it typically carries lower interest rates.
+</div>
+
+<h3>Key Risk Controls</h3>
+<ul>
+    <li><strong>Margin calls:</strong> If the commodity price falls, the lender may require additional collateral (cash margin) to maintain the loan-to-value ratio.</li>
+    <li><strong>Price hedging:</strong> Lenders often require borrowers to hedge commodity price risk using futures or options (Chapter 4).</li>
+    <li><strong>Title control:</strong> The lender holds title documents (bills of lading, warehouse warrants) until repayment.</li>
+    <li><strong>Insurance:</strong> Goods must be insured against theft, fire, and natural disaster.</li>
+</ul>
+
+<!-- ============================================ -->
+<h2>3.4 The Capital-Constrained Newsvendor</h2>
+
+<p>The classical newsvendor problem assumes the firm has unlimited capital to order any quantity. In reality, firms face budget constraints, and this changes the optimal order quantity.</p>
+
+<h3>Classical Newsvendor Review</h3>
+<p>A retailer orders quantity <em>Q</em> of a perishable product before observing demand <em>D</em>. The product costs <em>c</em> per unit and sells for <em>p</em>. Unsold units have salvage value <em>s</em>.</p>
+
+<div class="formula-box">
+    Critical Ratio: &nbsp; Q* satisfies &nbsp; F(Q*) = (p &minus; c) / (p &minus; s) = C<sub>u</sub> / (C<sub>u</sub> + C<sub>o</sub>)
+</div>
+
+<p>Where C<sub>u</sub> = p &minus; c is the underage cost (lost profit) and C<sub>o</sub> = c &minus; s is the overage cost (loss on unsold units).</p>
+
+<h3>Adding a Budget Constraint</h3>
+<p>Now suppose the firm has initial wealth <em>W</em> and can borrow at interest rate <em>r</em>. If cQ &le; W, the firm can self-finance. If cQ &gt; W, the firm must borrow (cQ &minus; W) at rate <em>r</em>, and the effective cost per unit rises.</p>
+
+<div class="formula-box">
+    Effective cost with borrowing: &nbsp; c<sub>eff</sub> = c &times; (1 + r) &nbsp; for units financed by debt
+</div>
+
+<p>The capital-constrained optimal order is lower than the unconstrained optimal because borrowing increases the effective overage cost. The firm trades off the risk of overstocking (and paying interest on unsold inventory) against the risk of lost sales.</p>
+
+<div class="example-box">
+    <strong>Numerical Example:</strong><br>
+    p = $20, c = $10, s = $2, r = 12%, W = $8,000, Demand ~ Normal(1000, 200)<br><br>
+    <strong>Unconstrained:</strong> Critical ratio = (20&minus;10)/(20&minus;2) = 0.556 → Q* = 1,028 units. Cost = $10,280 (exceeds W).<br>
+    <strong>With borrowing:</strong> The firm borrows $2,280 at 12%. For financed units, c<sub>eff</sub> = $11.20. The adjusted critical ratio falls, and Q*<sub>constrained</sub> &asymp; 985 units.<br>
+    <strong>Gap:</strong> The capital constraint costs approximately 43 units of sales, translating to ~$430 in expected lost profit.
+</div>
+
+<h3>Role of Inventory Finance</h3>
+<p>Inventory finance partially alleviates the budget constraint. If the firm can pledge its inventory as collateral and borrow at a rate <em>r<sub>secured</sub></em> &lt; <em>r<sub>unsecured</sub></em>, the effective cost of capital drops, and the constrained order quantity moves closer to the unconstrained optimum.</p>
+
+<div class="key-concept">
+    <strong>Buzacott &amp; Zhang (2004):</strong> The seminal paper integrating production/inventory decisions with asset-based financing. Their key result: the optimal order quantity under asset-based lending depends on both the critical ratio and the loan-to-value ratio. As the advance rate increases, the constrained solution converges to the unconstrained newsvendor solution.
+</div>
+
+<!-- ============================================ -->
+<h2>3.5 Inventory Pledging Structures</h2>
+
+<p>Different supply chain configurations require different pledging structures:</p>
+
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Structure</th><th>When to Use</th><th>Advance Rate</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Blanket lien</strong></td><td>General business lending; lender takes security interest in all inventory</td><td>40-60%</td><td>Retail chain pledges all store inventory</td></tr>
+        <tr><td><strong>Floor plan</strong></td><td>High-value, serialized goods (cars, appliances)</td><td>80-100%</td><td>Auto dealer; each vehicle individually tracked</td></tr>
+        <tr><td><strong>Warehouse receipt</strong></td><td>Standardized commodities with independent storage</td><td>70-85%</td><td>Grain elevator, metal warehouse</td></tr>
+        <tr><td><strong>In-transit finance</strong></td><td>Goods being shipped (ocean, rail, truck)</td><td>60-75%</td><td>Crude oil on a tanker; secured by bill of lading</td></tr>
+    </tbody>
+</table>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 3 Takeaways</h3>
+    <ul>
+        <li>Inventory finance converts physical goods into liquidity. The advance rate (50-80%) reflects liquidation risk and collateral quality.</li>
+        <li>Warehouse receipts provide legal certainty and physical control. Public warehousing offers the strongest protections; trust receipts offer the weakest.</li>
+        <li>Commodity finance benefits from transparent pricing and hedging instruments, enabling higher advance rates and lower borrowing costs.</li>
+        <li>Capital constraints reduce the optimal newsvendor order. Inventory-based lending partially closes this gap by lowering the effective cost of capital.</li>
+        <li>The structure of the pledge (blanket lien, floor plan, warehouse receipt, in-transit) should match the nature of the inventory and the lender's ability to monitor and liquidate.</li>
+    </ul>
+</div>
+
+</body>
+</html>

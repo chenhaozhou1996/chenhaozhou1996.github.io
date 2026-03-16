@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 6: Stochastic Models &amp; Capital Pricing</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        .topnav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;padding:0 48px;margin:0 -2rem;width:calc(100% + 4rem)}.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}.topnav-brand{font-weight:700;font-size:15px;color:#0f2442;display:flex;align-items:center;gap:10px;text-decoration:none!important}.topnav-brand:hover{text-decoration:none!important}.topnav-brand img{width:32px;height:32px;border-radius:50%;object-fit:cover}.topnav-links{display:flex;gap:4px}.topnav-links a{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;color:#475569;text-decoration:none!important}.topnav-links a:hover{background:#f8fafc;color:#1a365d}.topnav-links a.active{background:#f8fafc;color:#1a365d;font-weight:600}
+        .course-nav{background:#f8fafc;padding:10px 0;text-align:center;border-bottom:1px solid #e2e8f0;margin:0 -2rem 1.5em;padding-left:2rem;padding-right:2rem;position:sticky;top:56px;z-index:100}.course-nav a{margin:0 8px;color:#1a365d;font-weight:600;font-size:13px;text-decoration:none}.course-nav a:hover{color:#92400e;text-decoration:underline}.course-nav a.current{color:#92400e;border-bottom:2px solid #92400e;padding-bottom:2px}
+
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',-apple-system,sans-serif;max-width:900px;margin:0 auto;padding:2rem;background:#fff;color:#1e293b;line-height:1.7;font-size:15px;-webkit-font-smoothing:antialiased}
+        h1{font-size:clamp(24px,3.5vw,32px);font-weight:800;color:#1a365d;margin-bottom:8px;line-height:1.2}
+        .subtitle{font-size:16px;color:#475569;font-weight:500;margin-bottom:32px}
+        h2{font-size:20px;font-weight:700;color:#1a365d;margin:40px 0 16px;padding-bottom:8px;border-bottom:2px solid #cbd5e1}
+        h3{font-size:16px;font-weight:700;color:#475569;margin:24px 0 10px}
+        p{margin-bottom:14px;color:#334155}
+        ul,ol{margin:0 0 16px 20px;color:#334155}
+        li{margin-bottom:6px}
+        strong{color:#1e293b}
+
+        .key-concept{background:#f1f5f9;border-left:4px solid #475569;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .key-concept strong{color:#1a365d}
+        .formula-box{background:#f8fafc;border:2px solid #1a365d;padding:20px;border-radius:8px;margin:20px 0;text-align:center;font-size:16px;font-weight:600;color:#1e293b;line-height:1.8}
+        .derivation{background:#fffbeb;border:1px solid #fde68a;padding:20px;border-radius:8px;margin:20px 0;font-size:14px;line-height:1.8}
+        .derivation h4{font-size:15px;font-weight:700;color:#92400e;margin-bottom:10px}
+        .derivation .step{margin:8px 0;padding-left:12px;border-left:2px solid #fde68a}
+        .example-box{background:#f0fdf4;border-left:4px solid #22c55e;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .example-box strong{color:#166534}
+        .table-wrapper{overflow-x:auto;margin:20px 0}
+        table{width:100%;border-collapse:collapse;font-size:13px}
+        th{background:#f8fafc;color:#1a365d;font-weight:700;text-align:left;padding:10px 14px;border-bottom:2px solid #e2e8f0}
+        td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#334155}
+        .takeaway{background:linear-gradient(135deg,#1a365d,#475569);color:#fff;padding:24px;border-radius:10px;margin:40px 0}
+        .takeaway h3{color:#cbd5e1;margin-top:0}
+        .takeaway ul{color:#e2e8f0}
+
+        @media(max-width:640px){body{padding:1rem}.topnav{padding:0 16px;margin:0 -1rem;width:calc(100% + 2rem)}.course-nav{margin:0 -1rem 1em}}
+    </style>
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+<div class="course-nav">
+    <a href="index.html">🏠 Course Home</a>
+    <a href="chapter1_foundations.html">Ch 1</a>
+    <a href="chapter2_trade_credit.html">Ch 2</a>
+    <a href="chapter3_inventory_finance.html">Ch 3</a>
+    <a href="chapter4_futures_hedging.html">Ch 4</a>
+    <a href="chapter5_fintech_blockchain.html">Ch 5</a>
+    <a href="chapter6_quantitative_models.html" class="current">Ch 6</a>
+</div>
+
+<h1>Chapter 6: Stochastic Models &amp; Capital Pricing</h1>
+<p class="subtitle">CAPM, Geometric Brownian Motion, Black-Scholes, and Real Options</p>
+
+<p>This chapter introduces the quantitative foundations of asset pricing as they apply to supply chain finance. We move from deterministic models to stochastic ones, building intuition through derivations that connect differential equations to the financial instruments covered in previous chapters.</p>
+
+<!-- ============================================ -->
+<h2>6.1 Time Value of Money Review</h2>
+
+<p>Before entering stochastic territory, we anchor on the deterministic principle that a dollar today is worth more than a dollar tomorrow. This is the foundation of all pricing in finance.</p>
+
+<div class="formula-box">
+    Present Value: &nbsp; PV = FV / (1 + r)<sup>t</sup><br><br>
+    Continuous compounding: &nbsp; PV = FV &times; e<sup>&minus;rT</sup>
+</div>
+
+<p>The discount rate <em>r</em> reflects two things: (1) the time preference for consumption today over tomorrow, and (2) compensation for risk. In supply chain finance, the discount rate determines the price at which receivables are purchased, the interest charged on inventory loans, and the hurdle rate for supply chain investments.</p>
+
+<h3>Continuous vs. Discrete Compounding</h3>
+<p>Finance uses continuous compounding (e<sup>rT</sup>) because it simplifies the mathematics of stochastic models. The conversion is:</p>
+
+<div class="formula-box">
+    r<sub>continuous</sub> = ln(1 + r<sub>discrete</sub>)
+</div>
+
+<div class="example-box">
+    <strong>Example:</strong> A bank offers a 6% annual rate, compounded quarterly. The effective annual rate is (1 + 0.06/4)<sup>4</sup> &minus; 1 = 6.136%. The equivalent continuous rate is ln(1.06136) = 5.955%.
+</div>
+
+<!-- ============================================ -->
+<h2>6.2 The Capital Asset Pricing Model (CAPM)</h2>
+
+<p>CAPM answers the question: what return should an investor demand for holding a risky asset? The model separates total risk into systematic risk (market-wide, non-diversifiable) and idiosyncratic risk (firm-specific, diversifiable). Only systematic risk is compensated in equilibrium.</p>
+
+<div class="formula-box">
+    E[R<sub>i</sub>] = R<sub>f</sub> + &beta;<sub>i</sub> (E[R<sub>m</sub>] &minus; R<sub>f</sub>)
+</div>
+
+<p>Where:</p>
+<ul>
+    <li><strong>E[R<sub>i</sub>]:</strong> Expected return on asset <em>i</em></li>
+    <li><strong>R<sub>f</sub>:</strong> Risk-free rate (e.g., US Treasury yield)</li>
+    <li><strong>&beta;<sub>i</sub>:</strong> Sensitivity of asset <em>i</em> to market movements. &beta; = Cov(R<sub>i</sub>, R<sub>m</sub>) / Var(R<sub>m</sub>)</li>
+    <li><strong>E[R<sub>m</sub>] &minus; R<sub>f</sub>:</strong> Market risk premium (historically ~5-7% for US equities)</li>
+</ul>
+
+<div class="derivation">
+    <h4>Derivation Sketch: CAPM from Portfolio Theory</h4>
+    <div class="step">
+        <strong>Step 1 (Mean-Variance Optimization):</strong> An investor choosing among <em>N</em> risky assets minimizes portfolio variance for a given expected return. The solution traces out the <em>efficient frontier</em> in (risk, return) space.
+    </div>
+    <div class="step">
+        <strong>Step 2 (Two-Fund Separation):</strong> Introducing a risk-free asset, every optimal portfolio is a combination of the risk-free asset and a single tangency portfolio. In equilibrium, this tangency portfolio is the market portfolio (all risky assets weighted by market capitalization).
+    </div>
+    <div class="step">
+        <strong>Step 3 (Security Market Line):</strong> For the market portfolio to be the tangency portfolio, every asset must lie on the Security Market Line: E[R<sub>i</sub>] = R<sub>f</sub> + &beta;<sub>i</sub>(E[R<sub>m</sub>] &minus; R<sub>f</sub>). If an asset offers a return above the SML, investors buy it (pushing the price up and return down) until it falls back on the line.
+    </div>
+</div>
+
+<h3>CAPM in Supply Chain Finance</h3>
+<p>CAPM determines the <strong>cost of equity</strong> for supply chain investments. When a firm evaluates whether to build a new warehouse, invest in a supplier, or launch a reverse factoring program, the discount rate for the NPV calculation should reflect the project's systematic risk.</p>
+
+<div class="example-box">
+    <strong>Example:</strong> A logistics firm (&beta; = 0.85) considers investing in an automated warehouse. R<sub>f</sub> = 4.5%, E[R<sub>m</sub>] &minus; R<sub>f</sub> = 6%.<br><br>
+    Cost of equity = 4.5% + 0.85 &times; 6% = 9.6%<br><br>
+    If the warehouse project has an IRR of 8%, it destroys value (IRR &lt; cost of equity). Only projects exceeding 9.6% should be undertaken.
+</div>
+
+<!-- ============================================ -->
+<h2>6.3 Geometric Brownian Motion</h2>
+
+<p>Most asset prices are modeled as following Geometric Brownian Motion (GBM), a continuous-time stochastic process. GBM captures two features of real asset prices: an upward drift and random fluctuations.</p>
+
+<div class="formula-box">
+    dS = &mu;S dt + &sigma;S dW
+</div>
+
+<p>Where:</p>
+<ul>
+    <li><strong>S:</strong> Asset price at time <em>t</em></li>
+    <li><strong>&mu;:</strong> Drift (expected rate of return)</li>
+    <li><strong>&sigma;:</strong> Volatility (standard deviation of returns)</li>
+    <li><strong>dW:</strong> Wiener process increment (dW ~ N(0, dt))</li>
+</ul>
+
+<div class="key-concept">
+    <strong>Intuition:</strong> Over a tiny interval dt, the asset price changes by a deterministic amount (&mu;S dt, the trend) plus a random shock (&sigma;S dW, the noise). The shocks are proportional to the current price, ensuring that a $100 stock is twice as volatile in dollar terms as a $50 stock, while percentage volatility remains constant.
+</div>
+
+<div class="derivation">
+    <h4>Derivation: Solving the GBM Stochastic Differential Equation</h4>
+    <div class="step">
+        <strong>Step 1:</strong> Let Y = ln(S). Apply Ito's Lemma to f(S) = ln(S):<br>
+        df = (1/S) dS &minus; (1/2)(1/S<sup>2</sup>)(dS)<sup>2</sup>
+    </div>
+    <div class="step">
+        <strong>Step 2:</strong> Substitute dS = &mu;S dt + &sigma;S dW and note (dS)<sup>2</sup> = &sigma;<sup>2</sup>S<sup>2</sup> dt (by Ito's rule: (dW)<sup>2</sup> = dt):<br>
+        d(ln S) = (&mu; &minus; &sigma;<sup>2</sup>/2) dt + &sigma; dW
+    </div>
+    <div class="step">
+        <strong>Step 3:</strong> Integrate from 0 to T:<br>
+        ln S<sub>T</sub> &minus; ln S<sub>0</sub> = (&mu; &minus; &sigma;<sup>2</sup>/2)T + &sigma; W<sub>T</sub>
+    </div>
+    <div class="step">
+        <strong>Step 4:</strong> Exponentiate:<br>
+        <strong>S<sub>T</sub> = S<sub>0</sub> exp[(&mu; &minus; &sigma;<sup>2</sup>/2)T + &sigma;&radic;T &times; Z]</strong> &nbsp; where Z ~ N(0,1)
+    </div>
+    <div class="step">
+        <strong>Implication:</strong> Log-returns are normally distributed: ln(S<sub>T</sub>/S<sub>0</sub>) ~ N((&mu; &minus; &sigma;<sup>2</sup>/2)T, &sigma;<sup>2</sup>T). This is the basis for the lognormal price model used in options pricing.
+    </div>
+</div>
+
+<div class="example-box">
+    <strong>Simulation Example:</strong> Crude oil at S<sub>0</sub> = $75, &mu; = 5% (annual drift), &sigma; = 30% (annual volatility).<br><br>
+    After T = 0.5 year, the expected log price is:<br>
+    E[ln S] = ln(75) + (0.05 &minus; 0.09/2) &times; 0.5 = 4.317 + 0.0025 = 4.320<br>
+    Std dev of log price = 0.30 &times; &radic;0.5 = 0.212<br><br>
+    95% confidence interval: exp(4.320 &plusmn; 1.96 &times; 0.212) = [$49.67, $114.71]<br><br>
+    This wide range illustrates why commodity price risk matters for supply chain planning.
+</div>
+
+<!-- ============================================ -->
+<h2>6.4 Black-Scholes Formula</h2>
+
+<p>The Black-Scholes model prices European options (options exercisable only at expiry) under the assumption that the underlying asset follows GBM. The derivation constructs a riskless portfolio and applies the no-arbitrage condition.</p>
+
+<div class="formula-box">
+    Call: &nbsp; C = S<sub>0</sub> N(d<sub>1</sub>) &minus; K e<sup>&minus;rT</sup> N(d<sub>2</sub>)<br><br>
+    Put: &nbsp; P = K e<sup>&minus;rT</sup> N(&minus;d<sub>2</sub>) &minus; S<sub>0</sub> N(&minus;d<sub>1</sub>)<br><br>
+    d<sub>1</sub> = [ln(S<sub>0</sub>/K) + (r + &sigma;<sup>2</sup>/2)T] / (&sigma;&radic;T)<br>
+    d<sub>2</sub> = d<sub>1</sub> &minus; &sigma;&radic;T
+</div>
+
+<p>Where N(&middot;) is the standard normal CDF, K is the strike price, r is the risk-free rate, and &sigma; is the volatility.</p>
+
+<div class="derivation">
+    <h4>Derivation Sketch: The Black-Scholes PDE</h4>
+    <div class="step">
+        <strong>Step 1 (Portfolio Construction):</strong> Form a portfolio &Pi; = V &minus; &Delta;S, where V is the option value and &Delta; = &part;V/&part;S. This portfolio is locally risk-free if &Delta; is chosen correctly (delta hedging).
+    </div>
+    <div class="step">
+        <strong>Step 2 (Apply Ito's Lemma to V(S,t)):</strong><br>
+        dV = (&part;V/&part;t) dt + (&part;V/&part;S) dS + (1/2)(&part;<sup>2</sup>V/&part;S<sup>2</sup>) &sigma;<sup>2</sup>S<sup>2</sup> dt
+    </div>
+    <div class="step">
+        <strong>Step 3 (Risk-Free Portfolio):</strong> Substituting &Delta; = &part;V/&part;S eliminates the dW term:<br>
+        d&Pi; = [&part;V/&part;t + (1/2)&sigma;<sup>2</sup>S<sup>2</sup> &part;<sup>2</sup>V/&part;S<sup>2</sup>] dt
+    </div>
+    <div class="step">
+        <strong>Step 4 (No-Arbitrage):</strong> A risk-free portfolio must earn the risk-free rate: d&Pi; = r&Pi; dt. Substituting:<br>
+        <strong>&part;V/&part;t + (1/2)&sigma;<sup>2</sup>S<sup>2</sup> &part;<sup>2</sup>V/&part;S<sup>2</sup> + rS &part;V/&part;S &minus; rV = 0</strong>
+    </div>
+    <div class="step">
+        <strong>Step 5:</strong> This is the <strong>Black-Scholes PDE</strong>, a second-order parabolic partial differential equation. With boundary condition V(S,T) = max(S &minus; K, 0) for a call, the solution gives the Black-Scholes formula above.
+    </div>
+    <div class="step">
+        <strong>Key insight:</strong> The drift &mu; does not appear in the PDE. Under risk-neutral pricing, we replace &mu; with r and price options as discounted expected payoffs under the risk-neutral measure.
+    </div>
+</div>
+
+<div class="example-box">
+    <strong>Numerical Example:</strong> Price a 6-month European call on copper. S<sub>0</sub> = $8,500/ton, K = $9,000, r = 5%, &sigma; = 25%.<br><br>
+    d<sub>1</sub> = [ln(8500/9000) + (0.05 + 0.0625/2) &times; 0.5] / (0.25 &times; &radic;0.5)<br>
+    &nbsp;&nbsp;&nbsp; = [&minus;0.0572 + 0.0406] / 0.1768 = &minus;0.094<br>
+    d<sub>2</sub> = &minus;0.094 &minus; 0.1768 = &minus;0.271<br><br>
+    N(d<sub>1</sub>) = N(&minus;0.094) = 0.4625<br>
+    N(d<sub>2</sub>) = N(&minus;0.271) = 0.3932<br><br>
+    C = 8500 &times; 0.4625 &minus; 9000 &times; e<sup>&minus;0.025</sup> &times; 0.3932<br>
+    &nbsp;&nbsp; = 3,931.25 &minus; 8,777.50 &times; 0.3932 = 3,931.25 &minus; 3,452.43 = <strong>$478.82 per ton</strong><br><br>
+    For a 25-ton contract: option premium = $11,970.50. This is the cost of insuring against copper prices exceeding $9,000/ton over the next 6 months.
+</div>
+
+<!-- ============================================ -->
+<h2>6.5 The Greeks</h2>
+
+<p>The "Greeks" measure the sensitivity of option prices to changes in underlying parameters. They are essential for risk management.</p>
+
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Greek</th><th>Symbol</th><th>Definition</th><th>Interpretation</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Delta</strong></td><td>&Delta;</td><td>&part;V/&part;S</td><td>Change in option value per $1 change in the underlying. Used for hedging.</td></tr>
+        <tr><td><strong>Gamma</strong></td><td>&Gamma;</td><td>&part;<sup>2</sup>V/&part;S<sup>2</sup></td><td>Rate of change of delta. High gamma near the strike means delta changes rapidly.</td></tr>
+        <tr><td><strong>Theta</strong></td><td>&Theta;</td><td>&part;V/&part;t</td><td>Time decay. Options lose value as expiry approaches (all else equal).</td></tr>
+        <tr><td><strong>Vega</strong></td><td>&nu;</td><td>&part;V/&part;&sigma;</td><td>Sensitivity to volatility. A 1% increase in &sigma; changes the option price by vega.</td></tr>
+        <tr><td><strong>Rho</strong></td><td>&rho;</td><td>&part;V/&part;r</td><td>Sensitivity to interest rates. Typically small for short-dated options.</td></tr>
+    </tbody>
+</table>
+</div>
+
+<!-- ============================================ -->
+<h2>6.6 Real Options in Supply Chains</h2>
+
+<p>Real options extend financial option theory to physical investment decisions. A supply chain investment with embedded flexibility (the option to expand, contract, delay, or abandon) is worth more than its static NPV suggests.</p>
+
+<h3>Types of Real Options</h3>
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Option Type</th><th>Description</th><th>Supply Chain Example</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Option to Defer</strong></td><td>Wait for more information before investing</td><td>Delay building a new distribution center until demand trends are clearer</td></tr>
+        <tr><td><strong>Option to Expand</strong></td><td>Scale up if conditions are favorable</td><td>Design a factory with extra floor space for a second production line</td></tr>
+        <tr><td><strong>Option to Contract</strong></td><td>Scale down if demand falls</td><td>Use flexible labor contracts that allow workforce reduction</td></tr>
+        <tr><td><strong>Option to Abandon</strong></td><td>Exit and recover salvage value</td><td>Lease rather than buy equipment, allowing return if the project fails</td></tr>
+        <tr><td><strong>Option to Switch</strong></td><td>Change inputs or outputs</td><td>A dual-fuel power plant that can switch between natural gas and oil</td></tr>
+    </tbody>
+</table>
+</div>
+
+<div class="key-concept">
+    <strong>Why NPV Undervalues Flexibility:</strong> Standard NPV discounts expected cash flows at a fixed rate and ignores managerial flexibility to respond to new information. A project with an NPV of &minus;$1M might actually be worth +$2M once you account for the option to abandon if things go badly (limiting downside) and expand if things go well (capturing upside). Real options valuation uses the Black-Scholes framework (or binomial trees) to price this flexibility.
+</div>
+
+<div class="derivation">
+    <h4>Real Option Valuation: Expansion Example</h4>
+    <div class="step">
+        <strong>Setup:</strong> A firm considers a $5M warehouse investment. In 2 years, it can expand capacity by investing an additional $3M. The present value of expansion cash flows is currently $2.5M but is uncertain (&sigma; = 40%). r = 5%.
+    </div>
+    <div class="step">
+        <strong>Map to Black-Scholes:</strong><br>
+        S<sub>0</sub> = $2.5M (PV of expansion cash flows)<br>
+        K = $3M (expansion investment cost)<br>
+        T = 2 years, &sigma; = 40%, r = 5%
+    </div>
+    <div class="step">
+        <strong>Calculate:</strong><br>
+        d<sub>1</sub> = [ln(2.5/3) + (0.05 + 0.16/2) &times; 2] / (0.4 &times; &radic;2) = [&minus;0.182 + 0.26] / 0.566 = 0.138<br>
+        d<sub>2</sub> = 0.138 &minus; 0.566 = &minus;0.428<br>
+        C = 2.5 &times; N(0.138) &minus; 3 &times; e<sup>&minus;0.10</sup> &times; N(&minus;0.428)<br>
+        &nbsp;&nbsp; = 2.5 &times; 0.555 &minus; 2.714 &times; 0.334 = 1.388 &minus; 0.907 = <strong>$0.48M</strong>
+    </div>
+    <div class="step">
+        <strong>Interpretation:</strong> The option to expand is worth $480K. The total project value is the base NPV plus the expansion option value. If the base warehouse NPV is &minus;$200K, the adjusted NPV is &minus;$200K + $480K = +$280K. The project should proceed because the embedded flexibility creates value that static NPV ignores.
+    </div>
+</div>
+
+<!-- ============================================ -->
+<h2>6.7 Connecting the Models</h2>
+
+<p>The quantitative tools in this chapter form a coherent framework for supply chain financial decisions:</p>
+
+<ol>
+    <li><strong>CAPM</strong> sets the discount rate (cost of capital) for evaluating supply chain investments. It answers: "What return must this project earn to compensate investors for systematic risk?"</li>
+    <li><strong>GBM</strong> models the stochastic evolution of commodity prices, demand, and other uncertain inputs. It provides the probabilistic foundation for simulation and option pricing.</li>
+    <li><strong>Black-Scholes</strong> prices the financial options (calls, puts, collars) used to hedge commodity risk in Chapters 3 and 4. The same framework, applied to real assets, values the flexibility embedded in supply chain investments.</li>
+    <li><strong>Real Options</strong> bridge operations and finance. They show that supply chain flexibility (dual sourcing, modular capacity, postponement) has quantifiable financial value that traditional NPV ignores.</li>
+</ol>
+
+<div class="key-concept">
+    <strong>The Central Lesson:</strong> Supply chain decisions are financial decisions. Every inventory order, capacity investment, and hedging strategy involves pricing risk under uncertainty. The models in this chapter provide the language and tools to make those decisions rigorously. The mathematics may look intimidating, but the core ideas are straightforward: time has value, risk requires compensation, and flexibility is worth paying for.
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 6 Takeaways</h3>
+    <ul>
+        <li>CAPM separates diversifiable from non-diversifiable risk. Only systematic risk (&beta;) determines the required return on supply chain investments.</li>
+        <li>GBM (dS = &mu;S dt + &sigma;S dW) models asset prices as continuous-time stochastic processes. Ito's Lemma is the chain rule for stochastic calculus.</li>
+        <li>The Black-Scholes PDE arises from constructing a risk-free portfolio via delta hedging. The drift &mu; drops out; pricing depends only on r, &sigma;, and time.</li>
+        <li>The Greeks (&Delta;, &Gamma;, &Theta;, &nu;, &rho;) quantify option sensitivities and guide hedging strategies.</li>
+        <li>Real options value managerial flexibility (defer, expand, contract, abandon, switch) using the same framework as financial options. Standard NPV systematically undervalues projects with embedded optionality.</li>
+    </ul>
+</div>
+
+</body>
+</html>
