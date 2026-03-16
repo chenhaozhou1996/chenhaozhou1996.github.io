@@ -62,7 +62,71 @@ python --version</pre>
 <pre class="bash"><span class="cm"># Install common data science packages</span>
 pip install numpy pandas matplotlib seaborn scikit-learn statsmodels jupyter</pre>
 
-<h2>1.3 Choosing an IDE</h2>
+<h2>1.3 Virtual Environments</h2>
+<p>A virtual environment is an isolated Python installation that keeps each project's packages separate. Without environments, installing a package for one project can break another project that depends on a different version. Getting into the habit of creating one environment per project prevents "dependency hell" as your projects grow.</p>
+
+<h3>Using venv (Built-in)</h3>
+<p>Python ships with <code>venv</code> in the standard library. It creates a lightweight directory containing a private copy of the Python interpreter and its own <code>pip</code>.</p>
+
+<pre class="bash"><span class="cm"># Create a virtual environment called 'myenv'</span>
+python -m venv myenv
+
+<span class="cm"># Activate it</span>
+<span class="cm"># macOS / Linux:</span>
+source myenv/bin/activate
+
+<span class="cm"># Windows:</span>
+myenv\Scripts\activate
+
+<span class="cm"># Your prompt changes to show the active env</span>
+(myenv) $ pip install pandas numpy
+
+<span class="cm"># Deactivate when done</span>
+deactivate</pre>
+
+<h3>Using conda Environments</h3>
+<p>If you installed Anaconda or Miniconda, <code>conda</code> manages environments and can install non-Python dependencies (C libraries, R, etc.) that pip cannot handle.</p>
+
+<pre class="bash"><span class="cm"># Create a conda environment with a specific Python version</span>
+conda create -n analytics python=3.11
+
+<span class="cm"># Activate it</span>
+conda activate analytics
+
+<span class="cm"># Install packages (conda can mix conda + pip)</span>
+conda install pandas numpy scikit-learn
+pip install statsmodels
+
+<span class="cm"># List all environments</span>
+conda env list
+
+<span class="cm"># Export environment for reproducibility</span>
+conda env export > environment.yml
+
+<span class="cm"># Recreate from file on another machine</span>
+conda env create -f environment.yml</pre>
+
+<h3>pip vs conda: Quick Comparison</h3>
+
+<div class="table-wrapper">
+<table>
+    <thead><tr><th>Feature</th><th>pip</th><th>conda</th></tr></thead>
+    <tbody>
+        <tr><td>Source</td><td>PyPI (Python Package Index)</td><td>Anaconda / conda-forge channels</td></tr>
+        <tr><td>Language support</td><td>Python only</td><td>Python, R, C/C++, Julia</td></tr>
+        <tr><td>Environment tool</td><td>venv (separate tool)</td><td>Built-in (<code>conda create</code>)</td></tr>
+        <tr><td>Dependency resolver</td><td>Basic (improved in recent versions)</td><td>Full SAT solver, handles C-level deps</td></tr>
+        <tr><td>Speed</td><td>Generally faster for pure-Python packages</td><td>Slower to solve, but installs pre-built binaries</td></tr>
+        <tr><td>Best for</td><td>Lightweight projects, web apps, CI/CD</td><td>Data science, packages with C extensions</td></tr>
+    </tbody>
+</table>
+</div>
+
+<div class="concept tip">
+    <strong>Rule of thumb:</strong> Use conda if you are doing data science and need packages like NumPy, SciPy, or TensorFlow that have complex C dependencies. Use pip + venv for lightweight scripting projects. You can also mix them: create a conda environment, then pip-install packages that are not available on conda channels.
+</div>
+
+<h2>1.4 Choosing an IDE</h2>
 
 <div class="table-wrapper">
 <table>
@@ -71,15 +135,48 @@ pip install numpy pandas matplotlib seaborn scikit-learn statsmodels jupyter</pr
         <tr><td>Jupyter Notebook</td><td>Exploration, EDA, reports</td><td>Cell-by-cell execution with inline plots</td></tr>
         <tr><td>VS Code</td><td>Larger projects, scripts</td><td>Debugger, Git integration, extensions</td></tr>
         <tr><td>Google Colab</td><td>Cloud, collaboration</td><td>Free GPU, zero setup, shareable links</td></tr>
+        <tr><td>PyCharm</td><td>Professional software development</td><td>Intelligent code completion, refactoring tools</td></tr>
+        <tr><td>Spyder</td><td>Scientific computing, R-like workflow</td><td>Variable explorer, MATLAB-like layout</td></tr>
     </tbody>
 </table>
 </div>
 
 <div class="concept info">
-    <strong>Recommendation:</strong> Start with Jupyter Notebook for interactive exploration. Move to VS Code when writing reusable scripts and modules.
+    <strong>Recommendation:</strong> Start with Jupyter Notebook for interactive exploration. Move to VS Code when writing reusable scripts and modules. If you are transitioning from MATLAB or R, Spyder's variable explorer and console layout may feel most familiar.
 </div>
 
-<h2>1.4 Your First Script</h2>
+<h3>Jupyter Magic Commands</h3>
+<p>Jupyter notebooks support "magic" commands (prefixed with <code>%</code> or <code>!</code>) that are not regular Python. These are useful for timing code, installing packages, or configuring plots without leaving the notebook.</p>
+
+<pre class="python"><span class="cm"># Time a single statement (runs it many times and reports average)</span>
+%timeit sum(range(10000))
+
+<span class="cm"># Time an entire cell (put %%timeit at the top of the cell)</span>
+%%timeit
+total = 0
+for i in range(10000):
+    total += i
+
+<span class="cm"># Display matplotlib plots inline (run once at top of notebook)</span>
+%matplotlib inline
+
+<span class="cm"># Install a package directly from a notebook cell</span>
+!pip install seaborn
+
+<span class="cm"># Run a shell command</span>
+!ls *.csv
+
+<span class="cm"># Show all variables in the current namespace</span>
+%whos
+
+<span class="cm"># Reset all variables (start fresh)</span>
+%reset -f</pre>
+
+<div class="concept tip">
+    <strong>Why %timeit matters:</strong> As a data analyst, you will often compare two approaches to see which is faster. The <code>%timeit</code> magic runs your code thousands of times and reports the average, giving you a reliable benchmark rather than a single noisy measurement.
+</div>
+
+<h2>1.5 Your First Script</h2>
 <p>Create a new file called <code>hello.py</code> or open a Jupyter cell and type the following:</p>
 
 <pre class="python"><span class="cm"># hello.py — Your first Python script</span>
@@ -102,7 +199,7 @@ profit  = revenue - cost
     Profit:  $55,000
 </div>
 
-<h2>1.5 Variables and print()</h2>
+<h2>1.6 Variables and print()</h2>
 <p>Python variables do not need type declarations. The interpreter infers the type from the assigned value. Use <code>print()</code> to display output and f-strings for formatting.</p>
 
 <pre class="python"><span class="cm"># Variable assignment — no type declaration needed</span>
@@ -119,7 +216,46 @@ total = units_sold * unit_price
 <span class="cm"># Check type</span>
 <span class="fn">print</span>(<span class="fn">type</span>(unit_price))  <span class="cm"># &lt;class 'float'&gt;</span></pre>
 
-<h2>1.6 Comments and Code Style</h2>
+<h2>1.7 type() and Type Checking</h2>
+<p>Since Python is dynamically typed, variables can change type at any time. The <code>type()</code> function tells you what type a value currently holds, and <code>isinstance()</code> checks whether a value belongs to a specific type. Understanding types helps you debug unexpected behavior, especially when reading data from files where numbers might arrive as strings.</p>
+
+<pre class="python">quantity = <span class="nb">42</span>
+<span class="fn">print</span>(<span class="fn">type</span>(quantity))           <span class="cm"># &lt;class 'int'&gt;</span>
+
+quantity = <span class="st">"forty-two"</span>
+<span class="fn">print</span>(<span class="fn">type</span>(quantity))           <span class="cm"># &lt;class 'str'&gt;  — type changed!</span>
+
+<span class="cm"># isinstance() is preferred for type checking</span>
+price = <span class="nb">19.99</span>
+<span class="fn">print</span>(<span class="fn">isinstance</span>(price, <span class="nb">float</span>))      <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="fn">isinstance</span>(price, (<span class="nb">int</span>, <span class="nb">float</span>))) <span class="cm"># True (check multiple types)</span>
+
+<span class="cm"># Type conversion (casting)</span>
+user_input = <span class="st">"150"</span>
+units = <span class="fn">int</span>(user_input)        <span class="cm"># Convert string to int</span>
+rate  = <span class="fn">float</span>(<span class="st">"3.14"</span>)          <span class="cm"># Convert string to float</span>
+label = <span class="fn">str</span>(<span class="nb">2024</span>)              <span class="cm"># Convert int to string</span></pre>
+
+<div class="concept info">
+    <strong>Why this matters:</strong> When you read a CSV file without pandas, all values arrive as strings. You must convert numeric columns explicitly with <code>int()</code> or <code>float()</code> before doing arithmetic. Pandas handles this automatically, but understanding manual conversion helps you debug cases where it does not.
+</div>
+
+<h2>1.8 User Input with input()</h2>
+<p>The <code>input()</code> function pauses the program and waits for the user to type something. It always returns a string, so you need to convert the result if you expect a number.</p>
+
+<pre class="python"><span class="cm"># input() always returns a string</span>
+name = <span class="fn">input</span>(<span class="st">"Enter product name: "</span>)
+qty  = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Enter quantity: "</span>))
+cost = <span class="fn">float</span>(<span class="fn">input</span>(<span class="st">"Enter unit cost: "</span>))
+
+total = qty * cost
+<span class="fn">print</span>(<span class="st">f"Order for </span>{qty}<span class="st"> x </span>{name}<span class="st">: $</span>{total:,.2f}<span class="st">"</span>)</pre>
+
+<div class="concept tip">
+    <strong>Practical note:</strong> In data analytics scripts, <code>input()</code> is rarely used because data comes from files, databases, or APIs. However, it is valuable when building quick command-line tools for teammates who are not comfortable editing code directly. For example, you might write a script that asks "Enter the forecast horizon (weeks):" and then runs the appropriate analysis.
+</div>
+
+<h2>1.9 Comments and Code Style</h2>
 <p>Good code is readable code. Follow PEP 8 conventions: use snake_case for variables, add comments to explain why (not what), and keep lines under 79 characters.</p>
 
 <pre class="python"><span class="cm"># GOOD: descriptive variable names</span>
@@ -141,6 +277,66 @@ lead_time_days = <span class="nb">14</span>
     <p>Open a Jupyter Notebook and create three cells: (1) import the <code>math</code> module, (2) define a variable <code>radius = 5</code> and compute the area of a circle, (3) print the result. Run each cell individually and observe the output.</p>
 </div>
 
+<h2>1.10 Common Beginner Errors</h2>
+<p>Every beginner encounters the same handful of errors. Recognizing them quickly will save you hours of frustration. Read the error message carefully, starting from the bottom line, which tells you the type of error and a brief description.</p>
+
+<pre class="python"><span class="cm"># 1. IndentationError — Python uses whitespace to define code blocks</span>
+<span class="kw">if</span> <span class="nb">True</span>:
+<span class="fn">print</span>(<span class="st">"oops"</span>)  <span class="cm"># IndentationError: expected an indented block</span>
+
+<span class="cm"># Fix: indent the body of if/for/while/def with 4 spaces</span>
+<span class="kw">if</span> <span class="nb">True</span>:
+    <span class="fn">print</span>(<span class="st">"fixed"</span>)
+
+<span class="cm"># 2. NameError — using a variable before defining it</span>
+<span class="fn">print</span>(total_cost)  <span class="cm"># NameError: name 'total_cost' is not defined</span>
+
+<span class="cm"># 3. TypeError — operating on incompatible types</span>
+result = <span class="st">"Price: "</span> + <span class="nb">29.99</span>  <span class="cm"># TypeError: can only concatenate str to str</span>
+result = <span class="st">"Price: "</span> + <span class="fn">str</span>(<span class="nb">29.99</span>)  <span class="cm"># Fix: convert to string first</span>
+
+<span class="cm"># 4. SyntaxError — forgetting colons, quotes, or parentheses</span>
+<span class="kw">if</span> x > <span class="nb">5</span>     <span class="cm"># SyntaxError: expected ':'</span>
+<span class="fn">print</span>(<span class="st">"hello"</span>  <span class="cm"># SyntaxError: unexpected EOF (missing closing paren)</span></pre>
+
+<div class="concept warn">
+    <strong>Read errors bottom-up:</strong> Python tracebacks show the chain of function calls, with the actual error at the very bottom. Start reading there. The line number tells you where the error occurred, and the error type (NameError, TypeError, etc.) tells you what went wrong. Googling the exact error message almost always leads to a helpful Stack Overflow answer.
+</div>
+
+<pre class="python"><span class="cm"># 5. IndexError — accessing a list position that doesn't exist</span>
+items = [<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>]
+<span class="fn">print</span>(items[<span class="nb">5</span>])  <span class="cm"># IndexError: list index out of range</span>
+
+<span class="cm"># 6. ModuleNotFoundError — package not installed</span>
+<span class="kw">import</span> pandas  <span class="cm"># ModuleNotFoundError: No module named 'pandas'</span>
+<span class="cm"># Fix: pip install pandas  (in your terminal, not in Python)</span>
+
+<span class="cm"># 7. Mutable default argument trap (subtle!)</span>
+<span class="kw">def</span> <span class="fn">add_item</span>(item, basket=[]):  <span class="cm"># BAD: default list is shared</span>
+    basket.<span class="fn">append</span>(item)
+    <span class="kw">return</span> basket
+
+<span class="fn">print</span>(<span class="fn">add_item</span>(<span class="st">"apple"</span>))   <span class="cm"># ['apple']</span>
+<span class="fn">print</span>(<span class="fn">add_item</span>(<span class="st">"banana"</span>))  <span class="cm"># ['apple', 'banana'] — unexpected!</span>
+
+<span class="cm"># Fix: use None as default</span>
+<span class="kw">def</span> <span class="fn">add_item</span>(item, basket=<span class="nb">None</span>):
+    <span class="kw">if</span> basket <span class="kw">is</span> <span class="nb">None</span>:
+        basket = []
+    basket.<span class="fn">append</span>(item)
+    <span class="kw">return</span> basket</pre>
+
+<div class="exercise">
+    <h4>Exercise 1.3</h4>
+    <p>Write a script that uses <code>input()</code> to ask the user for a product name, a unit price, and a quantity. Compute the total cost and print a formatted receipt. Handle the case where the user enters a non-numeric price by wrapping the conversion in a <code>try/except</code> block and printing a helpful error message.</p>
+    <p class="solution">Hint: use <code>try: price = float(input(...))</code> and <code>except ValueError: print("Please enter a number")</code>.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 1.4</h4>
+    <p>Create a virtual environment using <code>python -m venv</code>, activate it, install <code>numpy</code>, and write a three-line script that imports numpy, creates an array of [10, 20, 30], and prints its mean. Then deactivate the environment. Document each terminal command you used.</p>
+</div>
+
 <div class="ext-resources">
     <h4>Official Resources</h4>
     <ul>
@@ -153,9 +349,12 @@ lead_time_days = <span class="nb">14</span>
 <div class="takeaway">
     <h3>Chapter 1 Takeaways</h3>
     <ul>
-        <li>Anaconda provides a batteries-included Python environment for data science.</li>
+        <li>Anaconda provides a batteries-included Python environment for data science; pip + venv is lighter for non-data-science projects.</li>
+        <li>Always create a virtual environment (venv or conda) for each project to avoid dependency conflicts.</li>
         <li>Jupyter Notebook is ideal for interactive exploration; VS Code is better for scripts and larger projects.</li>
-        <li>Variables in Python are dynamically typed; use descriptive names and f-strings for clean output.</li>
+        <li>Jupyter magic commands like <code>%timeit</code> and <code>%matplotlib inline</code> streamline common tasks.</li>
+        <li>Variables in Python are dynamically typed; use <code>type()</code> and <code>isinstance()</code> to inspect types when debugging.</li>
+        <li>Read error messages bottom-up: the last line tells you the error type and description.</li>
         <li>Follow PEP 8 conventions from the start to build good habits.</li>
     </ul>
 </div>

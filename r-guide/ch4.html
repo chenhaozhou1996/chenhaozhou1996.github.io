@@ -149,7 +149,196 @@ p <span class="op">+</span>
 </div>
 
 <!-- ────────────────────────────── -->
-<h2>4.8 Saving Plots with ggsave()</h2>
+<h2>4.8 stat_smooth(): Regression Lines on Plots</h2>
+
+<p><code>geom_smooth()</code> and <code>stat_smooth()</code> are interchangeable and add fitted regression lines or loess curves to scatterplots. Controlling the method, formula, and confidence interval gives you publication-ready overlays.</p>
+
+<pre class="r"><span class="cm"># Linear regression line with 95% confidence band</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_point</span>(alpha <span class="op">=</span> <span class="nb">0.5</span>) <span class="op">+</span>
+  <span class="fn">stat_smooth</span>(method <span class="op">=</span> <span class="st">"lm"</span>, formula <span class="op">=</span> y <span class="op">~</span> x, color <span class="op">=</span> <span class="st">"red"</span>)
+
+<span class="cm"># Polynomial fit</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_point</span>(alpha <span class="op">=</span> <span class="nb">0.5</span>) <span class="op">+</span>
+  <span class="fn">stat_smooth</span>(method <span class="op">=</span> <span class="st">"lm"</span>, formula <span class="op">=</span> y <span class="op">~</span> <span class="fn">poly</span>(x, <span class="nb">2</span>), color <span class="op">=</span> <span class="st">"blue"</span>)
+
+<span class="cm"># Separate regression lines by group</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy, color <span class="op">=</span> drv)) <span class="op">+</span>
+  <span class="fn">geom_point</span>(alpha <span class="op">=</span> <span class="nb">0.5</span>) <span class="op">+</span>
+  <span class="fn">stat_smooth</span>(method <span class="op">=</span> <span class="st">"lm"</span>, se <span class="op">=</span> <span class="nb">FALSE</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>4.9 Controlling Scales</h2>
+
+<p>Scale functions control how data values map to visual properties. The naming pattern is <code>scale_{aesthetic}_{type}()</code>.</p>
+
+<pre class="r"><span class="cm"># Continuous axis: custom breaks and labels</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_point</span>() <span class="op">+</span>
+  <span class="fn">scale_x_continuous</span>(
+    breaks <span class="op">=</span> <span class="fn">seq</span>(<span class="nb">1</span>, <span class="nb">7</span>, by <span class="op">=</span> <span class="nb">1</span>),
+    limits <span class="op">=</span> <span class="fn">c</span>(<span class="nb">1</span>, <span class="nb">7</span>)
+  ) <span class="op">+</span>
+  <span class="fn">scale_y_continuous</span>(
+    breaks <span class="op">=</span> <span class="fn">seq</span>(<span class="nb">10</span>, <span class="nb">50</span>, by <span class="op">=</span> <span class="nb">10</span>),
+    labels <span class="op">=</span> <span class="kw">function</span>(x) <span class="fn">paste0</span>(x, <span class="st">" mpg"</span>)
+  )
+
+<span class="cm"># Discrete scale: reorder and relabel</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> drv, y <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_boxplot</span>() <span class="op">+</span>
+  <span class="fn">scale_x_discrete</span>(labels <span class="op">=</span> <span class="fn">c</span>(<span class="st">"4"</span> <span class="op">=</span> <span class="st">"4WD"</span>, <span class="st">"f"</span> <span class="op">=</span> <span class="st">"Front"</span>, <span class="st">"r"</span> <span class="op">=</span> <span class="st">"Rear"</span>))
+
+<span class="cm"># Log scale (useful for skewed data like income or counts)</span>
+<span class="fn">ggplot</span>(diamonds, <span class="fn">aes</span>(x <span class="op">=</span> carat, y <span class="op">=</span> price)) <span class="op">+</span>
+  <span class="fn">geom_point</span>(alpha <span class="op">=</span> <span class="nb">0.1</span>) <span class="op">+</span>
+  <span class="fn">scale_x_log10</span>() <span class="op">+</span>
+  <span class="fn">scale_y_log10</span>()</pre>
+
+<!-- ────────────────────────────── -->
+<h2>4.10 Box Plots and Jitter</h2>
+
+<p>Box plots show the distribution of a continuous variable by groups. Adding jittered points reveals the raw data underneath.</p>
+
+<pre class="r"><span class="cm"># Basic boxplot</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> class, y <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_boxplot</span>(fill <span class="op">=</span> <span class="st">"#dbeafe"</span>, outlier.shape <span class="op">=</span> <span class="nb">NA</span>) <span class="op">+</span>
+  <span class="fn">geom_jitter</span>(width <span class="op">=</span> <span class="nb">0.2</span>, alpha <span class="op">=</span> <span class="nb">0.4</span>, color <span class="op">=</span> <span class="st">"#276DC3"</span>) <span class="op">+</span>
+  <span class="fn">coord_flip</span>() <span class="op">+</span>
+  <span class="fn">labs</span>(title <span class="op">=</span> <span class="st">"Highway MPG by Vehicle Class"</span>,
+       x <span class="op">=</span> <span class="nb">NULL</span>, y <span class="op">=</span> <span class="st">"Highway MPG"</span>) <span class="op">+</span>
+  <span class="fn">theme_minimal</span>()</pre>
+
+<div class="concept tip">
+  <strong>Tip: coord_flip() for readability</strong>
+  When category labels are long, flip coordinates so bars or boxes run horizontally. In newer ggplot2 versions, you can also place the categorical variable on <code>y</code> directly instead of using <code>coord_flip()</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>4.11 Heatmaps with geom_tile()</h2>
+
+<p>Heatmaps are excellent for visualizing correlation matrices, cross-tabulations, or any grid of values.</p>
+
+<pre class="r"><span class="cm"># Correlation heatmap</span>
+<span class="fn">library</span>(dplyr)
+<span class="fn">library</span>(tidyr)
+
+cor_data <span class="op">&lt;-</span> mtcars <span class="op">|&gt;</span>
+  <span class="fn">select</span>(mpg, hp, wt, qsec, disp) <span class="op">|&gt;</span>
+  <span class="fn">cor</span>() <span class="op">|&gt;</span>
+  <span class="fn">as.data.frame</span>() <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(var1 <span class="op">=</span> <span class="fn">rownames</span>(<span class="fn">cor</span>(<span class="fn">select</span>(mtcars, mpg, hp, wt, qsec, disp)))) <span class="op">|&gt;</span>
+  <span class="fn">pivot_longer</span>(<span class="op">-</span>var1, names_to <span class="op">=</span> <span class="st">"var2"</span>, values_to <span class="op">=</span> <span class="st">"r"</span>)
+
+<span class="fn">ggplot</span>(cor_data, <span class="fn">aes</span>(x <span class="op">=</span> var1, y <span class="op">=</span> var2, fill <span class="op">=</span> r)) <span class="op">+</span>
+  <span class="fn">geom_tile</span>(color <span class="op">=</span> <span class="st">"white"</span>) <span class="op">+</span>
+  <span class="fn">scale_fill_gradient2</span>(low <span class="op">=</span> <span class="st">"#d73027"</span>, mid <span class="op">=</span> <span class="st">"white"</span>,
+                       high <span class="op">=</span> <span class="st">"#276DC3"</span>, midpoint <span class="op">=</span> <span class="nb">0</span>) <span class="op">+</span>
+  <span class="fn">geom_text</span>(<span class="fn">aes</span>(label <span class="op">=</span> <span class="fn">round</span>(r, <span class="nb">2</span>)), size <span class="op">=</span> <span class="nb">3.5</span>) <span class="op">+</span>
+  <span class="fn">labs</span>(title <span class="op">=</span> <span class="st">"Correlation Matrix"</span>, x <span class="op">=</span> <span class="nb">NULL</span>, y <span class="op">=</span> <span class="nb">NULL</span>) <span class="op">+</span>
+  <span class="fn">theme_minimal</span>()</pre>
+
+<!-- ────────────────────────────── -->
+<h2>4.12 Annotations</h2>
+
+<p>Use <code>annotate()</code> to add text, rectangles, arrows, or other elements that are not mapped to data.</p>
+
+<pre class="r"><span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_point</span>(alpha <span class="op">=</span> <span class="nb">0.5</span>) <span class="op">+</span>
+  <span class="fn">annotate</span>(<span class="st">"text"</span>, x <span class="op">=</span> <span class="nb">6</span>, y <span class="op">=</span> <span class="nb">40</span>,
+           label <span class="op">=</span> <span class="st">"Outlier region"</span>, color <span class="op">=</span> <span class="st">"red"</span>, size <span class="op">=</span> <span class="nb">4</span>) <span class="op">+</span>
+  <span class="fn">annotate</span>(<span class="st">"rect"</span>, xmin <span class="op">=</span> <span class="nb">5</span>, xmax <span class="op">=</span> <span class="nb">7</span>, ymin <span class="op">=</span> <span class="nb">35</span>, ymax <span class="op">=</span> <span class="nb">45</span>,
+           alpha <span class="op">=</span> <span class="nb">0.1</span>, fill <span class="op">=</span> <span class="st">"red"</span>) <span class="op">+</span>
+  <span class="fn">annotate</span>(<span class="st">"segment"</span>, x <span class="op">=</span> <span class="nb">5.5</span>, xend <span class="op">=</span> <span class="nb">5</span>, y <span class="op">=</span> <span class="nb">44</span>, yend <span class="op">=</span> <span class="nb">44</span>,
+           arrow <span class="op">=</span> <span class="fn">arrow</span>(length <span class="op">=</span> <span class="fn">unit</span>(<span class="nb">0.2</span>, <span class="st">"cm"</span>)),
+           color <span class="op">=</span> <span class="st">"red"</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>4.13 Combining Plots with patchwork</h2>
+
+<p>The <code>patchwork</code> package makes it simple to arrange multiple ggplot objects into a single figure, replacing the need for <code>grid.arrange()</code> or <code>cowplot</code>.</p>
+
+<pre class="r"><span class="cm"># install.packages("patchwork")</span>
+<span class="fn">library</span>(patchwork)
+
+p1 <span class="op">&lt;-</span> <span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_point</span>() <span class="op">+</span> <span class="fn">ggtitle</span>(<span class="st">"Scatter"</span>)
+
+p2 <span class="op">&lt;-</span> <span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> hwy)) <span class="op">+</span>
+  <span class="fn">geom_histogram</span>(binwidth <span class="op">=</span> <span class="nb">2</span>, fill <span class="op">=</span> <span class="st">"#276DC3"</span>) <span class="op">+</span> <span class="fn">ggtitle</span>(<span class="st">"Histogram"</span>)
+
+p3 <span class="op">&lt;-</span> <span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> class)) <span class="op">+</span>
+  <span class="fn">geom_bar</span>(fill <span class="op">=</span> <span class="st">"#276DC3"</span>) <span class="op">+</span> <span class="fn">ggtitle</span>(<span class="st">"Bar"</span>)
+
+<span class="cm"># Side by side</span>
+p1 <span class="op">|</span> p2
+
+<span class="cm"># Stacked</span>
+p1 <span class="op">/</span> p2
+
+<span class="cm"># Complex layout with annotation</span>
+(p1 <span class="op">|</span> p2) <span class="op">/</span> p3 <span class="op">+</span>
+  <span class="fn">plot_annotation</span>(
+    title <span class="op">=</span> <span class="st">"MPG Dataset Overview"</span>,
+    tag_levels <span class="op">=</span> <span class="st">"A"</span>   <span class="cm"># auto-labels: (A), (B), (C)</span>
+  )</pre>
+
+<div class="concept info">
+  <strong>patchwork operators</strong>
+  <code>|</code> places plots side by side. <code>/</code> stacks them vertically. <code>+</code> adds them to a layout grid. Use <code>plot_layout(widths = c(2, 1))</code> to control relative sizes. <code>plot_annotation()</code> adds titles, subtitles, and panel tags.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>4.14 Color-Blind Friendly Palettes (viridis)</h2>
+
+<p>Approximately 8% of men have some form of color vision deficiency. Using the <code>viridis</code> scale ensures your plots remain interpretable for all readers.</p>
+
+<pre class="r"><span class="cm"># Continuous viridis scale</span>
+<span class="fn">ggplot</span>(diamonds <span class="op">|&gt;</span> dplyr<span class="op">::</span><span class="fn">sample_n</span>(<span class="nb">2000</span>),
+       <span class="fn">aes</span>(x <span class="op">=</span> carat, y <span class="op">=</span> price, color <span class="op">=</span> depth)) <span class="op">+</span>
+  <span class="fn">geom_point</span>(alpha <span class="op">=</span> <span class="nb">0.6</span>) <span class="op">+</span>
+  <span class="fn">scale_color_viridis_c</span>() <span class="op">+</span>
+  <span class="fn">theme_minimal</span>()
+
+<span class="cm"># Discrete viridis scale for categorical data</span>
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy, color <span class="op">=</span> drv)) <span class="op">+</span>
+  <span class="fn">geom_point</span>(size <span class="op">=</span> <span class="nb">2</span>) <span class="op">+</span>
+  <span class="fn">scale_color_viridis_d</span>(option <span class="op">=</span> <span class="st">"D"</span>) <span class="op">+</span>  <span class="cm"># options: A-H</span>
+  <span class="fn">theme_minimal</span>()
+
+<span class="cm"># Other color-blind safe palettes</span>
+<span class="cm"># scale_color_brewer(palette = "Set2")      # ColorBrewer</span>
+<span class="cm"># scale_color_manual(values = c(...))        # fully custom</span></pre>
+
+<div class="concept warn">
+  <strong>Avoid red-green only palettes</strong>
+  The most common color vision deficiency is red-green (deuteranopia). Default ggplot2 colors use a hue-based palette that can be hard to distinguish. Always consider using <code>viridis</code>, <code>ColorBrewer</code> qualitative palettes, or adding shape/linetype as a redundant encoding.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>4.15 Interactive Plots with plotly</h2>
+
+<p>The <code>plotly</code> package can convert any ggplot into an interactive, zoomable HTML widget with a single function call. This is invaluable for exploratory analysis and presentations.</p>
+
+<pre class="r"><span class="cm"># install.packages("plotly")</span>
+<span class="fn">library</span>(plotly)
+
+p <span class="op">&lt;-</span> <span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(x <span class="op">=</span> displ, y <span class="op">=</span> hwy, color <span class="op">=</span> class,
+                     text <span class="op">=</span> <span class="fn">paste</span>(<span class="st">"Model:"</span>, model))) <span class="op">+</span>
+  <span class="fn">geom_point</span>(size <span class="op">=</span> <span class="nb">2</span>) <span class="op">+</span>
+  <span class="fn">theme_minimal</span>()
+
+<span class="cm"># Convert to interactive — hover to see tooltips</span>
+<span class="fn">ggplotly</span>(p, tooltip <span class="op">=</span> <span class="fn">c</span>(<span class="st">"text"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>))</pre>
+
+<div class="concept tip">
+  <strong>Tip: Custom tooltips</strong>
+  Map a <code>text</code> aesthetic in <code>aes()</code> with <code>paste()</code> to build informative tooltips. Then pass <code>tooltip = "text"</code> to <code>ggplotly()</code>. This is especially useful when each point represents a specific entity (a company, a patient, a country).
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>4.16 Saving Plots with ggsave()</h2>
 
 <pre class="r"><span class="cm"># Save the last plot</span>
 <span class="fn">ggsave</span>(<span class="st">"my_plot.png"</span>, width <span class="op">=</span> <span class="nb">8</span>, height <span class="op">=</span> <span class="nb">5</span>, dpi <span class="op">=</span> <span class="nb">300</span>)
@@ -168,6 +357,16 @@ p <span class="op">+</span>
 <div class="exercise">
   <h4>Exercise 4.2</h4>
   <p>Build a bar chart showing the count of vehicles per <code>manufacturer</code> in the <code>mpg</code> dataset. Sort bars from most to least using <code>fct_infreq()</code> from the forcats package. Use <code>coord_flip()</code> for readability.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 4.3</h4>
+  <p>Create a correlation heatmap using <code>geom_tile()</code> for the numeric columns of the <code>mtcars</code> dataset. Use <code>scale_fill_gradient2()</code> with a diverging palette centered at zero. Add correlation coefficient labels with <code>geom_text()</code>. Which pair of variables has the strongest positive correlation? The strongest negative?</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 4.4</h4>
+  <p>Using the <code>patchwork</code> package, create a three-panel figure from <code>mpg</code>: (A) a boxplot of <code>hwy</code> by <code>drv</code> with jittered points, (B) a density plot of <code>hwy</code> colored by <code>drv</code>, and (C) a scatterplot of <code>displ</code> vs. <code>hwy</code> with regression lines by <code>drv</code>. Arrange them as two on top, one on bottom, with automatic panel tags and a shared title. Use a color-blind friendly palette throughout. Save the result as a PDF at 10 x 7 inches.</p>
 </div>
 
 <!-- ────────────────────────────── -->

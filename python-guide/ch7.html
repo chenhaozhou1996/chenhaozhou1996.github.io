@@ -48,7 +48,39 @@
 <span class="kw">import</span> statsmodels.api <span class="kw">as</span> sm
 <span class="kw">import</span> statsmodels.formula.api <span class="kw">as</span> smf</pre>
 
-<h2>7.2 Two-Sample t-Test</h2>
+<h2>7.2 Normality Tests and Q-Q Plots</h2>
+<p>Many statistical tests assume that data follows a normal distribution. Before running a t-test or regression, you should check this assumption. The Shapiro-Wilk test is the most commonly used formal normality test, and Q-Q plots provide a visual diagnostic.</p>
+
+<pre class="python"><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Generate some data</span>
+np.random.<span class="fn">seed</span>(<span class="nb">42</span>)
+normal_data = np.random.<span class="fn">normal</span>(loc=<span class="nb">50</span>, scale=<span class="nb">10</span>, size=<span class="nb">100</span>)
+skewed_data = np.random.<span class="fn">exponential</span>(scale=<span class="nb">10</span>, size=<span class="nb">100</span>)
+
+<span class="cm"># Shapiro-Wilk test: H0 = data is normally distributed</span>
+stat1, p1 = stats.<span class="fn">shapiro</span>(normal_data)
+stat2, p2 = stats.<span class="fn">shapiro</span>(skewed_data)
+<span class="fn">print</span>(<span class="st">f"Normal data  - W={stat1:.4f}, p={p1:.4f}"</span>)   <span class="cm"># p > 0.05: fail to reject</span>
+<span class="fn">print</span>(<span class="st">f"Skewed data  - W={stat2:.4f}, p={p2:.4f}"</span>)   <span class="cm"># p < 0.05: reject normality</span>
+
+<span class="cm"># Q-Q plot: points should fall on the diagonal if data is normal</span>
+fig, axes = plt.<span class="fn">subplots</span>(<span class="nb">1</span>, <span class="nb">2</span>, figsize=(<span class="nb">10</span>, <span class="nb">4</span>))
+
+stats.<span class="fn">probplot</span>(normal_data, dist=<span class="st">"norm"</span>, plot=axes[<span class="nb">0</span>])
+axes[<span class="nb">0</span>].<span class="fn">set_title</span>(<span class="st">"Q-Q Plot: Normal Data"</span>)
+
+stats.<span class="fn">probplot</span>(skewed_data, dist=<span class="st">"norm"</span>, plot=axes[<span class="nb">1</span>])
+axes[<span class="nb">1</span>].<span class="fn">set_title</span>(<span class="st">"Q-Q Plot: Skewed Data"</span>)
+
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<div class="concept info">
+    <strong>When normality is violated:</strong> If your data is not normally distributed, you have several options. For hypothesis testing, use non-parametric alternatives (Mann-Whitney U instead of t-test, Kruskal-Wallis instead of ANOVA). For regression, non-normality of the dependent variable is less of a concern than non-normality of the residuals, and with large samples (n > 30), the Central Limit Theorem often makes the t-test robust even with non-normal data.
+</div>
+
+<h2>7.3 Two-Sample t-Test</h2>
 <p>Test whether two groups have different means. This is one of the most commonly used tests in business analytics.</p>
 
 <pre class="python"><span class="cm"># Delivery times for two carriers</span>
@@ -69,7 +101,7 @@ t_stat, p_value = stats.<span class="fn">ttest_ind</span>(carrier_a, carrier_b)
     <strong>Paired vs. independent:</strong> Use <code>ttest_ind()</code> for independent samples (different groups). Use <code>ttest_rel()</code> for paired samples (same subjects measured twice, e.g., before/after a policy change).
 </div>
 
-<h2>7.3 Chi-Square Test</h2>
+<h2>7.4 Chi-Square Test</h2>
 <p>Test for independence between two categorical variables.</p>
 
 <pre class="python"><span class="cm"># Contingency table: defect rate by shift</span>
@@ -80,7 +112,7 @@ chi2, p_val, dof, expected = stats.<span class="fn">chi2_contingency</span>(obse
 <span class="fn">print</span>(<span class="st">f"Chi-square: </span>{chi2:.2f}<span class="st">, p-value: </span>{p_val:.4f}<span class="st">, df: </span>{dof}<span class="st">"</span>)
 <span class="fn">print</span>(<span class="st">f"Expected frequencies:\n</span>{expected}<span class="st">"</span>)</pre>
 
-<h2>7.4 One-Way ANOVA</h2>
+<h2>7.5 One-Way ANOVA</h2>
 <p>Compare means across three or more groups.</p>
 
 <pre class="python"><span class="cm"># Customer satisfaction scores by region</span>
@@ -91,7 +123,40 @@ west    = [<span class="nb">7.8</span>, <span class="nb">8.1</span>, <span class
 f_stat, p_val = stats.<span class="fn">f_oneway</span>(east, central, west)
 <span class="fn">print</span>(<span class="st">f"F-statistic: </span>{f_stat:.2f}<span class="st">, p-value: </span>{p_val:.4f}<span class="st">"</span>)</pre>
 
-<h2>7.5 OLS Regression with statsmodels</h2>
+<h2>7.6 Correlation Types: Pearson, Spearman, and Kendall</h2>
+<p>Correlation measures the strength and direction of a relationship between two variables. The right type of correlation depends on your data.</p>
+
+<pre class="python">np.random.<span class="fn">seed</span>(<span class="nb">42</span>)
+n = <span class="nb">100</span>
+x = np.random.<span class="fn">uniform</span>(<span class="nb">0</span>, <span class="nb">100</span>, n)
+y_linear = <span class="nb">2</span> * x + np.random.<span class="fn">normal</span>(<span class="nb">0</span>, <span class="nb">15</span>, n)
+y_monotonic = np.<span class="fn">log</span>(x + <span class="nb">1</span>) * <span class="nb">20</span> + np.random.<span class="fn">normal</span>(<span class="nb">0</span>, <span class="nb">5</span>, n)
+
+<span class="cm"># Pearson: measures LINEAR correlation (-1 to 1)</span>
+r_pearson, p_pearson = stats.<span class="fn">pearsonr</span>(x, y_linear)
+<span class="fn">print</span>(<span class="st">f"Pearson r  = </span>{r_pearson:.3f}<span class="st">, p = </span>{p_pearson:.4f}<span class="st">"</span>)
+
+<span class="cm"># Spearman: measures MONOTONIC correlation (rank-based)</span>
+<span class="cm"># Better for non-linear but consistently increasing/decreasing relationships</span>
+r_spearman, p_spearman = stats.<span class="fn">spearmanr</span>(x, y_monotonic)
+<span class="fn">print</span>(<span class="st">f"Spearman r = </span>{r_spearman:.3f}<span class="st">, p = </span>{p_spearman:.4f}<span class="st">"</span>)
+
+<span class="cm"># Kendall: also rank-based, more robust with small samples or many ties</span>
+r_kendall, p_kendall = stats.<span class="fn">kendalltau</span>(x, y_monotonic)
+<span class="fn">print</span>(<span class="st">f"Kendall tau = </span>{r_kendall:.3f}<span class="st">, p = </span>{p_kendall:.4f}<span class="st">"</span>)
+
+<span class="cm"># Compute a full correlation matrix with pandas</span>
+df_corr = pd.<span class="fn">DataFrame</span>({<span class="st">"x"</span>: x, <span class="st">"y_lin"</span>: y_linear, <span class="st">"y_mono"</span>: y_monotonic})
+<span class="fn">print</span>(<span class="st">"\nPearson correlation matrix:"</span>)
+<span class="fn">print</span>(df_corr.<span class="fn">corr</span>(method=<span class="st">"pearson"</span>).<span class="fn">round</span>(<span class="nb">3</span>))
+<span class="fn">print</span>(<span class="st">"\nSpearman correlation matrix:"</span>)
+<span class="fn">print</span>(df_corr.<span class="fn">corr</span>(method=<span class="st">"spearman"</span>).<span class="fn">round</span>(<span class="nb">3</span>))</pre>
+
+<div class="concept tip">
+    <strong>Which correlation to use:</strong> Use <strong>Pearson</strong> when both variables are continuous and the relationship looks linear. Use <strong>Spearman</strong> when the relationship is monotonic but not necessarily linear, or when your data contains outliers (since it operates on ranks). Use <strong>Kendall's tau</strong> when you have small samples, ordinal data, or many tied values. Pearson is by far the most common in practice, but reporting Spearman alongside it is good practice when you are unsure about linearity.
+</div>
+
+<h2>7.7 OLS Regression with statsmodels</h2>
 <p>Ordinary Least Squares (OLS) regression is the starting point for predictive modeling and causal inference in business research.</p>
 
 <pre class="python"><span class="cm"># Generate sample data</span>
@@ -108,7 +173,7 @@ df[<span class="st">"sales"</span>] = <span class="nb">50</span> + <span class="
 model = smf.<span class="fn">ols</span>(<span class="st">"sales ~ ad_spend + price + competitors"</span>, data=df).<span class="fn">fit</span>()
 <span class="fn">print</span>(model.<span class="fn">summary</span>())</pre>
 
-<h2>7.6 Interpreting Regression Output</h2>
+<h2>7.8 Interpreting Regression Output</h2>
 <p>The key sections of the OLS summary table include:</p>
 <ul>
     <li><strong>R-squared:</strong> Proportion of variance in the DV explained by the model (0 to 1).</li>
@@ -123,7 +188,41 @@ model = smf.<span class="fn">ols</span>(<span class="st">"sales ~ ad_spend + pri
 <span class="fn">print</span>(<span class="st">f"Coefficients:\n</span>{model.params}<span class="st">"</span>)
 <span class="fn">print</span>(<span class="st">f"P-values:\n</span>{model.pvalues}<span class="st">"</span>)</pre>
 
-<h2>7.7 Diagnostics</h2>
+<h2>7.9 Multiple Regression and Multicollinearity (VIF)</h2>
+<p>When you include multiple predictors, you need to check whether they are too highly correlated with each other. This condition, called multicollinearity, inflates the standard errors of your coefficients and makes individual predictors appear insignificant even when they are collectively important. The Variance Inflation Factor (VIF) quantifies the severity of multicollinearity for each predictor.</p>
+
+<pre class="python"><span class="kw">from</span> statsmodels.stats.outliers_influence <span class="kw">import</span> variance_inflation_factor
+
+<span class="cm"># Fit a model with correlated predictors</span>
+np.random.<span class="fn">seed</span>(<span class="nb">42</span>)
+n = <span class="nb">200</span>
+x1 = np.random.<span class="fn">uniform</span>(<span class="nb">10</span>, <span class="nb">100</span>, n)
+x2 = x1 * <span class="nb">0.8</span> + np.random.<span class="fn">normal</span>(<span class="nb">0</span>, <span class="nb">10</span>, n)  <span class="cm"># highly correlated with x1</span>
+x3 = np.random.<span class="fn">uniform</span>(<span class="nb">1</span>, <span class="nb">50</span>, n)             <span class="cm"># independent</span>
+y  = <span class="nb">20</span> + <span class="nb">3</span> * x1 - <span class="nb">1.5</span> * x3 + np.random.<span class="fn">normal</span>(<span class="nb">0</span>, <span class="nb">15</span>, n)
+
+df_vif = pd.<span class="fn">DataFrame</span>({<span class="st">"x1"</span>: x1, <span class="st">"x2"</span>: x2, <span class="st">"x3"</span>: x3, <span class="st">"y"</span>: y})
+
+model = smf.<span class="fn">ols</span>(<span class="st">"y ~ x1 + x2 + x3"</span>, data=df_vif).<span class="fn">fit</span>()
+<span class="fn">print</span>(model.<span class="fn">summary</span>().<span class="fn">tables</span>[<span class="nb">1</span>])
+
+<span class="cm"># Calculate VIF for each predictor</span>
+X_matrix = df_vif[[<span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>]]
+X_with_const = sm.<span class="fn">add_constant</span>(X_matrix)
+
+vif_data = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"Variable"</span>: X_with_const.columns,
+    <span class="st">"VIF"</span>: [<span class="fn">variance_inflation_factor</span>(X_with_const.values, i)
+           <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(X_with_const.shape[<span class="nb">1</span>])]
+})
+<span class="fn">print</span>(<span class="st">"\nVariance Inflation Factors:"</span>)
+<span class="fn">print</span>(vif_data)</pre>
+
+<div class="concept warn">
+    <strong>VIF interpretation:</strong> A VIF of 1 means no multicollinearity. VIF between 1 and 5 is generally acceptable. VIF above 5 suggests moderate multicollinearity worth investigating. VIF above 10 indicates severe multicollinearity. Common remedies include dropping one of the correlated variables, combining them into an index, or using regularization techniques like Ridge regression.
+</div>
+
+<h2>7.10 Diagnostics</h2>
 
 <pre class="python"><span class="cm"># Residuals vs. fitted values (check for heteroskedasticity)</span>
 <span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
@@ -140,7 +239,7 @@ plt.<span class="fn">title</span>(<span class="st">"Residuals vs. Fitted"</span>
 plt.<span class="fn">tight_layout</span>()
 plt.<span class="fn">show</span>()</pre>
 
-<h2>7.8 Confidence Intervals</h2>
+<h2>7.11 Confidence Intervals</h2>
 
 <pre class="python"><span class="cm"># 95% confidence intervals for coefficients</span>
 ci = model.<span class="fn">conf_int</span>(alpha=<span class="nb">0.05</span>)
@@ -154,6 +253,79 @@ se   = stats.<span class="fn">sem</span>(sample)
 ci_low, ci_high = stats.t.<span class="fn">interval</span>(<span class="nb">0.95</span>, df=<span class="fn">len</span>(sample)-<span class="nb">1</span>, loc=mean, scale=se)
 <span class="fn">print</span>(<span class="st">f"Sales mean: </span>{mean:.1f}<span class="st"> [</span>{ci_low:.1f}<span class="st">, </span>{ci_high:.1f}<span class="st">]"</span>)</pre>
 
+<h2>7.12 Logistic Regression with statsmodels</h2>
+<p>When your dependent variable is binary (yes/no, churn/retain, pass/fail), OLS regression is inappropriate because it can produce predicted probabilities outside [0, 1]. Logistic regression models the log-odds of the outcome as a linear function of the predictors.</p>
+
+<pre class="python"><span class="cm"># Binary outcome: will the student pass?</span>
+np.random.<span class="fn">seed</span>(<span class="nb">42</span>)
+n = <span class="nb">300</span>
+df_logit = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"study_hours"</span>: np.random.<span class="fn">uniform</span>(<span class="nb">0</span>, <span class="nb">20</span>, n),
+    <span class="st">"gpa"</span>:         np.random.<span class="fn">uniform</span>(<span class="nb">2.0</span>, <span class="nb">4.0</span>, n),
+    <span class="st">"attendance"</span>:  np.random.<span class="fn">uniform</span>(<span class="nb">50</span>, <span class="nb">100</span>, n),
+})
+<span class="cm"># True probability of passing depends on all three</span>
+logit = -<span class="nb">5</span> + <span class="nb">0.3</span> * df_logit[<span class="st">"study_hours"</span>] + <span class="nb">1.5</span> * df_logit[<span class="st">"gpa"</span>] + <span class="nb">0.02</span> * df_logit[<span class="st">"attendance"</span>]
+prob = <span class="nb">1</span> / (<span class="nb">1</span> + np.<span class="fn">exp</span>(-logit))
+df_logit[<span class="st">"passed"</span>] = np.random.<span class="fn">binomial</span>(<span class="nb">1</span>, prob)
+
+<span class="cm"># Fit logistic regression using the formula API</span>
+logit_model = smf.<span class="fn">logit</span>(<span class="st">"passed ~ study_hours + gpa + attendance"</span>, data=df_logit).<span class="fn">fit</span>()
+<span class="fn">print</span>(logit_model.<span class="fn">summary</span>())
+
+<span class="cm"># Interpret coefficients as odds ratios</span>
+odds_ratios = np.<span class="fn">exp</span>(logit_model.params)
+<span class="fn">print</span>(<span class="st">"\nOdds Ratios:"</span>)
+<span class="fn">print</span>(odds_ratios.<span class="fn">round</span>(<span class="nb">3</span>))
+
+<span class="cm"># Predict probabilities for new observations</span>
+new_student = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"study_hours"</span>: [<span class="nb">5</span>, <span class="nb">15</span>],
+    <span class="st">"gpa"</span>: [<span class="nb">2.5</span>, <span class="nb">3.8</span>],
+    <span class="st">"attendance"</span>: [<span class="nb">60</span>, <span class="nb">95</span>]
+})
+<span class="fn">print</span>(<span class="st">f"\nPredicted pass probabilities: </span>{logit_model.<span class="fn">predict</span>(new_student).values}<span class="st">"</span>)</pre>
+
+<div class="concept info">
+    <strong>Interpreting logistic regression:</strong> The raw coefficients represent changes in the log-odds. To make them interpretable, exponentiate them to get <strong>odds ratios</strong>. An odds ratio of 1.35 for study_hours means that each additional hour of studying multiplies the odds of passing by 1.35 (a 35% increase in odds). Coefficients with p &lt; 0.05 are statistically significant. Pseudo R-squared values (like McFadden's) are reported instead of the familiar R-squared, but they are not directly comparable.
+</div>
+
+<h2>7.13 Survival Analysis Basics</h2>
+<p>Survival analysis studies the time until an event occurs: customer churn, machine failure, patient recovery. The key concept is the <strong>survival function</strong> S(t), which gives the probability that the event has not yet occurred by time t. Python's <code>lifelines</code> library provides tools for survival analysis.</p>
+
+<pre class="python"><span class="cm"># pip install lifelines</span>
+<span class="kw">from</span> lifelines <span class="kw">import</span> KaplanMeierFitter, CoxPHFitter
+
+<span class="cm"># Simulate customer churn data</span>
+np.random.<span class="fn">seed</span>(<span class="nb">42</span>)
+n = <span class="nb">200</span>
+df_surv = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"tenure_months"</span>: np.random.<span class="fn">exponential</span>(scale=<span class="nb">18</span>, size=n).<span class="fn">round</span>(<span class="nb">1</span>),
+    <span class="st">"churned"</span>:       np.random.<span class="fn">binomial</span>(<span class="nb">1</span>, <span class="nb">0.6</span>, n),  <span class="cm"># 1 = churned, 0 = still active</span>
+    <span class="st">"plan"</span>:          np.random.<span class="fn">choice</span>([<span class="st">"Basic"</span>, <span class="st">"Premium"</span>], n),
+})
+
+<span class="cm"># Kaplan-Meier survival curve (non-parametric)</span>
+kmf = <span class="fn">KaplanMeierFitter</span>()
+
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="nb">8</span>, <span class="nb">5</span>))
+<span class="kw">for</span> plan <span class="kw">in</span> [<span class="st">"Basic"</span>, <span class="st">"Premium"</span>]:
+    mask = df_surv[<span class="st">"plan"</span>] == plan
+    kmf.<span class="fn">fit</span>(df_surv.<span class="fn">loc</span>[mask, <span class="st">"tenure_months"</span>],
+           event_observed=df_surv.<span class="fn">loc</span>[mask, <span class="st">"churned"</span>],
+           label=plan)
+    kmf.<span class="fn">plot_survival_function</span>(ax=ax)
+
+ax.<span class="fn">set_xlabel</span>(<span class="st">"Months"</span>)
+ax.<span class="fn">set_ylabel</span>(<span class="st">"Survival Probability"</span>)
+ax.<span class="fn">set_title</span>(<span class="st">"Customer Retention by Plan Type"</span>)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<div class="concept tip">
+    <strong>Why survival analysis over logistic regression?</strong> Logistic regression answers "will this customer churn?" (yes/no). Survival analysis answers "when will this customer churn?" and properly handles <strong>censored observations</strong>, where the event has not yet occurred at the time of data collection. If you ignore censoring and treat active customers as non-churners, you underestimate the true churn rate.
+</div>
+
 <div class="exercise">
     <h4>Exercise 7.1</h4>
     <p>Generate two samples of 100 observations each from normal distributions with means of 50 and 53 and a standard deviation of 10. Run a two-sample t-test. Increase the sample size to 500 and observe how the p-value changes. Discuss the relationship between sample size and statistical power.</p>
@@ -162,6 +334,16 @@ ci_low, ci_high = stats.t.<span class="fn">interval</span>(<span class="nb">0.95
 <div class="exercise">
     <h4>Exercise 7.2</h4>
     <p>Create a DataFrame with 300 rows and columns for square_footage, bedrooms, and age_years. Generate a house_price column as a linear function of those predictors plus noise. Fit an OLS model, print the summary, and plot the residuals vs. fitted values. Discuss whether the assumptions appear met.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 7.3</h4>
+    <p>Create two variables where one is the log of the other (with noise). Compute both Pearson and Spearman correlations. Which one is higher, and why? Create a scatter plot to visualize the non-linear relationship. Then compute VIF for a regression model that includes both <code>x</code> and <code>x_squared</code> as predictors. What do you observe?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 7.4</h4>
+    <p>Generate a binary outcome (e.g., customer churn) as a function of three predictors using the logistic function. Fit a logistic regression with <code>smf.logit()</code>, print the odds ratios, and predict the churn probability for two hypothetical customers: one with high engagement and one with low engagement. Interpret the odds ratios in plain language.</p>
 </div>
 
 <div class="ext-resources">
@@ -176,10 +358,13 @@ ci_low, ci_high = stats.t.<span class="fn">interval</span>(<span class="nb">0.95
 <div class="takeaway">
     <h3>Chapter 7 Takeaways</h3>
     <ul>
-        <li>scipy.stats provides classical hypothesis tests: t-test, chi-square, ANOVA, and more.</li>
-        <li>statsmodels provides OLS regression with full diagnostic output similar to Stata or R.</li>
-        <li>Always check residual plots for heteroskedasticity and non-linearity after fitting a regression.</li>
-        <li>Report confidence intervals alongside p-values for a more complete picture of your estimates.</li>
+        <li>Always check normality assumptions with Shapiro-Wilk tests and Q-Q plots before running parametric tests.</li>
+        <li>Choose the right correlation type: Pearson for linear relationships, Spearman for monotonic ones, Kendall for small or ordinal data.</li>
+        <li>scipy.stats provides classical hypothesis tests (t-test, chi-square, ANOVA); statsmodels provides regression with full diagnostic output similar to Stata or R.</li>
+        <li>Check for multicollinearity using VIF before interpreting individual coefficients in multiple regression.</li>
+        <li>Use logistic regression (not OLS) for binary outcomes; interpret coefficients via odds ratios.</li>
+        <li>Survival analysis handles time-to-event data with censoring, which logistic regression cannot properly address.</li>
+        <li>Always check residual plots and report confidence intervals alongside p-values.</li>
     </ul>
 </div>
 

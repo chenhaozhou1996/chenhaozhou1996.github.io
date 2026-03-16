@@ -37,14 +37,21 @@
 </nav>
 
 <h1>Chapter 6: Instrumental Variables &amp; Endogeneity</h1>
-<p class="subtitle">2SLS, Weak Instruments, and Overidentification Tests</p>
+<p class="subtitle">2SLS, Weak Instruments, Control Functions, Lewbel HBIV, and Overidentification Tests</p>
 
 <h2>6.1 The Endogeneity Problem</h2>
 <p>Endogeneity arises when a regressor is correlated with the error term, which can occur through omitted variables, simultaneity, or measurement error. OLS estimates are biased and inconsistent in this case. Instrumental variables (IV) estimation provides a solution when you can find a variable (the instrument) that is correlated with the endogenous regressor but uncorrelated with the error.</p>
 
+<p>Formally, suppose the structural equation is Y = X&beta; + Z&gamma; + u, where X is endogenous (Cov(X, u) &ne; 0) and Z contains exogenous controls. The OLS estimator of &beta; is inconsistent because E[X'u] &ne; 0. IV recovers a consistent estimate by isolating variation in X that is uncorrelated with u through the instrument.</p>
+
 <div class="concept info">
     <strong>Two IV Conditions</strong>
     An instrument Z must satisfy: (1) <strong>Relevance</strong>: Cov(Z, X) is not zero, and (2) <strong>Exclusion</strong>: Cov(Z, u) = 0. Condition (1) is testable; condition (2) is not (it relies on economic reasoning).
+</div>
+
+<div class="concept tip">
+    <strong>Three Sources of Endogeneity</strong>
+    Reviewers expect you to clearly articulate which source motivates your IV strategy. (1) <strong>Omitted variable bias</strong>: an unobserved confounder affects both X and Y. (2) <strong>Simultaneity</strong>: X causes Y, but Y also causes X. (3) <strong>Measurement error</strong>: X is measured with error, attenuating the OLS coefficient toward zero. The choice of instrument should logically address the specific source identified.
 </div>
 
 <h2>6.2 Two-Stage Least Squares (2SLS)</h2>
@@ -61,6 +68,11 @@
 <span class="cm">* Equivalent syntax: first() option shows first-stage results</span>
 <span class="kw">ivregress</span> 2sls rent pcturban (hsngval = faminc i.region), first vce(robust)</pre>
 
+<div class="concept warn">
+    <strong>The Forbidden Regression</strong>
+    Never run 2SLS "by hand" by literally regressing Y on the fitted values from the first stage. Although the point estimates will be identical to <code>ivregress 2sls</code>, the standard errors from the manual second-stage regression are wrong because they treat the fitted values as data rather than estimates. The residual variance is computed using fitted X rather than actual X, leading to incorrect SEs. Always use <code>ivregress</code>, <code>ivreg2</code>, or <code>ivreghdfe</code> to get valid standard errors in a single estimation step.
+</div>
+
 <h2>6.3 First-Stage Diagnostics</h2>
 <p>A weak instrument produces IV estimates that are biased toward OLS and have unreliable inference. The first-stage F-statistic is the primary diagnostic.</p>
 
@@ -76,15 +88,59 @@
     An F-statistic above 10 is a rough heuristic. The more rigorous approach uses Stock and Yogo (2005) critical values, which depend on the number of instruments and the acceptable bias relative to OLS. The <code>ivreg2</code> package reports these automatically.
 </div>
 
-<h2>6.4 Overidentification Tests</h2>
+<h2>6.4 Weak Instrument Testing: Beyond F &gt; 10</h2>
+<p>The Staiger-Stock F &gt; 10 rule applies only to the case of a single endogenous regressor and i.i.d. errors. Modern applied work requires more nuanced diagnostics.</p>
+
+<pre class="stata"><span class="cm">* ─── Stock-Yogo Critical Values ───</span>
+<span class="cm">* ivreg2 reports these automatically after estimation</span>
+<span class="kw">ivreg2</span> rent pcturban (hsngval = faminc i.region), robust first
+
+<span class="cm">* The output table shows critical values for:</span>
+<span class="cm">*   - 2SLS relative bias: 5%, 10%, 20%, 30% of OLS bias</span>
+<span class="cm">*   - 2SLS size of 5% Wald test: 10%, 15%, 20%, 25% actual size</span>
+<span class="cm">* Compare your Kleibergen-Paap rk Wald F to these thresholds</span>
+
+<span class="cm">* ─── Kleibergen-Paap Statistics ───</span>
+<span class="cm">* With heteroskedastic or clustered errors, use the KP statistic</span>
+<span class="cm">* instead of the Cragg-Donald (which assumes i.i.d. errors)</span>
+<span class="cm">*   - KP rk LM stat: tests underidentification (H0: rank deficient)</span>
+<span class="cm">*   - KP rk Wald F stat: tests weak identification</span>
+
+<span class="cm">* ─── Anderson-Rubin Test for Weak-Instrument-Robust Inference ───</span>
+<span class="cm">* When instruments are weak, use the Anderson-Rubin (AR) test</span>
+<span class="cm">* It provides valid inference regardless of instrument strength</span>
+<span class="kw">ivregress</span> 2sls rent pcturban (hsngval = faminc i.region), vce(robust)
+<span class="kw">weakivtest</span>
+
+<span class="cm">* Or use ivreg2 with the AR confidence set</span>
+<span class="cm">* Install: ssc install weakiv, replace</span>
+<span class="kw">ivreg2</span> rent pcturban (hsngval = faminc i.region), robust
+<span class="kw">weakiv</span></pre>
+
+<div class="concept info">
+    <strong>Anderson-Rubin Test</strong>
+    The Anderson-Rubin (AR) test is valid regardless of instrument strength. It tests H0: &beta; = &beta;0 by projecting out the endogenous regressor and testing whether the instruments are jointly significant in a reduced-form regression. The AR confidence set inverts this test across all possible values of &beta;. If the AR confidence interval is much wider than the conventional Wald interval, your instruments may be weak despite passing the F &gt; 10 screen. Reviewers at top journals increasingly expect weak-instrument-robust inference when the first-stage F is below 20.
+</div>
+
+<h2>6.5 Overidentification Tests</h2>
 <p>When you have more instruments than endogenous variables (overidentification), you can test whether the instruments as a group satisfy the exclusion restriction. The Sargan/Hansen J-test is the standard approach.</p>
 
 <pre class="stata"><span class="cm">* After ivregress</span>
 <span class="kw">estat</span> overid
 <span class="cm">* H0: all instruments are valid (exogenous)</span>
-<span class="cm">* Reject => at least one instrument may be invalid</span></pre>
+<span class="cm">* Reject => at least one instrument may be invalid</span>
 
-<h2>6.5 The ivreg2 Package</h2>
+<span class="cm">* IMPORTANT: The Sargan test assumes homoskedasticity</span>
+<span class="cm">* Under heteroskedasticity, use the Hansen J from ivreg2:</span>
+<span class="kw">ivreg2</span> rent pcturban (hsngval = faminc i.region), robust
+<span class="cm">* Hansen J statistic is reported at the bottom of ivreg2 output</span></pre>
+
+<div class="concept warn">
+    <strong>Limitations of Overidentification Tests</strong>
+    The J-test can only detect whether instruments differ from each other in their implied estimates. If all instruments are invalid in the same direction (e.g., all correlated with the error through the same omitted variable), the test has no power. A passing J-test is necessary but not sufficient for instrument validity. Your exclusion restriction argument must rest on economic reasoning and institutional knowledge.
+</div>
+
+<h2>6.6 The ivreg2 Package</h2>
 <p>The user-written <code>ivreg2</code> package provides more comprehensive IV diagnostics than the built-in <code>ivregress</code>, including Kleibergen-Paap statistics for heteroskedastic data and Stock-Yogo critical values.</p>
 
 <pre class="stata"><span class="cm">* Install: ssc install ivreg2, replace</span>
@@ -98,7 +154,30 @@
 <span class="cm">* - Kleibergen-Paap rk LM (underidentification test)</span>
 <span class="cm">* - Hansen J statistic (overidentification test with robust SEs)</span></pre>
 
-<h2>6.6 Endogeneity Test (Durbin-Wu-Hausman)</h2>
+<h3>6.6.1 ivreg2 vs. ivregress: Which to Use?</h3>
+<p>The choice between <code>ivreg2</code> and <code>ivregress</code> depends on your estimation context. Here is a practical comparison:</p>
+
+<div class="table-wrapper">
+<table>
+<thead><tr><th>Feature</th><th>ivregress (built-in)</th><th>ivreg2 (user-written)</th></tr></thead>
+<tbody>
+<tr><td>Estimation methods</td><td>2SLS, LIML, GMM</td><td>2SLS, LIML, GMM, CUE, FULLER</td></tr>
+<tr><td>Heteroskedasticity-robust F</td><td>Cragg-Donald only (i.i.d.)</td><td>Kleibergen-Paap (robust/cluster)</td></tr>
+<tr><td>Stock-Yogo critical values</td><td>Not reported</td><td>Reported automatically</td></tr>
+<tr><td>Overidentification test</td><td>Sargan (i.i.d.) via estat overid</td><td>Hansen J (robust to heterosked.)</td></tr>
+<tr><td>Underidentification test</td><td>Not available</td><td>Kleibergen-Paap LM</td></tr>
+<tr><td>Cluster-robust SEs</td><td>Yes</td><td>Yes (with multi-way clustering)</td></tr>
+<tr><td>LIML/Fuller k-class</td><td>LIML only</td><td>LIML, Fuller(1), Fuller(4), CUE</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="concept tip">
+    <strong>Practical Recommendation</strong>
+    Use <code>ivreg2</code> as your default for published research. The Kleibergen-Paap F-statistic is valid under heteroskedasticity and clustering, while the Cragg-Donald statistic from <code>ivregress</code> assumes i.i.d. errors. When your first-stage F is borderline (between 10 and 20), consider LIML or Fuller estimation, which are less biased than 2SLS with weak instruments: <code>ivreg2 y (x = z1 z2), liml robust</code>.
+</div>
+
+<h2>6.7 Endogeneity Test (Durbin-Wu-Hausman)</h2>
 <p>Before running IV, you may want to test whether the suspected endogenous variable is actually endogenous. If it is not, OLS is preferred because it is more efficient.</p>
 
 <pre class="stata"><span class="cm">* After ivregress 2sls</span>
@@ -114,7 +193,7 @@
 <span class="kw">regress</span> rent hsngval pcturban v_hat
 <span class="cm">* If v_hat is significant => endogeneity confirmed</span></pre>
 
-<h2>6.7 IV with Panel Data</h2>
+<h2>6.8 IV with Panel Data</h2>
 <p>For panel data IV estimation, combine <code>xtivreg</code> (built-in) or <code>ivreghdfe</code> (user-written) with fixed effects.</p>
 
 <pre class="stata"><span class="cm">* Panel IV with fixed effects</span>
@@ -124,13 +203,102 @@
 <span class="kw">ivreghdfe</span> qip (rn_pp = instrument_z) sdi, ///
     absorb(facility_id year) cluster(facility_id)</pre>
 
-<h2>6.8 Heteroskedasticity-Based IV (Lewbel)</h2>
+<h2>6.9 Heteroskedasticity-Based IV (Lewbel)</h2>
 <p>When external instruments are unavailable, Lewbel (2012) instruments exploit heteroskedasticity in the first-stage residuals to generate internal instruments. This approach requires that the error terms exhibit heteroskedasticity related to some exogenous variables.</p>
+
+<p>The key idea: if there is heteroskedasticity in the first-stage equation, then the instruments (Z - E[Z]) * e_hat (where e_hat are first-stage residuals and Z are exogenous regressors) satisfy the moment conditions required for identification. The identifying assumption is that E[Z * u * e] = 0 while E[Z * e^2] &ne; 0.</p>
 
 <pre class="stata"><span class="cm">* Install: ssc install ivreg2h, replace</span>
 
 <span class="cm">* Lewbel HBIV estimation</span>
-<span class="kw">ivreg2h</span> qip (rn_pp = ) sdi controls i.year, robust</pre>
+<span class="kw">ivreg2h</span> qip (rn_pp = ) sdi controls i.year, robust
+
+<span class="cm">* Combine Lewbel instruments with external instruments</span>
+<span class="kw">ivreg2h</span> qip (rn_pp = external_iv) sdi controls i.year, robust
+
+<span class="cm">* ─── Verifying the Heteroskedasticity Assumption ───</span>
+<span class="cm">* Step 1: Run the first-stage regression</span>
+<span class="kw">regress</span> rn_pp sdi controls i.year
+<span class="kw">predict</span> resid_fs, residuals
+
+<span class="cm">* Step 2: Test for heteroskedasticity using Breusch-Pagan</span>
+<span class="kw">estat</span> hettest sdi controls
+<span class="cm">* Reject H0 (homoskedasticity) => Lewbel instruments have identifying power</span>
+
+<span class="cm">* Step 3: Verify instrument strength in the augmented first stage</span>
+<span class="cm">* ivreg2h reports the first-stage F and Hansen J automatically</span></pre>
+
+<div class="concept warn">
+    <strong>Lewbel HBIV Limitations</strong>
+    Lewbel instruments have been proven valid for only one endogenous regressor (Baum and Lewbel, 2019). With multiple endogenous variables, the identification conditions become much stronger and are generally not satisfied. Additionally, the generated instruments can be weak if heteroskedasticity is mild. Always report the first-stage F-statistic for the Lewbel specification and compare estimates to OLS and any available external-IV specification as a sensitivity check.
+</div>
+
+<h2>6.10 Control Function Approach</h2>
+<p>The control function (CF) is a two-step method closely related to 2SLS but with important advantages when the endogenous variable enters nonlinearly (e.g., in logit, probit, or Poisson models). The CF approach includes first-stage residuals directly in the outcome equation. Under linearity and homoskedasticity, CF and 2SLS produce identical point estimates, but CF generalizes to nonlinear models where standard IV does not.</p>
+
+<pre class="stata"><span class="cm">* ─── Control Function: Linear Case ───</span>
+<span class="cm">* Step 1: First stage</span>
+<span class="kw">regress</span> rn_pp instrument_z sdi controls i.year
+<span class="kw">predict</span> cf_resid, residuals
+
+<span class="cm">* Step 2: Include residuals in structural equation</span>
+<span class="kw">regress</span> qip rn_pp sdi cf_resid controls i.year, vce(cluster facility_id)
+
+<span class="cm">* The t-test on cf_resid is a test of endogeneity</span>
+<span class="cm">* If significant => endogeneity present, keep cf_resid</span>
+<span class="cm">* If not significant => OLS is consistent, drop cf_resid</span>
+
+<span class="cm">* ─── Control Function: Nonlinear Case (Probit) ───</span>
+<span class="cm">* Step 1: First stage (still linear for continuous endogenous var)</span>
+<span class="kw">regress</span> endogenous_x instrument_z controls
+<span class="kw">predict</span> cf_v, residuals
+
+<span class="cm">* Step 2: Probit with residual control</span>
+<span class="kw">probit</span> binary_y endogenous_x cf_v controls
+
+<span class="cm">* IMPORTANT: SEs must be bootstrapped because cf_v is generated</span>
+<span class="kw">capture program drop</span> cf_probit
+<span class="kw">program define</span> cf_probit, eclass
+    <span class="kw">regress</span> endogenous_x instrument_z controls
+    <span class="kw">predict</span> double _cf_v, residuals
+    <span class="kw">probit</span> binary_y endogenous_x _cf_v controls
+    <span class="kw">drop</span> _cf_v
+<span class="kw">end</span>
+
+<span class="kw">bootstrap</span>, reps(500) seed(12345) cluster(unit_id): cf_probit</pre>
+
+<div class="concept info">
+    <strong>CF vs. 2SLS: When Does It Matter?</strong>
+    In linear models, the control function and 2SLS are algebraically equivalent (the "augmented regression" representation of 2SLS). The CF approach becomes essential when: (1) the outcome model is nonlinear (logit, probit, Poisson), where 2SLS is inconsistent; (2) you want a direct test of endogeneity via the significance of the residual; (3) you have a two-part model or other structure where standard IV cannot be applied. Published work in operations management and health economics increasingly uses the CF approach for these reasons.
+</div>
+
+<h2>6.11 LIML and Fuller Estimators</h2>
+<p>Limited Information Maximum Likelihood (LIML) and Fuller estimators are alternatives to 2SLS that perform better with weak instruments. LIML is approximately median-unbiased even when instruments are moderately weak, while 2SLS can have substantial bias.</p>
+
+<pre class="stata"><span class="cm">* LIML estimation</span>
+<span class="kw">ivregress</span> liml rent pcturban (hsngval = faminc i.region), vce(robust)
+
+<span class="cm">* LIML with ivreg2</span>
+<span class="kw">ivreg2</span> rent pcturban (hsngval = faminc i.region), liml robust
+
+<span class="cm">* Fuller estimator (bias-corrected LIML, Fuller k=1 or k=4)</span>
+<span class="kw">ivreg2</span> rent pcturban (hsngval = faminc i.region), fuller(1) robust
+
+<span class="cm">* Compare 2SLS and LIML estimates</span>
+<span class="cm">* If they differ substantially, instruments may be weak</span>
+<span class="kw">quietly ivreg2</span> rent pcturban (hsngval = faminc i.region), robust
+<span class="kw">estimates store</span> iv_2sls
+<span class="kw">quietly ivreg2</span> rent pcturban (hsngval = faminc i.region), liml robust
+<span class="kw">estimates store</span> iv_liml
+<span class="kw">estimates table</span> iv_2sls iv_liml, se stats(N r2)</pre>
+
+<h2>6.12 Reporting IV Results: What Reviewers Expect</h2>
+<p>Top journals in economics, management, and operations research have converging expectations for how IV results should be reported. Below is a checklist for a complete IV presentation.</p>
+
+<div class="concept tip">
+    <strong>IV Reporting Checklist for Publication</strong>
+    (1) <strong>Economic argument</strong> for the exclusion restriction, not just statistical tests. (2) <strong>First-stage results</strong> in a table (coefficient, SE, F-statistic on excluded instruments). (3) <strong>Kleibergen-Paap F</strong> with Stock-Yogo critical values (if heteroskedastic or clustered SEs). (4) <strong>Underidentification test</strong> (KP LM statistic). (5) <strong>Overidentification test</strong> (Hansen J) if overidentified. (6) <strong>Endogeneity test</strong> (Durbin-Wu-Hausman). (7) <strong>Comparison with OLS</strong> to discuss the direction and magnitude of bias. (8) <strong>Sensitivity</strong>: LIML or Fuller estimates alongside 2SLS if first-stage F is below 20.
+</div>
 
 <div class="exercise">
     <h4>Exercise 6.1</h4>
@@ -142,12 +310,24 @@
     <p>Re-estimate the model from Exercise 6.1 using <code>ivreg2</code> with the <code>robust</code> and <code>first</code> options. Compare the Kleibergen-Paap F-statistic to the conventional F-statistic. Run <code>estat endogenous</code> to test whether IV is necessary.</p>
 </div>
 
+<div class="exercise">
+    <h4>Exercise 6.3</h4>
+    <p>Using <code>webuse hsng2</code>, estimate the model from Exercise 6.1 with both 2SLS and LIML. Use <code>estimates store</code> and <code>estimates table</code> to compare the point estimates side by side. If the LIML and 2SLS estimates diverge, what does that tell you about instrument strength?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 6.4</h4>
+    <p>Implement a control function approach manually: (1) regress <code>hsngval</code> on <code>faminc</code>, <code>i.region</code>, and <code>pcturban</code>, and save the residuals; (2) include those residuals in a regression of <code>rent</code> on <code>hsngval</code> and <code>pcturban</code>. Is the residual significant (endogeneity test)? Compare the coefficient on <code>hsngval</code> to your 2SLS estimate. Then write a bootstrap program to obtain correct standard errors for the two-step procedure.</p>
+</div>
+
 <div class="ext-resources">
     <h4>External Resources</h4>
     <ul>
         <li><a href="https://www.stata.com/manuals/rivregress.pdf" target="_blank" rel="noopener">Stata Manual: ivregress</a> <span class="ext-badge">External</span></li>
         <li><a href="https://stats.oarc.ucla.edu/stata/dae/two-stage-least-squares/" target="_blank" rel="noopener">UCLA OARC: Two-Stage Least Squares</a> <span class="ext-badge">External</span></li>
         <li><a href="https://ideas.repec.org/c/boc/bocode/s425401.html" target="_blank" rel="noopener">ivreg2 on SSC (Baum, Schaffer, Stillman)</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://ideas.repec.org/c/boc/bocode/s457555.html" target="_blank" rel="noopener">ivreg2h on SSC (Lewbel HBIV)</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://ideas.repec.org/c/boc/bocode/s457684.html" target="_blank" rel="noopener">weakiv on SSC (Weak-Instrument Robust Inference)</a> <span class="ext-badge">External</span></li>
     </ul>
 </div>
 
@@ -158,6 +338,10 @@
         <li>Always check the first-stage F-statistic; weak instruments produce misleading inference.</li>
         <li>Use <code>ivreg2</code> over <code>ivregress</code> for better diagnostics with heteroskedastic data.</li>
         <li>The exclusion restriction is untestable; overidentification tests can only reject joint validity.</li>
+        <li>The control function approach generalizes IV to nonlinear models; bootstrap its standard errors.</li>
+        <li>Lewbel HBIV generates instruments from heteroskedasticity when external instruments are unavailable, but only for one endogenous regressor.</li>
+        <li>LIML and Fuller estimators outperform 2SLS with weak instruments; compare them as a robustness check.</li>
+        <li>Never run 2SLS manually (the "forbidden regression"); use built-in commands for correct SEs.</li>
     </ul>
 </div>
 

@@ -123,7 +123,155 @@ count <span class="op">&lt;-</span> <span class="nb">5L</span>           <span c
 </div>
 
 <!-- ────────────────────────────── -->
-<h2>1.5 Getting Help</h2>
+<h2>1.5 RStudio Panes Walkthrough</h2>
+
+<p>Understanding the four RStudio panes will speed up your workflow considerably. Each pane serves a distinct purpose and can be resized or rearranged via <em>Tools > Global Options > Pane Layout</em>.</p>
+
+<div class="table-wrapper">
+<table>
+  <thead><tr><th>Pane</th><th>Location</th><th>Purpose</th><th>Key Tabs</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Source</strong></td><td>Top-left</td><td>Write and edit scripts, R Markdown, and Quarto documents</td><td>Script files, data viewer</td></tr>
+    <tr><td><strong>Console</strong></td><td>Bottom-left</td><td>Interactive R session: run commands one at a time</td><td>Console, Terminal, Background Jobs</td></tr>
+    <tr><td><strong>Environment</strong></td><td>Top-right</td><td>View objects in memory (variables, data frames, functions)</td><td>Environment, History, Connections, Tutorial</td></tr>
+    <tr><td><strong>Output</strong></td><td>Bottom-right</td><td>Browse files, view plots, read help, manage packages</td><td>Files, Plots, Packages, Help, Viewer</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="concept tip">
+  <strong>Tip: Keyboard shortcuts</strong>
+  Press <kbd>Ctrl+1</kbd> to jump to the Source pane, <kbd>Ctrl+2</kbd> for the Console. <kbd>Ctrl+Shift+M</kbd> inserts the pipe operator. See all shortcuts with <kbd>Alt+Shift+K</kbd> (Windows/Linux) or <kbd>Option+Shift+K</kbd> (macOS).
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>1.6 R vs. Python: A Quick Comparison</h2>
+
+<p>Many students wonder whether to learn R or Python. The honest answer: learn both eventually, but R excels in statistical analysis and data visualization. Here is a side-by-side comparison:</p>
+
+<div class="table-wrapper">
+<table>
+  <thead><tr><th>Feature</th><th>R</th><th>Python</th></tr></thead>
+  <tbody>
+    <tr><td>Primary strength</td><td>Statistical computing, visualization</td><td>General-purpose programming, ML deployment</td></tr>
+    <tr><td>Indexing</td><td>1-based</td><td>0-based</td></tr>
+    <tr><td>Data frames</td><td>Built-in (<code>data.frame</code>, <code>tibble</code>)</td><td>Requires pandas</td></tr>
+    <tr><td>Visualization</td><td>ggplot2 (grammar of graphics)</td><td>matplotlib, seaborn, plotly</td></tr>
+    <tr><td>Statistical modeling</td><td><code>lm()</code>, <code>glm()</code>, 18,000+ CRAN packages</td><td>statsmodels, scikit-learn</td></tr>
+    <tr><td>IDE</td><td>RStudio (purpose-built)</td><td>VS Code, PyCharm, Jupyter</td></tr>
+    <tr><td>Package manager</td><td><code>install.packages()</code> from CRAN</td><td><code>pip install</code> from PyPI</td></tr>
+    <tr><td>Assignment</td><td><code>&lt;-</code> (convention)</td><td><code>=</code></td></tr>
+    <tr><td>Pipe operator</td><td><code>|&gt;</code> or <code>%&gt;%</code></td><td>Method chaining with <code>.</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="concept info">
+  <strong>When to use which?</strong>
+  For coursework in statistics, econometrics, or research methods, R is typically the better choice. For building web applications, working with APIs, or deploying machine learning models in production, Python is more common. Many researchers use both: R for analysis and visualization, Python for automation and deployment.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>1.7 Project Organization with .Rproj Files</h2>
+
+<p>An RStudio Project (<code>.Rproj</code> file) anchors your working directory to the project folder. This means you can use relative paths (e.g., <code>"data/survey.csv"</code>) instead of absolute paths (e.g., <code>"C:/Users/Alice/Desktop/project/data/survey.csv"</code>), making your code portable across computers.</p>
+
+<pre class="r"><span class="cm"># Check your current working directory</span>
+<span class="fn">getwd</span>()
+
+<span class="cm"># Set it manually (avoid this — use .Rproj instead)</span>
+<span class="fn">setwd</span>(<span class="st">"/path/to/my/project"</span>)
+
+<span class="cm"># Recommended project structure:</span>
+<span class="cm"># my_project/</span>
+<span class="cm">#   my_project.Rproj</span>
+<span class="cm">#   data/           &lt;- raw and processed data</span>
+<span class="cm">#   scripts/        &lt;- R scripts</span>
+<span class="cm">#   output/         &lt;- tables, figures</span>
+<span class="cm">#   docs/           &lt;- notes, reports</span></pre>
+
+<div class="concept warn">
+  <strong>Never use setwd() in shared scripts</strong>
+  Hardcoded paths like <code>setwd("C:/Users/Alice/...")</code> will break on anyone else's computer. Use an <code>.Rproj</code> file and relative paths. If you must reference a path, use the <code>here</code> package: <code>here::here("data", "survey.csv")</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>1.8 Saving and Loading Data</h2>
+
+<p>R provides several native formats for saving objects. Understanding when to use each one will save you time.</p>
+
+<pre class="r"><span class="cm"># Save a single object as .rds (recommended)</span>
+my_data <span class="op">&lt;-</span> <span class="fn">data.frame</span>(x <span class="op">=</span> <span class="nb">1</span><span class="op">:</span><span class="nb">5</span>, y <span class="op">=</span> <span class="fn">rnorm</span>(<span class="nb">5</span>))
+<span class="fn">saveRDS</span>(my_data, file <span class="op">=</span> <span class="st">"output/my_data.rds"</span>)
+
+<span class="cm"># Load it back (assign to any name)</span>
+loaded_data <span class="op">&lt;-</span> <span class="fn">readRDS</span>(<span class="st">"output/my_data.rds"</span>)
+
+<span class="cm"># Save the entire workspace as .RData (all objects)</span>
+<span class="fn">save.image</span>(file <span class="op">=</span> <span class="st">"my_workspace.RData"</span>)
+
+<span class="cm"># Load workspace (restores all saved objects)</span>
+<span class="fn">load</span>(<span class="st">"my_workspace.RData"</span>)
+
+<span class="cm"># Save specific objects</span>
+<span class="fn">save</span>(my_data, file <span class="op">=</span> <span class="st">"selected_objects.RData"</span>)</pre>
+
+<div class="concept tip">
+  <strong>Prefer .rds over .RData</strong>
+  <code>saveRDS()</code>/<code>readRDS()</code> saves a single object and lets you assign it to any variable name on load. <code>save()</code>/<code>load()</code> preserves original variable names, which can silently overwrite objects in your environment. For reproducible workflows, <code>.rds</code> is safer.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>1.9 CRAN vs. GitHub Packages</h2>
+
+<p>Most R packages live on CRAN (the Comprehensive R Archive Network), but some cutting-edge or in-development packages are only available on GitHub. You can install those with the <code>remotes</code> package.</p>
+
+<pre class="r"><span class="cm"># Standard CRAN install</span>
+<span class="fn">install.packages</span>(<span class="st">"dplyr"</span>)
+
+<span class="cm"># Install from GitHub (development version)</span>
+<span class="fn">install.packages</span>(<span class="st">"remotes"</span>)   <span class="cm"># one-time setup</span>
+remotes<span class="op">::</span><span class="fn">install_github</span>(<span class="st">"tidyverse/dplyr"</span>)
+
+<span class="cm"># Install from GitHub with a specific branch or tag</span>
+remotes<span class="op">::</span><span class="fn">install_github</span>(<span class="st">"user/repo@v2.0.0"</span>)
+remotes<span class="op">::</span><span class="fn">install_github</span>(<span class="st">"user/repo"</span>, ref <span class="op">=</span> <span class="st">"develop"</span>)
+
+<span class="cm"># Check package version</span>
+<span class="fn">packageVersion</span>(<span class="st">"dplyr"</span>)</pre>
+
+<div class="concept info">
+  <strong>When to install from GitHub?</strong>
+  Install from GitHub when you need a bug fix or feature that has not yet been released to CRAN. Be aware that GitHub versions may be less stable. For coursework and reproducible research, prefer CRAN versions unless you have a specific reason to use the development build.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>1.10 Common Errors and Troubleshooting</h2>
+
+<p>Every R beginner encounters the same handful of errors. Knowing what they mean will save hours of frustration.</p>
+
+<div class="table-wrapper">
+<table>
+  <thead><tr><th>Error Message</th><th>Likely Cause</th><th>Fix</th></tr></thead>
+  <tbody>
+    <tr><td><code>could not find function "xyz"</code></td><td>Package not loaded</td><td>Run <code>library(package_name)</code></td></tr>
+    <tr><td><code>object 'xyz' not found</code></td><td>Variable not defined or typo</td><td>Check spelling, run earlier code</td></tr>
+    <tr><td><code>unexpected ')'</code> or <code>unexpected '}'</code></td><td>Mismatched parentheses or braces</td><td>Count opening/closing brackets</td></tr>
+    <tr><td><code>non-numeric argument to binary operator</code></td><td>Math on character data</td><td>Check <code>class()</code> of your variables</td></tr>
+    <tr><td><code>there is no package called 'xyz'</code></td><td>Package not installed</td><td>Run <code>install.packages("xyz")</code></td></tr>
+    <tr><td><code>replacement has X rows, data has Y</code></td><td>Vector length mismatch in assignment</td><td>Verify lengths with <code>length()</code></td></tr>
+    <tr><td>Console shows <code>+</code> instead of <code>&gt;</code></td><td>Incomplete expression (missing quote or paren)</td><td>Press <kbd>Esc</kbd> and fix the line</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="concept warn">
+  <strong>The + prompt trap</strong>
+  If the console shows <code>+</code> instead of <code>&gt;</code>, R is waiting for you to finish a command. This usually means you forgot a closing parenthesis, bracket, or quote. Press <kbd>Esc</kbd> to cancel and re-examine your code.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>1.11 Getting Help</h2>
 
 <pre class="r"><span class="cm"># Help on a function</span>
 <span class="op">?</span>mean
@@ -139,7 +287,7 @@ count <span class="op">&lt;-</span> <span class="nb">5L</span>           <span c
 <span class="fn">vignette</span>(package <span class="op">=</span> <span class="st">"dplyr"</span>)</pre>
 
 <!-- ────────────────────────────── -->
-<h2>1.6 Your First Complete Script</h2>
+<h2>1.12 Your First Complete Script</h2>
 
 <pre class="r"><span class="cm"># my_first_script.R</span>
 <span class="cm"># A quick taste of R: generate data, compute stats, plot</span>
@@ -173,6 +321,16 @@ data <span class="op">&lt;-</span> <span class="fn">rnorm</span>(n <span class="
 <div class="exercise">
   <h4>Exercise 1.2</h4>
   <p>Install the <code>palmerpenguins</code> package and load it. Run <code>head(penguins)</code> to preview the data. How many rows and columns does it have? (Use <code>dim(penguins)</code>.)</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 1.3</h4>
+  <p>Create an organized project folder called <code>ch1_practice</code> with subdirectories <code>data/</code>, <code>scripts/</code>, and <code>output/</code>. In your script, create a data frame with 5 rows and 3 columns of your choice. Save it as an <code>.rds</code> file in the <code>output/</code> folder, then read it back and verify the contents match using <code>identical()</code>.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 1.4</h4>
+  <p>Intentionally trigger three different errors from the troubleshooting table above (e.g., call a function from an unloaded package, reference an undefined variable, and leave a parenthesis open). For each, copy the error message and write a one-sentence explanation of what went wrong and how you fixed it.</p>
 </div>
 
 <!-- ────────────────────────────── -->

@@ -50,7 +50,35 @@
 <span class="cm"># Set a clean style</span>
 sns.<span class="fn">set_theme</span>(style=<span class="st">"whitegrid"</span>, font_scale=<span class="nb">1.1</span>)</pre>
 
-<h2>6.2 Line Plots</h2>
+<h2>6.2 Figure Anatomy: fig, ax, and axes</h2>
+<p>Every Matplotlib plot is built from two objects: the <strong>Figure</strong> (the overall window or page) and one or more <strong>Axes</strong> (individual plots inside the figure). Understanding this distinction is essential because the object-oriented interface gives you far more control than the <code>plt.plot()</code> shortcut.</p>
+
+<pre class="python"><span class="cm"># The object-oriented approach: explicit fig and ax</span>
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="nb">8</span>, <span class="nb">4</span>))
+
+<span class="cm"># ax is a single Axes object — you call methods on it directly</span>
+ax.<span class="fn">plot</span>([<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>, <span class="nb">4</span>], [<span class="nb">10</span>, <span class="nb">20</span>, <span class="nb">25</span>, <span class="nb">30</span>], marker=<span class="st">"o"</span>)
+ax.<span class="fn">set_xlabel</span>(<span class="st">"Quarter"</span>)
+ax.<span class="fn">set_ylabel</span>(<span class="st">"Sales ($K)"</span>)
+ax.<span class="fn">set_title</span>(<span class="st">"Quarterly Sales"</span>)
+
+<span class="cm"># fig controls the overall canvas</span>
+fig.<span class="fn">suptitle</span>(<span class="st">"Company Performance Dashboard"</span>, fontsize=<span class="nb">14</span>, y=<span class="nb">1.02</span>)
+
+<span class="cm"># Multiple axes: subplots returns an array</span>
+fig2, axes = plt.<span class="fn">subplots</span>(<span class="nb">2</span>, <span class="nb">3</span>, figsize=(<span class="nb">14</span>, <span class="nb">8</span>))
+<span class="cm"># axes is a 2D numpy array: axes[row, col]</span>
+<span class="fn">print</span>(<span class="st">f"axes shape: </span>{axes.shape}<span class="st">"</span>)  <span class="cm"># (2, 3)</span>
+axes[<span class="nb">0</span>, <span class="nb">0</span>].<span class="fn">set_title</span>(<span class="st">"Top-left plot"</span>)
+axes[<span class="nb">1</span>, <span class="nb">2</span>].<span class="fn">set_title</span>(<span class="st">"Bottom-right plot"</span>)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<div class="concept info">
+    <strong>plt.plot() vs ax.plot():</strong> The <code>plt.plot()</code> function is a convenience wrapper that implicitly creates a figure and axes behind the scenes. It works fine for quick, single plots. But when you need multiple panels, precise layout control, or want to embed plots in a GUI, always use the explicit <code>fig, ax = plt.subplots()</code> approach. Professional code almost always uses the object-oriented API.
+</div>
+
+<h2>6.3 Line Plots</h2>
 
 <pre class="python">months = np.<span class="fn">arange</span>(<span class="nb">1</span>, <span class="nb">13</span>)
 revenue = [<span class="nb">42</span>, <span class="nb">45</span>, <span class="nb">48</span>, <span class="nb">52</span>, <span class="nb">55</span>, <span class="nb">60</span>, <span class="nb">58</span>, <span class="nb">62</span>, <span class="nb">65</span>, <span class="nb">70</span>, <span class="nb">72</span>, <span class="nb">78</span>]
@@ -109,7 +137,123 @@ plt.<span class="fn">legend</span>()
 plt.<span class="fn">tight_layout</span>()
 plt.<span class="fn">show</span>()</pre>
 
-<h2>6.6 Subplots</h2>
+<h2>6.6 Customizing Ticks, Labels, and Legends</h2>
+<p>The difference between a quick exploratory plot and a presentation-ready figure often comes down to how you handle axis ticks, labels, and legends. Matplotlib gives you full control over each of these elements.</p>
+
+<pre class="python">fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="nb">9</span>, <span class="nb">5</span>))
+
+<span class="cm"># Plot two series</span>
+months = np.<span class="fn">arange</span>(<span class="nb">1</span>, <span class="nb">13</span>)
+revenue_2023 = [<span class="nb">42</span>, <span class="nb">45</span>, <span class="nb">48</span>, <span class="nb">52</span>, <span class="nb">55</span>, <span class="nb">60</span>, <span class="nb">58</span>, <span class="nb">62</span>, <span class="nb">65</span>, <span class="nb">70</span>, <span class="nb">72</span>, <span class="nb">78</span>]
+revenue_2024 = [<span class="nb">48</span>, <span class="nb">50</span>, <span class="nb">55</span>, <span class="nb">58</span>, <span class="nb">63</span>, <span class="nb">68</span>, <span class="nb">65</span>, <span class="nb">70</span>, <span class="nb">75</span>, <span class="nb">80</span>, <span class="nb">82</span>, <span class="nb">90</span>]
+
+ax.<span class="fn">plot</span>(months, revenue_2023, marker=<span class="st">"o"</span>, label=<span class="st">"2023"</span>, color=<span class="st">"#3776AB"</span>)
+ax.<span class="fn">plot</span>(months, revenue_2024, marker=<span class="st">"s"</span>, label=<span class="st">"2024"</span>, color=<span class="st">"#e74c3c"</span>)
+
+<span class="cm"># Customize x-axis ticks: show month abbreviations</span>
+month_labels = [<span class="st">"Jan"</span>, <span class="st">"Feb"</span>, <span class="st">"Mar"</span>, <span class="st">"Apr"</span>, <span class="st">"May"</span>, <span class="st">"Jun"</span>,
+                <span class="st">"Jul"</span>, <span class="st">"Aug"</span>, <span class="st">"Sep"</span>, <span class="st">"Oct"</span>, <span class="st">"Nov"</span>, <span class="st">"Dec"</span>]
+ax.<span class="fn">set_xticks</span>(months)
+ax.<span class="fn">set_xticklabels</span>(month_labels, rotation=<span class="nb">45</span>, ha=<span class="st">"right"</span>)
+
+<span class="cm"># Customize y-axis: start at 0 and add dollar formatting</span>
+ax.<span class="fn">set_ylim</span>(bottom=<span class="nb">0</span>)
+ax.<span class="fn">set_ylabel</span>(<span class="st">"Revenue ($K)"</span>, fontsize=<span class="nb">12</span>)
+ax.<span class="fn">set_xlabel</span>(<span class="st">"Month"</span>, fontsize=<span class="nb">12</span>)
+ax.<span class="fn">set_title</span>(<span class="st">"Year-over-Year Revenue Comparison"</span>, fontsize=<span class="nb">14</span>, fontweight=<span class="st">"bold"</span>)
+
+<span class="cm"># Legend: control position, frame, and font</span>
+ax.<span class="fn">legend</span>(loc=<span class="st">"upper left"</span>, frameon=<span class="nb">True</span>, fontsize=<span class="nb">11</span>, shadow=<span class="nb">True</span>)
+
+<span class="cm"># Minor gridlines for readability</span>
+ax.<span class="fn">grid</span>(<span class="nb">True</span>, which=<span class="st">"major"</span>, alpha=<span class="nb">0.3</span>)
+ax.<span class="fn">minorticks_on</span>()
+
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<div class="concept tip">
+    <strong>Legend placement:</strong> Common <code>loc</code> values include <code>"upper left"</code>, <code>"upper right"</code>, <code>"lower left"</code>, <code>"lower right"</code>, and <code>"best"</code> (auto-picks the least-obstructive corner). You can also place the legend outside the plot with <code>ax.legend(bbox_to_anchor=(1.05, 1), loc="upper left")</code>, which moves it just to the right of the axes.
+</div>
+
+<h2>6.7 Color Palettes and Colormaps</h2>
+<p>Color choice matters both for aesthetics and for accessibility. Seaborn provides curated palettes, while Matplotlib offers colormaps for continuous data. Choosing the right one depends on whether your data is categorical, sequential, or diverging.</p>
+
+<pre class="python"><span class="cm"># Seaborn palettes for categorical data</span>
+fig, axes = plt.<span class="fn">subplots</span>(<span class="nb">1</span>, <span class="nb">3</span>, figsize=(<span class="nb">14</span>, <span class="nb">3</span>))
+
+palettes = [<span class="st">"Set2"</span>, <span class="st">"husl"</span>, <span class="st">"colorblind"</span>]
+<span class="kw">for</span> ax, pal <span class="kw">in</span> <span class="fn">zip</span>(axes, palettes):
+    colors = sns.<span class="fn">color_palette</span>(pal, <span class="nb">6</span>)
+    <span class="kw">for</span> i, c <span class="kw">in</span> <span class="fn">enumerate</span>(colors):
+        ax.<span class="fn">bar</span>(i, <span class="nb">1</span>, color=c, width=<span class="nb">0.8</span>)
+    ax.<span class="fn">set_title</span>(<span class="st">f"Palette: </span>{pal}<span class="st">"</span>)
+    ax.<span class="fn">set_xticks</span>([])
+    ax.<span class="fn">set_yticks</span>([])
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()
+
+<span class="cm"># Colormaps for continuous/heatmap data</span>
+<span class="cm"># Sequential: "viridis", "Blues", "YlOrRd" — for data with a natural order</span>
+<span class="cm"># Diverging:  "RdBu", "coolwarm" — for data with a meaningful center (e.g., 0)</span>
+<span class="cm"># "colorblind" palette: safe for ~8% of men who have color vision deficiency</span>
+
+data = np.random.<span class="fn">randn</span>(<span class="nb">10</span>, <span class="nb">10</span>)
+
+fig, axes = plt.<span class="fn">subplots</span>(<span class="nb">1</span>, <span class="nb">3</span>, figsize=(<span class="nb">14</span>, <span class="nb">4</span>))
+<span class="kw">for</span> ax, cmap <span class="kw">in</span> <span class="fn">zip</span>(axes, [<span class="st">"viridis"</span>, <span class="st">"Blues"</span>, <span class="st">"RdBu"</span>]):
+    im = ax.<span class="fn">imshow</span>(data, cmap=cmap, aspect=<span class="st">"auto"</span>)
+    ax.<span class="fn">set_title</span>(<span class="st">f"cmap='{cmap}'"</span>)
+    fig.<span class="fn">colorbar</span>(im, ax=ax, shrink=<span class="nb">0.8</span>)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<div class="concept info">
+    <strong>When to use which colormap:</strong> Use <strong>sequential</strong> colormaps (viridis, Blues) when values go from low to high with no special midpoint. Use <strong>diverging</strong> colormaps (RdBu, coolwarm) when there is a meaningful center value, such as zero in a correlation matrix or a difference from the mean. Avoid rainbow colormaps ("jet") because they create artificial visual boundaries and are hard to read for colorblind viewers.
+</div>
+
+<h2>6.8 Annotating Plots</h2>
+<p>Annotations draw the reader's attention to specific data points or regions. The <code>ax.annotate()</code> function lets you place text with an optional arrow connecting it to a point on the plot.</p>
+
+<pre class="python">fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="nb">9</span>, <span class="nb">5</span>))
+
+months = np.<span class="fn">arange</span>(<span class="nb">1</span>, <span class="nb">13</span>)
+revenue = [<span class="nb">42</span>, <span class="nb">45</span>, <span class="nb">48</span>, <span class="nb">52</span>, <span class="nb">55</span>, <span class="nb">60</span>, <span class="nb">58</span>, <span class="nb">62</span>, <span class="nb">65</span>, <span class="nb">70</span>, <span class="nb">72</span>, <span class="nb">78</span>]
+
+ax.<span class="fn">plot</span>(months, revenue, marker=<span class="st">"o"</span>, color=<span class="st">"#3776AB"</span>, linewidth=<span class="nb">2</span>)
+
+<span class="cm"># Annotate the peak value</span>
+peak_idx = np.<span class="fn">argmax</span>(revenue)
+ax.<span class="fn">annotate</span>(
+    <span class="st">f"Peak: ${revenue[peak_idx]}K"</span>,
+    xy=(months[peak_idx], revenue[peak_idx]),       <span class="cm"># point to annotate</span>
+    xytext=(months[peak_idx] - <span class="nb">3</span>, revenue[peak_idx] + <span class="nb">5</span>),  <span class="cm"># text position</span>
+    fontsize=<span class="nb">11</span>,
+    arrowprops=<span class="fn">dict</span>(arrowstyle=<span class="st">"->"</span>, color=<span class="st">"#333"</span>, lw=<span class="nb">1.5</span>),
+    bbox=<span class="fn">dict</span>(boxstyle=<span class="st">"round,pad=0.3"</span>, facecolor=<span class="st">"#ffffcc"</span>, edgecolor=<span class="st">"#999"</span>)
+)
+
+<span class="cm"># Annotate the dip in July</span>
+ax.<span class="fn">annotate</span>(
+    <span class="st">"Summer dip"</span>,
+    xy=(<span class="nb">7</span>, <span class="nb">58</span>),
+    xytext=(<span class="nb">8.5</span>, <span class="nb">50</span>),
+    fontsize=<span class="nb">10</span>,
+    arrowprops=<span class="fn">dict</span>(arrowstyle=<span class="st">"->"</span>, color=<span class="st">"red"</span>),
+    color=<span class="st">"red"</span>
+)
+
+<span class="cm"># Add a shaded region to highlight Q4</span>
+ax.<span class="fn">axvspan</span>(<span class="nb">10</span>, <span class="nb">12</span>, alpha=<span class="nb">0.1</span>, color=<span class="st">"green"</span>, label=<span class="st">"Q4 Holiday Season"</span>)
+ax.<span class="fn">legend</span>()
+
+ax.<span class="fn">set_xlabel</span>(<span class="st">"Month"</span>)
+ax.<span class="fn">set_ylabel</span>(<span class="st">"Revenue ($K)"</span>)
+ax.<span class="fn">set_title</span>(<span class="st">"Annotated Revenue Trend"</span>)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<h2>6.9 Subplots</h2>
 
 <pre class="python">fig, axes = plt.<span class="fn">subplots</span>(<span class="nb">1</span>, <span class="nb">2</span>, figsize=(<span class="nb">12</span>, <span class="nb">4</span>))
 
@@ -125,7 +269,7 @@ axes[<span class="nb">1</span>].<span class="fn">set_title</span>(<span class="s
 plt.<span class="fn">tight_layout</span>()
 plt.<span class="fn">show</span>()</pre>
 
-<h2>6.7 Seaborn: Heatmap</h2>
+<h2>6.10 Seaborn: Heatmap</h2>
 
 <pre class="python"><span class="cm"># Correlation heatmap</span>
 df = pd.<span class="fn">DataFrame</span>({
@@ -141,7 +285,7 @@ plt.<span class="fn">title</span>(<span class="st">"Correlation Matrix"</span>)
 plt.<span class="fn">tight_layout</span>()
 plt.<span class="fn">show</span>()</pre>
 
-<h2>6.8 Seaborn: Pairplot</h2>
+<h2>6.11 Seaborn: Pairplot</h2>
 
 <pre class="python"><span class="cm"># Pairwise scatter plots colored by a category</span>
 iris = sns.<span class="fn">load_dataset</span>(<span class="st">"iris"</span>)
@@ -149,7 +293,56 @@ sns.<span class="fn">pairplot</span>(iris, hue=<span class="st">"species"</span>
 plt.<span class="fn">suptitle</span>(<span class="st">"Iris Dataset Pairplot"</span>, y=<span class="nb">1.02</span>)
 plt.<span class="fn">show</span>()</pre>
 
-<h2>6.9 Saving Figures</h2>
+<h2>6.12 Seaborn: FacetGrid</h2>
+<p>FacetGrid lets you split a dataset by one or two categorical variables and plot the same chart for each subset. This is extremely useful for comparing patterns across groups without writing repetitive subplot code.</p>
+
+<pre class="python">tips = sns.<span class="fn">load_dataset</span>(<span class="st">"tips"</span>)
+
+<span class="cm"># One variable faceting: separate plot per meal time</span>
+g = sns.<span class="fn">FacetGrid</span>(tips, col=<span class="st">"time"</span>, row=<span class="st">"sex"</span>, height=<span class="nb">3.5</span>, aspect=<span class="nb">1.2</span>)
+g.<span class="fn">map_dataframe</span>(sns.scatterplot, x=<span class="st">"total_bill"</span>, y=<span class="st">"tip"</span>, alpha=<span class="nb">0.6</span>)
+g.<span class="fn">set_axis_labels</span>(<span class="st">"Total Bill ($)"</span>, <span class="st">"Tip ($)"</span>)
+g.<span class="fn">add_legend</span>()
+g.<span class="fn">fig</span>.<span class="fn">suptitle</span>(<span class="st">"Tips by Gender and Meal Time"</span>, y=<span class="nb">1.02</span>)
+plt.<span class="fn">show</span>()
+
+<span class="cm"># Quick alternative using built-in Seaborn relplot</span>
+sns.<span class="fn">relplot</span>(data=tips, x=<span class="st">"total_bill"</span>, y=<span class="st">"tip"</span>,
+           col=<span class="st">"day"</span>, hue=<span class="st">"smoker"</span>, kind=<span class="st">"scatter"</span>,
+           col_wrap=<span class="nb">2</span>, height=<span class="nb">3</span>)
+plt.<span class="fn">show</span>()</pre>
+
+<h2>6.13 Plotly Express: Interactive Charts</h2>
+<p>While Matplotlib and Seaborn produce static images, <code>plotly.express</code> creates interactive HTML charts with hover tooltips, zooming, and panning. Interactive charts are especially useful for dashboards, presentations, and exploratory analysis in Jupyter notebooks.</p>
+
+<pre class="python"><span class="kw">import</span> plotly.express <span class="kw">as</span> px
+
+<span class="cm"># Interactive scatter plot</span>
+tips = sns.<span class="fn">load_dataset</span>(<span class="st">"tips"</span>)
+fig = px.<span class="fn">scatter</span>(
+    tips, x=<span class="st">"total_bill"</span>, y=<span class="st">"tip"</span>,
+    color=<span class="st">"day"</span>, size=<span class="st">"size"</span>,
+    hover_data=[<span class="st">"sex"</span>, <span class="st">"smoker"</span>],
+    title=<span class="st">"Restaurant Tips (hover for details)"</span>
+)
+fig.<span class="fn">show</span>()
+
+<span class="cm"># Interactive bar chart with animation</span>
+gapminder = px.data.<span class="fn">gapminder</span>()
+fig = px.<span class="fn">bar</span>(
+    gapminder.<span class="fn">query</span>(<span class="st">"continent == 'Americas'"</span>),
+    x=<span class="st">"country"</span>, y=<span class="st">"gdpPercap"</span>,
+    animation_frame=<span class="st">"year"</span>,
+    title=<span class="st">"GDP per Capita Over Time"</span>
+)
+fig.<span class="fn">update_layout</span>(xaxis_tickangle=<span class="nb">-45</span>)
+fig.<span class="fn">show</span>()</pre>
+
+<div class="concept tip">
+    <strong>When to choose Plotly over Matplotlib:</strong> Use Plotly when your audience will interact with the chart (Jupyter notebooks, web dashboards). Use Matplotlib/Seaborn when you need static images for papers, PDFs, or printed reports. You can install Plotly with <code>pip install plotly</code>.
+</div>
+
+<h2>6.14 Saving Publication-Quality Figures</h2>
 
 <pre class="python">fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="nb">7</span>, <span class="nb">4</span>))
 ax.<span class="fn">bar</span>(categories, values, color=<span class="st">"#3776AB"</span>)
@@ -159,8 +352,34 @@ ax.<span class="fn">set_title</span>(<span class="st">"Revenue by Category"</spa
 fig.<span class="fn">savefig</span>(<span class="st">"revenue_chart.png"</span>, dpi=<span class="nb">300</span>, bbox_inches=<span class="st">"tight"</span>)
 fig.<span class="fn">savefig</span>(<span class="st">"revenue_chart.pdf"</span>, bbox_inches=<span class="st">"tight"</span>)</pre>
 
+<p>For academic papers, conferences, and professional reports, there are several additional settings that produce polished output.</p>
+
+<pre class="python"><span class="cm"># Publication-quality settings</span>
+<span class="kw">import</span> matplotlib <span class="kw">as</span> mpl
+
+<span class="cm"># Set global defaults for clean, professional figures</span>
+mpl.rcParams[<span class="st">"font.family"</span>]     = <span class="st">"serif"</span>
+mpl.rcParams[<span class="st">"font.size"</span>]       = <span class="nb">11</span>
+mpl.rcParams[<span class="st">"axes.linewidth"</span>]  = <span class="nb">0.8</span>
+mpl.rcParams[<span class="st">"figure.dpi"</span>]      = <span class="nb">150</span>  <span class="cm"># screen display</span>
+mpl.rcParams[<span class="st">"savefig.dpi"</span>]     = <span class="nb">300</span>  <span class="cm"># file output</span>
+
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="nb">6</span>, <span class="nb">4</span>))
+ax.<span class="fn">plot</span>([<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>], [<span class="nb">10</span>, <span class="nb">20</span>, <span class="nb">15</span>], <span class="st">"o-"</span>)
+ax.<span class="fn">set_xlabel</span>(<span class="st">"Time Period"</span>)
+ax.<span class="fn">set_ylabel</span>(<span class="st">"Value"</span>)
+
+<span class="cm"># Save formats: PNG for slides, PDF/SVG for papers</span>
+fig.<span class="fn">savefig</span>(<span class="st">"figure_for_slides.png"</span>, dpi=<span class="nb">300</span>, bbox_inches=<span class="st">"tight"</span>,
+           facecolor=<span class="st">"white"</span>)  <span class="cm"># white background, not transparent</span>
+fig.<span class="fn">savefig</span>(<span class="st">"figure_for_paper.pdf"</span>, bbox_inches=<span class="st">"tight"</span>)
+fig.<span class="fn">savefig</span>(<span class="st">"figure_for_web.svg"</span>, bbox_inches=<span class="st">"tight"</span>)
+
+<span class="cm"># Reset to defaults when done</span>
+mpl.<span class="fn">rcdefaults</span>()</pre>
+
 <div class="concept tip">
-    <strong>Style tip:</strong> Always call <code>plt.tight_layout()</code> before <code>plt.show()</code> or <code>savefig()</code>. It prevents labels from being clipped. For publications, use <code>dpi=300</code> and <code>bbox_inches="tight"</code>.
+    <strong>Style tip:</strong> Always call <code>plt.tight_layout()</code> before <code>plt.show()</code> or <code>savefig()</code>. It prevents labels from being clipped. For publications, use <code>dpi=300</code> and <code>bbox_inches="tight"</code>. Use PDF or SVG format for vector graphics that scale cleanly at any size. Use <code>facecolor="white"</code> to avoid transparent backgrounds that look odd in some presentation software.
 </div>
 
 <div class="exercise">
@@ -171,6 +390,16 @@ fig.<span class="fn">savefig</span>(<span class="st">"revenue_chart.pdf"</span>,
 <div class="exercise">
     <h4>Exercise 6.2</h4>
     <p>Load the built-in Seaborn "tips" dataset with <code>sns.load_dataset("tips")</code>. Create a heatmap of the correlation matrix and a boxplot of total bill by day of the week. Save both plots as PNG files.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 6.3</h4>
+    <p>Create an annotated time series plot. Generate 24 months of synthetic sales data with a visible seasonal pattern (higher in months 11-12). Use <code>ax.annotate()</code> to mark the highest and lowest months with arrows. Add a shaded region for the holiday season (Nov-Dec). Save as both PNG (300 dpi) and PDF.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 6.4</h4>
+    <p>Using the Seaborn "tips" dataset, create a FacetGrid that shows the relationship between total_bill and tip, faceted by <code>day</code> (columns) and <code>time</code> (rows). Color the points by <code>smoker</code> status. Add a regression line to each panel using <code>g.map_dataframe(sns.regplot, ...)</code>. Compare the tip percentages across the different facets.</p>
 </div>
 
 <div class="ext-resources">
@@ -186,9 +415,12 @@ fig.<span class="fn">savefig</span>(<span class="st">"revenue_chart.pdf"</span>,
     <h3>Chapter 6 Takeaways</h3>
     <ul>
         <li>Matplotlib handles low-level plot customization; Seaborn provides high-level statistical graphics with attractive defaults.</li>
-        <li>Use subplots to compare multiple views in a single figure for reports and presentations.</li>
-        <li>Correlation heatmaps and pairplots are essential exploratory tools before modeling.</li>
-        <li>Always save figures at 300 dpi with tight bounding boxes for professional output.</li>
+        <li>Use the object-oriented API (<code>fig, ax = plt.subplots()</code>) for anything beyond a quick exploratory plot.</li>
+        <li>Choose colormaps intentionally: sequential for ordered data, diverging for data with a meaningful center, and colorblind-safe palettes when sharing widely.</li>
+        <li>Annotations (<code>ax.annotate</code>, <code>ax.axvspan</code>) turn raw plots into explanatory narratives.</li>
+        <li>FacetGrid automates the creation of small multiples, letting you compare patterns across groups without writing repetitive subplot code.</li>
+        <li>Plotly Express adds interactivity (hover, zoom) for dashboards and Jupyter exploration.</li>
+        <li>Always save figures at 300 dpi with tight bounding boxes; use PDF/SVG for papers and PNG for slides.</li>
     </ul>
 </div>
 

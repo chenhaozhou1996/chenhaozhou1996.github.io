@@ -52,7 +52,42 @@
                              accuracy_score, classification_report, roc_auc_score)
 <span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline</pre>
 
-<h2>8.2 Train-Test Split</h2>
+<h2>8.2 Feature Scaling and Encoding</h2>
+<p>Most ML algorithms work better when numeric features are on similar scales, and categorical features must be converted to numbers. Failing to scale can cause models like logistic regression and SVM to give disproportionate weight to large-magnitude features. Understanding <em>why</em> we scale matters: gradient-based algorithms converge faster when features are normalized, and distance-based algorithms (KNN, SVM) treat all features equally only when they are on the same scale.</p>
+
+<pre class="python"><span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler, MinMaxScaler
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> OneHotEncoder, LabelEncoder
+
+<span class="cm"># StandardScaler: zero mean, unit variance (best for most algorithms)</span>
+scaler = <span class="fn">StandardScaler</span>()
+data = np.<span class="fn">array</span>([[<span class="nb">1000</span>, <span class="nb">2</span>], [<span class="nb">2000</span>, <span class="nb">4</span>], [<span class="nb">1500</span>, <span class="nb">3</span>], [<span class="nb">3000</span>, <span class="nb">5</span>]])
+scaled = scaler.<span class="fn">fit_transform</span>(data)
+<span class="fn">print</span>(<span class="st">"StandardScaler:"</span>)
+<span class="fn">print</span>(<span class="st">f"  Original: mean={data.<span class="fn">mean</span>(axis=<span class="nb">0</span>)}, std={data.<span class="fn">std</span>(axis=<span class="nb">0</span>).<span class="fn">round</span>(<span class="nb">1</span>)}"</span>)
+<span class="fn">print</span>(<span class="st">f"  Scaled:   mean={scaled.<span class="fn">mean</span>(axis=<span class="nb">0</span>).<span class="fn">round</span>(<span class="nb">2</span>)}, std={scaled.<span class="fn">std</span>(axis=<span class="nb">0</span>).<span class="fn">round</span>(<span class="nb">2</span>)}"</span>)
+
+<span class="cm"># MinMaxScaler: maps to [0, 1] range (useful for neural networks)</span>
+mm_scaler = <span class="fn">MinMaxScaler</span>()
+mm_scaled = mm_scaler.<span class="fn">fit_transform</span>(data)
+<span class="fn">print</span>(<span class="st">f"\nMinMaxScaler range: [{mm_scaled.<span class="fn">min</span>()}, {mm_scaled.<span class="fn">max</span>()}]"</span>)
+
+<span class="cm"># OneHotEncoder: categorical to binary columns</span>
+categories = np.<span class="fn">array</span>([[<span class="st">"Red"</span>], [<span class="st">"Blue"</span>], [<span class="st">"Green"</span>], [<span class="st">"Red"</span>]])
+ohe = <span class="fn">OneHotEncoder</span>(sparse_output=<span class="nb">False</span>)
+encoded = ohe.<span class="fn">fit_transform</span>(categories)
+<span class="fn">print</span>(<span class="st">f"\nOneHotEncoder categories: </span>{ohe.categories_[<span class="nb">0</span>]}<span class="st">"</span>)
+<span class="fn">print</span>(encoded)
+
+<span class="cm"># LabelEncoder: categorical to integers (for tree-based models only)</span>
+le = <span class="fn">LabelEncoder</span>()
+labels = le.<span class="fn">fit_transform</span>([<span class="st">"Small"</span>, <span class="st">"Medium"</span>, <span class="st">"Large"</span>, <span class="st">"Small"</span>])
+<span class="fn">print</span>(<span class="st">f"\nLabelEncoder: </span>{labels}<span class="st">"</span>)</pre>
+
+<div class="concept warn">
+    <strong>LabelEncoder pitfall:</strong> LabelEncoder assigns arbitrary integers (e.g., Large=0, Medium=1, Small=2). Linear models will interpret these as having a meaningful order and magnitude, which is incorrect for nominal categories like color or city. Only use LabelEncoder with tree-based models (Decision Trees, Random Forests), which split on individual values rather than treating them as continuous. For all other algorithms, use OneHotEncoder.
+</div>
+
+<h2>8.3 Train-Test Split</h2>
 <p>Always hold out data that the model has never seen for evaluation. A typical split is 80% train / 20% test.</p>
 
 <pre class="python"><span class="cm"># Sample dataset</span>
@@ -71,7 +106,7 @@ y = df[<span class="st">"price"</span>]
 X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(X, y, test_size=<span class="nb">0.2</span>, random_state=<span class="nb">42</span>)
 <span class="fn">print</span>(<span class="st">f"Train: </span>{X_train.shape[<span class="nb">0</span>]}<span class="st"> rows, Test: </span>{X_test.shape[<span class="nb">0</span>]}<span class="st"> rows"</span>)</pre>
 
-<h2>8.3 Linear Regression</h2>
+<h2>8.4 Linear Regression</h2>
 
 <pre class="python">lr = <span class="fn">LinearRegression</span>()
 lr.<span class="fn">fit</span>(X_train, y_train)
@@ -88,7 +123,7 @@ r2   = <span class="fn">r2_score</span>(y_test, y_pred)
 <span class="kw">for</span> name, coef <span class="kw">in</span> <span class="fn">zip</span>(X.columns, lr.coef_):
     <span class="fn">print</span>(<span class="st">f"  </span>{name:<span class="nb">10</span>}<span class="st">: </span>{coef:+.4f}<span class="st">"</span>)</pre>
 
-<h2>8.4 Logistic Regression (Classification)</h2>
+<h2>8.5 Logistic Regression (Classification)</h2>
 
 <pre class="python"><span class="cm"># Binary classification: will the customer churn?</span>
 df[<span class="st">"churn"</span>] = (df[<span class="st">"price"</span>] > df[<span class="st">"price"</span>].<span class="fn">median</span>()).<span class="fn">astype</span>(<span class="nb">int</span>)
@@ -105,7 +140,7 @@ y_pred = log_reg.<span class="fn">predict</span>(X_test)
 <span class="fn">print</span>(<span class="st">f"Accuracy: </span>{<span class="fn">accuracy_score</span>(y_test, y_pred):.3f}<span class="st">"</span>)
 <span class="fn">print</span>(<span class="fn">classification_report</span>(y_test, y_pred))</pre>
 
-<h2>8.5 Decision Trees</h2>
+<h2>8.6 Decision Trees</h2>
 
 <pre class="python">tree = <span class="fn">DecisionTreeClassifier</span>(max_depth=<span class="nb">4</span>, random_state=<span class="nb">42</span>)
 tree.<span class="fn">fit</span>(X_train, y_train)
@@ -121,7 +156,7 @@ y_pred_tree = tree.<span class="fn">predict</span>(X_test)
     <strong>Overfitting warning:</strong> A decision tree without depth constraints will memorize the training data and perform poorly on new data. Always set <code>max_depth</code> or use cross-validation to find the right complexity.
 </div>
 
-<h2>8.6 Cross-Validation</h2>
+<h2>8.7 Cross-Validation</h2>
 <p>Cross-validation gives a more robust performance estimate by averaging over multiple train/test splits.</p>
 
 <pre class="python"><span class="cm"># 5-fold cross-validation</span>
@@ -129,7 +164,7 @@ cv_scores = <span class="fn">cross_val_score</span>(log_reg, X, y, cv=<span clas
 <span class="fn">print</span>(<span class="st">f"CV Accuracy: </span>{cv_scores.<span class="fn">mean</span>():.3f}<span class="st"> +/- </span>{cv_scores.<span class="fn">std</span>():.3f}<span class="st">"</span>)
 <span class="fn">print</span>(<span class="st">f"Fold scores: </span>{cv_scores}<span class="st">"</span>)</pre>
 
-<h2>8.7 Pipelines</h2>
+<h2>8.8 Pipelines</h2>
 <p>Pipelines chain preprocessing steps and models together, preventing data leakage and simplifying deployment.</p>
 
 <pre class="python">pipe = <span class="fn">Pipeline</span>([
@@ -146,7 +181,141 @@ y_pred_pipe = pipe.<span class="fn">predict</span>(X_test)
 cv_pipe = <span class="fn">cross_val_score</span>(pipe, X, y, cv=<span class="nb">5</span>, scoring=<span class="st">"accuracy"</span>)
 <span class="fn">print</span>(<span class="st">f"Pipeline CV: </span>{cv_pipe.<span class="fn">mean</span>():.3f}<span class="st">"</span>)</pre>
 
-<h2>8.8 Model Comparison</h2>
+<h2>8.9 Random Forest and Gradient Boosting</h2>
+<p>Tree-based ensemble methods are among the most powerful out-of-the-box algorithms. They work by combining many decision trees, each trained slightly differently, so that the ensemble's errors cancel out. The two main approaches differ in how they combine trees.</p>
+
+<pre class="python"><span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier, GradientBoostingClassifier
+
+<span class="cm"># Random Forest: trains trees in PARALLEL on random subsets of data</span>
+<span class="cm"># Each tree votes; the majority wins. Reduces variance (overfitting).</span>
+rf = <span class="fn">RandomForestClassifier</span>(
+    n_estimators=<span class="nb">200</span>,     <span class="cm"># number of trees</span>
+    max_depth=<span class="nb">6</span>,           <span class="cm"># limit tree depth to prevent overfitting</span>
+    min_samples_leaf=<span class="nb">5</span>,    <span class="cm"># each leaf must have at least 5 samples</span>
+    random_state=<span class="nb">42</span>
+)
+rf.<span class="fn">fit</span>(X_train, y_train)
+<span class="fn">print</span>(<span class="st">f"Random Forest Accuracy: </span>{rf.<span class="fn">score</span>(X_test, y_test):.3f}<span class="st">"</span>)
+
+<span class="cm"># Gradient Boosting: trains trees SEQUENTIALLY, each one correcting</span>
+<span class="cm"># the errors of the previous. Reduces bias (underfitting).</span>
+gb = <span class="fn">GradientBoostingClassifier</span>(
+    n_estimators=<span class="nb">200</span>,
+    learning_rate=<span class="nb">0.1</span>,     <span class="cm"># shrinkage: smaller = more robust, but needs more trees</span>
+    max_depth=<span class="nb">4</span>,
+    random_state=<span class="nb">42</span>
+)
+gb.<span class="fn">fit</span>(X_train, y_train)
+<span class="fn">print</span>(<span class="st">f"Gradient Boosting Accuracy: </span>{gb.<span class="fn">score</span>(X_test, y_test):.3f}<span class="st">"</span>)</pre>
+
+<div class="concept info">
+    <strong>Random Forest vs. Gradient Boosting:</strong> Random Forest is generally easier to tune and harder to overfit. Gradient Boosting often produces better accuracy on structured/tabular data but requires more careful tuning of <code>learning_rate</code>, <code>n_estimators</code>, and <code>max_depth</code>. In practice, try both and compare with cross-validation. For very large datasets, consider <code>HistGradientBoostingClassifier</code> (scikit-learn) or <code>XGBoost</code>/<code>LightGBM</code> libraries.
+</div>
+
+<h2>8.10 Hyperparameter Tuning with GridSearchCV</h2>
+<p>Model performance depends heavily on hyperparameters (settings you choose before training). GridSearchCV automates the search by trying every combination of parameters and selecting the one with the best cross-validation score.</p>
+
+<pre class="python"><span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> GridSearchCV
+
+<span class="cm"># Define the parameter grid to search</span>
+param_grid = {
+    <span class="st">"n_estimators"</span>: [<span class="nb">50</span>, <span class="nb">100</span>, <span class="nb">200</span>],
+    <span class="st">"max_depth"</span>:     [<span class="nb">3</span>, <span class="nb">5</span>, <span class="nb">8</span>],
+    <span class="st">"min_samples_leaf"</span>: [<span class="nb">1</span>, <span class="nb">5</span>, <span class="nb">10</span>]
+}
+
+<span class="cm"># GridSearchCV fits 3x3x3 = 27 combinations x 5 folds = 135 models</span>
+grid_search = <span class="fn">GridSearchCV</span>(
+    <span class="fn">RandomForestClassifier</span>(random_state=<span class="nb">42</span>),
+    param_grid,
+    cv=<span class="nb">5</span>,
+    scoring=<span class="st">"accuracy"</span>,
+    n_jobs=-<span class="nb">1</span>,       <span class="cm"># use all CPU cores</span>
+    verbose=<span class="nb">1</span>
+)
+grid_search.<span class="fn">fit</span>(X_train, y_train)
+
+<span class="fn">print</span>(<span class="st">f"Best parameters: </span>{grid_search.best_params_}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"Best CV accuracy: </span>{grid_search.best_score_:.3f}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"Test accuracy:    </span>{grid_search.<span class="fn">score</span>(X_test, y_test):.3f}<span class="st">"</span>)
+
+<span class="cm"># The best model is already fitted and ready to use</span>
+best_model = grid_search.best_estimator_</pre>
+
+<h2>8.11 Confusion Matrix and ROC/AUC Curve</h2>
+<p>Accuracy alone can be misleading, especially with imbalanced classes. The confusion matrix shows exactly where your model makes mistakes, and the ROC curve visualizes the tradeoff between true positive rate and false positive rate at every classification threshold.</p>
+
+<pre class="python"><span class="kw">from</span> sklearn.metrics <span class="kw">import</span> confusion_matrix, ConfusionMatrixDisplay, roc_curve, auc
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Confusion matrix</span>
+y_pred = best_model.<span class="fn">predict</span>(X_test)
+cm = <span class="fn">confusion_matrix</span>(y_test, y_pred)
+
+fig, axes = plt.<span class="fn">subplots</span>(<span class="nb">1</span>, <span class="nb">2</span>, figsize=(<span class="nb">12</span>, <span class="nb">5</span>))
+
+<span class="cm"># Left: Confusion matrix heatmap</span>
+disp = <span class="fn">ConfusionMatrixDisplay</span>(cm, display_labels=[<span class="st">"No Churn"</span>, <span class="st">"Churn"</span>])
+disp.<span class="fn">plot</span>(ax=axes[<span class="nb">0</span>], cmap=<span class="st">"Blues"</span>)
+axes[<span class="nb">0</span>].<span class="fn">set_title</span>(<span class="st">"Confusion Matrix"</span>)
+
+<span class="cm"># Right: ROC curve</span>
+y_prob = best_model.<span class="fn">predict_proba</span>(X_test)[:, <span class="nb">1</span>]  <span class="cm"># probability of positive class</span>
+fpr, tpr, thresholds = <span class="fn">roc_curve</span>(y_test, y_prob)
+roc_auc = <span class="fn">auc</span>(fpr, tpr)
+
+axes[<span class="nb">1</span>].<span class="fn">plot</span>(fpr, tpr, color=<span class="st">"#3776AB"</span>, linewidth=<span class="nb">2</span>,
+           label=<span class="st">f"ROC curve (AUC = </span>{roc_auc:.3f}<span class="st">)"</span>)
+axes[<span class="nb">1</span>].<span class="fn">plot</span>([<span class="nb">0</span>, <span class="nb">1</span>], [<span class="nb">0</span>, <span class="nb">1</span>], <span class="st">"k--"</span>, alpha=<span class="nb">0.5</span>, label=<span class="st">"Random classifier"</span>)
+axes[<span class="nb">1</span>].<span class="fn">set_xlabel</span>(<span class="st">"False Positive Rate"</span>)
+axes[<span class="nb">1</span>].<span class="fn">set_ylabel</span>(<span class="st">"True Positive Rate"</span>)
+axes[<span class="nb">1</span>].<span class="fn">set_title</span>(<span class="st">"ROC Curve"</span>)
+axes[<span class="nb">1</span>].<span class="fn">legend</span>(loc=<span class="st">"lower right"</span>)
+
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+
+<div class="concept info">
+    <strong>Reading the confusion matrix:</strong> The rows represent actual classes and columns represent predictions. <strong>True Positives</strong> (bottom-right) are correctly predicted churners. <strong>False Positives</strong> (top-right) are loyal customers wrongly flagged as churners. <strong>False Negatives</strong> (bottom-left) are churners that the model missed. In business, the cost of these errors differs: missing a churner (FN) may cost more than a false alarm (FP), so you might lower the classification threshold to catch more churners at the cost of more false alarms.
+</div>
+
+<h2>8.12 Feature Importance</h2>
+<p>Tree-based models can tell you which features contribute most to predictions. This is valuable for understanding what drives the outcome and for simplifying the model by removing unimportant features.</p>
+
+<pre class="python"><span class="kw">import</span> seaborn <span class="kw">as</span> sns
+
+<span class="cm"># Extract feature importances from the best Random Forest model</span>
+importances = pd.<span class="fn">Series</span>(
+    best_model.feature_importances_,
+    index=X.columns
+).<span class="fn">sort_values</span>(ascending=<span class="nb">True</span>)
+
+<span class="cm"># Horizontal bar chart</span>
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="nb">8</span>, <span class="nb">5</span>))
+importances.<span class="fn">plot</span>(kind=<span class="st">"barh"</span>, ax=ax, color=<span class="st">"#3776AB"</span>)
+ax.<span class="fn">set_xlabel</span>(<span class="st">"Feature Importance (Gini)"</span>)
+ax.<span class="fn">set_title</span>(<span class="st">"Which Features Drive the Prediction?"</span>)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()
+
+<span class="cm"># Permutation importance (more reliable, works with any model)</span>
+<span class="kw">from</span> sklearn.inspection <span class="kw">import</span> permutation_importance
+
+perm_imp = <span class="fn">permutation_importance</span>(best_model, X_test, y_test,
+                                   n_repeats=<span class="nb">10</span>, random_state=<span class="nb">42</span>)
+
+perm_df = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"Feature"</span>: X.columns,
+    <span class="st">"Importance"</span>: perm_imp.importances_mean,
+    <span class="st">"Std"</span>: perm_imp.importances_std
+}).<span class="fn">sort_values</span>(<span class="st">"Importance"</span>, ascending=<span class="nb">False</span>)
+<span class="fn">print</span>(perm_df)</pre>
+
+<div class="concept tip">
+    <strong>Gini importance vs. Permutation importance:</strong> The built-in <code>feature_importances_</code> (Gini/impurity-based) can be biased toward high-cardinality features and features with many possible split points. Permutation importance measures the actual drop in model performance when each feature is randomly shuffled, which gives a more honest assessment of each feature's contribution. Use permutation importance when you need to draw conclusions about feature relevance.
+</div>
+
+<h2>8.13 Model Comparison</h2>
 
 <pre class="python"><span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
 
@@ -170,6 +339,16 @@ models = {
     <p>Build a Pipeline that applies StandardScaler followed by a RandomForestClassifier. Use 5-fold cross-validation to evaluate accuracy on any classification dataset. Then try changing <code>n_estimators</code> and <code>max_depth</code> to see how performance changes.</p>
 </div>
 
+<div class="exercise">
+    <h4>Exercise 8.3</h4>
+    <p>Using the churn classification dataset from Section 8.5, apply <code>GridSearchCV</code> to tune a <code>GradientBoostingClassifier</code> over <code>learning_rate</code> (0.01, 0.1, 0.2), <code>n_estimators</code> (50, 100, 200), and <code>max_depth</code> (3, 5, 7). Print the best parameters and plot the confusion matrix and ROC curve for the best model on the test set.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 8.4</h4>
+    <p>Load the California housing dataset (<code>sklearn.datasets.fetch_california_housing()</code>). Use <code>StandardScaler</code> in a pipeline with a <code>RandomForestRegressor</code>. After fitting, plot both Gini-based and permutation-based feature importance charts side by side. Do the rankings agree? Which features are most important for predicting house prices?</p>
+</div>
+
 <div class="ext-resources">
     <h4>Official Resources</h4>
     <ul>
@@ -182,9 +361,13 @@ models = {
 <div class="takeaway">
     <h3>Chapter 8 Takeaways</h3>
     <ul>
+        <li>Scale features before training linear models; use StandardScaler for most cases, MinMaxScaler for neural networks.</li>
+        <li>Use OneHotEncoder for nominal categoricals; LabelEncoder is only safe with tree-based models.</li>
         <li>scikit-learn provides a consistent fit/predict/score API across all model types.</li>
-        <li>Always split data into train and test sets before fitting; never evaluate on training data alone.</li>
-        <li>Cross-validation gives a more reliable performance estimate than a single train-test split.</li>
+        <li>Random Forests reduce overfitting (variance); Gradient Boosting reduces underfitting (bias). Try both.</li>
+        <li>Use GridSearchCV to systematically find the best hyperparameters instead of guessing.</li>
+        <li>Go beyond accuracy: confusion matrices reveal error types, and ROC/AUC measures discriminative ability across all thresholds.</li>
+        <li>Permutation importance is more reliable than Gini importance for understanding feature contributions.</li>
         <li>Pipelines chain preprocessing and modeling to prevent data leakage and simplify reproducibility.</li>
     </ul>
 </div>

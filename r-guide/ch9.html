@@ -176,7 +176,261 @@ mtcars <span class="op">|&gt;</span>
 <span class="cm">```</span></pre>
 
 <!-- ────────────────────────────── -->
-<h2>9.8 Tables in R Markdown/Quarto</h2>
+<h2>9.8 Cross-Referencing Figures and Tables</h2>
+
+<p>Quarto has built-in cross-referencing. Label a figure chunk with <code>#| label: fig-name</code> and reference it in text with <code>@fig-name</code>. Tables use <code>#| label: tbl-name</code> and <code>@tbl-name</code>.</p>
+
+<pre class="r"><span class="cm">As shown in @fig-scatter, there is a negative relationship</span>
+<span class="cm">between engine displacement and highway MPG.</span>
+<span class="cm">The summary statistics are reported in @tbl-summary.</span>
+
+<span class="cm">```{r}</span>
+<span class="cm">#| label: fig-scatter</span>
+<span class="cm">#| fig-cap: "Displacement vs Highway MPG by Drive Type"</span>
+
+<span class="fn">ggplot</span>(mpg, <span class="fn">aes</span>(displ, hwy, color <span class="op">=</span> drv)) <span class="op">+</span>
+  <span class="fn">geom_point</span>() <span class="op">+</span>
+  <span class="fn">theme_minimal</span>()
+<span class="cm">```</span>
+
+<span class="cm">```{r}</span>
+<span class="cm">#| label: tbl-summary</span>
+<span class="cm">#| tbl-cap: "Summary Statistics by Drive Type"</span>
+
+mpg <span class="op">|&gt;</span>
+  dplyr<span class="op">::</span><span class="fn">group_by</span>(drv) <span class="op">|&gt;</span>
+  dplyr<span class="op">::</span><span class="fn">summarize</span>(n <span class="op">=</span> dplyr<span class="op">::</span><span class="fn">n</span>(), mean_hwy <span class="op">=</span> <span class="fn">mean</span>(hwy)) <span class="op">|&gt;</span>
+  knitr<span class="op">::</span><span class="fn">kable</span>()
+<span class="cm">```</span></pre>
+
+<div class="concept info">
+  <strong>Cross-reference prefixes</strong>
+  Quarto requires specific prefixes for cross-references to work: <code>fig-</code> for figures, <code>tbl-</code> for tables, <code>eq-</code> for equations, and <code>sec-</code> for sections. Without the correct prefix, the reference will not render as a clickable link.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>9.9 Bibliographies with .bib Files</h2>
+
+<p>Both R Markdown and Quarto support automatic citation management via BibTeX <code>.bib</code> files. Add references to your YAML header and cite them in text.</p>
+
+<pre class="r"><span class="cm">---</span>
+<span class="cm">title: "My Analysis"</span>
+<span class="cm">bibliography: references.bib</span>
+<span class="cm">csl: apa.csl                   # optional: citation style</span>
+<span class="cm">format: html</span>
+<span class="cm">---</span>
+
+<span class="cm">## Literature Review</span>
+
+<span class="cm">Previous work has shown that R is effective for</span>
+<span class="cm">reproducible research [@wickham2023; @xie2024].</span>
+<span class="cm">As noted by @wickham2023, tidy data principles</span>
+<span class="cm">simplify the analysis pipeline.</span>
+
+<span class="cm">## References</span>
+<span class="cm"><!-- bibliography is auto-inserted here --></span></pre>
+
+<p>The corresponding <code>references.bib</code> file:</p>
+
+<pre class="r"><span class="cm">@book{wickham2023,</span>
+<span class="cm">  author = {Wickham, Hadley and Cetinkaya-Rundel, Mine and Grolemund, Garrett},</span>
+<span class="cm">  title = {R for Data Science},</span>
+<span class="cm">  year = {2023},</span>
+<span class="cm">  publisher = {O'Reilly Media},</span>
+<span class="cm">  edition = {2nd}</span>
+<span class="cm">}</span>
+
+<span class="cm">@book{xie2024,</span>
+<span class="cm">  author = {Xie, Yihui and Dervieux, Christophe and Riederer, Emily},</span>
+<span class="cm">  title = {R Markdown Cookbook},</span>
+<span class="cm">  year = {2024},</span>
+<span class="cm">  publisher = {Chapman and Hall/CRC}</span>
+<span class="cm">}</span></pre>
+
+<div class="concept tip">
+  <strong>Getting .bib entries</strong>
+  Export BibTeX entries from Google Scholar (click the cite icon, then "BibTeX"), Zotero, or Mendeley. Many journal websites also provide BibTeX downloads. CSL (Citation Style Language) files control formatting; download styles from <a href="https://www.zotero.org/styles" target="_blank">zotero.org/styles</a>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>9.10 Parameterized Reports</h2>
+
+<p>Parameterized reports let you render the same template with different inputs, producing separate reports for each department, region, or time period.</p>
+
+<pre class="r"><span class="cm">---</span>
+<span class="cm">title: "Sales Report"</span>
+<span class="cm">params:</span>
+<span class="cm">  region: "West"</span>
+<span class="cm">  year: 2024</span>
+<span class="cm">output: html_document</span>
+<span class="cm">---</span>
+
+<span class="cm">```{r}</span>
+<span class="cm"># Access parameters with params$region, params$year</span>
+df <span class="op">&lt;-</span> sales_data <span class="op">|&gt;</span>
+  dplyr<span class="op">::</span><span class="fn">filter</span>(region <span class="op">==</span> params<span class="op">$</span>region, year <span class="op">==</span> params<span class="op">$</span>year)
+<span class="fn">cat</span>(<span class="st">"Report for"</span>, params<span class="op">$</span>region, <span class="st">"in"</span>, params<span class="op">$</span>year, <span class="st">"\n"</span>)
+<span class="cm">```</span>
+
+<span class="cm"># Render from R with custom parameters:</span>
+<span class="cm"># rmarkdown::render("report.Rmd",</span>
+<span class="cm">#                   params = list(region = "East", year = 2023))</span>
+
+<span class="cm"># Render multiple reports in a loop:</span>
+<span class="cm"># for (r in c("West", "East", "South", "North")) {</span>
+<span class="cm">#   rmarkdown::render("report.Rmd",</span>
+<span class="cm">#     params = list(region = r),</span>
+<span class="cm">#     output_file = paste0("report_", r, ".html"))</span>
+<span class="cm"># }</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>9.11 Custom CSS in R Markdown</h2>
+
+<p>You can customize the appearance of HTML output by including a custom CSS file or inline styles.</p>
+
+<pre class="r"><span class="cm">---</span>
+<span class="cm">title: "Styled Report"</span>
+<span class="cm">output:</span>
+<span class="cm">  html_document:</span>
+<span class="cm">    css: custom.css</span>
+<span class="cm">    theme: null        # disable default theme to use only custom CSS</span>
+<span class="cm">---</span>
+
+<span class="cm">/* custom.css */</span>
+<span class="cm">body { font-family: "Georgia", serif; max-width: 800px; margin: auto; }</span>
+<span class="cm">h1, h2 { color: #1a365d; }</span>
+<span class="cm">table { border-collapse: collapse; width: 100%; }</span>
+<span class="cm">th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }</span>
+<span class="cm">th { background-color: #276DC3; color: white; }</span>
+<span class="cm">.highlight { background-color: #eff6ff; padding: 10px; border-radius: 5px; }</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>9.12 Quarto Presentations (revealjs)</h2>
+
+<p>Quarto can produce beautiful slide decks using the revealjs framework, directly from your analysis code.</p>
+
+<pre class="r"><span class="cm">---</span>
+<span class="cm">title: "Quarterly Results"</span>
+<span class="cm">author: "Data Team"</span>
+<span class="cm">format:</span>
+<span class="cm">  revealjs:</span>
+<span class="cm">    theme: moon</span>
+<span class="cm">    slide-number: true</span>
+<span class="cm">    transition: slide</span>
+<span class="cm">    code-fold: true</span>
+<span class="cm">    footer: "Confidential"</span>
+<span class="cm">---</span>
+
+<span class="cm">## Key Findings</span>
+
+<span class="cm">- Revenue increased 12% YoY</span>
+<span class="cm">- Customer retention improved</span>
+
+<span class="cm">```{r}</span>
+<span class="cm">#| fig-height: 4</span>
+<span class="fn">ggplot</span>(economics, <span class="fn">aes</span>(date, unemploy)) <span class="op">+</span>
+  <span class="fn">geom_line</span>(color <span class="op">=</span> <span class="st">"#276DC3"</span>) <span class="op">+</span>
+  <span class="fn">theme_minimal</span>()
+<span class="cm">```</span>
+
+<span class="cm">## Detailed Analysis {.smaller}</span>
+
+<span class="cm">Use `{.smaller}` for smaller text on dense slides.</span>
+
+<span class="cm">. . .</span>
+
+<span class="cm">Content after `. . .` appears incrementally.</span></pre>
+
+<div class="concept tip">
+  <strong>Quarto presentation themes</strong>
+  Available revealjs themes include: default, moon, dark, simple, solarized, blood, night, serif, league, beige, sky. You can also create custom themes with SCSS files. Use <code>code-fold: true</code> to let audience members optionally expand code blocks.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>9.13 Quarto Websites and Blogs</h2>
+
+<p>Quarto can generate multi-page websites and blogs from a collection of <code>.qmd</code> files. This is useful for research group sites, course materials, or project documentation.</p>
+
+<pre class="r"><span class="cm"># _quarto.yml (project configuration)</span>
+<span class="cm">project:</span>
+<span class="cm">  type: website</span>
+
+<span class="cm">website:</span>
+<span class="cm">  title: "My Research Lab"</span>
+<span class="cm">  navbar:</span>
+<span class="cm">    left:</span>
+<span class="cm">      - href: index.qmd</span>
+<span class="cm">        text: Home</span>
+<span class="cm">      - href: about.qmd</span>
+<span class="cm">        text: About</span>
+<span class="cm">      - href: publications.qmd</span>
+<span class="cm">        text: Publications</span>
+
+<span class="cm">format:</span>
+<span class="cm">  html:</span>
+<span class="cm">    theme: cosmo</span>
+<span class="cm">    css: styles.css</span>
+
+<span class="cm"># For a blog, use type: website with a listing page:</span>
+<span class="cm"># index.qmd with "listing:" in the YAML to auto-list posts</span>
+<span class="cm"># Posts go in a posts/ subdirectory</span>
+
+<span class="cm"># Render the entire site:</span>
+<span class="cm"># quarto render</span>
+
+<span class="cm"># Preview locally:</span>
+<span class="cm"># quarto preview</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>9.14 Publication Tables with gt and flextable</h2>
+
+<p>Beyond <code>kable()</code>, the <code>gt</code> package creates highly customizable HTML/LaTeX tables, and <code>flextable</code> is the best option for Word output.</p>
+
+<pre class="r"><span class="fn">library</span>(gt)
+
+<span class="cm"># Publication-quality table with gt</span>
+mtcars <span class="op">|&gt;</span>
+  dplyr<span class="op">::</span><span class="fn">group_by</span>(cyl) <span class="op">|&gt;</span>
+  dplyr<span class="op">::</span><span class="fn">summarize</span>(
+    n <span class="op">=</span> dplyr<span class="op">::</span><span class="fn">n</span>(),
+    avg_mpg <span class="op">=</span> <span class="fn">mean</span>(mpg),
+    sd_mpg <span class="op">=</span> <span class="fn">sd</span>(mpg),
+    avg_hp <span class="op">=</span> <span class="fn">mean</span>(hp)
+  ) <span class="op">|&gt;</span>
+  <span class="fn">gt</span>() <span class="op">|&gt;</span>
+  <span class="fn">tab_header</span>(
+    title <span class="op">=</span> <span class="st">"Vehicle Performance by Cylinder Count"</span>,
+    subtitle <span class="op">=</span> <span class="st">"Data from mtcars dataset"</span>
+  ) <span class="op">|&gt;</span>
+  <span class="fn">fmt_number</span>(columns <span class="op">=</span> <span class="fn">c</span>(avg_mpg, sd_mpg, avg_hp), decimals <span class="op">=</span> <span class="nb">1</span>) <span class="op">|&gt;</span>
+  <span class="fn">cols_label</span>(
+    cyl <span class="op">=</span> <span class="st">"Cylinders"</span>, n <span class="op">=</span> <span class="st">"N"</span>,
+    avg_mpg <span class="op">=</span> <span class="st">"Mean MPG"</span>, sd_mpg <span class="op">=</span> <span class="st">"SD MPG"</span>, avg_hp <span class="op">=</span> <span class="st">"Mean HP"</span>
+  ) <span class="op">|&gt;</span>
+  <span class="fn">tab_source_note</span>(<span class="st">"Source: Motor Trend, 1974"</span>)
+
+<span class="cm"># Save as Word-compatible table with flextable</span>
+<span class="fn">library</span>(flextable)
+
+ft <span class="op">&lt;-</span> mtcars <span class="op">|&gt;</span>
+  dplyr<span class="op">::</span><span class="fn">slice_head</span>(n <span class="op">=</span> <span class="nb">5</span>) <span class="op">|&gt;</span>
+  dplyr<span class="op">::</span><span class="fn">select</span>(mpg, cyl, hp, wt) <span class="op">|&gt;</span>
+  <span class="fn">flextable</span>() <span class="op">|&gt;</span>
+  <span class="fn">set_header_labels</span>(mpg <span class="op">=</span> <span class="st">"MPG"</span>, cyl <span class="op">=</span> <span class="st">"Cylinders"</span>,
+                     hp <span class="op">=</span> <span class="st">"Horsepower"</span>, wt <span class="op">=</span> <span class="st">"Weight"</span>) <span class="op">|&gt;</span>
+  <span class="fn">theme_vanilla</span>() <span class="op">|&gt;</span>
+  <span class="fn">autofit</span>()
+
+<span class="cm"># Render in R Markdown/Quarto or save directly:</span>
+<span class="cm"># save_as_docx(ft, path = "table.docx")</span></pre>
+
+<div class="concept info">
+  <strong>gt vs. flextable vs. kableExtra</strong>
+  <code>gt</code> excels at HTML and LaTeX output with a grammar-of-tables philosophy. <code>flextable</code> is the best choice when your primary output is Word (.docx), as it renders natively in Word documents. <code>kableExtra</code> extends <code>kable()</code> with styling options and works well for quick HTML/LaTeX tables.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>9.15 Tables in R Markdown/Quarto</h2>
 
 <pre class="r"><span class="cm"># Simple kable table</span>
 <span class="fn">library</span>(knitr)
@@ -200,6 +454,16 @@ mtcars <span class="op">|&gt;</span>
   <p>Convert your R Markdown file from Exercise 9.1 to a Quarto <code>.qmd</code> file. Use the <code>#|</code> chunk option syntax and add a figure caption with cross-referencing (<code>@fig-scatter</code>). Render to both HTML and PDF.</p>
 </div>
 
+<div class="exercise">
+  <h4>Exercise 9.3</h4>
+  <p>Create a parameterized R Markdown report that takes a <code>species</code> parameter (default: "Adelie"). The report should filter the <code>palmerpenguins</code> dataset to that species, show a summary table using <code>gt</code>, and include a histogram of body mass. Render the report three times, once for each species, producing three separate HTML files.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 9.4</h4>
+  <p>Build a Quarto revealjs presentation about the <code>mtcars</code> dataset. Include at least 4 slides: (1) a title slide, (2) a slide with a summary table, (3) a slide with a ggplot scatter plot using cross-referencing, and (4) a slide with incremental bullet points summarizing key findings. Use the <code>moon</code> theme and add slide numbers.</p>
+</div>
+
 <!-- ────────────────────────────── -->
 <div class="ext-resources">
   <h4>External Resources</h4>
@@ -208,6 +472,10 @@ mtcars <span class="op">|&gt;</span>
     <li><a href="https://quarto.org" target="_blank" rel="noopener">Quarto Official Documentation</a> <span class="ext-badge">External</span></li>
     <li><a href="https://bookdown.org/yihui/rmarkdown/" target="_blank" rel="noopener">R Markdown: The Definitive Guide</a> <span class="ext-badge">External</span></li>
     <li><a href="https://yihui.org/knitr/" target="_blank" rel="noopener">knitr Documentation</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://gt.rstudio.com" target="_blank" rel="noopener">gt: Grammar of Tables</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://ardata-fr.github.io/flextable-book/" target="_blank" rel="noopener">flextable Book</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://quarto.org/docs/presentations/revealjs/" target="_blank" rel="noopener">Quarto: revealjs Presentations</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://quarto.org/docs/websites/" target="_blank" rel="noopener">Quarto: Websites</a> <span class="ext-badge">External</span></li>
   </ul>
 </div>
 
@@ -218,8 +486,11 @@ mtcars <span class="op">|&gt;</span>
     <li>R Markdown (.Rmd) and Quarto (.qmd) combine code, output, and narrative in one document.</li>
     <li>Chunk options control what is shown (echo), run (eval), and sized (fig.width/height).</li>
     <li>Inline R code embeds computed values directly in text, keeping numbers in sync with data.</li>
+    <li>Quarto supports cross-referencing (<code>@fig-</code>, <code>@tbl-</code>) and bibliographies (<code>.bib</code> files) natively.</li>
+    <li>Parameterized reports let you render the same template with different inputs for batch reporting.</li>
+    <li>Quarto produces revealjs presentations, websites, and blogs from the same <code>.qmd</code> source files.</li>
+    <li><code>gt</code> excels at HTML/LaTeX tables; <code>flextable</code> is best for Word output; <code>kableExtra</code> for quick styling.</li>
     <li>Both formats render to HTML, PDF, Word, and slides from a single source file.</li>
-    <li>Quarto is the successor to R Markdown with multi-language support and improved cross-referencing.</li>
   </ul>
 </div>
 

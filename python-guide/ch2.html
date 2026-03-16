@@ -67,6 +67,52 @@ code = <span class="st">"ABCDEFGH"</span>
 <span class="fn">print</span>(code[<span class="nb">0</span>:<span class="nb">3</span>])   <span class="cm"># "ABC"</span>
 <span class="fn">print</span>(code[::<span class="nb">2</span>])    <span class="cm"># "ACEG"</span></pre>
 
+<h3>Essential String Methods</h3>
+<p>Strings are immutable in Python, so every method returns a new string rather than modifying the original. This table covers the methods you will use most often when cleaning real-world data.</p>
+
+<pre class="python">raw = <span class="st">"  Hello, World!  "</span>
+
+<span class="cm"># Whitespace removal</span>
+<span class="fn">print</span>(raw.<span class="fn">strip</span>())       <span class="cm"># "Hello, World!"  — both sides</span>
+<span class="fn">print</span>(raw.<span class="fn">lstrip</span>())      <span class="cm"># "Hello, World!  " — left only</span>
+<span class="fn">print</span>(raw.<span class="fn">rstrip</span>())      <span class="cm"># "  Hello, World!" — right only</span>
+
+<span class="cm"># Search and replace</span>
+msg = <span class="st">"Order #1234 shipped"</span>
+<span class="fn">print</span>(msg.<span class="fn">replace</span>(<span class="st">"shipped"</span>, <span class="st">"delivered"</span>))  <span class="cm"># "Order #1234 delivered"</span>
+<span class="fn">print</span>(msg.<span class="fn">find</span>(<span class="st">"#"</span>))                       <span class="cm"># 6 (index of first match)</span>
+<span class="fn">print</span>(msg.<span class="fn">startswith</span>(<span class="st">"Order"</span>))             <span class="cm"># True</span>
+<span class="fn">print</span>(msg.<span class="fn">endswith</span>(<span class="st">"shipped"</span>))              <span class="cm"># True</span>
+
+<span class="cm"># Split and join — critical for parsing data</span>
+csv_line = <span class="st">"Widget,29.99,500,East"</span>
+fields = csv_line.<span class="fn">split</span>(<span class="st">","</span>)             <span class="cm"># ['Widget', '29.99', '500', 'East']</span>
+reconstructed = <span class="st">" | "</span>.<span class="fn">join</span>(fields)       <span class="cm"># "Widget | 29.99 | 500 | East"</span>
+
+<span class="cm"># Case conversion</span>
+<span class="fn">print</span>(<span class="st">"hello"</span>.<span class="fn">upper</span>())     <span class="cm"># "HELLO"</span>
+<span class="fn">print</span>(<span class="st">"HELLO"</span>.<span class="fn">lower</span>())     <span class="cm"># "hello"</span>
+<span class="fn">print</span>(<span class="st">"hello world"</span>.<span class="fn">title</span>()) <span class="cm"># "Hello World"</span></pre>
+
+<h3>f-string Formatting in Depth</h3>
+<p>f-strings (formatted string literals, introduced in Python 3.6) are the most readable way to embed expressions inside strings. The format specification mini-language gives you fine control over alignment, padding, and number formatting.</p>
+
+<pre class="python">product = <span class="st">"Widget"</span>
+price = <span class="nb">1234.5</span>
+pct = <span class="nb">0.0873</span>
+
+<span class="cm"># Number formatting</span>
+<span class="fn">print</span>(<span class="st">f"</span>{price:,.2f}<span class="st">"</span>)     <span class="cm"># "1,234.50"  — commas + 2 decimals</span>
+<span class="fn">print</span>(<span class="st">f"</span>{pct:.1%}<span class="st">"</span>)        <span class="cm"># "8.7%"      — percentage format</span>
+<span class="fn">print</span>(<span class="st">f"</span>{price:.0f}<span class="st">"</span>)      <span class="cm"># "1234"      — no decimals</span>
+
+<span class="cm"># Alignment and padding</span>
+<span class="fn">print</span>(<span class="st">f"</span>{product:&lt;15}<span class="st">$</span>{price:&gt;10,.2f}<span class="st">"</span>)  <span class="cm"># "Widget          $1,234.50"</span>
+<span class="fn">print</span>(<span class="st">f"</span>{product:*^20}<span class="st">"</span>)                  <span class="cm"># "*******Widget*******"</span>
+
+<span class="cm"># Expressions inside f-strings</span>
+<span class="fn">print</span>(<span class="st">f"Tax: $</span>{price * <span class="nb">0.08</span>:,.2f}<span class="st">"</span>)   <span class="cm"># "Tax: $98.76"</span></pre>
+
 <h2>2.3 Booleans</h2>
 <p>Boolean values (<code>True</code>/<code>False</code>) are the backbone of conditional logic. Comparison operators return booleans.</p>
 
@@ -120,7 +166,35 @@ location = (<span class="nb">40.7128</span>, <span class="nb">-74.0060</span>)
 lat, lon = location  <span class="cm"># Tuple unpacking</span>
 <span class="fn">print</span>(<span class="st">f"Latitude: </span>{lat}<span class="st">, Longitude: </span>{lon}<span class="st">"</span>)</pre>
 
-<h2>2.7 Conditionals: if / elif / else</h2>
+<h2>2.7 Sets and Frozensets</h2>
+<p>A set is an unordered collection of unique elements. Sets are useful when you need to remove duplicates, test membership quickly, or compute intersections and unions. The <code>frozenset</code> is an immutable version that can be used as a dictionary key or stored in another set.</p>
+
+<pre class="python"><span class="cm"># Create sets</span>
+east_skus  = {<span class="st">"A101"</span>, <span class="st">"B202"</span>, <span class="st">"C303"</span>, <span class="st">"A101"</span>}  <span class="cm"># duplicate removed</span>
+west_skus  = {<span class="st">"B202"</span>, <span class="st">"D404"</span>, <span class="st">"E505"</span>}
+<span class="fn">print</span>(east_skus)  <span class="cm"># {'A101', 'B202', 'C303'}</span>
+
+<span class="cm"># Set operations</span>
+<span class="fn">print</span>(east_skus & west_skus)   <span class="cm"># {'B202'} — intersection (sold in both)</span>
+<span class="fn">print</span>(east_skus | west_skus)   <span class="cm"># all unique SKUs — union</span>
+<span class="fn">print</span>(east_skus - west_skus)   <span class="cm"># {'A101', 'C303'} — East only</span>
+
+<span class="cm"># Membership test (O(1) average, much faster than lists)</span>
+<span class="fn">print</span>(<span class="st">"A101"</span> <span class="kw">in</span> east_skus)     <span class="cm"># True</span>
+
+<span class="cm"># frozenset — immutable, can be a dict key</span>
+region_key = <span class="fn">frozenset</span>([<span class="st">"East"</span>, <span class="st">"Central"</span>])
+coverage = {region_key: <span class="nb">0.92</span>}
+
+<span class="cm"># Remove duplicates from a list</span>
+raw_ids = [<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">2</span>, <span class="nb">3</span>, <span class="nb">3</span>, <span class="nb">3</span>]
+unique_ids = <span class="fn">list</span>(<span class="fn">set</span>(raw_ids))  <span class="cm"># [1, 2, 3]</span></pre>
+
+<div class="concept info">
+    <strong>When to use a set vs. a list:</strong> If you need to check whether an item exists in the collection, a set is dramatically faster than a list. Checking membership in a list scans every element (O(n)), while a set uses a hash table (O(1)). For a collection of 1 million items, this can mean the difference between microseconds and seconds.
+</div>
+
+<h2>2.8 Conditionals: if / elif / else</h2>
 
 <pre class="python">service_level = <span class="nb">0.92</span>
 
@@ -135,7 +209,7 @@ lat, lon = location  <span class="cm"># Tuple unpacking</span>
 
 <span class="fn">print</span>(<span class="st">f"Service level </span>{service_level:.0%}<span class="st"> — Rating: </span>{rating}<span class="st">"</span>)</pre>
 
-<h2>2.8 Loops</h2>
+<h2>2.9 Loops</h2>
 <p>Use <code>for</code> to iterate over a known collection and <code>while</code> when you need to loop until a condition changes.</p>
 
 <pre class="python"><span class="cm"># For loop with enumerate</span>
@@ -152,27 +226,144 @@ day = <span class="nb">0</span>
     day += <span class="nb">1</span>
 <span class="fn">print</span>(<span class="st">f"Reorder needed on day </span>{day}<span class="st"> (stock: </span>{inventory}<span class="st">)"</span>)</pre>
 
-<h2>2.9 List Comprehensions</h2>
-<p>A concise way to create lists by combining a loop and an optional condition in a single line.</p>
+<h3>enumerate() and zip()</h3>
+<p>Two built-in functions that make loops cleaner and eliminate the need for manual index tracking. <code>enumerate()</code> gives you both the index and the value. <code>zip()</code> pairs elements from two or more iterables together.</p>
+
+<pre class="python"><span class="cm"># enumerate — avoids manual counter variables</span>
+skus = [<span class="st">"A101"</span>, <span class="st">"B202"</span>, <span class="st">"C303"</span>]
+<span class="kw">for</span> idx, sku <span class="kw">in</span> <span class="fn">enumerate</span>(skus):
+    <span class="fn">print</span>(<span class="st">f"Row </span>{idx}<span class="st">: </span>{sku}<span class="st">"</span>)
+
+<span class="cm"># zip — iterate over multiple lists in parallel</span>
+names    = [<span class="st">"Widget"</span>, <span class="st">"Gadget"</span>, <span class="st">"Bracket"</span>]
+prices   = [<span class="nb">29.99</span>, <span class="nb">14.50</span>, <span class="nb">7.25</span>]
+stocks   = [<span class="nb">500</span>, <span class="nb">320</span>, <span class="nb">750</span>]
+
+<span class="kw">for</span> name, price, stock <span class="kw">in</span> <span class="fn">zip</span>(names, prices, stocks):
+    <span class="fn">print</span>(<span class="st">f"</span>{name:<span class="nb">10</span>}<span class="st"> $</span>{price:<span class="nb">6</span>.2f}<span class="st">  stock: </span>{stock}<span class="st">"</span>)
+
+<span class="cm"># Combine enumerate + zip for index + paired values</span>
+<span class="kw">for</span> i, (name, price) <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="fn">zip</span>(names, prices), <span class="nb">1</span>):
+    <span class="fn">print</span>(<span class="st">f"</span>{i}<span class="st">. </span>{name}<span class="st">: $</span>{price}<span class="st">"</span>)</pre>
+
+<div class="concept tip">
+    <strong>Why zip matters:</strong> Without <code>zip</code>, you would iterate using index variables like <code>for i in range(len(names))</code> and then access <code>names[i]</code>, <code>prices[i]</code>, etc. This is error-prone and hard to read. <code>zip</code> produces cleaner code and catches length mismatches early (it stops at the shortest iterable).
+</div>
+
+<h2>2.10 Nested Data Structures</h2>
+<p>Real-world data often involves structures nested inside other structures: lists of dictionaries (like rows from a database), dictionaries of lists (like column-oriented data), or dictionaries containing other dictionaries. Understanding how to navigate and build these is essential for working with JSON data, API responses, and configuration files.</p>
+
+<pre class="python"><span class="cm"># List of dictionaries — each dict is a record (row)</span>
+orders = [
+    {<span class="st">"id"</span>: <span class="nb">1001</span>, <span class="st">"product"</span>: <span class="st">"Widget"</span>, <span class="st">"qty"</span>: <span class="nb">50</span>, <span class="st">"region"</span>: <span class="st">"East"</span>},
+    {<span class="st">"id"</span>: <span class="nb">1002</span>, <span class="st">"product"</span>: <span class="st">"Gadget"</span>, <span class="st">"qty"</span>: <span class="nb">120</span>, <span class="st">"region"</span>: <span class="st">"West"</span>},
+    {<span class="st">"id"</span>: <span class="nb">1003</span>, <span class="st">"product"</span>: <span class="st">"Widget"</span>, <span class="st">"qty"</span>: <span class="nb">30</span>, <span class="st">"region"</span>: <span class="st">"East"</span>},
+]
+
+<span class="cm"># Access nested data</span>
+<span class="fn">print</span>(orders[<span class="nb">0</span>][<span class="st">"product"</span>])  <span class="cm"># "Widget"</span>
+
+<span class="cm"># Loop through records</span>
+total_qty = <span class="fn">sum</span>(order[<span class="st">"qty"</span>] <span class="kw">for</span> order <span class="kw">in</span> orders)
+<span class="fn">print</span>(<span class="st">f"Total units ordered: </span>{total_qty}<span class="st">"</span>)
+
+<span class="cm"># Dictionary of lists — column-oriented layout</span>
+columns = {
+    <span class="st">"month"</span>:   [<span class="st">"Jan"</span>, <span class="st">"Feb"</span>, <span class="st">"Mar"</span>],
+    <span class="st">"revenue"</span>: [<span class="nb">45000</span>, <span class="nb">52000</span>, <span class="nb">48000</span>],
+    <span class="st">"cost"</span>:    [<span class="nb">30000</span>, <span class="nb">33000</span>, <span class="nb">31000</span>]
+}
+<span class="cm"># Access a column</span>
+<span class="fn">print</span>(columns[<span class="st">"revenue"</span>])  <span class="cm"># [45000, 52000, 48000]</span></pre>
+
+<h2>2.11 List and Dictionary Comprehensions</h2>
+<p>A concise way to create lists by combining a loop and an optional condition in a single line. Dictionary comprehensions follow the same pattern but produce key-value pairs.</p>
 
 <pre class="python">prices = [<span class="nb">12.5</span>, <span class="nb">8.0</span>, <span class="nb">25.0</span>, <span class="nb">3.5</span>, <span class="nb">19.99</span>, <span class="nb">45.0</span>]
 
-<span class="cm"># Filter and transform</span>
+<span class="cm"># List comprehension: filter and transform</span>
 premium = [p <span class="kw">for</span> p <span class="kw">in</span> prices <span class="kw">if</span> p > <span class="nb">15</span>]
 <span class="fn">print</span>(premium)  <span class="cm"># [25.0, 19.99, 45.0]</span>
 
 <span class="cm"># Apply 10% discount</span>
 discounted = [p * <span class="nb">0.9</span> <span class="kw">for</span> p <span class="kw">in</span> prices]
-<span class="fn">print</span>(discounted)</pre>
+<span class="fn">print</span>(discounted)
+
+<span class="cm"># Dictionary comprehension — create a lookup table</span>
+inventory = {<span class="st">"A"</span>: <span class="nb">120</span>, <span class="st">"B"</span>: <span class="nb">45</span>, <span class="st">"C"</span>: <span class="nb">200</span>, <span class="st">"D"</span>: <span class="nb">30</span>}
+low_stock = {sku: qty <span class="kw">for</span> sku, qty <span class="kw">in</span> inventory.<span class="fn">items</span>() <span class="kw">if</span> qty &lt; <span class="nb">50</span>}
+<span class="fn">print</span>(low_stock)  <span class="cm"># {'B': 45, 'D': 30}</span>
+
+<span class="cm"># Invert a dictionary (swap keys and values)</span>
+region_codes = {<span class="st">"East"</span>: <span class="st">"E"</span>, <span class="st">"West"</span>: <span class="st">"W"</span>, <span class="st">"Central"</span>: <span class="st">"C"</span>}
+code_to_region = {v: k <span class="kw">for</span> k, v <span class="kw">in</span> region_codes.<span class="fn">items</span>()}
+<span class="fn">print</span>(code_to_region)  <span class="cm"># {'E': 'East', 'W': 'West', 'C': 'Central'}</span>
+
+<span class="cm"># Set comprehension</span>
+categories = {order[<span class="st">"region"</span>] <span class="kw">for</span> order <span class="kw">in</span> orders}
+<span class="fn">print</span>(categories)  <span class="cm"># {'East', 'West'}</span></pre>
+
+<div class="concept info">
+    <strong>Readability guideline:</strong> If a comprehension needs more than one <code>if</code> clause or spans more than about 80 characters, rewrite it as a regular for-loop. Comprehensions are meant to simplify simple patterns, not to compress complex logic into a single unreadable line.
+</div>
+
+<h2>2.12 Error Handling: try / except</h2>
+<p>When your code encounters an error at runtime (like dividing by zero or converting an invalid string to a number), Python raises an exception and stops. The <code>try/except</code> block lets you catch these errors, handle them gracefully, and keep your program running. This is especially important when processing real-world data that may contain unexpected values.</p>
+
+<pre class="python"><span class="cm"># Basic try/except</span>
+<span class="kw">try</span>:
+    price = <span class="fn">float</span>(<span class="st">"not_a_number"</span>)
+<span class="kw">except</span> <span class="nb">ValueError</span>:
+    <span class="fn">print</span>(<span class="st">"Could not convert to float — check your data"</span>)
+
+<span class="cm"># Handling multiple error types</span>
+<span class="kw">def</span> <span class="fn">safe_divide</span>(a, b):
+    <span class="kw">try</span>:
+        <span class="kw">return</span> a / b
+    <span class="kw">except</span> <span class="nb">ZeroDivisionError</span>:
+        <span class="fn">print</span>(<span class="st">"Cannot divide by zero"</span>)
+        <span class="kw">return</span> <span class="nb">None</span>
+    <span class="kw">except</span> <span class="nb">TypeError</span>:
+        <span class="fn">print</span>(<span class="st">"Both arguments must be numbers"</span>)
+        <span class="kw">return</span> <span class="nb">None</span>
+
+<span class="fn">print</span>(<span class="fn">safe_divide</span>(<span class="nb">10</span>, <span class="nb">0</span>))      <span class="cm"># Cannot divide by zero → None</span>
+<span class="fn">print</span>(<span class="fn">safe_divide</span>(<span class="nb">10</span>, <span class="st">"a"</span>))   <span class="cm"># Both arguments must be numbers → None</span>
+<span class="fn">print</span>(<span class="fn">safe_divide</span>(<span class="nb">10</span>, <span class="nb">3</span>))      <span class="cm"># 3.333...</span>
+
+<span class="cm"># try/except/else/finally — the full pattern</span>
+<span class="kw">try</span>:
+    f = <span class="fn">open</span>(<span class="st">"data.csv"</span>)
+<span class="kw">except</span> <span class="nb">FileNotFoundError</span>:
+    <span class="fn">print</span>(<span class="st">"File not found — check the path"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">f"Opened file with </span>{<span class="fn">len</span>(f.<span class="fn">readlines</span>())}<span class="st"> lines"</span>)
+    f.<span class="fn">close</span>()
+<span class="kw">finally</span>:
+    <span class="fn">print</span>(<span class="st">"This runs no matter what"</span>)</pre>
+
+<div class="concept warn">
+    <strong>Do not catch everything blindly.</strong> Writing a bare <code>except:</code> without specifying the error type hides bugs and makes debugging very difficult. Always catch the specific exception types you expect (<code>ValueError</code>, <code>KeyError</code>, <code>FileNotFoundError</code>, etc.).
+</div>
 
 <div class="exercise">
     <h4>Exercise 2.1</h4>
-    <p>Given the dictionary <code>inventory = {"A": 120, "B": 45, "C": 200, "D": 30, "E": 95}</code>, write a loop that prints each SKU that has stock below 50 units. Then rewrite it as a list comprehension that returns the SKU names.</p>
+    <p>Given the dictionary <code>inventory = {"A": 120, "B": 45, "C": 200, "D": 30, "E": 95}</code>, write a loop that prints each SKU that has stock below 50 units. Then rewrite it as a dictionary comprehension that returns only the low-stock SKUs with their quantities.</p>
 </div>
 
 <div class="exercise">
     <h4>Exercise 2.2</h4>
     <p>Create a list of monthly sales figures for 12 months. Use a for loop to compute the running cumulative total and store each month's cumulative value in a new list. Print both lists side by side.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 2.3</h4>
+    <p>Given two lists, <code>products = ["Widget", "Gadget", "Bracket"]</code> and <code>prices = [29.99, 14.50, 7.25]</code>, use <code>zip()</code> to create a dictionary mapping product names to prices. Then use a dictionary comprehension to create a new dictionary containing only products that cost more than $10.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 2.4</h4>
+    <p>Write a function that takes a list of strings representing prices (e.g., <code>["29.99", "N/A", "14.50", "", "7.25"]</code>) and returns a list of floats, replacing any invalid entries with <code>0.0</code>. Use <code>try/except</code> inside your loop to handle conversion errors gracefully.</p>
 </div>
 
 <div class="ext-resources">
@@ -187,10 +378,13 @@ discounted = [p * <span class="nb">0.9</span> <span class="kw">for</span> p <spa
 <div class="takeaway">
     <h3>Chapter 2 Takeaways</h3>
     <ul>
-        <li>Python has five core data types for analytics: int, float, str, bool, and NoneType.</li>
-        <li>Lists are mutable ordered sequences; dictionaries map keys to values; tuples are immutable.</li>
-        <li>if/elif/else controls branching logic; for loops iterate over collections; while loops run until a condition fails.</li>
-        <li>List comprehensions provide a compact, readable alternative to simple for-loop-plus-append patterns.</li>
+        <li>Python has six core data types for analytics: int, float, str, bool, NoneType, and set.</li>
+        <li>Lists are mutable ordered sequences; dictionaries map keys to values; tuples are immutable; sets store unique elements.</li>
+        <li>String methods like <code>split()</code>, <code>join()</code>, <code>strip()</code>, and <code>replace()</code> are essential for cleaning real-world data.</li>
+        <li><code>enumerate()</code> and <code>zip()</code> eliminate manual index tracking and produce cleaner loops.</li>
+        <li>List and dictionary comprehensions provide a compact alternative to simple for-loop-plus-append patterns.</li>
+        <li>Use <code>try/except</code> to handle errors gracefully; always catch specific exception types.</li>
+        <li>Nested data structures (lists of dicts, dicts of lists) appear constantly when working with JSON and API data.</li>
     </ul>
 </div>
 

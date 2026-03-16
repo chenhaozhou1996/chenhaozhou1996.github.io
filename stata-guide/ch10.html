@@ -37,7 +37,7 @@
 </nav>
 
 <h1>Chapter 10: Advanced Topics</h1>
-<p class="subtitle">GMM, Stochastic Frontier, Heckman, and Bootstrap</p>
+<p class="subtitle">GMM, Stochastic Frontier, Heckman, Control Function, Bootstrap, and Permutation Tests</p>
 
 <h2>10.1 Generalized Method of Moments (GMM)</h2>
 <p>GMM is a flexible estimation framework that nests OLS, IV, and many other estimators as special cases. In panel data, dynamic GMM estimators (Arellano-Bond, Arellano-Bover/Blundell-Bond) handle lagged dependent variables and endogenous regressors using internal instruments.</p>
@@ -68,6 +68,7 @@
 </div>
 
 <h2>10.2 GMM Diagnostics</h2>
+<p>Proper GMM estimation requires passing several diagnostic tests. Reviewers at top journals will closely scrutinize these diagnostics, and failure to report them is a common reason for desk rejection.</p>
 
 <pre class="stata"><span class="cm">* After xtabond2, check:</span>
 
@@ -87,6 +88,50 @@
     gmm(L.n, lag(2 5) collapse) iv(w k yr1980-yr1984) ///
     robust small</pre>
 
+<h3>10.2.1 Arellano-Bond AR Tests: Interpretation</h3>
+
+<pre class="stata"><span class="cm">* ─── Understanding the AR Tests ───</span>
+<span class="cm">* The AR tests examine serial correlation in the first-differenced errors</span>
+
+<span class="cm">* AR(1): tests for first-order serial correlation in D.e</span>
+<span class="cm">*   Always expected to reject (because D.e_it and D.e_{it-1} share e_{it-1})</span>
+<span class="cm">*   Not informative for instrument validity</span>
+
+<span class="cm">* AR(2): tests for second-order serial correlation in D.e</span>
+<span class="cm">*   If AR(2) rejects: e_it is serially correlated at order >= 1</span>
+<span class="cm">*   This means lag-2 instruments are invalid</span>
+<span class="cm">*   Solution: use deeper lags, e.g., gmm(L.n, lag(3 5))</span>
+
+<span class="cm">* ─── Sargan vs. Hansen J Test ───</span>
+<span class="cm">* Sargan: assumes homoskedasticity (not robust)</span>
+<span class="cm">* Hansen: robust to heteroskedasticity and autocorrelation</span>
+<span class="cm">* Use Hansen when you specify "robust" in xtabond2</span>
+<span class="cm">* CAUTION: Hansen test is weakened by instrument proliferation</span>
+<span class="cm">*   p-values close to 1.0 are suspicious (too many instruments)</span>
+
+<span class="cm">* ─── Difference-in-Hansen Test ───</span>
+<span class="cm">* Tests the validity of subsets of instruments</span>
+<span class="cm">* xtabond2 reports this for the level equation instruments</span>
+<span class="cm">* If the level instruments fail the diff-Hansen test,</span>
+<span class="cm">* system GMM is invalid; fall back to difference GMM</span>
+
+<span class="cm">* ─── A Complete GMM Reporting Template ───</span>
+<span class="kw">xtabond2</span> n L.n w k yr1980-yr1984, ///
+    gmm(L.n, lag(2 4) collapse) iv(w k yr1980-yr1984) ///
+    robust small twostep
+
+<span class="cm">* Report in your paper:</span>
+<span class="cm">*   - N (observations), N_g (groups), N_i (instruments)</span>
+<span class="cm">*   - AR(1) p-value, AR(2) p-value</span>
+<span class="cm">*   - Hansen J p-value</span>
+<span class="cm">*   - Diff-in-Hansen p-value for level equation</span>
+<span class="cm">*   - Whether two-step or one-step, collapsed or not</span></pre>
+
+<div class="concept tip">
+    <strong>GMM Reporting Checklist for Publication</strong>
+    Roodman (2009) provides the definitive guidance. Always report: (1) Number of instruments vs. number of groups (instruments &lt; groups). (2) AR(1) and AR(2) p-values. (3) Hansen J p-value (should be between 0.1 and 0.8; values near 1.0 suggest instrument proliferation). (4) Whether you used one-step or two-step estimation. (5) Whether instruments are collapsed. (6) The lag range for GMM instruments. (7) Sensitivity of results to different lag structures and to using the <code>collapse</code> option. Reviewers at journals like Management Science and JOM will check these systematically.
+</div>
+
 <h2>10.3 Stochastic Frontier Analysis (SFA)</h2>
 <p>SFA estimates a production or cost frontier and decomposes the error into a symmetric noise term and a one-sided inefficiency term. This is widely used in healthcare operations, banking, and agriculture to measure productive efficiency.</p>
 
@@ -105,6 +150,41 @@
     title(<span class="st">"Distribution of Technical Efficiency"</span>) ///
     xtitle(<span class="st">"Efficiency Score"</span>)</pre>
 
+<h3>10.3.1 Technical Efficiency Scores and Second-Stage Analysis</h3>
+
+<pre class="stata"><span class="cm">* ─── Predicting Technical Efficiency ───</span>
+<span class="kw">frontier</span> ln_output ln_labor ln_capital, dist(hnormal)
+
+<span class="cm">* Jondrow et al. (1982) efficiency predictor (conditional mean)</span>
+<span class="kw">predict</span> te_jlms, te
+<span class="cm">* Battese-Coelli (1988) efficiency predictor</span>
+<span class="kw">predict</span> te_bc, te
+
+<span class="cm">* Summary and distribution</span>
+<span class="kw">summarize</span> te_jlms, detail
+<span class="kw">histogram</span> te_jlms, freq normal ///
+    title(<span class="st">"Technical Efficiency Distribution"</span>) ///
+    note(<span class="st">"Mean TE = `=string(r(mean), "%5.3f")'"</span>)
+
+<span class="cm">* ─── Second-Stage: What Explains Efficiency? ───</span>
+<span class="cm">* Option A: Regress TE on determinants (common but flawed)</span>
+<span class="kw">regress</span> te_jlms firm_age ownership_type export_status, vce(robust)
+
+<span class="cm">* Option B: Single-stage SFA with inefficiency determinants (preferred)</span>
+<span class="cm">* Battese-Coelli (1995) model includes Z variables in the</span>
+<span class="cm">* inefficiency distribution directly</span>
+<span class="kw">frontier</span> ln_output ln_labor ln_capital, ///
+    dist(hnormal) uhet(firm_age ownership_type export_status)
+
+<span class="cm">* The uhet() coefficients show how Z affects INEFFICIENCY</span>
+<span class="cm">* Positive coefficient => increases inefficiency (reduces TE)</span>
+<span class="cm">* Negative coefficient => reduces inefficiency (increases TE)</span></pre>
+
+<div class="concept warn">
+    <strong>Two-Stage SFA Bias</strong>
+    The common practice of estimating SFA in the first stage, predicting TE, and then regressing TE on determinants in a second stage is statistically problematic. The predicted TE values are bounded between 0 and 1, their distribution is non-normal, and the second-stage regression ignores the estimation error in the first stage. Use the single-stage approach with <code>uhet()</code> to include efficiency determinants in the inefficiency distribution directly. If a two-stage approach is required (e.g., with panel SFA), bootstrap the entire procedure for correct standard errors.
+</div>
+
 <h2>10.4 Panel SFA</h2>
 
 <pre class="stata"><span class="cm">* Time-invariant inefficiency (Battese-Coelli 1988)</span>
@@ -114,7 +194,22 @@
 <span class="kw">xtfrontier</span> ln_output ln_labor ln_capital, tvd
 
 <span class="cm">* Predict efficiency</span>
-<span class="kw">predict</span> te_panel, te</pre>
+<span class="kw">predict</span> te_panel, te
+
+<span class="cm">* ─── Choosing Between SFA Models ───</span>
+<span class="cm">* ti (time-invariant): assumes inefficiency is constant over time</span>
+<span class="cm">*   Appropriate for short panels where TE is stable</span>
+<span class="cm">* tvd (time-varying decay): inefficiency follows exp(-eta*(t-T))</span>
+<span class="cm">*   Allows TE to systematically improve or deteriorate over time</span>
+<span class="cm">*   eta > 0 => efficiency improves over time</span>
+<span class="cm">*   eta < 0 => efficiency declines over time</span>
+
+<span class="cm">* Compare using LR test or AIC/BIC</span>
+<span class="kw">quietly xtfrontier</span> ln_output ln_labor ln_capital, ti
+<span class="kw">estimates store</span> sfa_ti
+<span class="kw">quietly xtfrontier</span> ln_output ln_labor ln_capital, tvd
+<span class="kw">estimates store</span> sfa_tvd
+<span class="kw">lrtest</span> sfa_ti sfa_tvd</pre>
 
 <h2>10.5 Heckman Selection Model</h2>
 <p>The Heckman model corrects for sample selection bias. It applies when the dependent variable is observed only for a non-random subsample (e.g., wages observed only for employed individuals).</p>
@@ -135,6 +230,41 @@
 <div class="concept info">
     <strong>Exclusion Restriction</strong>
     For the Heckman model to be identified by more than functional form, the selection equation should include at least one variable (the "exclusion restriction") that affects selection into the sample but not the outcome. In the example above, <code>married</code> and <code>children</code> serve this role.
+</div>
+
+<h3>10.5.1 Two-Step vs. MLE: When Does It Matter?</h3>
+
+<pre class="stata"><span class="cm">* ─── Comparing Two-Step and MLE ───</span>
+<span class="kw">webuse</span> womenwk, clear
+
+<span class="cm">* Two-step Heckman</span>
+<span class="kw">heckman</span> wage education age, ///
+    select(married children education age) twostep
+<span class="kw">estimates store</span> heck_2step
+
+<span class="cm">* MLE Heckman</span>
+<span class="kw">heckman</span> wage education age, ///
+    select(married children education age)
+<span class="kw">estimates store</span> heck_mle
+
+<span class="cm">* Side-by-side comparison</span>
+<span class="kw">estimates table</span> heck_2step heck_mle, se stats(N ll)
+
+<span class="cm">* Key differences:</span>
+<span class="cm">* - Two-step: consistent but less efficient; SEs may be inaccurate</span>
+<span class="cm">*   Advantage: does not require joint normality of errors</span>
+<span class="cm">* - MLE: efficient under correct specification (joint normality)</span>
+<span class="cm">*   Advantage: more precise estimates and correct SEs</span>
+<span class="cm">*   Disadvantage: sensitive to normality assumption</span>
+
+<span class="cm">* ─── Testing for Selection Bias ───</span>
+<span class="cm">* In two-step: test significance of lambda (inverse Mills ratio)</span>
+<span class="cm">* In MLE: test significance of rho or use LR test</span>
+<span class="cm">*   (compare MLE Heckman vs. simple regression)</span></pre>
+
+<div class="concept tip">
+    <strong>Heckman Practical Guidance</strong>
+    (1) If your sample is large, use MLE for efficiency. If you are concerned about misspecification, use two-step as a robustness check. (2) Report both two-step and MLE estimates; if they differ substantially, the normality assumption may be problematic. (3) A strong and defensible exclusion restriction is far more important than the choice between two-step and MLE. (4) If rho or lambda is insignificant, selection bias may not be severe, but the Heckman model is still valid (it reduces to OLS in the limit). (5) For panel data with selection, consider <code>xtheckman</code> or the Wooldridge (1995) correlated random effects approach.
 </div>
 
 <h2>10.6 Heckman Probit</h2>
@@ -160,6 +290,61 @@
 <span class="cm">* NOTE: Standard errors in step 2 need bootstrapping</span>
 <span class="cm">* because cf_resid is a generated regressor</span></pre>
 
+<h3>10.7.1 Control Function with Bootstrap Standard Errors</h3>
+<p>The control function approach produces incorrect standard errors in the second stage because the residual is a generated regressor. Bootstrap the entire two-step procedure to obtain valid inference.</p>
+
+<pre class="stata"><span class="cm">* ─── Complete CF with Correct Bootstrap SEs ───</span>
+<span class="kw">capture program drop</span> cf_bootstrap
+<span class="kw">program define</span> cf_bootstrap, eclass
+    <span class="kw">syntax</span> [, *]
+
+    <span class="cm">* Step 1: First stage</span>
+    <span class="kw">quietly regress</span> rn_pp instrument_z sdi controls i.year
+    <span class="kw">quietly predict</span> double _cf_resid, residuals
+
+    <span class="cm">* Step 2: Structural equation with CF residual</span>
+    <span class="kw">regress</span> qip rn_pp sdi _cf_resid controls i.year
+
+    <span class="cm">* Clean up</span>
+    <span class="kw">drop</span> _cf_resid
+<span class="kw">end</span>
+
+<span class="cm">* Bootstrap with cluster resampling</span>
+<span class="kw">bootstrap</span>, reps(500) seed(42) cluster(facility_id): cf_bootstrap
+
+<span class="cm">* ─── CF for Nonlinear Models (Probit/Poisson) ───</span>
+<span class="kw">capture program drop</span> cf_probit_boot
+<span class="kw">program define</span> cf_probit_boot, eclass
+    <span class="cm">* Step 1: Linear first stage for continuous endogenous variable</span>
+    <span class="kw">quietly regress</span> endogenous_x instrument_z controls
+    <span class="kw">quietly predict</span> double _cf_v, residuals
+
+    <span class="cm">* Step 2: Probit with CF residual</span>
+    <span class="kw">probit</span> binary_y endogenous_x _cf_v controls
+
+    <span class="kw">drop</span> _cf_v
+<span class="kw">end</span>
+
+<span class="kw">bootstrap</span>, reps(500) seed(42) cluster(unit_id): cf_probit_boot
+
+<span class="cm">* ─── CF for Panel Data ───</span>
+<span class="kw">capture program drop</span> cf_panel_boot
+<span class="kw">program define</span> cf_panel_boot, eclass
+    <span class="kw">quietly reghdfe</span> rn_pp instrument_z controls, absorb(facility_id year)
+    <span class="kw">quietly predict</span> double _cf_r, residuals
+
+    <span class="kw">reghdfe</span> qip rn_pp sdi _cf_r controls, absorb(facility_id year)
+
+    <span class="kw">drop</span> _cf_r
+<span class="kw">end</span>
+
+<span class="kw">bootstrap</span>, reps(500) seed(42) cluster(facility_id): cf_panel_boot</pre>
+
+<div class="concept info">
+    <strong>Control Function vs. 2SLS vs. Heckman</strong>
+    These three approaches are related but serve different purposes. (1) <strong>CF vs. 2SLS</strong>: identical in linear models, but CF extends to nonlinear models (logit, probit, Poisson) where 2SLS is inconsistent. (2) <strong>CF vs. Heckman</strong>: the Heckman selection model is a special case of the CF approach where the "endogeneity" is sample selection rather than a correlated regressor. Both include a correction term in the outcome equation (inverse Mills ratio in Heckman, first-stage residual in CF). (3) In all cases, the correction term provides a built-in test of the endogeneity/selection assumption: if it is insignificant, OLS/the uncorrected model is consistent.
+</div>
+
 <h2>10.8 Bootstrap Inference</h2>
 <p>Bootstrap resamples the data with replacement and re-estimates the model many times to obtain standard errors that do not rely on distributional assumptions. This is particularly useful for two-step estimators where analytical standard errors are complex.</p>
 
@@ -180,6 +365,31 @@
 
 <span class="kw">bootstrap</span>, reps(500) seed(42) cluster(facility_id): cf_boot</pre>
 
+<h3>10.8.1 Bootstrap Confidence Intervals</h3>
+
+<pre class="stata"><span class="cm">* ─── Types of Bootstrap Confidence Intervals ───</span>
+<span class="kw">bootstrap</span>, reps(1000) seed(42): regress qip rn_pp sdi controls
+
+<span class="cm">* Normal approximation (default)</span>
+<span class="kw">estat bootstrap</span>, normal
+
+<span class="cm">* Percentile method (distribution-free)</span>
+<span class="kw">estat bootstrap</span>, percentile
+
+<span class="cm">* Bias-corrected (BC) interval</span>
+<span class="kw">estat bootstrap</span>, bc
+
+<span class="cm">* Bias-corrected accelerated (BCa) interval (most reliable)</span>
+<span class="kw">estat bootstrap</span>, bca
+
+<span class="cm">* Compare all CI methods</span>
+<span class="kw">estat bootstrap</span>, all</pre>
+
+<div class="concept tip">
+    <strong>Bootstrap Best Practices</strong>
+    (1) Use at least 500 replications for standard errors and 1000+ for confidence intervals. For published work, 2000-5000 replications provide stable results. (2) Always set a seed for reproducibility (<code>seed(12345)</code>). (3) If your data is clustered, use <code>cluster()</code> in the bootstrap call; this resamples entire clusters rather than individual observations. (4) BCa confidence intervals are generally preferred over normal or percentile intervals because they correct for both bias and skewness. (5) If bootstrap replications fail frequently (e.g., matrix not positive definite), your model may be fragile or overparameterized.
+</div>
+
 <h2>10.9 Wild Cluster Bootstrap</h2>
 <p>When the number of clusters is small (fewer than 30-50), conventional cluster-robust standard errors can be severely biased. The wild cluster bootstrap provides more reliable inference.</p>
 
@@ -188,7 +398,65 @@
 <span class="kw">regress</span> outcome treatment controls, vce(cluster state)
 
 <span class="cm">* Wild cluster bootstrap p-value for treatment</span>
-<span class="kw">boottest</span> treatment, reps(9999) seed(42) cluster(state)</pre>
+<span class="kw">boottest</span> treatment, reps(9999) seed(42) cluster(state)
+
+<span class="cm">* Webb weights (recommended for very few clusters, G < 11)</span>
+<span class="kw">boottest</span> treatment, reps(9999) seed(42) cluster(state) weight(webb)</pre>
+
+<h2>10.10 Permutation Tests</h2>
+<p>Permutation tests (also called randomization inference) provide exact p-values by comparing the observed test statistic to its distribution under random reassignment of treatment. They require no distributional assumptions and are particularly useful with small samples or when standard asymptotic inference is suspect.</p>
+
+<pre class="stata"><span class="cm">* ─── Permutation Test for a Treatment Effect ───</span>
+<span class="kw">permute</span> treatment _b[treatment], reps(5000) seed(42): ///
+    regress outcome treatment controls
+
+<span class="cm">* This randomly reassigns the treatment variable 5000 times,</span>
+<span class="cm">* re-estimates the model each time, and computes the proportion</span>
+<span class="cm">* of permuted coefficients as extreme as the observed one.</span>
+
+<span class="cm">* ─── Fisher Exact Test for 2x2 Tables ───</span>
+<span class="cm">* Built-in exact test for small-sample binary outcomes</span>
+<span class="kw">tabi</span> 10 5 \ 3 12, exact
+
+<span class="cm">* ─── Randomization Inference for DID ───</span>
+<span class="cm">* Randomly reassign treatment status and re-estimate DID</span>
+<span class="cm">* Particularly useful when the number of treated units is small</span>
+<span class="kw">permute</span> treatment _b[treat_post], reps(5000) seed(42): ///
+    regress outcome treatment post treat_post controls, cluster(state)</pre>
+
+<div class="concept info">
+    <strong>When to Use Permutation Tests</strong>
+    Permutation tests are appropriate when: (1) sample sizes are too small for asymptotic approximations to be reliable; (2) the data distribution is highly non-normal; (3) you want to provide an exact (non-parametric) p-value as a robustness check alongside conventional inference; (4) the number of clusters is very small (complement to wild cluster bootstrap). In causal inference, randomization inference provides the "gold standard" p-value when treatment is genuinely randomly assigned. For observational studies, permutation tests still require the assumption that the permuted variable is exchangeable under the null.
+</div>
+
+<h2>10.11 Sensitivity Analysis for Unobserved Confounding</h2>
+<p>Even with a careful identification strategy, reviewers may question whether unobserved confounders could explain your results. Sensitivity analysis quantifies how strong confounding would need to be to overturn your conclusions.</p>
+
+<pre class="stata"><span class="cm">* ─── Oster (2019) Proportional Selection ───</span>
+<span class="cm">* Install: ssc install psacalc, replace</span>
+
+<span class="cm">* Step 1: Run baseline without controls</span>
+<span class="kw">regress</span> outcome treatment
+<span class="kw">local</span> b_base = _b[treatment]
+<span class="kw">local</span> r2_base = e(r2)
+
+<span class="cm">* Step 2: Run with observable controls</span>
+<span class="kw">regress</span> outcome treatment controls
+<span class="kw">local</span> b_full = _b[treatment]
+<span class="kw">local</span> r2_full = e(r2)
+
+<span class="cm">* Step 3: Compute delta (how much unobservables would need to</span>
+<span class="cm">*         matter relative to observables to drive beta to zero)</span>
+<span class="kw">psacalc</span> delta treatment, rmax(1.3 * `r2_full') mcontrol(controls)
+
+<span class="cm">* delta > 1 => unobservables would need to be more important</span>
+<span class="cm">*              than all observables combined to explain away the result</span>
+<span class="cm">* This is considered strong evidence of a robust result</span></pre>
+
+<div class="concept tip">
+    <strong>Sensitivity Analysis for Reviewers</strong>
+    Oster (2019) sensitivity analysis is increasingly required at top management and economics journals. The key output is delta: the ratio of selection on unobservables to selection on observables needed to produce a zero treatment effect. A delta &gt; 1 (under the assumption that R-squared_max is at most 1.3 times the full-controls R-squared) provides strong evidence that your result is not driven by omitted variables. Report both delta and the identified set [beta_full, beta_adjusted] in your robustness section.
+</div>
 
 <div class="exercise">
     <h4>Exercise 10.1</h4>
@@ -200,6 +468,16 @@
     <p>Using <code>webuse womenwk</code>, estimate a Heckman selection model of <code>wage</code> on <code>education</code> and <code>age</code>, with the selection equation including <code>married</code>, <code>children</code>, <code>education</code>, and <code>age</code>. Compare the two-step and MLE estimates. Is the inverse Mills ratio (lambda) significant?</p>
 </div>
 
+<div class="exercise">
+    <h4>Exercise 10.3</h4>
+    <p>Using <code>webuse abdata</code>, estimate both difference GMM (<code>noleveleq</code>) and system GMM for employment on lagged employment, wages, and capital. Compare the AR(2) and Hansen J p-values. Vary the lag depth from <code>lag(2 3)</code> to <code>lag(2 5)</code> to <code>lag(2 .)</code> (all available lags). How do the results change? What happens to the Hansen J p-value as you add more instruments? Report the number of instruments for each specification and explain which you would present to a reviewer.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 10.4</h4>
+    <p>Write a bootstrap program for a two-step control function procedure: (1) regress <code>wage</code> on <code>education</code>, <code>age</code>, and an instrument of your choice, saving the residual; (2) include the residual in a Heckman selection model or a simple outcome regression. Run 500 bootstrap replications with cluster resampling. Compare the bootstrap standard errors to the naive (non-bootstrapped) standard errors from the second stage. How much do they differ?</p>
+</div>
+
 <div class="ext-resources">
     <h4>External Resources</h4>
     <ul>
@@ -207,6 +485,8 @@
         <li><a href="https://journals.sagepub.com/doi/10.1177/1536867X0900900106" target="_blank" rel="noopener">Roodman (2009): xtabond2 in Stata Journal</a> <span class="ext-badge">External</span></li>
         <li><a href="https://www.stata.com/manuals/rfrontier.pdf" target="_blank" rel="noopener">Stata Manual: frontier (SFA)</a> <span class="ext-badge">External</span></li>
         <li><a href="https://stats.oarc.ucla.edu/stata/dae/heckman-selection-model/" target="_blank" rel="noopener">UCLA OARC: Heckman Selection Model</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://ideas.repec.org/c/boc/bocode/s458113.html" target="_blank" rel="noopener">boottest on SSC (Wild Cluster Bootstrap)</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://ideas.repec.org/c/boc/bocode/s457677.html" target="_blank" rel="noopener">psacalc on SSC (Oster Sensitivity Analysis)</a> <span class="ext-badge">External</span></li>
     </ul>
 </div>
 
@@ -214,9 +494,14 @@
     <h3>Key Takeaways</h3>
     <ul>
         <li>Use system GMM (<code>xtabond2</code>) for dynamic panels; always check AR(2) and Hansen J, and avoid instrument proliferation.</li>
-        <li>SFA separates noise from inefficiency; choose the distributional assumption carefully.</li>
+        <li>Report the number of instruments vs. groups, and sensitivity to lag structure and the <code>collapse</code> option.</li>
+        <li>SFA separates noise from inefficiency; prefer single-stage models with <code>uhet()</code> over two-stage approaches.</li>
         <li>The Heckman model corrects for selection bias but requires a credible exclusion restriction.</li>
+        <li>The control function extends IV to nonlinear models; always bootstrap the entire two-step procedure for correct SEs.</li>
         <li>Bootstrap standard errors for any two-step procedure where the first step generates regressors.</li>
+        <li>Wild cluster bootstrap (<code>boottest</code>) provides reliable inference with few clusters.</li>
+        <li>Permutation tests offer exact, distribution-free p-values for small samples or robustness checks.</li>
+        <li>Oster (2019) sensitivity analysis quantifies how strong unobserved confounding must be to overturn your result.</li>
     </ul>
 </div>
 

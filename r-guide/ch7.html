@@ -117,9 +117,9 @@ mfx <span class="op">&lt;-</span> <span class="fn">margins</span>(logit_fit)
 <span class="fn">plot</span>(mfx)</pre>
 
 <!-- ────────────────────────────── -->
-<h2>7.5 Poisson Regression</h2>
+<h2>7.5 Poisson Regression and Incidence Rate Ratios</h2>
 
-<p>For count data (non-negative integers), Poisson regression models the log of the expected count.</p>
+<p>For count data (non-negative integers), Poisson regression models the log of the expected count. The exponentiated coefficients are <strong>incidence rate ratios (IRRs)</strong>.</p>
 
 <pre class="r"><span class="cm"># Simulate count data</span>
 <span class="fn">set.seed</span>(<span class="nb">123</span>)
@@ -134,16 +134,184 @@ count_df<span class="op">$</span>y <span class="op">&lt;-</span> <span class="fn
 pois_fit <span class="op">&lt;-</span> <span class="fn">glm</span>(y <span class="op">~</span> x1 <span class="op">+</span> x2, family <span class="op">=</span> <span class="fn">poisson</span>(), data <span class="op">=</span> count_df)
 <span class="fn">summary</span>(pois_fit)
 
-<span class="cm"># Incidence rate ratios</span>
-<span class="fn">exp</span>(<span class="fn">coef</span>(pois_fit))</pre>
+<span class="cm"># Incidence rate ratios with 95% CI</span>
+<span class="fn">exp</span>(<span class="fn">cbind</span>(IRR <span class="op">=</span> <span class="fn">coef</span>(pois_fit), <span class="fn">confint</span>(pois_fit)))
 
-<div class="concept warn">
-  <strong>Overdispersion</strong>
-  If the residual deviance is much larger than the residual degrees of freedom, your data may be overdispersed. Use <code>family = quasipoisson()</code> or switch to a negative binomial model via <code>MASS::glm.nb()</code>.
+<span class="cm"># Tidy output with IRRs directly</span>
+broom<span class="op">::</span><span class="fn">tidy</span>(pois_fit, exponentiate <span class="op">=</span> <span class="nb">TRUE</span>, conf.int <span class="op">=</span> <span class="nb">TRUE</span>)</pre>
+
+<div class="concept info">
+  <strong>Interpreting incidence rate ratios (IRRs)</strong>
+  An IRR of 1.65 for x1 means: a one-unit increase in x1 is associated with a 65% increase in the expected count, holding other variables constant. An IRR of 0.74 means a 26% decrease. IRRs below 1 indicate a protective or reducing effect; IRRs above 1 indicate an increasing effect.
 </div>
 
 <!-- ────────────────────────────── -->
-<h2>7.6 Model Comparison: AIC and BIC</h2>
+<h2>7.6 Overdispersion: Quasi-Poisson and Negative Binomial</h2>
+
+<p>The Poisson distribution assumes that the variance equals the mean (equidispersion). Real count data often exhibit <strong>overdispersion</strong>, where the variance exceeds the mean. Two common solutions are quasi-Poisson (which adjusts standard errors) and the negative binomial model (which adds a dispersion parameter).</p>
+
+<pre class="r"><span class="cm"># Check for overdispersion: ratio of residual deviance to df</span>
+<span class="fn">with</span>(pois_fit, deviance <span class="op">/</span> df.residual)
+<span class="cm"># Values much greater than 1 suggest overdispersion</span>
+
+<span class="cm"># Formal test: use AER package</span>
+<span class="fn">library</span>(AER)
+<span class="fn">dispersiontest</span>(pois_fit)
+
+<span class="cm"># Quasi-Poisson: same coefficients, inflated SEs</span>
+quasi_fit <span class="op">&lt;-</span> <span class="fn">glm</span>(y <span class="op">~</span> x1 <span class="op">+</span> x2, family <span class="op">=</span> <span class="fn">quasipoisson</span>(), data <span class="op">=</span> count_df)
+<span class="fn">summary</span>(quasi_fit)
+<span class="cm"># Note: dispersion parameter is estimated (not fixed at 1)</span>
+
+<span class="cm"># Negative binomial regression with MASS</span>
+<span class="fn">library</span>(MASS)
+nb_fit <span class="op">&lt;-</span> <span class="fn">glm.nb</span>(y <span class="op">~</span> x1 <span class="op">+</span> x2, data <span class="op">=</span> count_df)
+<span class="fn">summary</span>(nb_fit)
+
+<span class="cm"># Compare Poisson vs NB via AIC</span>
+<span class="fn">AIC</span>(pois_fit, nb_fit)
+
+<span class="cm"># IRRs from the negative binomial</span>
+<span class="fn">exp</span>(<span class="fn">cbind</span>(IRR <span class="op">=</span> <span class="fn">coef</span>(nb_fit), <span class="fn">confint</span>(nb_fit)))</pre>
+
+<div class="concept warn">
+  <strong>When to use which count model</strong>
+  Use Poisson when variance approximately equals the mean. Use quasi-Poisson for mild overdispersion (adjusts SEs without changing coefficients). Use negative binomial for substantial overdispersion (estimates a separate dispersion parameter). If you have excess zeros beyond what Poisson or NB predicts, consider zero-inflated models (Section 7.7).
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>7.7 Zero-Inflated Models</h2>
+
+<p>When count data contain more zeros than a Poisson or negative binomial distribution predicts, a zero-inflated model splits the process into two parts: (1) a logistic model for whether the count is a "structural zero" vs. coming from the count process, and (2) a Poisson or NB model for the count part.</p>
+
+<pre class="r"><span class="fn">library</span>(pscl)
+
+<span class="cm"># Simulate data with excess zeros</span>
+<span class="fn">set.seed</span>(<span class="nb">42</span>)
+n <span class="op">&lt;-</span> <span class="nb">300</span>
+zi_df <span class="op">&lt;-</span> <span class="fn">data.frame</span>(x <span class="op">=</span> <span class="fn">rnorm</span>(n), group <span class="op">=</span> <span class="fn">sample</span>(<span class="fn">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>), n, replace <span class="op">=</span> <span class="nb">TRUE</span>))
+zi_df<span class="op">$</span>y <span class="op">&lt;-</span> <span class="fn">ifelse</span>(<span class="fn">runif</span>(n) <span class="op">&lt;</span> <span class="nb">0.3</span>, <span class="nb">0</span>,
+                  <span class="fn">rpois</span>(n, <span class="fn">exp</span>(<span class="nb">1</span> <span class="op">+</span> <span class="nb">0.5</span> <span class="op">*</span> zi_df<span class="op">$</span>x)))
+
+<span class="cm"># Check zero proportion</span>
+<span class="fn">mean</span>(zi_df<span class="op">$</span>y <span class="op">==</span> <span class="nb">0</span>)
+
+<span class="cm"># Zero-inflated Poisson</span>
+zip_fit <span class="op">&lt;-</span> <span class="fn">zeroinfl</span>(y <span class="op">~</span> x <span class="op">+</span> group <span class="op">|</span> x, data <span class="op">=</span> zi_df)
+<span class="fn">summary</span>(zip_fit)
+<span class="cm"># Left of | = count model predictors</span>
+<span class="cm"># Right of | = zero-inflation model predictors</span>
+
+<span class="cm"># Zero-inflated negative binomial</span>
+zinb_fit <span class="op">&lt;-</span> <span class="fn">zeroinfl</span>(y <span class="op">~</span> x <span class="op">+</span> group <span class="op">|</span> x, data <span class="op">=</span> zi_df, dist <span class="op">=</span> <span class="st">"negbin"</span>)
+<span class="fn">summary</span>(zinb_fit)
+
+<span class="cm"># Hurdle model (alternative: zeros from one process, positives from another)</span>
+hurdle_fit <span class="op">&lt;-</span> <span class="fn">hurdle</span>(y <span class="op">~</span> x <span class="op">+</span> group <span class="op">|</span> x, data <span class="op">=</span> zi_df)
+<span class="fn">summary</span>(hurdle_fit)
+
+<span class="cm"># Compare all models</span>
+<span class="fn">AIC</span>(pois_fit, nb_fit, zip_fit, zinb_fit, hurdle_fit)</pre>
+
+<div class="concept info">
+  <strong>Zero-inflated vs. hurdle models</strong>
+  Zero-inflated models assume zeros come from two sources: "structural" zeros (the event cannot occur) and "sampling" zeros (it could occur but did not). Hurdle models treat all zeros as coming from a single binary process and model positive counts separately. Choose based on your research context: zero-inflated when some units structurally cannot have counts, hurdle when the decision to participate differs from the intensity.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>7.8 Ordinal Logistic Regression</h2>
+
+<p>When the response is an ordered categorical variable (e.g., satisfaction: low/medium/high), ordinal logistic regression (proportional odds model) is appropriate.</p>
+
+<pre class="r"><span class="fn">library</span>(MASS)
+
+<span class="cm"># Create an ordered factor</span>
+mtcars2<span class="op">$</span>mpg_cat <span class="op">&lt;-</span> <span class="fn">cut</span>(mtcars<span class="op">$</span>mpg,
+                        breaks <span class="op">=</span> <span class="fn">c</span>(<span class="op">-</span><span class="nb">Inf</span>, <span class="nb">15</span>, <span class="nb">22</span>, <span class="nb">Inf</span>),
+                        labels <span class="op">=</span> <span class="fn">c</span>(<span class="st">"Low"</span>, <span class="st">"Medium"</span>, <span class="st">"High"</span>),
+                        ordered <span class="op">=</span> <span class="nb">TRUE</span>)
+
+<span class="cm"># Fit proportional odds model</span>
+ord_fit <span class="op">&lt;-</span> <span class="fn">polr</span>(mpg_cat <span class="op">~</span> wt <span class="op">+</span> hp <span class="op">+</span> am, data <span class="op">=</span> mtcars2, Hess <span class="op">=</span> <span class="nb">TRUE</span>)
+<span class="fn">summary</span>(ord_fit)
+
+<span class="cm"># Proportional odds ratios</span>
+<span class="fn">exp</span>(<span class="fn">coef</span>(ord_fit))
+<span class="fn">exp</span>(<span class="fn">confint</span>(ord_fit))
+
+<span class="cm"># Predicted probabilities for each category</span>
+<span class="fn">predict</span>(ord_fit, type <span class="op">=</span> <span class="st">"probs"</span>) <span class="op">|&gt;</span> <span class="fn">head</span>()</pre>
+
+<div class="concept tip">
+  <strong>Testing the proportional odds assumption</strong>
+  The proportional odds model assumes the effect of each predictor is the same across all cutpoints. Test this with <code>brant::brant(ord_fit)</code>. If the assumption is violated, consider a multinomial logistic model instead.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>7.9 Multinomial Logistic Regression</h2>
+
+<p>When the response has three or more unordered categories, multinomial logistic regression estimates separate log-odds for each category relative to a baseline.</p>
+
+<pre class="r"><span class="fn">library</span>(nnet)
+
+<span class="cm"># Multinomial logit: predict cylinder category</span>
+mtcars2<span class="op">$</span>cyl_f <span class="op">&lt;-</span> <span class="fn">factor</span>(mtcars<span class="op">$</span>cyl)
+mnom_fit <span class="op">&lt;-</span> <span class="fn">multinom</span>(cyl_f <span class="op">~</span> wt <span class="op">+</span> hp <span class="op">+</span> am, data <span class="op">=</span> mtcars2)
+<span class="fn">summary</span>(mnom_fit)
+
+<span class="cm"># Exponentiate for relative risk ratios (vs. baseline category)</span>
+<span class="fn">exp</span>(<span class="fn">coef</span>(mnom_fit))
+
+<span class="cm"># Predicted probabilities</span>
+<span class="fn">predict</span>(mnom_fit, type <span class="op">=</span> <span class="st">"probs"</span>) <span class="op">|&gt;</span> <span class="fn">head</span>()
+
+<span class="cm"># Predicted class</span>
+<span class="fn">predict</span>(mnom_fit, type <span class="op">=</span> <span class="st">"class"</span>) <span class="op">|&gt;</span> <span class="fn">table</span>()</pre>
+
+<!-- ────────────────────────────── -->
+<h2>7.10 ROC Curves and Calibration</h2>
+
+<p>For binary classification models, the Receiver Operating Characteristic (ROC) curve plots sensitivity against 1-specificity across all possible thresholds. The area under the curve (AUC) summarizes discriminative ability.</p>
+
+<pre class="r"><span class="fn">library</span>(pROC)
+
+<span class="cm"># ROC curve for the logistic model</span>
+roc_obj <span class="op">&lt;-</span> <span class="fn">roc</span>(mtcars2<span class="op">$</span>high_mpg, <span class="fn">predict</span>(logit_fit, type <span class="op">=</span> <span class="st">"response"</span>))
+
+<span class="cm"># AUC</span>
+<span class="fn">auc</span>(roc_obj)
+
+<span class="cm"># Plot the ROC curve</span>
+<span class="fn">plot</span>(roc_obj, main <span class="op">=</span> <span class="st">"ROC Curve: High MPG Prediction"</span>,
+     col <span class="op">=</span> <span class="st">"#276DC3"</span>, lwd <span class="op">=</span> <span class="nb">2</span>, print.auc <span class="op">=</span> <span class="nb">TRUE</span>)
+
+<span class="cm"># Optimal threshold (Youden's J)</span>
+best <span class="op">&lt;-</span> <span class="fn">coords</span>(roc_obj, <span class="st">"best"</span>, ret <span class="op">=</span> <span class="fn">c</span>(<span class="st">"threshold"</span>, <span class="st">"sensitivity"</span>, <span class="st">"specificity"</span>))
+best
+
+<span class="cm"># Comparing two models' ROC curves</span>
+m_simple <span class="op">&lt;-</span> <span class="fn">glm</span>(high_mpg <span class="op">~</span> wt, family <span class="op">=</span> <span class="fn">binomial</span>(), data <span class="op">=</span> mtcars2)
+roc1 <span class="op">&lt;-</span> <span class="fn">roc</span>(mtcars2<span class="op">$</span>high_mpg, <span class="fn">predict</span>(m_simple, type <span class="op">=</span> <span class="st">"response"</span>))
+roc2 <span class="op">&lt;-</span> <span class="fn">roc</span>(mtcars2<span class="op">$</span>high_mpg, <span class="fn">predict</span>(logit_fit, type <span class="op">=</span> <span class="st">"response"</span>))
+<span class="fn">roc.test</span>(roc1, roc2)  <span class="cm"># DeLong test for AUC difference</span>
+
+<span class="cm"># Calibration: predicted vs. observed proportions</span>
+mtcars2<span class="op">$</span>pred_prob <span class="op">&lt;-</span> <span class="fn">predict</span>(logit_fit, type <span class="op">=</span> <span class="st">"response"</span>)
+mtcars2<span class="op">$</span>prob_bin <span class="op">&lt;-</span> <span class="fn">cut</span>(mtcars2<span class="op">$</span>pred_prob, breaks <span class="op">=</span> <span class="fn">seq</span>(<span class="nb">0</span>, <span class="nb">1</span>, <span class="nb">0.2</span>))
+cal_df <span class="op">&lt;-</span> mtcars2 <span class="op">|&gt;</span>
+  dplyr<span class="op">::</span><span class="fn">group_by</span>(prob_bin) <span class="op">|&gt;</span>
+  dplyr<span class="op">::</span><span class="fn">summarize</span>(observed <span class="op">=</span> <span class="fn">mean</span>(high_mpg),
+                    predicted <span class="op">=</span> <span class="fn">mean</span>(pred_prob),
+                    n <span class="op">=</span> dplyr<span class="op">::</span><span class="fn">n</span>())
+cal_df</pre>
+
+<div class="concept info">
+  <strong>AUC interpretation guidelines</strong>
+  AUC = 0.5 is no better than random guessing. AUC 0.7-0.8 is acceptable discrimination. AUC 0.8-0.9 is excellent. AUC > 0.9 is outstanding. A well-calibrated model should have predicted probabilities that closely match observed proportions within each bin.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>7.11 Model Comparison: AIC and BIC</h2>
 
 <pre class="r"><span class="cm"># Fit competing models</span>
 m1 <span class="op">&lt;-</span> <span class="fn">glm</span>(high_mpg <span class="op">~</span> wt, family <span class="op">=</span> <span class="fn">binomial</span>(), data <span class="op">=</span> mtcars2)
@@ -158,7 +326,7 @@ m3 <span class="op">&lt;-</span> <span class="fn">glm</span>(high_mpg <span clas
 <span class="fn">anova</span>(m1, m3, test <span class="op">=</span> <span class="st">"Chisq"</span>)</pre>
 
 <!-- ────────────────────────────── -->
-<h2>7.7 Tidy GLM Output</h2>
+<h2>7.12 Tidy GLM Output</h2>
 
 <pre class="r"><span class="fn">library</span>(broom)
 
@@ -181,6 +349,16 @@ m3 <span class="op">&lt;-</span> <span class="fn">glm</span>(high_mpg <span clas
   <p>Simulate 500 Poisson-distributed observations with <code>lambda = exp(0.5 + 0.8*x)</code> where <code>x ~ N(0,1)</code>. Fit a Poisson GLM and verify that the recovered coefficients are close to 0.5 (intercept) and 0.8 (slope). Check for overdispersion.</p>
 </div>
 
+<div class="exercise">
+  <h4>Exercise 7.3</h4>
+  <p>Simulate 400 observations where 30% are structural zeros and the remaining follow a Poisson distribution with <code>lambda = exp(1 + 0.5*x)</code>. Fit both a standard Poisson model and a zero-inflated Poisson model using <code>pscl::zeroinfl()</code>. Compare the models with AIC. Does the zero-inflated model fit better? Interpret the coefficients from both the count and zero-inflation parts.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 7.4</h4>
+  <p>Using the <code>iris</code> dataset, create an ordered factor from <code>Sepal.Length</code> with categories "Short" (< 5.5), "Medium" (5.5-6.5), and "Long" (> 6.5). Fit an ordinal logistic regression predicting this variable from <code>Petal.Length</code> and <code>Species</code>. Report the proportional odds ratios. Then fit a multinomial logistic model with <code>nnet::multinom()</code> and compare the predicted classifications from both models.</p>
+</div>
+
 <!-- ────────────────────────────── -->
 <div class="ext-resources">
   <h4>External Resources</h4>
@@ -188,6 +366,9 @@ m3 <span class="op">&lt;-</span> <span class="fn">glm</span>(high_mpg <span clas
     <li><a href="https://stats.oarc.ucla.edu/r/dae/logit-regression/" target="_blank" rel="noopener">UCLA: Logistic Regression in R</a> <span class="ext-badge">External</span></li>
     <li><a href="https://stats.oarc.ucla.edu/r/dae/poisson-regression/" target="_blank" rel="noopener">UCLA: Poisson Regression in R</a> <span class="ext-badge">External</span></li>
     <li><a href="https://cran.r-project.org/web/packages/margins/vignettes/Introduction.html" target="_blank" rel="noopener">margins Package Vignette</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://cran.r-project.org/web/packages/pscl/vignettes/countreg.pdf" target="_blank" rel="noopener">pscl: Zero-Inflated and Hurdle Models</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://cran.r-project.org/web/packages/pROC/vignettes/pROC.html" target="_blank" rel="noopener">pROC: ROC Curves in R</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://stats.oarc.ucla.edu/r/dae/ordinal-logistic-regression/" target="_blank" rel="noopener">UCLA: Ordinal Logistic Regression</a> <span class="ext-badge">External</span></li>
   </ul>
 </div>
 
@@ -198,8 +379,11 @@ m3 <span class="op">&lt;-</span> <span class="fn">glm</span>(high_mpg <span clas
     <li><code>glm(y ~ x, family = binomial())</code> fits logistic regression for binary outcomes.</li>
     <li>Exponentiate coefficients with <code>exp(coef())</code> to get odds ratios (logistic) or incidence rate ratios (Poisson).</li>
     <li>Use <code>margins()</code> to compute average marginal effects on the probability scale.</li>
+    <li>Watch for overdispersion in Poisson models; use <code>quasipoisson()</code> or <code>MASS::glm.nb()</code> as alternatives.</li>
+    <li>Zero-inflated models (<code>pscl::zeroinfl()</code>) handle excess zeros; hurdle models separate the zero/positive processes.</li>
+    <li>Use <code>MASS::polr()</code> for ordinal outcomes and <code>nnet::multinom()</code> for unordered multi-category outcomes.</li>
+    <li>ROC curves (<code>pROC</code>) assess discrimination; calibration plots assess probability accuracy.</li>
     <li>Compare non-nested GLMs with AIC/BIC; use <code>anova(..., test="Chisq")</code> for nested models.</li>
-    <li>Watch for overdispersion in Poisson models; switch to quasi-Poisson or negative binomial if needed.</li>
   </ul>
 </div>
 

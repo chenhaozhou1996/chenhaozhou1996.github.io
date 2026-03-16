@@ -53,18 +53,33 @@
 <span class="cm">* Factor variables (categorical dummies)</span>
 <span class="kw">regress</span> price mpg weight i.rep78 i.foreign</pre>
 
-<h2>4.2 Robust Standard Errors</h2>
-<p>OLS standard errors assume homoskedasticity. In practice, error variances differ across observations. Use robust (Huber-White) standard errors as a default in applied work.</p>
+<h2>4.2 Robust vs. Clustered Standard Errors</h2>
+<p>OLS standard errors assume homoskedasticity and independence. In practice, both assumptions often fail. Understanding when to use robust, clustered, or two-way clustered standard errors is essential for valid inference.</p>
 
-<pre class="stata"><span class="cm">* Heteroskedasticity-robust standard errors</span>
+<pre class="stata"><span class="cm">* --- HC1 Robust (Huber-White) standard errors ---</span>
+<span class="cm">* Correct for heteroskedasticity, assume independence</span>
 <span class="kw">regress</span> price mpg weight foreign, vce(robust)
 
-<span class="cm">* Clustered standard errors (for grouped data)</span>
-<span class="kw">regress</span> price mpg weight, vce(cluster rep78)</pre>
+<span class="cm">* --- One-way clustered standard errors ---</span>
+<span class="cm">* Correct for heteroskedasticity AND within-cluster correlation</span>
+<span class="kw">regress</span> price mpg weight, vce(cluster rep78)
+
+<span class="cm">* --- Two-way clustering (Stata 17+ or ivreg2) ---</span>
+<span class="cm">* Cluster along two dimensions (e.g., firm and year)</span>
+<span class="kw">regress</span> price mpg weight, vce(cluster rep78 foreign)
+
+<span class="cm">* --- Bootstrap standard errors (alternative) ---</span>
+<span class="kw">bootstrap</span>, reps(1000) seed(12345) cluster(rep78): ///
+    <span class="kw">regress</span> price mpg weight</pre>
 
 <div class="concept warn">
-    <strong>When to Cluster</strong>
-    Cluster standard errors at the level where treatment varies or where observations are correlated. In panel data, you typically cluster at the unit level (e.g., firm, facility). Clustering at too fine a level gives standard errors that are too small; too coarse a level gives conservative inference but may have too few clusters.
+    <strong>When to Cluster: A Decision Framework</strong>
+    Cluster standard errors at the level where treatment varies or where observations are correlated. In panel data, you typically cluster at the unit level (e.g., firm, facility). Clustering at too fine a level gives standard errors that are too small; too coarse a level gives conservative inference but may have too few clusters. A rule of thumb: you need at least 30-50 clusters for asymptotic justification. With fewer clusters, consider the wild cluster bootstrap (<code>boottest</code> package).
+</div>
+
+<div class="concept info">
+    <strong>Robust vs. Cluster: A Common Confusion</strong>
+    <code>vce(robust)</code> and <code>vce(cluster id)</code> are not interchangeable. Robust SEs handle heteroskedasticity but assume independence across observations. Clustered SEs allow arbitrary correlation within clusters. If your data has a panel or group structure, <code>vce(robust)</code> will typically understate standard errors because it ignores within-group correlation. When in doubt, cluster.
 </div>
 
 <h2>4.3 Post-Estimation: Testing Hypotheses</h2>
@@ -82,22 +97,52 @@
 <span class="kw">lincom</span> mpg + weight</pre>
 
 <h2>4.4 Diagnostics: Heteroskedasticity</h2>
+<p>Testing for heteroskedasticity helps you decide whether robust standard errors are necessary (they usually are). Two tests are standard.</p>
 
 <pre class="stata"><span class="kw">regress</span> price mpg weight foreign
 
 <span class="cm">* Breusch-Pagan / Cook-Weisberg test</span>
 <span class="kw">estat</span> hettest
 <span class="cm">* H0: constant variance. Reject => heteroskedasticity present</span>
+<span class="cm">* This test assumes normality and tests against linear heteroskedasticity</span>
 
-<span class="cm">* White's test (more general)</span>
-<span class="kw">estat</span> imtest, white</pre>
+<span class="cm">* White's test (more general: no normality assumption, tests all cross-products)</span>
+<span class="kw">estat</span> imtest, white
+<span class="cm">* H0: homoskedastic AND correctly specified.</span>
+<span class="cm">* Rejection could indicate heteroskedasticity OR misspecification.</span>
 
-<h2>4.5 Diagnostics: Omitted Variables</h2>
+<span class="cm">* Visual check: residuals vs. fitted values</span>
+<span class="kw">predict</span> yhat_diag, xb
+<span class="kw">predict</span> resid_diag, residuals
+<span class="kw">twoway</span> scatter resid_diag yhat_diag, ///
+    mcolor(navy%30) msize(small) ///
+    yline(0, lcolor(cranberry)) ///
+    title(<span class="st">"Residuals vs. Fitted Values"</span>) ///
+    xtitle(<span class="st">"Fitted Values"</span>) ytitle(<span class="st">"Residuals"</span>)</pre>
+
+<div class="concept info">
+    <strong>Interpreting Heteroskedasticity Tests</strong>
+    The Breusch-Pagan test checks whether the error variance is a linear function of the regressors. White's test is more general, but a rejection may reflect functional form misspecification rather than heteroskedasticity per se. In practice, most applied researchers simply use robust standard errors as a default rather than testing first; the tests are more relevant for understanding your model than for making a binary decision.
+</div>
+
+<h2>4.5 Diagnostics: Omitted Variables (RESET Test)</h2>
+<p>The Ramsey RESET test checks whether nonlinear functions of the fitted values have explanatory power beyond the linear model. It is a general test for functional form misspecification.</p>
 
 <pre class="stata"><span class="cm">* Ramsey RESET test</span>
 <span class="kw">regress</span> price mpg weight foreign
 <span class="kw">estat</span> ovtest
-<span class="cm">* H0: no omitted variables. Reject => model may be misspecified</span></pre>
+<span class="cm">* H0: no omitted variables. Reject => model may be misspecified</span>
+<span class="cm">* Uses powers of fitted values (y-hat^2, y-hat^3, y-hat^4)</span>
+
+<span class="cm">* If RESET rejects, consider:</span>
+<span class="cm">* 1. Adding squared terms (c.mpg#c.mpg)</span>
+<span class="cm">* 2. Using log transformations</span>
+<span class="cm">* 3. Adding interaction terms</span>
+<span class="cm">* 4. Including omitted controls</span>
+
+<span class="cm">* Example: fix misspecification by adding a quadratic term</span>
+<span class="kw">regress</span> price c.mpg##c.mpg weight foreign
+<span class="kw">estat</span> ovtest              <span class="cm">// re-test after correction</span></pre>
 
 <h2>4.6 Diagnostics: Multicollinearity</h2>
 <p>The Variance Inflation Factor (VIF) measures how much the variance of a coefficient is inflated due to collinearity with other regressors. A VIF above 10 is a common (though somewhat arbitrary) rule of thumb for concern.</p>
@@ -130,6 +175,38 @@
 <span class="kw">predict</span> cooksd, cooksd
 <span class="kw">list</span> make price cooksd if cooksd > 4/74   <span class="cm">// 4/N rule of thumb</span></pre>
 
+<h2>4.7a Leverage and Influence Diagnostics</h2>
+<p>Influential observations can distort your regression results. Beyond Cook's distance, Stata offers DFBETA (how much each coefficient changes when an observation is dropped), leverage values, and DFITS. These diagnostics are particularly important in applied research where a few outliers can change the sign of a coefficient.</p>
+
+<pre class="stata"><span class="kw">regress</span> price mpg weight foreign
+
+<span class="cm">* DFBETA: change in each coefficient when obs i is dropped</span>
+<span class="kw">predict</span> dfb_mpg, dfbeta(mpg)
+<span class="kw">predict</span> dfb_weight, dfbeta(weight)
+
+<span class="cm">* Rule of thumb: |DFBETA| > 2/sqrt(N) flags influential obs</span>
+<span class="kw">local</span> cutoff = 2 / sqrt(_N)
+<span class="kw">list</span> make price mpg dfb_mpg if abs(dfb_mpg) > `cutoff'
+
+<span class="cm">* Leverage (hat values): how unusual is observation i in X-space?</span>
+<span class="kw">predict</span> lev, leverage
+<span class="cm">* Rule of thumb: leverage > 2k/N (k = number of predictors + 1)</span>
+<span class="kw">local</span> lev_cutoff = 2 * (e(df_m) + 1) / e(N)
+<span class="kw">list</span> make price lev if lev > `lev_cutoff'
+
+<span class="cm">* DFITS: overall influence (combines leverage and residual)</span>
+<span class="kw">predict</span> dfits, dfits
+<span class="kw">list</span> make price dfits if abs(dfits) > 2 * sqrt(e(df_m) / e(N))
+
+<span class="cm">* Leverage-vs-residual-squared plot</span>
+<span class="kw">lvr2plot</span>, mlabel(make) msize(small) ///
+    title(<span class="st">"Leverage vs. Residual Squared"</span>)</pre>
+
+<div class="concept warn">
+    <strong>When Influential Observations Matter</strong>
+    Influence diagnostics are not about mechanically deleting outliers. They help you understand whether your results depend on a handful of observations. If removing 2-3 observations changes the sign or significance of a key coefficient, you should investigate those observations and report the sensitivity in your paper. In panel data contexts, DFBETA analysis on key variables (like SDI) can reveal whether a few noisy facilities drive your results.
+</div>
+
 <h2>4.8 Added-Variable Plots</h2>
 <p>Added-variable (partial regression) plots show the relationship between the outcome and one regressor after partialling out all other regressors. They are useful for detecting nonlinearity and influential points.</p>
 
@@ -152,6 +229,96 @@
 <span class="kw">margins</span> foreign, dydx(mpg)
 <span class="kw">marginsplot</span>, title(<span class="st">"Effect of MPG by Origin"</span>)</pre>
 
+<h2>4.10 Margins and Marginal Effects</h2>
+<p>The <code>margins</code> command computes predicted values or marginal effects at specified values of covariates. Combined with <code>marginsplot</code>, it is the standard way to interpret interaction terms, nonlinear models, and factor variables in applied work.</p>
+
+<pre class="stata"><span class="kw">regress</span> price c.mpg##c.mpg##i.foreign c.weight, vce(robust)
+
+<span class="cm">* Average marginal effect of mpg (accounts for quadratic + interaction)</span>
+<span class="kw">margins</span>, dydx(mpg)
+
+<span class="cm">* Marginal effect of mpg at specific values</span>
+<span class="kw">margins</span>, dydx(mpg) at(mpg=(15(5)40))
+<span class="kw">marginsplot</span>, ///
+    title(<span class="st">"Marginal Effect of MPG on Price"</span>) ///
+    ytitle(<span class="st">"Effect on Price (USD)"</span>) ///
+    xtitle(<span class="st">"MPG"</span>) ///
+    recast(line) recastci(rarea) ///
+    ciopt(fcolor(navy%20))
+
+<span class="cm">* Predicted values by group at different covariate levels</span>
+<span class="kw">margins</span> foreign, at(mpg=(15(5)40))
+<span class="kw">marginsplot</span>, ///
+    title(<span class="st">"Predicted Price by Origin"</span>) ///
+    legend(order(1 <span class="st">"Domestic"</span> 2 <span class="st">"Foreign"</span>))
+
+<span class="cm">* Contrast: difference between groups</span>
+<span class="kw">margins</span> r.foreign, at(mpg=(15(5)40))
+<span class="kw">marginsplot</span>, yline(0) ///
+    title(<span class="st">"Foreign - Domestic Price Difference"</span>)</pre>
+
+<div class="concept tip">
+    <strong>Tip: Margins are Essential for Interactions</strong>
+    When your model includes interactions (especially continuous-by-continuous), the raw coefficients do not directly tell you the marginal effect of a variable. The effect depends on the level of the other variable in the interaction. Always use <code>margins, dydx()</code> and <code>marginsplot</code> to interpret and visualize interaction effects. Presenting a marginsplot alongside the coefficient table is increasingly expected in top journals.
+</div>
+
+<h2>4.11 Publishing Regression Tables with esttab and outreg2</h2>
+<p>Producing publication-ready regression tables directly from Stata eliminates transcription errors and speeds up revision rounds. Two popular packages exist: <code>esttab</code> (part of <code>estout</code>) and <code>outreg2</code>.</p>
+
+<pre class="stata"><span class="cm">* --- esttab approach (recommended) ---</span>
+<span class="kw">sysuse</span> auto, clear
+
+<span class="cm">* Run multiple specifications and store each</span>
+<span class="kw">regress</span> price mpg, vce(robust)
+<span class="kw">estimates store</span> m1
+<span class="kw">regress</span> price mpg weight, vce(robust)
+<span class="kw">estimates store</span> m2
+<span class="kw">regress</span> price mpg weight foreign i.rep78, vce(robust)
+<span class="kw">estimates store</span> m3
+
+<span class="cm">* Export to LaTeX</span>
+<span class="kw">esttab</span> m1 m2 m3 using <span class="st">"tables/regression.tex"</span>, ///
+    star(* 0.10 ** 0.05 *** 0.01) ///
+    se(3) b(3) ///
+    r2(3) ar2(3) ///
+    scalars(<span class="st">"F F-statistic"</span>) ///
+    mtitles(<span class="st">"(1)"</span> <span class="st">"(2)"</span> <span class="st">"(3)"</span>) ///
+    label replace booktabs ///
+    addnotes(<span class="st">"Robust standard errors in parentheses."</span>)
+
+<span class="cm">* Export to CSV (for Excel)</span>
+<span class="kw">esttab</span> m1 m2 m3 using <span class="st">"tables/regression.csv"</span>, ///
+    star(* 0.10 ** 0.05 *** 0.01) ///
+    se(3) b(3) label replace csv
+
+<span class="cm">* --- outreg2 approach ---</span>
+<span class="cm">* ssc install outreg2, replace</span>
+<span class="kw">regress</span> price mpg, vce(robust)
+<span class="kw">outreg2</span> using <span class="st">"tables/regression_or2"</span>, ///
+    tex replace ctitle(<span class="st">"(1)"</span>) dec(3) label
+<span class="kw">regress</span> price mpg weight, vce(robust)
+<span class="kw">outreg2</span> using <span class="st">"tables/regression_or2"</span>, ///
+    tex append ctitle(<span class="st">"(2)"</span>) dec(3) label</pre>
+
+<div class="concept info">
+    <strong>esttab vs. outreg2</strong>
+    <code>esttab</code> is more flexible and produces cleaner LaTeX output (supports <code>booktabs</code>, custom cell formatting, and multiple storage). <code>outreg2</code> has a simpler syntax and is popular in some fields. For journal submissions, <code>esttab</code> with <code>booktabs</code> is the most common choice in economics and OM.
+</div>
+
+<h2>4.12 Stepwise Regression (and Why to Avoid It)</h2>
+<p>Stata provides <code>stepwise</code> for automated variable selection. However, stepwise regression is widely criticized in modern applied econometrics and should generally be avoided in research papers.</p>
+
+<pre class="stata"><span class="cm">* Forward stepwise (adds variables one at a time)</span>
+<span class="kw">stepwise</span>, pe(0.05): <span class="kw">regress</span> price mpg weight length headroom trunk
+
+<span class="cm">* Backward stepwise (starts with all, removes insignificant)</span>
+<span class="kw">stepwise</span>, pr(0.10): <span class="kw">regress</span> price mpg weight length headroom trunk</pre>
+
+<div class="concept warn">
+    <strong>Why Stepwise is Problematic</strong>
+    Stepwise regression inflates R-squared, produces biased coefficients, and gives incorrect standard errors and p-values (because the search process is not accounted for in inference). The selected model depends on the order of variable entry. In causal research, variable selection should be guided by theory and DAGs, not by automated statistical procedures. If you use stepwise, reviewers will likely ask you to justify it, and the answer is rarely satisfactory. For prediction problems, consider LASSO or elastic net instead (<code>lasso2</code> package).
+</div>
+
 <div class="exercise">
     <h4>Exercise 4.1</h4>
     <p>Using <code>sysuse auto</code>, regress <code>price</code> on <code>mpg</code>, <code>weight</code>, <code>length</code>, and <code>foreign</code> with robust standard errors. Run the RESET test and the Breusch-Pagan test. Based on the results, is there evidence of misspecification or heteroskedasticity?</p>
@@ -160,6 +327,16 @@
 <div class="exercise">
     <h4>Exercise 4.2</h4>
     <p>Estimate a model with the interaction <code>c.mpg##i.foreign</code>. Use <code>margins</code> to compute the marginal effect of <code>mpg</code> separately for domestic and foreign cars. Create a <code>marginsplot</code>. Interpret the interaction.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 4.3</h4>
+    <p>Run the regression <code>regress price mpg weight length foreign</code>. Compute DFBETA values for <code>mpg</code>. How many observations exceed the 2/sqrt(N) threshold? List them. Re-estimate the regression after dropping these influential observations. Do the coefficients change meaningfully?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 4.4</h4>
+    <p>Estimate three nested specifications of the price model: (1) <code>mpg</code> only, (2) <code>mpg weight</code>, (3) <code>mpg weight foreign i.rep78</code>. Use <code>esttab</code> to export all three models in a single LaTeX table with robust standard errors, stars at the 10/5/1% levels, and R-squared reported at the bottom. Include a table note about the standard errors.</p>
 </div>
 
 <div class="ext-resources">
@@ -174,10 +351,12 @@
 <div class="takeaway">
     <h3>Key Takeaways</h3>
     <ul>
-        <li>Always use <code>vce(robust)</code> or <code>vce(cluster)</code> in applied work.</li>
+        <li>Always use <code>vce(robust)</code> or <code>vce(cluster)</code> in applied work; choose the clustering level based on where treatment varies or where correlation occurs.</li>
         <li>Run diagnostic tests (RESET, Breusch-Pagan, VIF) before interpreting results.</li>
-        <li>Examine residuals and Cook's distance to identify influential outliers.</li>
+        <li>Use DFBETA and Cook's distance to identify influential observations; report sensitivity to their exclusion.</li>
         <li>Use Stata's factor variable notation (<code>c.</code>, <code>i.</code>, <code>##</code>) for interactions.</li>
+        <li>Always interpret interactions with <code>margins</code> and <code>marginsplot</code>, not raw coefficients alone.</li>
+        <li>Use <code>esttab</code> to produce publication-ready tables; avoid stepwise regression in causal research.</li>
     </ul>
 </div>
 

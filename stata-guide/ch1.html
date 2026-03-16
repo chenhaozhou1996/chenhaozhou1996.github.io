@@ -55,7 +55,37 @@
 <span class="kw">set</span> more off              <span class="cm">// prevent "-- more --" pauses</span>
 <span class="kw">set</span> linesize 120          <span class="cm">// wider output for log files</span>
 <span class="kw">set</span> maxvar 10000          <span class="cm">// allow more variables (SE/MP)</span>
-<span class="kw">set</span> matsize 5000          <span class="cm">// larger matrix for many regressors</span></pre>
+<span class="kw">set</span> matsize 5000          <span class="cm">// larger matrix for many regressors</span>
+<span class="kw">set</span> seed 12345            <span class="cm">// reproducible random numbers</span></pre>
+
+<div class="concept info">
+    <strong>set seed for Reproducibility</strong>
+    Any command that involves random numbers (e.g., <code>sample</code>, <code>bootstrap</code>, <code>simulate</code>, <code>gen runiform()</code>) depends on the random-number seed. Setting it explicitly ensures that you and your co-authors get identical results. Choose any integer; what matters is consistency across runs.
+</div>
+
+<h2>1.2a Memory and Matrix Settings</h2>
+<p>Stata allocates memory for data and matrices. If you work with large datasets (millions of observations) or models with many regressors, you may need to adjust these limits.</p>
+
+<pre class="stata"><span class="cm">* --- Memory and matrix settings ---</span>
+<span class="kw">set</span> matsize 11000         <span class="cm">// max for Stata/IC is 800; SE/MP goes to 11000</span>
+<span class="kw">set</span> maxvar 32767          <span class="cm">// maximum for SE/MP</span>
+<span class="kw">set</span> max_memory 16g        <span class="cm">// cap memory usage at 16 GB</span>
+<span class="kw">set</span> segmentsize 64m       <span class="cm">// segment size for large datasets</span>
+
+<span class="cm">* Check current memory usage</span>
+<span class="kw">memory</span>
+
+<span class="cm">* Timer for benchmarking code blocks</span>
+<span class="kw">timer clear</span>
+<span class="kw">timer on</span> 1
+<span class="cm">* ... your computationally expensive code ...</span>
+<span class="kw">timer off</span> 1
+<span class="kw">timer list</span> 1             <span class="cm">// reports elapsed seconds</span></pre>
+
+<div class="concept warn">
+    <strong>Stata Flavors and Limits</strong>
+    Stata comes in four editions: IC, SE, MP, and BE (Basic). The maximum <code>matsize</code> in IC is 800, while SE/MP allows up to 11,000. If you encounter "matsize too small" errors, check which edition you are running with <code>about</code>. For large panel datasets with many fixed effects, SE or MP is strongly recommended.
+</div>
 
 <h2>1.3 Writing Do-Files</h2>
 <p>A do-file is a plain text script that contains Stata commands. It is the backbone of reproducible research. Every analysis you submit with a paper should be fully replicable from a do-file.</p>
@@ -100,7 +130,123 @@
 
 <p>Use <code>replace</code> to overwrite an existing log when you re-run the do-file. Use <code>append</code> if you want to add to an existing log. The <code>text</code> option produces a plain-text file; omit it for Stata's native SMCL format.</p>
 
-<h2>1.5 Basic Commands</h2>
+<h2>1.5 Macros: Locals and Globals</h2>
+<p>Macros are Stata's variables for storing text, numbers, or lists. They are essential for writing flexible, maintainable do-files. <strong>Local macros</strong> exist only within the do-file or program that defines them. <strong>Global macros</strong> persist for the entire Stata session. Prefer locals unless you genuinely need session-wide persistence.</p>
+
+<pre class="stata"><span class="cm">* --- Local macros ---</span>
+<span class="kw">local</span> depvar   "qip"
+<span class="kw">local</span> controls "rn_pp sdi facility_size chain_flag"
+<span class="kw">local</span> fe_vars  "i.year i.state"
+<span class="kw">local</span> cluster  "facility_id"
+
+<span class="cm">* Use locals with backtick-single-quote syntax</span>
+<span class="kw">regress</span> `depvar' `controls' `fe_vars', vce(cluster `cluster')
+
+<span class="cm">* Store numeric results</span>
+<span class="kw">local</span> n_obs = _N
+<span class="kw">local</span> mean_price = r(mean)
+<span class="kw">display</span> <span class="st">"Sample size: `n_obs'"</span>
+
+<span class="cm">* --- Global macros ---</span>
+<span class="kw">global</span> datadir  "~/Documents/my_project/data"
+<span class="kw">global</span> tabledir "~/Documents/my_project/tables"
+
+<span class="cm">* Use globals with a dollar sign</span>
+<span class="kw">use</span> <span class="st">"$datadir/analysis_panel.dta"</span>, clear
+<span class="kw">esttab</span> using <span class="st">"$tabledir/results.tex"</span>, replace</pre>
+
+<div class="concept tip">
+    <strong>Tip: Locals vs. Globals</strong>
+    Use locals for everything inside a single do-file. Locals vanish when the do-file ends, so they cannot accidentally carry stale values between runs. Reserve globals for directory paths that multiple do-files share (defined in a master do-file), or for interactive exploration at the command line.
+</div>
+
+<h2>1.6 Loops</h2>
+<p>Loops let you repeat operations without copying and pasting code. Stata provides two loop constructs: <code>forvalues</code> for numeric sequences and <code>foreach</code> for arbitrary lists.</p>
+
+<pre class="stata"><span class="cm">* --- forvalues: loop over numeric ranges ---</span>
+<span class="kw">forvalues</span> y = 2015/2019 {
+    <span class="kw">display</span> <span class="st">"Processing year `y'"</span>
+    <span class="kw">use</span> <span class="st">"data/year`y'.dta"</span>, clear
+    <span class="cm">* ... analysis for each year ...</span>
+    <span class="kw">save</span> <span class="st">"data/cleaned_`y'.dta"</span>, replace
+}
+
+<span class="cm">* --- foreach: loop over a list of items ---</span>
+<span class="kw">foreach</span> var in price mpg weight length {
+    <span class="kw">summarize</span> `var', detail
+    <span class="kw">histogram</span> `var', name(h_`var', replace) nodraw
+}
+
+<span class="cm">* foreach over variables matching a pattern</span>
+<span class="kw">foreach</span> var of varlist rn_* {
+    <span class="kw">gen</span> ln_`var' = ln(`var')
+    <span class="kw">label variable</span> ln_`var' <span class="st">"Log of `var'"</span>
+}
+
+<span class="cm">* Nested loops for multiple specifications</span>
+<span class="kw">local</span> outcomes "qip mortality readmission"
+<span class="kw">local</span> treatments "rn_pp rn_ps"
+<span class="kw">foreach</span> y of local outcomes {
+    <span class="kw">foreach</span> x of local treatments {
+        <span class="kw">regress</span> `y' `x' i.year, vce(cluster facility_id)
+        <span class="kw">estimates store</span> m_`y'_`x'
+    }
+}</pre>
+
+<div class="concept info">
+    <strong>When Loops Become Fragile</strong>
+    Loops are powerful but can obscure your code if overused. For a paper with three or four specifications, it is often clearer to write each regression explicitly. Use loops when you have many repetitions (e.g., processing 50 state files) or when building robustness tables with systematic variations.
+</div>
+
+<h2>1.7 Writing Programs</h2>
+<p>Stata lets you define your own commands with <code>program define</code>. This is useful for encapsulating repeated analysis steps, data-cleaning routines, or custom estimation procedures.</p>
+
+<pre class="stata"><span class="cm">* Define a simple program</span>
+<span class="kw">capture program drop</span> my_summary
+<span class="kw">program define</span> my_summary
+    <span class="kw">syntax</span> varlist [if] [in]
+    <span class="kw">foreach</span> var of varlist `varlist' {
+        <span class="kw">quietly summarize</span> `var' `if' `in', detail
+        <span class="kw">display</span> <span class="st">"`var': Mean = "</span> %9.3f r(mean) ///
+                <span class="st">"  SD = "</span> %9.3f r(sd) ///
+                <span class="st">"  N = "</span> r(N)
+    }
+<span class="kw">end</span>
+
+<span class="cm">* Use the program</span>
+<span class="kw">sysuse</span> auto, clear
+my_summary price mpg weight
+my_summary price mpg if foreign == 1</pre>
+
+<h2>1.8 Data Validation with assert</h2>
+<p>The <code>assert</code> command checks a condition and stops execution with an error if it fails. Use it liberally to validate assumptions about your data. This is one of the most underused commands in applied work, yet it catches countless errors in data pipelines.</p>
+
+<pre class="stata"><span class="cm">* Verify expected sample size</span>
+<span class="kw">count</span>
+<span class="kw">assert</span> r(N) == 27077
+
+<span class="cm">* Verify no missing values in key variables</span>
+<span class="kw">assert</span> !missing(facility_id)
+<span class="kw">assert</span> !missing(year)
+
+<span class="cm">* Verify value ranges</span>
+<span class="kw">assert</span> year >= 2015 & year <= 2019
+<span class="kw">assert</span> qip >= 0 & qip <= 100 if !missing(qip)
+
+<span class="cm">* Verify uniqueness of panel identifiers</span>
+<span class="kw">isid</span> facility_id year           <span class="cm">// errors if not uniquely identified</span>
+
+<span class="cm">* Verify merge results</span>
+<span class="kw">merge</span> m:1 zcta using <span class="st">"sdi_data.dta"</span>
+<span class="kw">assert</span> _merge != 2              <span class="cm">// no unmatched from using data</span>
+<span class="kw">drop</span> _merge</pre>
+
+<div class="concept warn">
+    <strong>Defensive Programming</strong>
+    Treat <code>assert</code> like a contract between you and your data. Every time you make an assumption (the panel is balanced, an ID is unique, a variable is non-negative), write an <code>assert</code>. When the data changes or a co-author updates the cleaning code, the assert will catch silent breakage before it corrupts your results.
+</div>
+
+<h2>1.9 Basic Commands</h2>
 <p>Here are the commands you will use every single session.</p>
 
 <pre class="stata"><span class="cm">* Display text or expressions</span>
@@ -125,14 +271,14 @@
 <span class="kw">count</span>
 <span class="kw">count</span> if foreign == 1</pre>
 
-<h2>1.6 Getting Help</h2>
+<h2>1.10 Getting Help</h2>
 <p>Stata has excellent built-in documentation. Use <code>help</code> followed by any command name to open the reference page. Use <code>search</code> to find commands by keyword.</p>
 
 <pre class="stata"><span class="kw">help</span> regress              <span class="cm">// full documentation for regress</span>
 <span class="kw">search</span> panel data         <span class="cm">// find commands related to panel data</span>
 <span class="kw">findit</span> reghdfe            <span class="cm">// search for user-written packages</span></pre>
 
-<h2>1.7 Installing User-Written Packages</h2>
+<h2>1.11 Installing User-Written Packages</h2>
 <p>Many commands used in empirical research (e.g., <code>reghdfe</code>, <code>ivreg2</code>, <code>estout</code>) are contributed by the community. Install them from SSC (the Statistical Software Components archive).</p>
 
 <pre class="stata"><span class="cm">* Install from SSC</span>
@@ -143,6 +289,56 @@
 <span class="cm">* Update all installed packages</span>
 <span class="kw">adoupdate</span>, update</pre>
 
+<h2>1.12 A Complete Do-File Template</h2>
+<p>Putting everything together, here is a template that incorporates all the best practices from this chapter. Use this as the starting point for every new project.</p>
+
+<pre class="stata"><span class="cm">* ============================================</span>
+<span class="cm">* Project:  [Your Project Title]</span>
+<span class="cm">* File:     01_clean_data.do</span>
+<span class="cm">* Author:   [Your Name]</span>
+<span class="cm">* Created:  2026-03-16</span>
+<span class="cm">* Modified: 2026-03-16</span>
+<span class="cm">* Purpose:  Clean raw data and build analysis panel</span>
+<span class="cm">* Input:    data/raw/facility_raw.csv</span>
+<span class="cm">* Output:   data/analysis/facility_panel.dta</span>
+<span class="cm">* ============================================</span>
+
+<span class="kw">version</span> 17
+<span class="kw">clear</span> all
+<span class="kw">set</span> more off
+<span class="kw">set</span> linesize 120
+<span class="kw">set</span> seed 20260316
+
+<span class="cm">* --- Directory globals ---</span>
+<span class="kw">global</span> root    "~/Documents/my_project"
+<span class="kw">global</span> raw     "$root/data/raw"
+<span class="kw">global</span> clean   "$root/data/analysis"
+<span class="kw">global</span> tables  "$root/tables"
+<span class="kw">global</span> logs    "$root/logs"
+
+<span class="cm">* --- Log file ---</span>
+<span class="kw">log</span> using <span class="st">"$logs/01_clean_data.log"</span>, text replace
+
+<span class="cm">* --- Main code ---</span>
+<span class="kw">timer clear</span>
+<span class="kw">timer on</span> 1
+
+<span class="kw">import delimited</span> <span class="st">"$raw/facility_raw.csv"</span>, clear varnames(1)
+
+<span class="cm">* ... cleaning and transformation code ...</span>
+
+<span class="cm">* --- Validation ---</span>
+<span class="kw">isid</span> facility_id year
+<span class="kw">assert</span> !missing(facility_id)
+<span class="kw">assert</span> year >= 2015 & year <= 2019
+
+<span class="cm">* --- Save and finish ---</span>
+<span class="kw">save</span> <span class="st">"$clean/facility_panel.dta"</span>, replace
+
+<span class="kw">timer off</span> 1
+<span class="kw">timer list</span> 1
+<span class="kw">log</span> close</pre>
+
 <div class="exercise">
     <h4>Exercise 1.1</h4>
     <p>Create a do-file that: (1) sets <code>version</code> to your Stata version, (2) opens a log file, (3) loads the built-in <code>auto</code> dataset, (4) runs <code>describe</code> and <code>summarize</code>, and (5) closes the log. Run the do-file and verify the log was created.</p>
@@ -151,6 +347,16 @@
 <div class="exercise">
     <h4>Exercise 1.2</h4>
     <p>Use <code>help summarize</code> to find the option that reports the 10th and 90th percentiles. Apply it to the <code>price</code> variable in the <code>auto</code> dataset. What is the interquartile range of <code>price</code>?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 1.3</h4>
+    <p>Write a <code>foreach</code> loop that iterates over the variables <code>price</code>, <code>mpg</code>, <code>weight</code>, and <code>length</code> in the <code>auto</code> dataset. For each variable, display the variable name, its mean, and its standard deviation on a single line. (Hint: use <code>quietly summarize</code> inside the loop and refer to <code>r(mean)</code> and <code>r(sd)</code>.)</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 1.4</h4>
+    <p>Define a program called <code>check_panel</code> that takes two arguments (a panel ID variable and a time variable), runs <code>isid</code> to verify uniqueness, then displays the number of unique units and the number of time periods. Test it on <code>webuse nlswork</code> with <code>idcode</code> and <code>year</code>. (Hint: <code>distinct</code> or <code>codebook, compact</code> can count unique values.)</p>
 </div>
 
 <div class="ext-resources">
@@ -166,8 +372,11 @@
     <h3>Key Takeaways</h3>
     <ul>
         <li>Always work from do-files rather than typing commands interactively.</li>
-        <li>Start every do-file with <code>version</code>, <code>clear all</code>, and <code>set more off</code>.</li>
+        <li>Start every do-file with <code>version</code>, <code>clear all</code>, <code>set more off</code>, and <code>set seed</code>.</li>
         <li>Use log files to capture output for replication and review.</li>
+        <li>Use local macros to store variable lists, directory paths, and results; reserve globals for cross-file directory paths.</li>
+        <li>Master <code>forvalues</code> and <code>foreach</code> loops for repetitive operations.</li>
+        <li>Use <code>assert</code> and <code>isid</code> to validate data assumptions throughout your pipeline.</li>
         <li>Install community packages from SSC for advanced econometric methods.</li>
     </ul>
 </div>

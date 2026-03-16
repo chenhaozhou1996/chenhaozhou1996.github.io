@@ -74,7 +74,59 @@ ident  = np.<span class="fn">eye</span>(<span class="nb">3</span>)              
 <span class="cm"># Boolean indexing</span>
 <span class="fn">print</span>(data[data > <span class="nb">50</span>])  <span class="cm"># [60, 70, 80, 90]</span></pre>
 
-<h2>4.4 Vectorized Operations</h2>
+<h3>Boolean Indexing in Depth</h3>
+<p>Boolean indexing is one of NumPy's most powerful features. You create a boolean array (True/False mask) using a comparison, then pass that mask as an index. This is analogous to a WHERE clause in SQL. You can combine multiple conditions using <code>&amp;</code> (and), <code>|</code> (or), and <code>~</code> (not), but you must wrap each condition in parentheses.</p>
+
+<pre class="python">sales = np.<span class="fn">array</span>([<span class="nb">120</span>, <span class="nb">85</span>, <span class="nb">200</span>, <span class="nb">45</span>, <span class="nb">310</span>, <span class="nb">95</span>, <span class="nb">150</span>])
+
+<span class="cm"># Single condition</span>
+high_sales = sales[sales > <span class="nb">100</span>]
+<span class="fn">print</span>(high_sales)  <span class="cm"># [120 200 310 150]</span>
+
+<span class="cm"># Multiple conditions — parentheses are required</span>
+mid_range = sales[(sales >= <span class="nb">80</span>) & (sales &lt;= <span class="nb">200</span>)]
+<span class="fn">print</span>(mid_range)   <span class="cm"># [120  85 200  95 150]</span>
+
+<span class="cm"># Negate a condition</span>
+not_low = sales[~(sales &lt; <span class="nb">100</span>)]
+<span class="fn">print</span>(not_low)     <span class="cm"># [120 200 310 150]</span>
+
+<span class="cm"># Count how many elements satisfy a condition</span>
+<span class="fn">print</span>(<span class="st">f"Days above target: </span>{(sales > <span class="nb">100</span>).<span class="fn">sum</span>()}<span class="st">"</span>)  <span class="cm"># 4</span></pre>
+
+<h3>Fancy Indexing</h3>
+<p>Fancy indexing uses an array of integers to select specific rows or columns by position. Unlike boolean indexing which selects by condition, fancy indexing selects by explicit position numbers.</p>
+
+<pre class="python">products = np.<span class="fn">array</span>([<span class="st">"Widget"</span>, <span class="st">"Gadget"</span>, <span class="st">"Bracket"</span>, <span class="st">"Bolt"</span>, <span class="st">"Nut"</span>])
+revenues = np.<span class="fn">array</span>([<span class="nb">15000</span>, <span class="nb">4600</span>, <span class="nb">5400</span>, <span class="nb">18500</span>, <span class="nb">2200</span>])
+
+<span class="cm"># Select the 1st, 3rd, and 4th products</span>
+idx = np.<span class="fn">array</span>([<span class="nb">0</span>, <span class="nb">2</span>, <span class="nb">3</span>])
+<span class="fn">print</span>(products[idx])  <span class="cm"># ['Widget' 'Bracket' 'Bolt']</span>
+<span class="fn">print</span>(revenues[idx])  <span class="cm"># [15000  5400 18500]</span>
+
+<span class="cm"># Combine with np.argsort to get top-N items</span>
+top3_idx = np.<span class="fn">argsort</span>(revenues)[<span class="nb">-3</span>:][::<span class="nb">-1</span>]  <span class="cm"># indices of 3 largest</span>
+<span class="fn">print</span>(products[top3_idx])  <span class="cm"># ['Bolt' 'Widget' 'Bracket']</span></pre>
+
+<h2>4.4 np.where: Conditional Selection</h2>
+<p><code>np.where(condition, x, y)</code> returns <code>x</code> where the condition is True and <code>y</code> where it is False. Think of it as a vectorized if-else statement. This is dramatically faster than looping through each element.</p>
+
+<pre class="python">demand = np.<span class="fn">array</span>([<span class="nb">120</span>, <span class="nb">85</span>, <span class="nb">200</span>, <span class="nb">45</span>, <span class="nb">310</span>])
+
+<span class="cm"># Classify each day</span>
+labels = np.<span class="fn">where</span>(demand > <span class="nb">100</span>, <span class="st">"High"</span>, <span class="st">"Low"</span>)
+<span class="fn">print</span>(labels)  <span class="cm"># ['High' 'Low' 'High' 'Low' 'High']</span>
+
+<span class="cm"># Cap demand at 200 (winsorize)</span>
+capped = np.<span class="fn">where</span>(demand > <span class="nb">200</span>, <span class="nb">200</span>, demand)
+<span class="fn">print</span>(capped)  <span class="cm"># [120  85 200  45 200]</span>
+
+<span class="cm"># Find indices where condition is True</span>
+high_idx = np.<span class="fn">where</span>(demand > <span class="nb">100</span>)[<span class="nb">0</span>]
+<span class="fn">print</span>(high_idx)  <span class="cm"># [0 2 4]</span></pre>
+
+<h2>4.5 Vectorized Operations</h2>
 <p>NumPy operations apply element-wise without explicit loops. This is orders of magnitude faster than Python for-loops on large arrays.</p>
 
 <pre class="python">units  = np.<span class="fn">array</span>([<span class="nb">500</span>, <span class="nb">320</span>, <span class="nb">750</span>, <span class="nb">410</span>])
@@ -116,7 +168,39 @@ lead_times = rng.<span class="fn">uniform</span>(low=<span class="nb">3</span>, 
 dice_rolls = rng.<span class="fn">integers</span>(low=<span class="nb">1</span>, high=<span class="nb">7</span>, size=<span class="nb">100</span>)
 sample     = rng.<span class="fn">choice</span>([<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>], size=<span class="nb">10</span>, p=[<span class="nb">0.5</span>, <span class="nb">0.3</span>, <span class="nb">0.2</span>])</pre>
 
-<h2>4.7 Linear Algebra Basics</h2>
+<h2>4.7 Concatenating and Stacking Arrays</h2>
+<p>When combining data from multiple sources, you often need to join arrays together. <code>np.concatenate</code> joins along an existing axis, while <code>np.vstack</code> and <code>np.hstack</code> provide convenient vertical and horizontal stacking.</p>
+
+<pre class="python"><span class="cm"># 1D concatenation</span>
+q1 = np.<span class="fn">array</span>([<span class="nb">100</span>, <span class="nb">120</span>, <span class="nb">110</span>])
+q2 = np.<span class="fn">array</span>([<span class="nb">130</span>, <span class="nb">125</span>, <span class="nb">140</span>])
+full_year = np.<span class="fn">concatenate</span>([q1, q2])
+<span class="fn">print</span>(full_year)  <span class="cm"># [100 120 110 130 125 140]</span>
+
+<span class="cm"># 2D: vertical stack (add rows)</span>
+east = np.<span class="fn">array</span>([[<span class="nb">10</span>, <span class="nb">20</span>], [<span class="nb">30</span>, <span class="nb">40</span>]])
+west = np.<span class="fn">array</span>([[<span class="nb">50</span>, <span class="nb">60</span>]])
+combined = np.<span class="fn">vstack</span>([east, west])
+<span class="fn">print</span>(combined)
+<span class="cm"># [[10 20]</span>
+<span class="cm">#  [30 40]</span>
+<span class="cm">#  [50 60]]</span>
+
+<span class="cm"># 2D: horizontal stack (add columns)</span>
+prices = np.<span class="fn">array</span>([[<span class="nb">29.99</span>], [<span class="nb">14.50</span>], [<span class="nb">7.25</span>]])
+quantities = np.<span class="fn">array</span>([[<span class="nb">500</span>], [<span class="nb">320</span>], [<span class="nb">750</span>]])
+product_data = np.<span class="fn">hstack</span>([prices, quantities])
+<span class="fn">print</span>(product_data)
+<span class="cm"># [[ 29.99 500.  ]</span>
+<span class="cm">#  [ 14.50 320.  ]</span>
+<span class="cm">#  [  7.25 750.  ]]</span></pre>
+
+<div class="concept info">
+    <strong>concatenate vs vstack/hstack:</strong> <code>np.vstack</code> is shorthand for <code>np.concatenate(..., axis=0)</code> and <code>np.hstack</code> for <code>axis=1</code>. Use whichever reads more clearly in context. For 1D arrays, <code>np.column_stack</code> is handy because it treats each 1D array as a column.
+</div>
+
+<h2>4.8 Linear Algebra with np.linalg</h2>
+<p>NumPy's <code>linalg</code> module provides all the standard linear algebra operations. These are essential for optimization, regression, and simulation models.</p>
 
 <pre class="python">A = np.<span class="fn">array</span>([[<span class="nb">2</span>, <span class="nb">1</span>], [<span class="nb">5</span>, <span class="nb">3</span>]])
 b = np.<span class="fn">array</span>([<span class="nb">8</span>, <span class="nb">19</span>])
@@ -125,16 +209,112 @@ b = np.<span class="fn">array</span>([<span class="nb">8</span>, <span class="nb
 x = np.linalg.<span class="fn">solve</span>(A, b)
 <span class="fn">print</span>(<span class="st">f"Solution: x = </span>{x}<span class="st">"</span>)  <span class="cm"># [1. 6.]</span>
 
-<span class="cm"># Matrix operations</span>
+<span class="cm"># Determinant and inverse</span>
 <span class="fn">print</span>(<span class="st">f"Determinant: </span>{np.linalg.<span class="fn">det</span>(A):.0f}<span class="st">"</span>)  <span class="cm"># 1</span>
 <span class="fn">print</span>(<span class="st">f"Inverse:\n</span>{np.linalg.<span class="fn">inv</span>(A)}<span class="st">"</span>)
 
 <span class="cm"># Matrix multiplication</span>
 C = A @ A  <span class="cm"># or np.dot(A, A)</span>
-<span class="fn">print</span>(C)</pre>
+<span class="fn">print</span>(C)
+
+<span class="cm"># Eigenvalues and eigenvectors</span>
+cov_matrix = np.<span class="fn">array</span>([[<span class="nb">2.0</span>, <span class="nb">0.8</span>],
+                        [<span class="nb">0.8</span>, <span class="nb">1.5</span>]])
+eigenvalues, eigenvectors = np.linalg.<span class="fn">eig</span>(cov_matrix)
+<span class="fn">print</span>(<span class="st">f"Eigenvalues: </span>{eigenvalues}<span class="st">"</span>)
+<span class="fn">print</span>(<span class="st">f"Eigenvectors:\n</span>{eigenvectors}<span class="st">"</span>)
+
+<span class="cm"># Matrix norm (useful for measuring "size" of errors)</span>
+error = np.<span class="fn">array</span>([<span class="nb">0.5</span>, <span class="nb">-0.3</span>, <span class="nb">0.8</span>])
+<span class="fn">print</span>(<span class="st">f"L2 norm: </span>{np.linalg.<span class="fn">norm</span>(error):.4f}<span class="st">"</span>)</pre>
+
+<div class="concept tip">
+    <strong>Why linalg matters for analytics:</strong> Linear regression is fundamentally a linear algebra operation: the OLS estimator is <code>(X'X)^(-1) X'y</code>. Principal Component Analysis uses eigendecomposition. Understanding these operations helps you debug model fitting issues and work with optimization libraries like scipy.optimize.
+</div>
+
+<h2>4.9 Performance: Loops vs. Vectorized Operations</h2>
+<p>The single most important concept in NumPy is avoiding Python-level loops over array elements. NumPy's internal loops are written in C, so they run orders of magnitude faster. The following example demonstrates the difference.</p>
+
+<pre class="python"><span class="kw">import</span> time
+
+n = <span class="nb">1_000_000</span>
+a = np.random.<span class="fn">default_rng</span>(<span class="nb">42</span>).<span class="fn">normal</span>(size=n)
+b = np.random.<span class="fn">default_rng</span>(<span class="nb">99</span>).<span class="fn">normal</span>(size=n)
+
+<span class="cm"># Slow: Python for-loop</span>
+start = time.<span class="fn">time</span>()
+result_loop = [a[i] * b[i] <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n)]
+loop_time = time.<span class="fn">time</span>() - start
+
+<span class="cm"># Fast: vectorized NumPy</span>
+start = time.<span class="fn">time</span>()
+result_vec = a * b
+vec_time = time.<span class="fn">time</span>() - start
+
+<span class="fn">print</span>(<span class="st">f"Loop:       </span>{loop_time:.4f}<span class="st">s"</span>)
+<span class="fn">print</span>(<span class="st">f"Vectorized: </span>{vec_time:.6f}<span class="st">s"</span>)
+<span class="fn">print</span>(<span class="st">f"Speedup:    </span>{loop_time / vec_time:.0f}<span class="st">x"</span>)</pre>
+
+<div class="concept output">
+    <strong>Typical output:</strong>
+    Loop:       0.2500s<br>
+    Vectorized: 0.001200s<br>
+    Speedup:    208x
+</div>
 
 <div class="concept warn">
-    <strong>Performance tip:</strong> Avoid looping over array elements in Python. Use vectorized NumPy operations instead. A vectorized operation on a million-element array can be 100x faster than a for-loop.
+    <strong>Performance tip:</strong> Avoid looping over array elements in Python. Use vectorized NumPy operations instead. A vectorized operation on a million-element array can be 100-200x faster than a for-loop. In Jupyter, use <code>%timeit</code> for reliable benchmarks.
+</div>
+
+<h2>4.10 Structured Arrays</h2>
+<p>Structured arrays let you store heterogeneous data (like a database record) in a NumPy array, where each column has a name and type. They are a lightweight alternative to pandas when you need typed tabular data without the overhead of a DataFrame.</p>
+
+<pre class="python"><span class="cm"># Define a custom data type</span>
+dt = np.<span class="fn">dtype</span>([
+    (<span class="st">"name"</span>, <span class="st">"U10"</span>),       <span class="cm"># Unicode string, max 10 chars</span>
+    (<span class="st">"price"</span>, <span class="st">"f8"</span>),        <span class="cm"># 64-bit float</span>
+    (<span class="st">"quantity"</span>, <span class="st">"i4"</span>)      <span class="cm"># 32-bit integer</span>
+])
+
+products = np.<span class="fn">array</span>([
+    (<span class="st">"Widget"</span>,  <span class="nb">29.99</span>, <span class="nb">500</span>),
+    (<span class="st">"Gadget"</span>,  <span class="nb">14.50</span>, <span class="nb">320</span>),
+    (<span class="st">"Bracket"</span>, <span class="nb">7.25</span>,  <span class="nb">750</span>)
+], dtype=dt)
+
+<span class="cm"># Access by field name (like a DataFrame column)</span>
+<span class="fn">print</span>(products[<span class="st">"name"</span>])      <span class="cm"># ['Widget' 'Gadget' 'Bracket']</span>
+<span class="fn">print</span>(products[<span class="st">"price"</span>])     <span class="cm"># [29.99 14.50  7.25]</span>
+
+<span class="cm"># Vectorized computation on a field</span>
+revenue = products[<span class="st">"price"</span>] * products[<span class="st">"quantity"</span>]
+<span class="fn">print</span>(revenue)  <span class="cm"># [14995. 4640. 5437.5]</span></pre>
+
+<h2>4.11 Saving and Loading Arrays</h2>
+<p>NumPy provides efficient binary formats for persisting arrays to disk. Use <code>.npy</code> for single arrays and <code>.npz</code> for multiple arrays. These formats preserve data types and are much faster to load than CSV files.</p>
+
+<pre class="python"><span class="cm"># Save a single array</span>
+data = np.<span class="fn">array</span>([<span class="nb">1.5</span>, <span class="nb">2.3</span>, <span class="nb">4.1</span>, <span class="nb">3.7</span>])
+np.<span class="fn">save</span>(<span class="st">"demand.npy"</span>, data)
+loaded = np.<span class="fn">load</span>(<span class="st">"demand.npy"</span>)
+<span class="fn">print</span>(loaded)  <span class="cm"># [1.5 2.3 4.1 3.7]</span>
+
+<span class="cm"># Save multiple arrays in a single compressed file</span>
+prices = np.<span class="fn">array</span>([<span class="nb">29.99</span>, <span class="nb">14.50</span>, <span class="nb">7.25</span>])
+quantities = np.<span class="fn">array</span>([<span class="nb">500</span>, <span class="nb">320</span>, <span class="nb">750</span>])
+np.<span class="fn">savez_compressed</span>(<span class="st">"products.npz"</span>, prices=prices, quantities=quantities)
+
+<span class="cm"># Load the .npz file</span>
+archive = np.<span class="fn">load</span>(<span class="st">"products.npz"</span>)
+<span class="fn">print</span>(archive[<span class="st">"prices"</span>])      <span class="cm"># [29.99 14.5   7.25]</span>
+<span class="fn">print</span>(archive[<span class="st">"quantities"</span>])  <span class="cm"># [500 320 750]</span>
+
+<span class="cm"># For human-readable format (slower, larger files)</span>
+np.<span class="fn">savetxt</span>(<span class="st">"data.csv"</span>, data, delimiter=<span class="st">","</span>)
+loaded_csv = np.<span class="fn">loadtxt</span>(<span class="st">"data.csv"</span>, delimiter=<span class="st">","</span>)</pre>
+
+<div class="concept info">
+    <strong>When to use .npy vs CSV:</strong> Use <code>.npy</code>/<code>.npz</code> for intermediate results in a pipeline where you need fast I/O and exact type preservation. Use CSV when you need to share data with non-Python tools (Excel, R, Stata) or want human-readable files for version control.
 </div>
 
 <div class="exercise">
@@ -145,6 +325,16 @@ C = A @ A  <span class="cm"># or np.dot(A, A)</span>
 <div class="exercise">
     <h4>Exercise 4.2</h4>
     <p>Create a 5x3 matrix where each row represents a product and columns are [cost, revenue, units]. Compute a profit column (revenue - cost) using vectorized operations, then find which product has the highest profit.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 4.3</h4>
+    <p>Create two arrays: <code>actual = np.array([100, 120, 95, 110, 130])</code> and <code>forecast = np.array([105, 115, 100, 108, 125])</code>. Compute the Mean Absolute Error (MAE) and Mean Absolute Percentage Error (MAPE) using vectorized operations. Then use <code>np.where()</code> to classify each period as "Over" (forecast > actual) or "Under".</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 4.4</h4>
+    <p>Write a timing experiment comparing a Python for-loop vs. a vectorized NumPy operation for computing the dot product of two 500,000-element arrays. Use <code>time.time()</code> or <code>%timeit</code> to measure both. Report the speedup factor.</p>
 </div>
 
 <div class="ext-resources">
@@ -160,9 +350,12 @@ C = A @ A  <span class="cm"># or np.dot(A, A)</span>
     <h3>Chapter 4 Takeaways</h3>
     <ul>
         <li>NumPy's ndarray is the core data structure for numerical computing in Python.</li>
-        <li>Vectorized operations replace explicit loops and run orders of magnitude faster.</li>
+        <li>Boolean indexing and fancy indexing select data by condition or position; <code>np.where()</code> is a vectorized if-else.</li>
+        <li>Vectorized operations replace explicit loops and run 100-200x faster on large arrays.</li>
         <li>Broadcasting allows operations between arrays of different shapes without copying data.</li>
-        <li>NumPy provides built-in random number generation for simulation and linear algebra routines for matrix computation.</li>
+        <li>Use <code>np.concatenate</code>, <code>np.vstack</code>, and <code>np.hstack</code> to combine arrays from multiple sources.</li>
+        <li><code>np.linalg</code> provides solve, inverse, eigendecomposition, and norms for matrix computation.</li>
+        <li>Save arrays with <code>np.save()</code>/<code>np.savez_compressed()</code> for fast binary I/O; use CSV only for interoperability.</li>
     </ul>
 </div>
 

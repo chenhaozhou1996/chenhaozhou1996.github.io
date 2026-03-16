@@ -205,6 +205,202 @@ final_fit   <span class="op">&lt;-</span> final_wflow <span class="op">|&gt;</sp
   <span class="fn">labs</span>(title <span class="op">=</span> <span class="st">"Predicted vs. Actual (Test Set)"</span>)</pre>
 
 <!-- ────────────────────────────── -->
+<h2>8.9 Handling Imbalanced Data with themis</h2>
+
+<p>When one class is rare (e.g., fraud detection, rare diseases), models tend to predict the majority class. The <code>themis</code> package provides recipe steps for resampling strategies.</p>
+
+<pre class="r"><span class="fn">library</span>(themis)
+
+<span class="cm"># Example: imbalanced classification</span>
+<span class="fn">data</span>(credit_data, package <span class="op">=</span> <span class="st">"modeldata"</span>)
+<span class="fn">table</span>(credit_data<span class="op">$</span>Status)  <span class="cm"># likely imbalanced</span>
+
+<span class="cm"># Recipe with SMOTE (Synthetic Minority Over-sampling)</span>
+smote_rec <span class="op">&lt;-</span> <span class="fn">recipe</span>(Status <span class="op">~</span> ., data <span class="op">=</span> credit_data) <span class="op">|&gt;</span>
+  <span class="fn">step_impute_median</span>(<span class="fn">all_numeric_predictors</span>()) <span class="op">|&gt;</span>
+  <span class="fn">step_impute_mode</span>(<span class="fn">all_nominal_predictors</span>()) <span class="op">|&gt;</span>
+  <span class="fn">step_dummy</span>(<span class="fn">all_nominal_predictors</span>()) <span class="op">|&gt;</span>
+  <span class="fn">step_smote</span>(Status)  <span class="cm"># SMOTE resampling of minority class</span>
+
+<span class="cm"># Other options from themis:</span>
+<span class="cm"># step_upsample(Status)    - random oversampling</span>
+<span class="cm"># step_downsample(Status)  - random undersampling</span>
+<span class="cm"># step_rose(Status)        - ROSE algorithm</span>
+<span class="cm"># step_adasyn(Status)      - ADASYN adaptive synthetic</span>
+
+<span class="cm"># Build a workflow with the SMOTE recipe</span>
+lr_spec <span class="op">&lt;-</span> <span class="fn">logistic_reg</span>() <span class="op">|&gt;</span> <span class="fn">set_engine</span>(<span class="st">"glm"</span>)
+smote_wflow <span class="op">&lt;-</span> <span class="fn">workflow</span>() <span class="op">|&gt;</span>
+  <span class="fn">add_recipe</span>(smote_rec) <span class="op">|&gt;</span>
+  <span class="fn">add_model</span>(lr_spec)</pre>
+
+<div class="concept warn">
+  <strong>SMOTE only on training data</strong>
+  Resampling steps like <code>step_smote()</code> should only be applied during training. The recipes framework handles this automatically: these steps are skipped when predicting on new data. Never apply SMOTE before splitting.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>8.10 Comparing Multiple Models with workflowsets</h2>
+
+<p>The <code>workflowsets</code> package lets you define many recipe-model combinations and evaluate them all at once.</p>
+
+<pre class="r"><span class="fn">library</span>(workflowsets)
+
+<span class="cm"># Define multiple model specs</span>
+lm_spec  <span class="op">&lt;-</span> <span class="fn">linear_reg</span>() <span class="op">|&gt;</span> <span class="fn">set_engine</span>(<span class="st">"lm"</span>)
+rf_spec  <span class="op">&lt;-</span> <span class="fn">rand_forest</span>(trees <span class="op">=</span> <span class="nb">500</span>) <span class="op">|&gt;</span> <span class="fn">set_engine</span>(<span class="st">"ranger"</span>) <span class="op">|&gt;</span> <span class="fn">set_mode</span>(<span class="st">"regression"</span>)
+xgb_spec <span class="op">&lt;-</span> <span class="fn">boost_tree</span>(trees <span class="op">=</span> <span class="nb">500</span>) <span class="op">|&gt;</span> <span class="fn">set_engine</span>(<span class="st">"xgboost"</span>) <span class="op">|&gt;</span> <span class="fn">set_mode</span>(<span class="st">"regression"</span>)
+
+<span class="cm"># Create workflow set: cross all recipes with all models</span>
+all_wflows <span class="op">&lt;-</span> <span class="fn">workflow_set</span>(
+  preproc <span class="op">=</span> <span class="fn">list</span>(base <span class="op">=</span> ames_rec),
+  models  <span class="op">=</span> <span class="fn">list</span>(lm <span class="op">=</span> lm_spec, rf <span class="op">=</span> rf_spec, xgb <span class="op">=</span> xgb_spec)
+)
+
+<span class="cm"># Evaluate all workflows on the same folds</span>
+all_results <span class="op">&lt;-</span> all_wflows <span class="op">|&gt;</span>
+  <span class="fn">workflow_map</span>(<span class="st">"fit_resamples"</span>,
+              resamples <span class="op">=</span> folds,
+              metrics <span class="op">=</span> <span class="fn">metric_set</span>(rmse, rsq))
+
+<span class="cm"># Compare performance</span>
+<span class="fn">rank_results</span>(all_results, rank_metric <span class="op">=</span> <span class="st">"rmse"</span>)
+<span class="fn">autoplot</span>(all_results)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>8.11 Bayesian Hyperparameter Optimization</h2>
+
+<p>Grid search can be inefficient for large parameter spaces. Bayesian optimization uses a surrogate model to intelligently select the next set of hyperparameters to try.</p>
+
+<pre class="r"><span class="cm"># Bayesian optimization with tune_bayes()</span>
+xgb_tune_spec <span class="op">&lt;-</span> <span class="fn">boost_tree</span>(
+  trees      <span class="op">=</span> <span class="fn">tune</span>(),
+  learn_rate <span class="op">=</span> <span class="fn">tune</span>(),
+  tree_depth <span class="op">=</span> <span class="fn">tune</span>(),
+  min_n      <span class="op">=</span> <span class="fn">tune</span>()
+) <span class="op">|&gt;</span>
+  <span class="fn">set_engine</span>(<span class="st">"xgboost"</span>) <span class="op">|&gt;</span>
+  <span class="fn">set_mode</span>(<span class="st">"regression"</span>)
+
+xgb_wflow <span class="op">&lt;-</span> <span class="fn">workflow</span>() <span class="op">|&gt;</span>
+  <span class="fn">add_recipe</span>(ames_rec) <span class="op">|&gt;</span>
+  <span class="fn">add_model</span>(xgb_tune_spec)
+
+<span class="cm"># Bayesian search (uses Gaussian process surrogate)</span>
+xgb_bayes <span class="op">&lt;-</span> xgb_wflow <span class="op">|&gt;</span>
+  <span class="fn">tune_bayes</span>(
+    resamples <span class="op">=</span> folds,
+    metrics   <span class="op">=</span> <span class="fn">metric_set</span>(rmse),
+    initial   <span class="op">=</span> <span class="nb">10</span>,   <span class="cm"># initial grid points</span>
+    iter      <span class="op">=</span> <span class="nb">25</span>,   <span class="cm"># Bayesian iterations</span>
+    control   <span class="op">=</span> <span class="fn">control_bayes</span>(verbose <span class="op">=</span> <span class="nb">TRUE</span>, no_improve <span class="op">=</span> <span class="nb">10</span>)
+  )
+
+<span class="cm"># Best results</span>
+<span class="fn">show_best</span>(xgb_bayes, metric <span class="op">=</span> <span class="st">"rmse"</span>, n <span class="op">=</span> <span class="nb">5</span>)
+<span class="fn">autoplot</span>(xgb_bayes)</pre>
+
+<div class="concept info">
+  <strong>Grid search vs. Bayesian optimization</strong>
+  <code>tune_grid()</code> evaluates all parameter combinations independently, which is exhaustive but slow. <code>tune_bayes()</code> learns from previous evaluations to focus on promising regions of the parameter space. Use Bayesian optimization when you have more than 2-3 parameters to tune, especially with expensive models like XGBoost or neural networks.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>8.12 Model Explainability with vip and DALEX</h2>
+
+<p>After fitting a model, understanding which features drive predictions is essential for trust and communication. The <code>vip</code> package provides variable importance plots, and <code>DALEX</code> offers model-agnostic explanations.</p>
+
+<pre class="r"><span class="fn">library</span>(vip)
+
+<span class="cm"># Variable importance for the final random forest</span>
+final_rf <span class="op">&lt;-</span> final_wflow <span class="op">|&gt;</span> <span class="fn">fit</span>(data <span class="op">=</span> train)
+final_rf <span class="op">|&gt;</span>
+  <span class="fn">extract_fit_parsnip</span>() <span class="op">|&gt;</span>
+  <span class="fn">vip</span>(num_features <span class="op">=</span> <span class="nb">10</span>, aesthetics <span class="op">=</span> <span class="fn">list</span>(fill <span class="op">=</span> <span class="st">"#276DC3"</span>))
+
+<span class="cm"># DALEX: model-agnostic explainability</span>
+<span class="fn">library</span>(DALEX)
+
+<span class="cm"># Create an explainer object</span>
+explainer <span class="op">&lt;-</span> <span class="fn">explain</span>(
+  <span class="fn">extract_fit_parsnip</span>(final_rf),
+  data <span class="op">=</span> train <span class="op">|&gt;</span> <span class="fn">select</span>(Gr_Liv_Area, Year_Built, Bldg_Type, Neighborhood),
+  y    <span class="op">=</span> <span class="fn">log10</span>(train<span class="op">$</span>Sale_Price),
+  label <span class="op">=</span> <span class="st">"Random Forest"</span>
+)
+
+<span class="cm"># Partial dependence plot for a single feature</span>
+pdp <span class="op">&lt;-</span> <span class="fn">model_profile</span>(explainer, variables <span class="op">=</span> <span class="st">"Gr_Liv_Area"</span>)
+<span class="fn">plot</span>(pdp)
+
+<span class="cm"># SHAP-like breakdown for a single observation</span>
+new_obs <span class="op">&lt;-</span> test[<span class="nb">1</span>, ]
+bd <span class="op">&lt;-</span> <span class="fn">predict_parts</span>(explainer, new_observation <span class="op">=</span> new_obs, type <span class="op">=</span> <span class="st">"shap"</span>)
+<span class="fn">plot</span>(bd)</pre>
+
+<div class="concept tip">
+  <strong>Model-specific vs. model-agnostic importance</strong>
+  Tree-based models (random forest, XGBoost) have built-in importance measures based on impurity reduction or permutation. DALEX provides model-agnostic tools that work with any model, enabling fair comparison across model types. Use permutation-based importance for the most reliable cross-model comparisons.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>8.13 Stacking Models with stacks</h2>
+
+<p>Model stacking (ensemble learning) combines predictions from multiple models using a meta-learner. The <code>stacks</code> package integrates with tidymodels workflows.</p>
+
+<pre class="r"><span class="fn">library</span>(stacks)
+
+<span class="cm"># Fit candidate models with control_stack_resamples()</span>
+ctrl <span class="op">&lt;-</span> <span class="fn">control_stack_resamples</span>()
+
+lm_res <span class="op">&lt;-</span> lm_wflow <span class="op">|&gt;</span>
+  <span class="fn">fit_resamples</span>(folds, control <span class="op">=</span> ctrl)
+
+rf_res <span class="op">&lt;-</span> <span class="fn">workflow</span>() <span class="op">|&gt;</span>
+  <span class="fn">add_recipe</span>(ames_rec) <span class="op">|&gt;</span>
+  <span class="fn">add_model</span>(rf_spec) <span class="op">|&gt;</span>
+  <span class="fn">fit_resamples</span>(folds, control <span class="op">=</span> ctrl)
+
+<span class="cm"># Initialize a stack and add candidate members</span>
+ames_stack <span class="op">&lt;-</span> <span class="fn">stacks</span>() <span class="op">|&gt;</span>
+  <span class="fn">add_candidates</span>(lm_res) <span class="op">|&gt;</span>
+  <span class="fn">add_candidates</span>(rf_res)
+
+<span class="cm"># Blend predictions (penalized regression meta-learner)</span>
+ames_stack <span class="op">&lt;-</span> ames_stack <span class="op">|&gt;</span> <span class="fn">blend_predictions</span>()
+<span class="fn">autoplot</span>(ames_stack)
+
+<span class="cm"># Fit the final stacked model</span>
+ames_stack <span class="op">&lt;-</span> ames_stack <span class="op">|&gt;</span> <span class="fn">fit_members</span>()
+
+<span class="cm"># Predict on test set</span>
+stack_preds <span class="op">&lt;-</span> <span class="fn">predict</span>(ames_stack, test)
+<span class="fn">bind_cols</span>(test <span class="op">|&gt;</span> <span class="fn">select</span>(Sale_Price), stack_preds)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>8.14 Deployment Considerations</h2>
+
+<p>After building and evaluating a model, you may need to save it for later use, deploy it as an API, or embed it in a Shiny app.</p>
+
+<pre class="r"><span class="cm"># Save a fitted workflow for later use</span>
+<span class="fn">saveRDS</span>(final_rf, <span class="st">"fitted_model.rds"</span>)
+
+<span class="cm"># Load and predict later</span>
+loaded_model <span class="op">&lt;-</span> <span class="fn">readRDS</span>(<span class="st">"fitted_model.rds"</span>)
+<span class="fn">predict</span>(loaded_model, new_data <span class="op">=</span> test[<span class="nb">1</span><span class="op">:</span><span class="nb">5</span>, ])
+
+<span class="cm"># For production: use vetiver for model versioning and deployment</span>
+<span class="cm"># library(vetiver)</span>
+<span class="cm"># v <- vetiver_model(final_rf, "ames_price_model")</span>
+<span class="cm"># vetiver_pin_write(board, v)  # pin to a board</span>
+<span class="cm"># vetiver_deploy_rsconnect(board, "ames_price_model")  # deploy API</span></pre>
+
+<div class="concept info">
+  <strong>The vetiver package</strong>
+  <code>vetiver</code> provides a framework for versioning, deploying, and monitoring ML models in production. It integrates with tidymodels workflows and can deploy models as Plumber APIs on Posit Connect, or as Docker containers for cloud deployment.
+</div>
+
+<!-- ────────────────────────────── -->
 <h2>Exercises</h2>
 
 <div class="exercise">
@@ -217,6 +413,16 @@ final_fit   <span class="op">&lt;-</span> final_wflow <span class="op">|&gt;</sp
   <p>Using the Ames housing data, create a recipe that includes <code>step_interact(~ Gr_Liv_Area:Year_Built)</code>. Fit an XGBoost model with <code>tune()</code> on <code>learn_rate</code> and <code>trees</code>. Which combination gives the best RMSE?</p>
 </div>
 
+<div class="exercise">
+  <h4>Exercise 8.3</h4>
+  <p>Use <code>workflowsets</code> to compare linear regression, random forest, and XGBoost on the Ames data with the same recipe and same 10-fold CV splits. Rank the models by RMSE and plot the results with <code>autoplot()</code>. Then use <code>vip</code> to show the top 10 most important features for the best-performing model.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 8.4</h4>
+  <p>Load the <code>credit_data</code> from the <code>modeldata</code> package. Build two classification workflows for predicting <code>Status</code>: one with a standard recipe and one with <code>step_smote()</code> from <code>themis</code>. Compare the two workflows using 5-fold CV with <code>roc_auc</code> as the metric. Does SMOTE improve the AUC? Explain why or why not.</p>
+</div>
+
 <!-- ────────────────────────────── -->
 <div class="ext-resources">
   <h4>External Resources</h4>
@@ -224,6 +430,9 @@ final_fit   <span class="op">&lt;-</span> final_wflow <span class="op">|&gt;</sp
     <li><a href="https://www.tidymodels.org" target="_blank" rel="noopener">tidymodels.org</a> <span class="ext-badge">External</span></li>
     <li><a href="https://www.tmwr.org" target="_blank" rel="noopener">Tidy Modeling with R (book)</a> <span class="ext-badge">External</span></li>
     <li><a href="https://parsnip.tidymodels.org/reference/" target="_blank" rel="noopener">parsnip Model Reference</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://stacks.tidymodels.org" target="_blank" rel="noopener">stacks: Model Stacking</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://koaning.github.io/scikit-lego/" target="_blank" rel="noopener">DALEX: Explanations for ML Models</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://vetiver.rstudio.com" target="_blank" rel="noopener">vetiver: Model Deployment</a> <span class="ext-badge">External</span></li>
   </ul>
 </div>
 
@@ -234,8 +443,12 @@ final_fit   <span class="op">&lt;-</span> final_wflow <span class="op">|&gt;</sp
     <li>tidymodels provides a consistent pipeline: split &rarr; recipe &rarr; model &rarr; workflow &rarr; evaluate.</li>
     <li>Recipes declare preprocessing; parsnip declares models. Workflows bundle both.</li>
     <li>Use <code>vfold_cv()</code> for cross-validation and <code>tune_grid()</code> for hyperparameter search.</li>
-    <li><code>last_fit(split)</code> fits on the full training set and evaluates on the test set in one step.</li>
-    <li><code>collect_metrics()</code> and <code>collect_predictions()</code> retrieve results in tidy tibbles.</li>
+    <li><code>tune_bayes()</code> offers smarter hyperparameter search for large parameter spaces.</li>
+    <li>Handle imbalanced data with <code>themis::step_smote()</code> inside recipes (applied only during training).</li>
+    <li><code>workflowsets</code> enables systematic comparison of many recipe-model combinations.</li>
+    <li><code>vip</code> and <code>DALEX</code> provide variable importance and model-agnostic explainability.</li>
+    <li><code>stacks</code> combines predictions from multiple models via a meta-learner for improved accuracy.</li>
+    <li>Use <code>vetiver</code> to version, deploy, and monitor models in production.</li>
   </ul>
 </div>
 

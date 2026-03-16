@@ -59,6 +59,36 @@
     When importing CSV files, Stata may read numeric columns as strings if any cell contains non-numeric text (e.g., "N/A" or blank with spaces). Always run <code>describe</code> after importing to verify variable types.
 </div>
 
+<h2>2.1a The egen Command</h2>
+<p>While <code>generate</code> operates observation by observation, <code>egen</code> (extended generate) provides aggregate functions that operate across observations or across variables. It is indispensable for creating group-level statistics, row-wise summaries, and panel identifiers.</p>
+
+<pre class="stata"><span class="kw">sysuse</span> auto, clear
+
+<span class="cm">* --- Group-level statistics ---</span>
+<span class="kw">egen</span> mean_price = mean(price), by(foreign)        <span class="cm">// group mean</span>
+<span class="kw">egen</span> sd_price   = sd(price), by(foreign)           <span class="cm">// group std dev</span>
+<span class="kw">egen</span> n_obs      = count(price), by(foreign)        <span class="cm">// group count</span>
+<span class="kw">egen</span> total_price = total(price), by(foreign)       <span class="cm">// group sum</span>
+<span class="kw">egen</span> min_price  = min(price), by(foreign)          <span class="cm">// group minimum</span>
+<span class="kw">egen</span> max_price  = max(price), by(foreign)          <span class="cm">// group maximum</span>
+<span class="kw">egen</span> med_price  = median(price), by(foreign)       <span class="cm">// group median</span>
+
+<span class="cm">* --- Row-wise operations (across variables, within an observation) ---</span>
+<span class="kw">egen</span> avg_dims = rowmean(weight length)              <span class="cm">// mean across columns</span>
+<span class="kw">egen</span> n_nonmiss = rownonmiss(price mpg weight rep78) <span class="cm">// count non-missing</span>
+
+<span class="cm">* --- Group identifiers ---</span>
+<span class="kw">egen</span> group_id = group(foreign rep78)                <span class="cm">// sequential group ID</span>
+<span class="kw">egen</span> tag = tag(foreign)                             <span class="cm">// 1 for first obs per group</span>
+
+<span class="cm">* --- Standardize a variable (z-score) ---</span>
+<span class="kw">egen</span> z_price = std(price)                           <span class="cm">// (x - mean) / sd</span></pre>
+
+<div class="concept tip">
+    <strong>Tip: gen vs. egen</strong>
+    Use <code>gen</code> for observation-level arithmetic (logs, powers, indicators). Use <code>egen</code> when you need to aggregate across observations (means, counts, ranks by group) or across variables (row means, row totals). A common mistake is trying <code>gen group_mean = mean(x)</code>, which does not work; you need <code>egen</code> for that.
+</div>
+
 <h2>2.2 Generating and Replacing Variables</h2>
 <p>The <code>generate</code> and <code>replace</code> commands create and modify variables. Use <code>gen</code> for new variables and <code>replace</code> to update existing ones.</p>
 
@@ -91,6 +121,34 @@
 <span class="cm">* Decode numeric labels back to string</span>
 <span class="kw">decode</span> state_num, gen(state_str)</pre>
 
+<h2>2.3a Duplicates and Data Integrity</h2>
+<p>Duplicate observations are a leading source of errors in empirical work, especially when merging multiple data sources. Always check for duplicates before and after merges.</p>
+
+<pre class="stata"><span class="cm">* Report duplicates on key variables</span>
+<span class="kw">duplicates report</span> facility_id year
+
+<span class="cm">* List duplicate observations</span>
+<span class="kw">duplicates list</span> facility_id year
+
+<span class="cm">* Tag duplicates (creates a variable with duplicate count)</span>
+<span class="kw">duplicates tag</span> facility_id year, gen(dup_flag)
+<span class="kw">tab</span> dup_flag
+<span class="kw">list</span> facility_id year if dup_flag > 0
+
+<span class="cm">* Drop exact duplicate rows (all variables identical)</span>
+<span class="kw">duplicates drop</span>
+
+<span class="cm">* Drop duplicates on specific keys (keeps first occurrence)</span>
+<span class="kw">duplicates drop</span> facility_id year, force
+
+<span class="cm">* Verify uniqueness</span>
+<span class="kw">isid</span> facility_id year</pre>
+
+<div class="concept warn">
+    <strong>duplicates drop with force</strong>
+    Using <code>duplicates drop varlist, force</code> silently deletes observations. Before doing this, always examine the duplicates to understand why they exist. Are they true duplicates (data entry errors) or do they reflect real observations (e.g., two records per facility-year for different reporting periods)? Document your decision in comments.
+</div>
+
 <h2>2.4 Labels</h2>
 <p>Variable and value labels make output readable and are expected in any shared dataset.</p>
 
@@ -105,6 +163,11 @@
 <span class="cm">* Check labels</span>
 <span class="kw">label list</span> yesno
 <span class="kw">describe</span> qip rn_pp</pre>
+
+<div class="concept info">
+    <strong>Labeling Best Practices</strong>
+    Good labels serve two audiences: your future self and your co-authors. Variable labels should describe the measure and its units (e.g., "RN FTE per 100 Patients" rather than just "rn_pp"). Value labels should be applied to all binary and categorical variables. When sharing data with co-authors, run <code>codebook, compact</code> to verify that all variables are labeled and documented.
+</div>
 
 <h2>2.5 Reshaping Data</h2>
 <p>Panel data often needs to move between wide format (one row per unit, columns for each time period) and long format (one row per unit-period).</p>
@@ -145,7 +208,103 @@
 <span class="kw">use</span> <span class="st">"data/year2015.dta"</span>, clear
 <span class="kw">append</span> using <span class="st">"data/year2016.dta"</span> <span class="st">"data/year2017.dta"</span></pre>
 
-<h2>2.7 Handling Missing Values</h2>
+<h2>2.7 Expanding, Filling, and Crossing Data</h2>
+<p>Several commands help you restructure data in ways that go beyond simple reshaping. These are particularly useful for creating balanced panels, generating simulation data, or building lookup tables.</p>
+
+<pre class="stata"><span class="cm">* --- fillin: fill in missing combinations to balance a panel ---</span>
+<span class="kw">fillin</span> facility_id year
+<span class="cm">* Creates a variable _fillin = 1 for newly created observations</span>
+<span class="kw">tab</span> _fillin
+
+<span class="cm">* --- expand: replicate each observation N times ---</span>
+<span class="kw">sysuse</span> auto, clear
+<span class="kw">expand</span> 3                    <span class="cm">// each observation now appears 3 times</span>
+<span class="kw">count</span>                       <span class="cm">// 74 * 3 = 222</span>
+
+<span class="cm">* Conditional expand (useful for simulation)</span>
+<span class="kw">sysuse</span> auto, clear
+<span class="kw">expand</span> 2 if foreign == 1    <span class="cm">// double only foreign cars</span>
+
+<span class="cm">* --- cross: Cartesian product of two datasets ---</span>
+<span class="cm">* Creates every combination of obs from current data and using data</span>
+<span class="kw">clear</span>
+<span class="kw">input</span> str10 state
+    <span class="st">"Alabama"</span>
+    <span class="st">"Alaska"</span>
+<span class="kw">end</span>
+<span class="kw">save</span> <span class="st">"temp_states.dta"</span>, replace
+
+<span class="kw">clear</span>
+<span class="kw">input</span> int year
+    2015
+    2016
+    2017
+<span class="kw">end</span>
+<span class="kw">cross</span> using <span class="st">"temp_states.dta"</span>
+<span class="kw">list</span>                        <span class="cm">// 2 states x 3 years = 6 rows</span></pre>
+
+<h2>2.8 Preserve/Restore and Temporary Objects</h2>
+<p>Sometimes you need to modify the data temporarily (e.g., to compute a statistic on a subset) and then return to the original. The <code>preserve</code>/<code>restore</code> pair saves and reloads the current dataset in memory. Temporary files and variables provide scratch space without cluttering your workspace.</p>
+
+<pre class="stata"><span class="cm">* --- preserve / restore ---</span>
+<span class="kw">sysuse</span> auto, clear
+<span class="kw">preserve</span>
+    <span class="kw">keep</span> if foreign == 1
+    <span class="kw">summarize</span> price           <span class="cm">// statistics on foreign cars only</span>
+    <span class="kw">local</span> foreign_mean = r(mean)
+<span class="kw">restore</span>                      <span class="cm">// full dataset is back</span>
+<span class="kw">display</span> <span class="st">"Foreign mean price: `foreign_mean'"</span>
+
+<span class="cm">* --- tempfile: a temporary dataset on disk ---</span>
+<span class="kw">tempfile</span> subset
+<span class="kw">preserve</span>
+    <span class="kw">keep</span> if rep78 >= 4
+    <span class="kw">save</span> `subset'
+<span class="kw">restore</span>
+<span class="cm">* Later, you can merge or append from `subset'</span>
+<span class="kw">merge</span> 1:1 make using `subset', nogen keep(master match)
+
+<span class="cm">* --- tempvar: a temporary variable (auto-deleted) ---</span>
+<span class="kw">tempvar</span> centered_price
+<span class="kw">quietly summarize</span> price
+<span class="kw">gen</span> `centered_price' = price - r(mean)
+<span class="kw">regress</span> mpg `centered_price'
+<span class="cm">* `centered_price' vanishes when the program/do-file ends</span></pre>
+
+<div class="concept tip">
+    <strong>Tip: When to Use Preserve/Restore</strong>
+    <code>preserve</code>/<code>restore</code> copies the entire dataset in memory, so it is fast for small-to-medium data. For very large datasets (100M+ observations), saving a tempfile and reloading is more memory-efficient. Never nest <code>preserve</code> calls; Stata allows only one level of preservation at a time.
+</div>
+
+<h2>2.9 Frames (Stata 16+)</h2>
+<p>Stata 16 introduced frames, which let you hold multiple datasets in memory simultaneously. This eliminates the need for constant saving, loading, and merging when working with several related datasets.</p>
+
+<pre class="stata"><span class="cm">* --- Working with frames ---</span>
+<span class="cm">* Create a new frame and load data into it</span>
+<span class="kw">frame create</span> sdi_data
+<span class="kw">frame</span> sdi_data: <span class="kw">use</span> <span class="st">"data/sdi_by_zcta.dta"</span>, clear
+
+<span class="cm">* Check what frames exist</span>
+<span class="kw">frames dir</span>
+
+<span class="cm">* Switch to a frame</span>
+<span class="kw">frame change</span> sdi_data
+<span class="kw">describe</span>
+<span class="kw">frame change</span> default
+
+<span class="cm">* Link frames for lookups (like a SQL join)</span>
+<span class="kw">frlink</span> m:1 zcta, frame(sdi_data)
+<span class="kw">frget</span> sdi_score, from(sdi_data)
+
+<span class="cm">* Drop a frame when done</span>
+<span class="kw">frame drop</span> sdi_data</pre>
+
+<div class="concept info">
+    <strong>Frames vs. Preserve/Restore</strong>
+    Frames and <code>preserve</code>/<code>restore</code> solve different problems. Use <code>preserve</code> when you need to temporarily modify and then revert a single dataset. Use frames when you need to work with two or more distinct datasets at the same time, looking up values from one to populate another. Frames are the Stata equivalent of having multiple data tables open in R or Python.
+</div>
+
+<h2>2.10 Handling Missing Values</h2>
 <p>Stata represents numeric missing as <code>.</code> (which is treated as positive infinity in comparisons). Always account for this in conditional statements.</p>
 
 <pre class="stata"><span class="cm">* Count missing values per variable</span>
@@ -173,6 +332,16 @@
     <p>Using the <code>auto</code> dataset, generate a new string variable <code>origin</code> that equals "Domestic" when <code>foreign == 0</code> and "Foreign" when <code>foreign == 1</code>. Then encode it back to a numeric variable <code>origin_num</code> and verify the labels are correct.</p>
 </div>
 
+<div class="exercise">
+    <h4>Exercise 2.3</h4>
+    <p>Load <code>sysuse auto</code>. Use <code>egen</code> to create: (a) <code>mean_price_group</code>, the mean price by <code>foreign</code> status; (b) <code>z_mpg</code>, the standardized (z-score) version of <code>mpg</code>; (c) <code>n_missing</code>, a row-wise count of how many variables among <code>price</code>, <code>mpg</code>, <code>rep78</code>, <code>weight</code> are missing for each observation. How many observations have at least one missing value?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 2.4</h4>
+    <p>Create a do-file that demonstrates <code>preserve</code>/<code>restore</code>. Start with <code>sysuse auto</code>. Inside a <code>preserve</code> block, keep only cars with <code>price > 10000</code>, compute the mean <code>mpg</code> for this subset, and store it in a local macro. After <code>restore</code>, display both the subset mean and the overall mean of <code>mpg</code>. Verify that the full dataset has been restored by checking the observation count.</p>
+</div>
+
 <div class="ext-resources">
     <h4>External Resources</h4>
     <ul>
@@ -186,8 +355,12 @@
     <h3>Key Takeaways</h3>
     <ul>
         <li>Always run <code>describe</code> after importing to check variable types.</li>
+        <li>Use <code>egen</code> for group-level statistics (mean, count, total by group) and row-wise operations.</li>
+        <li>Check for and document duplicates before any merge with <code>duplicates report</code>.</li>
         <li>Use <code>reshape long</code> for panel analysis and <code>reshape wide</code> for summary tables.</li>
         <li>Check <code>_merge</code> after every merge to catch unexpected non-matches.</li>
+        <li>Use <code>preserve</code>/<code>restore</code> for temporary data modifications and frames (Stata 16+) for multi-dataset workflows.</li>
+        <li>Label every variable with a descriptive label including units of measurement.</li>
         <li>Remember that Stata treats missing values as larger than any number.</li>
     </ul>
 </div>

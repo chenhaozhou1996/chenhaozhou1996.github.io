@@ -148,7 +148,182 @@ t_crit <span class="op">&lt;-</span> <span class="fn">qt</span>(<span class="nb"
 <span class="fn">c</span>(x_bar <span class="op">-</span> t_crit <span class="op">*</span> se, x_bar <span class="op">+</span> t_crit <span class="op">*</span> se)</pre>
 
 <!-- ────────────────────────────── -->
-<h2>5.8 Quick Reference Table</h2>
+<h2>5.8 Effect Size: Cohen's d</h2>
+
+<p>A p-value tells you whether an effect exists, but not how large it is. Effect sizes quantify the magnitude of a difference, making results comparable across studies. Cohen's d is the most common measure for comparing two means.</p>
+
+<pre class="r"><span class="cm"># Manual calculation of Cohen's d</span>
+cohens_d <span class="op">&lt;-</span> <span class="kw">function</span>(x, y) {
+  n1 <span class="op">&lt;-</span> <span class="fn">length</span>(x)
+  n2 <span class="op">&lt;-</span> <span class="fn">length</span>(y)
+  pooled_sd <span class="op">&lt;-</span> <span class="fn">sqrt</span>(((n1 <span class="op">-</span> <span class="nb">1</span>) <span class="op">*</span> <span class="fn">var</span>(x) <span class="op">+</span> (n2 <span class="op">-</span> <span class="nb">1</span>) <span class="op">*</span> <span class="fn">var</span>(y)) <span class="op">/</span> (n1 <span class="op">+</span> n2 <span class="op">-</span> <span class="nb">2</span>))
+  (<span class="fn">mean</span>(x) <span class="op">-</span> <span class="fn">mean</span>(y)) <span class="op">/</span> pooled_sd
+}
+<span class="fn">cohens_d</span>(group_a, group_b)
+
+<span class="cm"># Using the effectsize package (more convenient)</span>
+<span class="cm"># install.packages("effectsize")</span>
+<span class="fn">library</span>(effectsize)
+<span class="fn">cohens_d</span>(group_a, group_b)     <span class="cm"># includes CI for d</span></pre>
+
+<div class="concept info">
+  <strong>Interpreting Cohen's d</strong>
+  Cohen (1988) proposed rough benchmarks: |d| = 0.2 is "small," |d| = 0.5 is "medium," and |d| = 0.8 is "large." These are only guidelines. In some research contexts (e.g., clinical trials, educational interventions), even a small d can be practically important.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>5.9 Power Analysis with the pwr Package</h2>
+
+<p>Statistical power is the probability of detecting a real effect. Before collecting data, a power analysis tells you how many observations you need. The conventional target is 80% power.</p>
+
+<pre class="r"><span class="cm"># install.packages("pwr")</span>
+<span class="fn">library</span>(pwr)
+
+<span class="cm"># Two-sample t-test: how many per group to detect d = 0.5?</span>
+<span class="fn">pwr.t.test</span>(d <span class="op">=</span> <span class="nb">0.5</span>, sig.level <span class="op">=</span> <span class="nb">0.05</span>, power <span class="op">=</span> <span class="nb">0.80</span>,
+           type <span class="op">=</span> <span class="st">"two.sample"</span>)
+<span class="cm"># n = 63.77 per group — round up to 64</span>
+
+<span class="cm"># What power do we have with n = 30 per group?</span>
+<span class="fn">pwr.t.test</span>(n <span class="op">=</span> <span class="nb">30</span>, d <span class="op">=</span> <span class="nb">0.5</span>, sig.level <span class="op">=</span> <span class="nb">0.05</span>,
+           type <span class="op">=</span> <span class="st">"two.sample"</span>)
+<span class="cm"># power = 0.478 — underpowered!</span>
+
+<span class="cm"># Power for ANOVA (k groups)</span>
+<span class="fn">pwr.anova.test</span>(k <span class="op">=</span> <span class="nb">3</span>, f <span class="op">=</span> <span class="nb">0.25</span>, sig.level <span class="op">=</span> <span class="nb">0.05</span>, power <span class="op">=</span> <span class="nb">0.80</span>)
+
+<span class="cm"># Power for correlation test</span>
+<span class="fn">pwr.r.test</span>(r <span class="op">=</span> <span class="nb">0.3</span>, sig.level <span class="op">=</span> <span class="nb">0.05</span>, power <span class="op">=</span> <span class="nb">0.80</span>)</pre>
+
+<div class="concept warn">
+  <strong>Always do power analysis before data collection</strong>
+  Post-hoc power analysis (computing power after seeing results) is widely considered uninformative because it is a direct function of the p-value. Plan your sample size in advance using expected effect sizes from pilot data or prior literature.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>5.10 Non-Parametric Alternatives</h2>
+
+<p>When your data violate normality assumptions (small samples, skewed distributions, ordinal data), non-parametric tests make fewer distributional assumptions.</p>
+
+<pre class="r"><span class="cm"># Wilcoxon rank-sum test (= Mann-Whitney U)</span>
+<span class="cm"># Non-parametric alternative to two-sample t-test</span>
+<span class="fn">wilcox.test</span>(group_a, group_b)
+
+<span class="cm"># Wilcoxon signed-rank test (paired)</span>
+<span class="fn">wilcox.test</span>(before, after, paired <span class="op">=</span> <span class="nb">TRUE</span>)
+
+<span class="cm"># Kruskal-Wallis test (non-parametric ANOVA)</span>
+<span class="fn">kruskal.test</span>(hwy <span class="op">~</span> drv, data <span class="op">=</span> mpg)
+
+<span class="cm"># Post-hoc pairwise comparisons for Kruskal-Wallis</span>
+<span class="fn">pairwise.wilcox.test</span>(mpg<span class="op">$</span>hwy, mpg<span class="op">$</span>drv, p.adjust.method <span class="op">=</span> <span class="st">"BH"</span>)</pre>
+
+<div class="concept info">
+  <strong>When to use non-parametric tests</strong>
+  Use non-parametric tests when: (1) the sample size is very small (n &lt; 15 per group), (2) the Shapiro-Wilk test rejects normality, (3) the data are ordinal (Likert scales), or (4) there are heavy outliers you cannot remove. The tradeoff: non-parametric tests have slightly less power than their parametric counterparts when assumptions are met.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>5.11 Multiple Comparison Corrections</h2>
+
+<p>When you perform many tests simultaneously, the chance of at least one false positive inflates rapidly. If you run 20 tests at alpha = 0.05, you expect one false positive on average even if all null hypotheses are true.</p>
+
+<pre class="r"><span class="cm"># Suppose we have p-values from multiple tests</span>
+p_vals <span class="op">&lt;-</span> <span class="fn">c</span>(<span class="nb">0.003</span>, <span class="nb">0.012</span>, <span class="nb">0.048</span>, <span class="nb">0.07</span>, <span class="nb">0.15</span>, <span class="nb">0.42</span>)
+
+<span class="cm"># Bonferroni correction (conservative — controls FWER)</span>
+<span class="fn">p.adjust</span>(p_vals, method <span class="op">=</span> <span class="st">"bonferroni"</span>)
+<span class="cm"># 0.018  0.072  0.288  0.420  0.900  1.000</span>
+
+<span class="cm"># Benjamini-Hochberg (FDR — less conservative, more powerful)</span>
+<span class="fn">p.adjust</span>(p_vals, method <span class="op">=</span> <span class="st">"BH"</span>)
+<span class="cm"># 0.018  0.036  0.096  0.105  0.180  0.420</span>
+
+<span class="cm"># Holm method (step-down Bonferroni — better than plain Bonferroni)</span>
+<span class="fn">p.adjust</span>(p_vals, method <span class="op">=</span> <span class="st">"holm"</span>)</pre>
+
+<div class="table-wrapper">
+<table>
+  <thead><tr><th>Method</th><th>Controls</th><th>Conservatism</th><th>When to Use</th></tr></thead>
+  <tbody>
+    <tr><td>Bonferroni</td><td>Family-wise error rate</td><td>Very conservative</td><td>Small number of pre-planned comparisons</td></tr>
+    <tr><td>Holm</td><td>Family-wise error rate</td><td>Less conservative</td><td>General-purpose, uniformly better than Bonferroni</td></tr>
+    <tr><td>Benjamini-Hochberg</td><td>False discovery rate</td><td>Moderate</td><td>Exploratory analysis, genomics, many tests</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>5.12 Bootstrap Confidence Intervals</h2>
+
+<p>Bootstrapping constructs confidence intervals by resampling from your data. This is useful when the sampling distribution is unknown or when your statistic is not a simple mean.</p>
+
+<pre class="r"><span class="cm"># install.packages("boot")</span>
+<span class="fn">library</span>(boot)
+
+<span class="cm"># Define the statistic function: must take data and index arguments</span>
+boot_mean <span class="op">&lt;-</span> <span class="kw">function</span>(data, indices) {
+  <span class="fn">mean</span>(data[indices])
+}
+
+<span class="cm"># Run 10,000 bootstrap replications</span>
+<span class="fn">set.seed</span>(<span class="nb">42</span>)
+boot_result <span class="op">&lt;-</span> <span class="fn">boot</span>(group_a, boot_mean, R <span class="op">=</span> <span class="nb">10000</span>)
+boot_result
+
+<span class="cm"># Get confidence intervals (multiple methods)</span>
+<span class="fn">boot.ci</span>(boot_result, type <span class="op">=</span> <span class="fn">c</span>(<span class="st">"norm"</span>, <span class="st">"perc"</span>, <span class="st">"bca"</span>))
+
+<span class="cm"># Bootstrap a median (no formula for its SE)</span>
+boot_median <span class="op">&lt;-</span> <span class="kw">function</span>(data, indices) <span class="fn">median</span>(data[indices])
+med_result <span class="op">&lt;-</span> <span class="fn">boot</span>(group_a, boot_median, R <span class="op">=</span> <span class="nb">10000</span>)
+<span class="fn">boot.ci</span>(med_result, type <span class="op">=</span> <span class="st">"perc"</span>)
+
+<span class="cm"># Visualize the bootstrap distribution</span>
+<span class="fn">hist</span>(boot_result<span class="op">$</span>t, breaks <span class="op">=</span> <span class="nb">50</span>, col <span class="op">=</span> <span class="st">"#276DC3"</span>,
+     main <span class="op">=</span> <span class="st">"Bootstrap Distribution of the Mean"</span>,
+     xlab <span class="op">=</span> <span class="st">"Sample Mean"</span>)</pre>
+
+<div class="concept tip">
+  <strong>Tip: Why use bootstrap?</strong>
+  Bootstrap CIs are especially useful for: medians, trimmed means, ratios, correlation coefficients, regression coefficients in small samples, or any statistic where the theoretical sampling distribution is hard to derive. With 10,000 replications, the BCa (bias-corrected accelerated) interval is generally the most accurate.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>5.13 Reporting Results in APA Format</h2>
+
+<p>Academic papers in psychology, education, and many social sciences follow APA (American Psychological Association) reporting guidelines. Even if your field uses a different style, these principles promote clear communication of statistical results.</p>
+
+<pre class="r"><span class="cm"># Example: reporting a two-sample t-test</span>
+result <span class="op">&lt;-</span> <span class="fn">t.test</span>(group_a, group_b)
+
+<span class="cm"># APA format: t(df) = value, p = value, d = value</span>
+<span class="fn">cat</span>(<span class="fn">sprintf</span>(
+  <span class="st">"t(%0.1f) = %0.2f, p = %0.3f"</span>,
+  result<span class="op">$</span>parameter,
+  result<span class="op">$</span>statistic,
+  result<span class="op">$</span>p.value
+))
+<span class="cm"># Example output: t(57.4) = -2.15, p = 0.036</span>
+
+<span class="cm"># For very small p-values, report as p &lt; .001</span>
+format_p <span class="op">&lt;-</span> <span class="kw">function</span>(p) {
+  <span class="kw">if</span> (p <span class="op">&lt;</span> <span class="nb">0.001</span>) <span class="kw">return</span>(<span class="st">"p &lt; .001"</span>)
+  <span class="fn">sprintf</span>(<span class="st">"p = %0.3f"</span>, p)
+}
+
+<span class="cm"># The report package automates APA formatting</span>
+<span class="cm"># install.packages("report")</span>
+<span class="fn">library</span>(report)
+<span class="fn">report</span>(<span class="fn">t.test</span>(group_a, group_b))</pre>
+
+<div class="concept info">
+  <strong>APA reporting checklist</strong>
+  When reporting statistical results, always include: (1) the test statistic with degrees of freedom, (2) the exact p-value (unless p &lt; .001), (3) an effect size measure (Cohen's d, eta-squared, etc.), (4) a confidence interval, and (5) sample sizes. Round test statistics to 2 decimal places and p-values to 3.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>5.14 Quick Reference Table</h2>
 
 <div class="table-wrapper">
 <table>
@@ -161,6 +336,12 @@ t_crit <span class="op">&lt;-</span> <span class="fn">qt</span>(<span class="nb"
     <tr><td>Correlation</td><td><code>cor.test(x, y)</code></td><td><code>method</code></td></tr>
     <tr><td>Proportion</td><td><code>prop.test(x, n)</code></td><td><code>p</code></td></tr>
     <tr><td>Normality</td><td><code>shapiro.test(x)</code></td><td></td></tr>
+    <tr><td>Non-parametric 2-sample</td><td><code>wilcox.test(x, y)</code></td><td>Mann-Whitney U</td></tr>
+    <tr><td>Non-parametric 3+ groups</td><td><code>kruskal.test(y ~ g)</code></td><td></td></tr>
+    <tr><td>Effect size</td><td><code>effectsize::cohens_d(x, y)</code></td><td></td></tr>
+    <tr><td>Power analysis</td><td><code>pwr::pwr.t.test()</code></td><td><code>d, power, n</code></td></tr>
+    <tr><td>Bootstrap CI</td><td><code>boot::boot()</code></td><td><code>R</code> (replications)</td></tr>
+    <tr><td>p-value correction</td><td><code>p.adjust(p, method)</code></td><td><code>"BH"</code>, <code>"bonferroni"</code></td></tr>
   </tbody>
 </table>
 </div>
@@ -176,6 +357,16 @@ t_crit <span class="op">&lt;-</span> <span class="fn">qt</span>(<span class="nb"
 <div class="exercise">
   <h4>Exercise 5.2</h4>
   <p>Run a one-way ANOVA to test whether <code>mpg</code> differs by number of cylinders (<code>cyl</code>) in <code>mtcars</code>. If significant, perform Tukey's HSD. Which pairs of cylinder counts differ?</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 5.3</h4>
+  <p>You are designing an experiment to test whether a new training program improves exam scores. Based on a pilot study, you expect a medium effect size (d = 0.5). Using the <code>pwr</code> package, determine how many participants you need per group to achieve 80% power at alpha = 0.05. What happens to the required sample size if you want 90% power instead?</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 5.4</h4>
+  <p>Using the <code>mtcars</code> dataset: (a) Perform a Kruskal-Wallis test on <code>mpg</code> by <code>cyl</code> (the non-parametric alternative to the ANOVA in Exercise 5.2). (b) If significant, run pairwise Wilcoxon tests with Benjamini-Hochberg correction. (c) Compute Cohen's d for the 4-cyl vs. 8-cyl comparison. (d) Use the <code>boot</code> package to construct a 95% bootstrap percentile CI for the median mpg of 4-cylinder cars. Report all results in APA format.</p>
 </div>
 
 <!-- ────────────────────────────── -->

@@ -75,7 +75,39 @@ rates_df = pd.<span class="fn">DataFrame</span>(
 )
 <span class="fn">print</span>(rates_df.<span class="fn">head</span>(<span class="nb">10</span>))</pre>
 
-<h2>9.4 API Parameters and Headers</h2>
+<h2>9.4 Authentication: API Keys and OAuth</h2>
+<p>Most real-world APIs require authentication to track usage, enforce rate limits, and protect data. The two most common approaches are API keys (simple) and OAuth tokens (more secure).</p>
+
+<pre class="python"><span class="kw">import</span> os
+
+<span class="cm"># Method 1: API Key in query parameters</span>
+<span class="cm"># Many free APIs use this approach (e.g., OpenWeatherMap, Alpha Vantage)</span>
+api_key = os.environ.<span class="fn">get</span>(<span class="st">"WEATHER_API_KEY"</span>, <span class="st">"your_key_here"</span>)
+url = <span class="st">"https://api.openweathermap.org/data/2.5/weather"</span>
+params = {
+    <span class="st">"q"</span>: <span class="st">"New York"</span>,
+    <span class="st">"appid"</span>: api_key,
+    <span class="st">"units"</span>: <span class="st">"imperial"</span>
+}
+<span class="cm"># response = requests.get(url, params=params)</span>
+
+<span class="cm"># Method 2: API Key in headers (more secure, keeps key out of URLs)</span>
+headers = {
+    <span class="st">"Authorization"</span>: <span class="st">"Bearer YOUR_API_KEY"</span>,
+    <span class="st">"Content-Type"</span>:  <span class="st">"application/json"</span>
+}
+<span class="cm"># response = requests.get(url, headers=headers)</span>
+
+<span class="cm"># Method 3: OAuth 2.0 (used by Google, Twitter, GitHub, etc.)</span>
+<span class="cm"># OAuth involves getting a temporary access token, which is then sent in headers.</span>
+<span class="cm"># Libraries like 'requests-oauthlib' simplify this process.</span>
+<span class="cm"># pip install requests-oauthlib</span></pre>
+
+<div class="concept warn">
+    <strong>Never hard-code API keys in your source code.</strong> Use environment variables (<code>os.environ["KEY"]</code>) or a <code>.env</code> file with the <code>python-dotenv</code> package. If you commit an API key to GitHub, it can be stolen by automated bots within minutes. Add <code>.env</code> to your <code>.gitignore</code> file.
+</div>
+
+<h2>9.5 API Parameters and Query Strings</h2>
 
 <pre class="python"><span class="cm"># Many APIs accept query parameters</span>
 url = <span class="st">"https://jsonplaceholder.typicode.com/posts"</span>
@@ -85,20 +117,46 @@ response = requests.<span class="fn">get</span>(url, params=params)
 posts = response.<span class="fn">json</span>()
 <span class="fn">print</span>(<span class="st">f"Found </span>{<span class="fn">len</span>(posts)}<span class="st"> posts by user 1"</span>)
 <span class="kw">for</span> post <span class="kw">in</span> posts[:<span class="nb">3</span>]:
-    <span class="fn">print</span>(<span class="st">f"  - </span>{post[<span class="st">'title'</span>]}<span class="st">"</span>)
+    <span class="fn">print</span>(<span class="st">f"  - </span>{post[<span class="st">'title'</span>]}<span class="st">"</span>)</pre>
 
-<span class="cm"># APIs that require authentication use headers</span>
-headers = {
-    <span class="st">"Authorization"</span>: <span class="st">"Bearer YOUR_API_KEY"</span>,
-    <span class="st">"Content-Type"</span>:  <span class="st">"application/json"</span>
-}
-<span class="cm"># response = requests.get(url, headers=headers)</span></pre>
+<h2>9.6 Pagination and Rate Limiting</h2>
+<p>Many APIs return data in pages (e.g., 100 records at a time). You need to loop through pages to get the full dataset. Similarly, rate limiting means you must add delays between requests to avoid being blocked.</p>
 
-<div class="concept warn">
-    <strong>Rate limits:</strong> Most APIs limit how many requests you can make per minute or per day. Always check the API documentation and add a delay between requests using <code>time.sleep()</code> when making many calls.
+<pre class="python"><span class="kw">import</span> time
+
+<span class="kw">def</span> <span class="fn">fetch_all_pages</span>(base_url, params=<span class="nb">None</span>, max_pages=<span class="nb">10</span>):
+    <span class="st">"""Fetch paginated API data with rate limiting."""</span>
+    all_data = []
+    params = params <span class="kw">or</span> {}
+
+    <span class="kw">for</span> page <span class="kw">in</span> <span class="fn">range</span>(<span class="nb">1</span>, max_pages + <span class="nb">1</span>):
+        params[<span class="st">"_page"</span>] = page
+        params[<span class="st">"_limit"</span>] = <span class="nb">10</span>   <span class="cm"># records per page</span>
+
+        response = requests.<span class="fn">get</span>(base_url, params=params, timeout=<span class="nb">10</span>)
+        response.<span class="fn">raise_for_status</span>()
+
+        data = response.<span class="fn">json</span>()
+        <span class="kw">if</span> <span class="kw">not</span> data:   <span class="cm"># empty page = we've reached the end</span>
+            <span class="kw">break</span>
+
+        all_data.<span class="fn">extend</span>(data)
+        <span class="fn">print</span>(<span class="st">f"  Page </span>{page}<span class="st">: fetched </span>{<span class="fn">len</span>(data)}<span class="st"> records"</span>)
+
+        <span class="cm"># Respect rate limits: wait between requests</span>
+        time.<span class="fn">sleep</span>(<span class="nb">0.5</span>)  <span class="cm"># 500ms delay</span>
+
+    <span class="kw">return</span> all_data
+
+<span class="cm"># Example: fetch all posts from JSONPlaceholder</span>
+all_posts = <span class="fn">fetch_all_pages</span>(<span class="st">"https://jsonplaceholder.typicode.com/posts"</span>)
+<span class="fn">print</span>(<span class="st">f"Total records: </span>{<span class="fn">len</span>(all_posts)}<span class="st">"</span>)</pre>
+
+<div class="concept tip">
+    <strong>Rate limiting strategies:</strong> Start with a conservative delay (1 second) and decrease it until you start getting 429 (Too Many Requests) responses. Some APIs include rate limit info in the response headers (e.g., <code>X-RateLimit-Remaining</code>). Read these headers to dynamically adjust your request speed. For bulk data collection, consider running your script overnight with generous delays.
 </div>
 
-<h2>9.5 POST Requests</h2>
+<h2>9.7 POST Requests</h2>
 
 <pre class="python"><span class="kw">import</span> json
 
@@ -114,7 +172,61 @@ response = requests.<span class="fn">post</span>(url, json=new_post)
 <span class="fn">print</span>(<span class="st">f"Status: </span>{response.status_code}<span class="st">"</span>)  <span class="cm"># 201 = created</span>
 <span class="fn">print</span>(response.<span class="fn">json</span>())</pre>
 
-<h2>9.6 Reading HTML Tables with pandas</h2>
+<h2>9.8 Saving API Data to CSV</h2>
+<p>Once you have fetched data from an API, you almost always want to save it locally so you do not need to re-fetch it every time you run your analysis. Saving to CSV or JSON provides a persistent, portable copy of the data.</p>
+
+<pre class="python"><span class="kw">import</span> json
+
+<span class="cm"># Fetch and save as CSV</span>
+url = <span class="st">"https://jsonplaceholder.typicode.com/users"</span>
+response = requests.<span class="fn">get</span>(url)
+users = response.<span class="fn">json</span>()
+
+<span class="cm"># Nested JSON needs flattening before CSV</span>
+users_df = pd.<span class="fn">json_normalize</span>(users)  <span class="cm"># flattens nested dicts</span>
+<span class="fn">print</span>(users_df.columns.<span class="fn">tolist</span>())  <span class="cm"># shows flattened column names</span>
+
+<span class="cm"># Save to CSV</span>
+users_df.<span class="fn">to_csv</span>(<span class="st">"api_users.csv"</span>, index=<span class="nb">False</span>)
+<span class="fn">print</span>(<span class="st">f"Saved </span>{<span class="fn">len</span>(users_df)}<span class="st"> users to api_users.csv"</span>)
+
+<span class="cm"># Save raw JSON (preserves nested structure)</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"api_users.json"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dump</span>(users, f, indent=<span class="nb">2</span>)
+
+<span class="cm"># Later: reload from file instead of re-fetching</span>
+cached_df = pd.<span class="fn">read_csv</span>(<span class="st">"api_users.csv"</span>)
+<span class="fn">print</span>(<span class="st">f"Loaded </span>{<span class="fn">len</span>(cached_df)}<span class="st"> rows from cache"</span>)</pre>
+
+<h2>9.9 Real-World API Example: FRED Economic Data</h2>
+<p>The Federal Reserve Economic Data (FRED) API provides access to hundreds of thousands of economic time series. Here is how to fetch GDP data programmatically.</p>
+
+<pre class="python"><span class="cm"># You need a free API key from https://fred.stlouisfed.org/docs/api/api_key.html</span>
+FRED_API_KEY = os.environ.<span class="fn">get</span>(<span class="st">"FRED_API_KEY"</span>, <span class="st">"your_key_here"</span>)
+
+<span class="kw">def</span> <span class="fn">get_fred_series</span>(series_id, api_key):
+    <span class="st">"""Fetch a time series from the FRED API."""</span>
+    url = <span class="st">"https://api.stlouisfed.org/fred/series/observations"</span>
+    params = {
+        <span class="st">"series_id"</span>:       series_id,
+        <span class="st">"api_key"</span>:         api_key,
+        <span class="st">"file_type"</span>:       <span class="st">"json"</span>,
+        <span class="st">"observation_start"</span>: <span class="st">"2015-01-01"</span>
+    }
+    response = requests.<span class="fn">get</span>(url, params=params, timeout=<span class="nb">10</span>)
+    response.<span class="fn">raise_for_status</span>()
+
+    data = response.<span class="fn">json</span>()[<span class="st">"observations"</span>]
+    df = pd.<span class="fn">DataFrame</span>(data)
+    df[<span class="st">"date"</span>]  = pd.<span class="fn">to_datetime</span>(df[<span class="st">"date"</span>])
+    df[<span class="st">"value"</span>] = pd.<span class="fn">to_numeric</span>(df[<span class="st">"value"</span>], errors=<span class="st">"coerce"</span>)
+    <span class="kw">return</span> df[[<span class="st">"date"</span>, <span class="st">"value"</span>]].<span class="fn">dropna</span>()
+
+<span class="cm"># Fetch US GDP (quarterly, billions of dollars)</span>
+<span class="cm"># gdp = get_fred_series("GDP", FRED_API_KEY)</span>
+<span class="cm"># gdp.plot(x="date", y="value", title="US GDP")</span></pre>
+
+<h2>9.10 Reading HTML Tables with pandas</h2>
 
 <pre class="python"><span class="cm"># pandas can scrape HTML tables directly</span>
 url = <span class="st">"https://en.wikipedia.org/wiki/List_of_largest_companies_by_revenue"</span>
@@ -124,7 +236,7 @@ tables = pd.<span class="fn">read_html</span>(url)
 df = tables[<span class="nb">0</span>]  <span class="cm"># First table</span>
 <span class="fn">print</span>(df.<span class="fn">head</span>())</pre>
 
-<h2>9.7 Web Scraping with BeautifulSoup</h2>
+<h2>9.11 Web Scraping with BeautifulSoup</h2>
 <p>When data is embedded in HTML (not in a table or API), BeautifulSoup lets you parse and extract it.</p>
 
 <pre class="python"><span class="kw">from</span> bs4 <span class="kw">import</span> BeautifulSoup
@@ -141,25 +253,75 @@ authors = soup.<span class="fn">find_all</span>(<span class="st">"small"</span>,
 <span class="kw">for</span> q, a <span class="kw">in</span> <span class="fn">zip</span>(quotes[:<span class="nb">5</span>], authors[:<span class="nb">5</span>]):
     <span class="fn">print</span>(<span class="st">f"</span>{a.<span class="fn">get_text</span>()}<span class="st">: </span>{q.<span class="fn">get_text</span>()[:<span class="nb">60</span>]}<span class="st">..."</span>)</pre>
 
-<h2>9.8 Error Handling</h2>
+<h2>9.12 Robust Error Handling and Retries</h2>
+<p>Network requests can fail for many reasons: timeouts, server errors, rate limits, dropped connections. Production-grade code needs to handle these gracefully, with retries for transient failures and clear error messages for permanent ones.</p>
 
-<pre class="python"><span class="kw">def</span> <span class="fn">safe_api_call</span>(url, params=<span class="nb">None</span>):
-    <span class="st">"""Make an API call with error handling."""</span>
-    <span class="kw">try</span>:
-        response = requests.<span class="fn">get</span>(url, params=params, timeout=<span class="nb">10</span>)
-        response.<span class="fn">raise_for_status</span>()  <span class="cm"># Raises exception for 4xx/5xx</span>
-        <span class="kw">return</span> response.<span class="fn">json</span>()
-    <span class="kw">except</span> requests.exceptions.Timeout:
-        <span class="fn">print</span>(<span class="st">"Request timed out."</span>)
-    <span class="kw">except</span> requests.exceptions.HTTPError <span class="kw">as</span> e:
-        <span class="fn">print</span>(<span class="st">f"HTTP error: </span>{e}<span class="st">"</span>)
-    <span class="kw">except</span> requests.exceptions.RequestException <span class="kw">as</span> e:
-        <span class="fn">print</span>(<span class="st">f"Request failed: </span>{e}<span class="st">"</span>)
+<pre class="python"><span class="kw">def</span> <span class="fn">safe_api_call</span>(url, params=<span class="nb">None</span>, max_retries=<span class="nb">3</span>):
+    <span class="st">"""Make an API call with error handling and retries."""</span>
+    <span class="kw">for</span> attempt <span class="kw">in</span> <span class="fn">range</span>(<span class="nb">1</span>, max_retries + <span class="nb">1</span>):
+        <span class="kw">try</span>:
+            response = requests.<span class="fn">get</span>(url, params=params, timeout=<span class="nb">10</span>)
+            response.<span class="fn">raise_for_status</span>()  <span class="cm"># Raises exception for 4xx/5xx</span>
+            <span class="kw">return</span> response.<span class="fn">json</span>()
+
+        <span class="kw">except</span> requests.exceptions.Timeout:
+            <span class="fn">print</span>(<span class="st">f"  Attempt </span>{attempt}<span class="st">: timed out, retrying..."</span>)
+        <span class="kw">except</span> requests.exceptions.HTTPError <span class="kw">as</span> e:
+            <span class="kw">if</span> response.status_code == <span class="nb">429</span>:  <span class="cm"># rate limited</span>
+                wait = <span class="nb">2</span> ** attempt  <span class="cm"># exponential backoff: 2s, 4s, 8s</span>
+                <span class="fn">print</span>(<span class="st">f"  Rate limited. Waiting </span>{wait}<span class="st">s..."</span>)
+                time.<span class="fn">sleep</span>(wait)
+            <span class="kw">elif</span> response.status_code >= <span class="nb">500</span>:  <span class="cm"># server error, retry</span>
+                <span class="fn">print</span>(<span class="st">f"  Server error </span>{response.status_code}<span class="st">, retrying..."</span>)
+            <span class="kw">else</span>:  <span class="cm"># 4xx client error, don't retry</span>
+                <span class="fn">print</span>(<span class="st">f"  Client error: </span>{e}<span class="st">"</span>)
+                <span class="kw">return</span> <span class="nb">None</span>
+        <span class="kw">except</span> requests.exceptions.ConnectionError:
+            <span class="fn">print</span>(<span class="st">f"  Connection failed, retrying..."</span>)
+        <span class="kw">except</span> requests.exceptions.RequestException <span class="kw">as</span> e:
+            <span class="fn">print</span>(<span class="st">f"  Request failed: </span>{e}<span class="st">"</span>)
+            <span class="kw">return</span> <span class="nb">None</span>
+
+        time.<span class="fn">sleep</span>(<span class="nb">1</span>)  <span class="cm"># wait before retry</span>
+
+    <span class="fn">print</span>(<span class="st">"  All retries exhausted."</span>)
     <span class="kw">return</span> <span class="nb">None</span>
 
 data = <span class="fn">safe_api_call</span>(<span class="st">"https://api.exchangerate-api.com/v4/latest/USD"</span>)
 <span class="kw">if</span> data:
     <span class="fn">print</span>(<span class="st">f"Success: </span>{<span class="fn">len</span>(data[<span class="st">'rates'</span>])}<span class="st"> currencies"</span>)</pre>
+
+<div class="concept info">
+    <strong>Exponential backoff:</strong> When a server returns 429 (Too Many Requests), waiting a fixed time and retrying often fails again. Instead, use exponential backoff: wait 2 seconds, then 4, then 8. This gives the server time to recover and prevents you from hammering an overloaded API. The formula is <code>wait = base ** attempt</code> where base is typically 2.
+</div>
+
+<h2>9.13 Web Scraping Ethics and robots.txt</h2>
+<p>Before scraping any website, you should check its <code>robots.txt</code> file, which specifies which paths are allowed or disallowed for automated access. Respecting robots.txt is both an ethical obligation and often a legal requirement.</p>
+
+<pre class="python"><span class="cm"># Check robots.txt before scraping</span>
+<span class="kw">from</span> urllib.robotparser <span class="kw">import</span> RobotFileParser
+
+rp = <span class="fn">RobotFileParser</span>()
+rp.<span class="fn">set_url</span>(<span class="st">"https://quotes.toscrape.com/robots.txt"</span>)
+rp.<span class="fn">read</span>()
+
+<span class="cm"># Check if a specific path is allowed</span>
+test_url = <span class="st">"https://quotes.toscrape.com/page/1/"</span>
+allowed = rp.<span class="fn">can_fetch</span>(<span class="st">"*"</span>, test_url)
+<span class="fn">print</span>(<span class="st">f"Allowed to scrape </span>{test_url}<span class="st">: </span>{allowed}<span class="st">"</span>)
+
+<span class="cm"># Best practices for ethical scraping:</span>
+<span class="cm"># 1. Always check robots.txt first</span>
+<span class="cm"># 2. Add delays between requests (1-3 seconds minimum)</span>
+<span class="cm"># 3. Identify yourself with a User-Agent header</span>
+<span class="cm"># 4. Don't scrape behind login pages without permission</span>
+<span class="cm"># 5. Cache results locally to avoid repeated requests</span>
+<span class="cm"># 6. Prefer APIs over scraping when available</span>
+
+headers = {
+    <span class="st">"User-Agent"</span>: <span class="st">"MyResearchBot/1.0 (contact: your@email.com)"</span>
+}
+<span class="cm"># response = requests.get(url, headers=headers)</span></pre>
 
 <div class="exercise">
     <h4>Exercise 9.1</h4>
@@ -169,6 +331,16 @@ data = <span class="fn">safe_api_call</span>(<span class="st">"https://api.excha
 <div class="exercise">
     <h4>Exercise 9.2</h4>
     <p>Use <code>pd.read_html()</code> to scrape a table from a Wikipedia page of your choice. Clean the column names (strip whitespace, lowercase), drop any rows with all NaN values, and export the result to a CSV file.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 9.3</h4>
+    <p>Write a function that fetches data from a paginated API (use JSONPlaceholder's <code>/comments</code> endpoint with <code>_page</code> and <code>_limit</code> parameters). Implement pagination to collect all comments, save the result to a CSV file, and print summary statistics (total comments, average comment length). Add a 0.5-second delay between requests.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 9.4</h4>
+    <p>Build a robust API client: write a function that takes a URL, makes a GET request with retry logic (up to 3 attempts with exponential backoff), and handles timeouts, rate limits (429), and server errors (500+) gracefully. Test it by calling a valid API endpoint and then an intentionally invalid URL. Log each attempt's status.</p>
 </div>
 
 <div class="ext-resources">
@@ -184,9 +356,12 @@ data = <span class="fn">safe_api_call</span>(<span class="st">"https://api.excha
     <h3>Chapter 9 Takeaways</h3>
     <ul>
         <li>The requests library handles HTTP communication; <code>.json()</code> converts API responses to Python dictionaries.</li>
-        <li>Always check status codes (200 = success) and handle errors gracefully with try/except.</li>
-        <li><code>pd.read_html()</code> is the fastest way to grab tables from web pages without writing scraping code.</li>
-        <li>BeautifulSoup provides fine-grained HTML parsing when data is not in a clean table format.</li>
+        <li>Never hard-code API keys; use environment variables or <code>.env</code> files for credentials.</li>
+        <li>Implement pagination loops and rate limiting (with <code>time.sleep()</code>) for production data collection.</li>
+        <li>Use exponential backoff for retries: wait longer after each failure to avoid overwhelming the server.</li>
+        <li>Save API data to CSV/JSON locally so you do not need to re-fetch it every time you run your analysis.</li>
+        <li>Check <code>robots.txt</code> and respect rate limits before scraping any website.</li>
+        <li><code>pd.read_html()</code> is the fastest way to grab tables from web pages; BeautifulSoup handles unstructured HTML.</li>
     </ul>
 </div>
 

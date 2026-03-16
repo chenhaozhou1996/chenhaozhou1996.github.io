@@ -125,7 +125,153 @@ mpg <span class="op">|&gt;</span>
   <span class="fn">arrange</span>(<span class="fn">desc</span>(avg_hwy))</pre>
 
 <!-- ────────────────────────────── -->
-<h2>3.4 Joining Data Frames</h2>
+<h2>3.4 across() for Column-wise Operations</h2>
+
+<p>When you need to apply the same transformation to multiple columns, <code>across()</code> eliminates repetitive code. It works inside <code>mutate()</code> and <code>summarize()</code>.</p>
+
+<pre class="r"><span class="cm"># Compute the mean of all numeric columns by group</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">group_by</span>(drv) <span class="op">|&gt;</span>
+  <span class="fn">summarize</span>(<span class="fn">across</span>(<span class="fn">where</span>(is.numeric), mean, .names <span class="op">=</span> <span class="st">"avg_{.col}"</span>))
+
+<span class="cm"># Round specific columns to 1 decimal place</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(<span class="fn">across</span>(<span class="fn">c</span>(cty, hwy), \(x) <span class="fn">round</span>(x <span class="op">*</span> <span class="nb">0.4251</span>, <span class="nb">1</span>),
+         .names <span class="op">=</span> <span class="st">"{.col}_kpl"</span>))
+
+<span class="cm"># Apply multiple functions at once</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">summarize</span>(<span class="fn">across</span>(<span class="fn">c</span>(cty, hwy),
+            <span class="fn">list</span>(mean <span class="op">=</span> mean, sd <span class="op">=</span> sd),
+            .names <span class="op">=</span> <span class="st">"{.col}_{.fn}"</span>))</pre>
+
+<div class="concept tip">
+  <strong>Tip: Selecting columns in across()</strong>
+  You can use all the same helpers as <code>select()</code>: <code>starts_with()</code>, <code>ends_with()</code>, <code>contains()</code>, <code>where(is.numeric)</code>, or simply a vector of column names.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>3.5 case_when() for Complex Conditionals</h2>
+
+<p><code>case_when()</code> is the tidyverse equivalent of a multi-branch if/else. It is far more readable than nested <code>ifelse()</code> calls.</p>
+
+<pre class="r"><span class="cm"># Categorize highway mpg into efficiency tiers</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(
+    efficiency <span class="op">=</span> <span class="fn">case_when</span>(
+      hwy <span class="op">&gt;=</span> <span class="nb">35</span> <span class="op">~</span> <span class="st">"excellent"</span>,
+      hwy <span class="op">&gt;=</span> <span class="nb">25</span> <span class="op">~</span> <span class="st">"good"</span>,
+      hwy <span class="op">&gt;=</span> <span class="nb">18</span> <span class="op">~</span> <span class="st">"average"</span>,
+      .default   <span class="op">=</span> <span class="st">"poor"</span>
+    )
+  ) <span class="op">|&gt;</span>
+  <span class="fn">count</span>(efficiency)
+
+<span class="cm"># Create academic letter grades from numeric scores</span>
+students <span class="op">&lt;-</span> <span class="fn">tibble</span>(name <span class="op">=</span> <span class="fn">c</span>(<span class="st">"Ana"</span>,<span class="st">"Ben"</span>,<span class="st">"Cal"</span>), score <span class="op">=</span> <span class="fn">c</span>(<span class="nb">92</span>,<span class="nb">78</span>,<span class="nb">65</span>))
+students <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(grade <span class="op">=</span> <span class="fn">case_when</span>(
+    score <span class="op">&gt;=</span> <span class="nb">90</span> <span class="op">~</span> <span class="st">"A"</span>,
+    score <span class="op">&gt;=</span> <span class="nb">80</span> <span class="op">~</span> <span class="st">"B"</span>,
+    score <span class="op">&gt;=</span> <span class="nb">70</span> <span class="op">~</span> <span class="st">"C"</span>,
+    score <span class="op">&gt;=</span> <span class="nb">60</span> <span class="op">~</span> <span class="st">"D"</span>,
+    .default   <span class="op">=</span> <span class="st">"F"</span>
+  ))</pre>
+
+<!-- ────────────────────────────── -->
+<h2>3.6 Counting and Slicing</h2>
+
+<p>Several dplyr helpers make quick counting and row selection painless.</p>
+
+<pre class="r"><span class="cm"># n() counts rows in the current group</span>
+<span class="cm"># n_distinct() counts unique values</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">group_by</span>(manufacturer) <span class="op">|&gt;</span>
+  <span class="fn">summarize</span>(
+    total_models <span class="op">=</span> <span class="fn">n</span>(),
+    unique_models <span class="op">=</span> <span class="fn">n_distinct</span>(model)
+  )
+
+<span class="cm"># slice_max() / slice_min() — top/bottom rows by a variable</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">slice_max</span>(hwy, n <span class="op">=</span> <span class="nb">5</span>)        <span class="cm"># top 5 by highway mpg</span>
+
+mpg <span class="op">|&gt;</span>
+  <span class="fn">group_by</span>(class) <span class="op">|&gt;</span>
+  <span class="fn">slice_min</span>(cty, n <span class="op">=</span> <span class="nb">1</span>)        <span class="cm"># worst city mpg per class</span>
+
+<span class="cm"># count() is a shortcut for group_by + summarize(n = n())</span>
+mpg <span class="op">|&gt;</span> <span class="fn">count</span>(class, sort <span class="op">=</span> <span class="nb">TRUE</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>3.7 relocate() and rowwise()</h2>
+
+<pre class="r"><span class="cm"># relocate() — move columns to a new position</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">relocate</span>(hwy, cty, .before <span class="op">=</span> manufacturer)
+
+mpg <span class="op">|&gt;</span>
+  <span class="fn">relocate</span>(<span class="fn">where</span>(is.character), .after <span class="op">=</span> <span class="fn">last_col</span>())
+
+<span class="cm"># rowwise() — operate across columns within each row</span>
+scores <span class="op">&lt;-</span> <span class="fn">tibble</span>(
+  student <span class="op">=</span> <span class="fn">c</span>(<span class="st">"Ana"</span>, <span class="st">"Ben"</span>, <span class="st">"Cal"</span>),
+  exam1 <span class="op">=</span> <span class="fn">c</span>(<span class="nb">88</span>, <span class="nb">75</span>, <span class="nb">92</span>),
+  exam2 <span class="op">=</span> <span class="fn">c</span>(<span class="nb">91</span>, <span class="nb">80</span>, <span class="nb">85</span>),
+  exam3 <span class="op">=</span> <span class="fn">c</span>(<span class="nb">78</span>, <span class="nb">88</span>, <span class="nb">90</span>)
+)
+scores <span class="op">|&gt;</span>
+  <span class="fn">rowwise</span>() <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(avg <span class="op">=</span> <span class="fn">mean</span>(<span class="fn">c</span>(exam1, exam2, exam3))) <span class="op">|&gt;</span>
+  <span class="fn">ungroup</span>()</pre>
+
+<div class="concept info">
+  <strong>rowwise() vs. across()</strong>
+  Use <code>across()</code> when you want to apply the same function to each column independently (column-wise). Use <code>rowwise()</code> when you need to combine values across columns within a single row (row-wise). Always call <code>ungroup()</code> after <code>rowwise()</code> to return to normal behavior.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>3.8 nest() / unnest() and Reading Multiple Files</h2>
+
+<p>Nested data frames store entire tibbles inside cells. Combined with <code>purrr::map()</code>, this pattern is powerful for batch operations.</p>
+
+<pre class="r"><span class="fn">library</span>(tidyr)
+<span class="fn">library</span>(purrr)
+
+<span class="cm"># Nest: create a list-column of data frames</span>
+nested <span class="op">&lt;-</span> mpg <span class="op">|&gt;</span>
+  <span class="fn">group_by</span>(drv) <span class="op">|&gt;</span>
+  <span class="fn">nest</span>()
+nested    <span class="cm"># 3 rows (f, 4, r), each with a 'data' list-column</span>
+
+<span class="cm"># Apply a model to each nested group</span>
+nested <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(model <span class="op">=</span> <span class="fn">map</span>(data, \(df) <span class="fn">lm</span>(hwy <span class="op">~</span> displ, data <span class="op">=</span> df)))
+
+<span class="cm"># Unnest: flatten back to a regular tibble</span>
+nested <span class="op">|&gt;</span> <span class="fn">unnest</span>(data)</pre>
+
+<pre class="r"><span class="cm"># Read multiple CSV files at once using purrr::map</span>
+<span class="cm"># Suppose you have: data/sales_2020.csv, data/sales_2021.csv, etc.</span>
+files <span class="op">&lt;-</span> <span class="fn">list.files</span>(<span class="st">"data/"</span>, pattern <span class="op">=</span> <span class="st">"sales_.*\\.csv"</span>, full.names <span class="op">=</span> <span class="nb">TRUE</span>)
+
+all_sales <span class="op">&lt;-</span> files <span class="op">|&gt;</span>
+  <span class="fn">map</span>(read_csv) <span class="op">|&gt;</span>
+  <span class="fn">list_rbind</span>()    <span class="cm"># stack all data frames into one</span>
+
+<span class="cm"># Alternative: use purrr::map with an id column</span>
+all_sales <span class="op">&lt;-</span> files <span class="op">|&gt;</span>
+  <span class="fn">set_names</span>() <span class="op">|&gt;</span>
+  <span class="fn">map</span>(read_csv) <span class="op">|&gt;</span>
+  <span class="fn">list_rbind</span>(names_to <span class="op">=</span> <span class="st">"source_file"</span>)</pre>
+
+<div class="concept tip">
+  <strong>Tip: janitor::clean_names()</strong>
+  Real-world data often has messy column names with spaces, special characters, or inconsistent case. The <code>janitor</code> package fixes this in one step: <code>df |> janitor::clean_names()</code> converts all column names to consistent snake_case. Install it with <code>install.packages("janitor")</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>3.9 Joining Data Frames</h2>
 
 <pre class="r">orders <span class="op">&lt;-</span> <span class="fn">tibble</span>(
   id <span class="op">=</span> <span class="fn">c</span>(<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>),
@@ -142,7 +288,7 @@ customers <span class="op">&lt;-</span> <span class="fn">tibble</span>(
 <span class="fn">full_join</span>(orders, customers, by <span class="op">=</span> <span class="st">"id"</span>)   <span class="cm"># keep everything</span></pre>
 
 <!-- ────────────────────────────── -->
-<h2>3.5 tidyr: Reshaping Data</h2>
+<h2>3.10 tidyr: Reshaping Data</h2>
 
 <h3>pivot_longer() — Wide to Long</h3>
 <pre class="r">wide <span class="op">&lt;-</span> <span class="fn">tibble</span>(
@@ -184,6 +330,16 @@ df <span class="op">|&gt;</span> <span class="fn">separate</span>(date, into <sp
 <div class="exercise">
   <h4>Exercise 3.2</h4>
   <p>Create a wide tibble with quarterly revenue (Q1 through Q4) for two companies. Pivot it to long format, then compute each company's total annual revenue using <code>summarize()</code>.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 3.3</h4>
+  <p>Using <code>mpg</code>, create a new column <code>fuel_grade</code> using <code>case_when()</code>: "excellent" if <code>hwy >= 30</code>, "good" if <code>hwy >= 20</code>, and "poor" otherwise. Then use <code>count()</code> to find how many cars fall into each grade. Finally, use <code>across()</code> inside <code>summarize()</code> to compute the mean and standard deviation of both <code>cty</code> and <code>hwy</code> for each <code>fuel_grade</code>.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 3.4</h4>
+  <p>The <code>storms</code> dataset (part of dplyr) tracks tropical storms. For each named storm (<code>name</code>), find the maximum wind speed and the maximum category reached. Then use <code>slice_max()</code> to display the 10 strongest storms by maximum wind speed. How many of them reached category 5?</p>
 </div>
 
 <!-- ────────────────────────────── -->

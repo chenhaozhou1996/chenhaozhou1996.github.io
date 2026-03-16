@@ -202,7 +202,227 @@ rmarkdown<span class="op">::</span><span class="fn">render</span>(<span class="s
 </div>
 
 <!-- ────────────────────────────── -->
-<h2>10.9 Diagnostic Checks</h2>
+<h2>10.9 Portable Paths with here::here()</h2>
+
+<p>Hardcoded paths like <code>"C:/Users/me/project/data/file.csv"</code> break when the project moves to another machine. The <code>here</code> package constructs paths relative to the project root, making code portable.</p>
+
+<pre class="r"><span class="fn">library</span>(here)
+
+<span class="cm"># here() automatically finds the project root (.Rproj, .git, etc.)</span>
+<span class="fn">here</span>()  <span class="cm"># prints the project root</span>
+
+<span class="cm"># Build paths relative to the root</span>
+data_path   <span class="op">&lt;-</span> <span class="fn">here</span>(<span class="st">"data"</span>, <span class="st">"raw"</span>, <span class="st">"penguins.csv"</span>)
+output_path <span class="op">&lt;-</span> <span class="fn">here</span>(<span class="st">"output"</span>, <span class="st">"report.html"</span>)
+
+<span class="cm"># Use in read/write operations</span>
+<span class="cm"># df <- read_csv(here("data", "raw", "survey_responses.csv"))</span>
+<span class="cm"># ggsave(here("output", "figures", "fig1.png"), p1)</span>
+
+<span class="cm"># Works regardless of working directory or OS</span>
+<span class="cm"># Never use setwd() - it creates fragile, non-portable code</span></pre>
+
+<div class="concept warn">
+  <strong>Avoid setwd()</strong>
+  Calling <code>setwd()</code> makes your scripts dependent on a specific directory structure. Instead, use <code>here::here()</code> for all file paths. Combined with an <code>.Rproj</code> file, this ensures your project runs correctly on any machine.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>10.10 Reproducible Environments with renv</h2>
+
+<p>Package versions matter. An analysis that works today may break next month when a package updates. The <code>renv</code> package creates project-specific libraries that lock package versions.</p>
+
+<pre class="r"><span class="cm"># Initialize renv in your project</span>
+renv<span class="op">::</span><span class="fn">init</span>()
+
+<span class="cm"># This creates:</span>
+<span class="cm"># renv.lock     - snapshot of all package versions</span>
+<span class="cm"># renv/         - project-local library</span>
+<span class="cm"># .Rprofile     - auto-activates renv when you open the project</span>
+
+<span class="cm"># Install packages as usual</span>
+<span class="fn">install.packages</span>(<span class="st">"palmerpenguins"</span>)
+
+<span class="cm"># Snapshot: record current package versions to renv.lock</span>
+renv<span class="op">::</span><span class="fn">snapshot</span>()
+
+<span class="cm"># When a collaborator clones your project:</span>
+renv<span class="op">::</span><span class="fn">restore</span>()  <span class="cm"># installs exact same package versions from renv.lock</span>
+
+<span class="cm"># Check status: which packages differ from the lockfile?</span>
+renv<span class="op">::</span><span class="fn">status</span>()</pre>
+
+<div class="concept info">
+  <strong>When to use renv</strong>
+  Use <code>renv</code> for any project that will be shared with collaborators, submitted as a replication package, or needs to run months or years later. The <code>renv.lock</code> file should be committed to version control, but the <code>renv/library/</code> directory should be in your <code>.gitignore</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>10.11 Pipeline Automation with targets</h2>
+
+<p>For complex analyses with many interdependent steps, the <code>targets</code> package tracks which steps are up-to-date and only re-runs what has changed. This saves time and ensures correctness.</p>
+
+<pre class="r"><span class="cm"># _targets.R (place at project root)</span>
+<span class="fn">library</span>(targets)
+<span class="fn">library</span>(tarchetypes)
+
+<span class="fn">tar_option_set</span>(packages <span class="op">=</span> <span class="fn">c</span>(<span class="st">"tidyverse"</span>, <span class="st">"palmerpenguins"</span>, <span class="st">"broom"</span>))
+
+<span class="fn">list</span>(
+  <span class="cm"># Step 1: Load and clean data</span>
+  <span class="fn">tar_target</span>(raw_data, palmerpenguins<span class="op">::</span>penguins),
+  <span class="fn">tar_target</span>(clean_data, raw_data <span class="op">|&gt;</span> <span class="fn">drop_na</span>()),
+
+  <span class="cm"># Step 2: Fit models</span>
+  <span class="fn">tar_target</span>(model_1, <span class="fn">lm</span>(body_mass_g <span class="op">~</span> bill_length_mm, data <span class="op">=</span> clean_data)),
+  <span class="fn">tar_target</span>(model_2, <span class="fn">lm</span>(body_mass_g <span class="op">~</span> bill_length_mm <span class="op">+</span> species, data <span class="op">=</span> clean_data)),
+
+  <span class="cm"># Step 3: Summarize results</span>
+  <span class="fn">tar_target</span>(model_comparison, <span class="fn">bind_rows</span>(
+    <span class="fn">glance</span>(model_1) <span class="op">|&gt;</span> <span class="fn">mutate</span>(model <span class="op">=</span> <span class="st">"Bivariate"</span>),
+    <span class="fn">glance</span>(model_2) <span class="op">|&gt;</span> <span class="fn">mutate</span>(model <span class="op">=</span> <span class="st">"With Species"</span>)
+  )),
+
+  <span class="cm"># Step 4: Render report</span>
+  <span class="fn">tar_render</span>(report, <span class="st">"report.Rmd"</span>)
+)
+
+<span class="cm"># Run from the console:</span>
+<span class="cm"># targets::tar_make()       # run the pipeline</span>
+<span class="cm"># targets::tar_visnetwork() # visualize the DAG</span>
+<span class="cm"># targets::tar_read(model_comparison)  # load a result</span></pre>
+
+<div class="concept tip">
+  <strong>targets vs. Make vs. scripts</strong>
+  Unlike running scripts sequentially, <code>targets</code> tracks dependencies automatically. If you change the cleaning step, it re-runs everything downstream. If you only change the report template, it skips data cleaning and modeling entirely. This is especially valuable for analyses that take minutes or hours to run.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>10.12 Profiling with profvis</h2>
+
+<p>When your analysis is slow, profiling helps identify bottlenecks. The <code>profvis</code> package provides an interactive flame graph showing where R spends its time.</p>
+
+<pre class="r"><span class="fn">library</span>(profvis)
+
+<span class="cm"># Profile a block of code</span>
+<span class="fn">profvis</span>({
+  <span class="cm"># Simulate a typical analysis pipeline</span>
+  df <span class="op">&lt;-</span> palmerpenguins<span class="op">::</span>penguins <span class="op">|&gt;</span> tidyr<span class="op">::</span><span class="fn">drop_na</span>()
+
+  <span class="cm"># Many models in a loop (common bottleneck)</span>
+  results <span class="op">&lt;-</span> <span class="fn">lapply</span>(<span class="nb">1</span><span class="op">:</span><span class="nb">100</span>, <span class="kw">function</span>(i) {
+    sample_df <span class="op">&lt;-</span> df[<span class="fn">sample</span>(<span class="fn">nrow</span>(df), <span class="fn">nrow</span>(df), replace <span class="op">=</span> <span class="nb">TRUE</span>), ]
+    fit <span class="op">&lt;-</span> <span class="fn">lm</span>(body_mass_g <span class="op">~</span> bill_length_mm <span class="op">+</span> species, data <span class="op">=</span> sample_df)
+    broom<span class="op">::</span><span class="fn">tidy</span>(fit)
+  })
+
+  <span class="fn">bind_rows</span>(results)
+})
+
+<span class="cm"># Tips for speed:</span>
+<span class="cm"># 1. Use data.table or collapse for large data wrangling</span>
+<span class="cm"># 2. Replace loops with vectorized operations or purrr::map()</span>
+<span class="cm"># 3. Cache expensive computations with targets or knitr caching</span>
+<span class="cm"># 4. Use furrr::future_map() for parallel processing</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>10.13 Interactive Dashboards with Shiny</h2>
+
+<p>Shiny turns R analyses into interactive web applications. Users can filter data, change parameters, and see results update in real time.</p>
+
+<pre class="r"><span class="fn">library</span>(shiny)
+
+<span class="cm"># Minimal Shiny app (save as app.R)</span>
+ui <span class="op">&lt;-</span> <span class="fn">fluidPage</span>(
+  <span class="fn">titlePanel</span>(<span class="st">"Penguin Explorer"</span>),
+  <span class="fn">sidebarLayout</span>(
+    <span class="fn">sidebarPanel</span>(
+      <span class="fn">selectInput</span>(<span class="st">"species"</span>, <span class="st">"Species:"</span>,
+                  choices <span class="op">=</span> <span class="fn">c</span>(<span class="st">"All"</span>, <span class="st">"Adelie"</span>, <span class="st">"Chinstrap"</span>, <span class="st">"Gentoo"</span>)),
+      <span class="fn">sliderInput</span>(<span class="st">"mass_range"</span>, <span class="st">"Body Mass (g):"</span>,
+                  min <span class="op">=</span> <span class="nb">2500</span>, max <span class="op">=</span> <span class="nb">6500</span>,
+                  value <span class="op">=</span> <span class="fn">c</span>(<span class="nb">2500</span>, <span class="nb">6500</span>))
+    ),
+    <span class="fn">mainPanel</span>(
+      <span class="fn">plotOutput</span>(<span class="st">"scatter"</span>),
+      <span class="fn">tableOutput</span>(<span class="st">"summary_table"</span>)
+    )
+  )
+)
+
+server <span class="op">&lt;-</span> <span class="kw">function</span>(input, output) {
+  filtered_data <span class="op">&lt;-</span> <span class="fn">reactive</span>({
+    df <span class="op">&lt;-</span> palmerpenguins<span class="op">::</span>penguins <span class="op">|&gt;</span> tidyr<span class="op">::</span><span class="fn">drop_na</span>()
+    <span class="kw">if</span> (input<span class="op">$</span>species <span class="op">!=</span> <span class="st">"All"</span>) df <span class="op">&lt;-</span> df <span class="op">|&gt;</span> dplyr<span class="op">::</span><span class="fn">filter</span>(species <span class="op">==</span> input<span class="op">$</span>species)
+    df <span class="op">|&gt;</span> dplyr<span class="op">::</span><span class="fn">filter</span>(body_mass_g <span class="op">&gt;=</span> input<span class="op">$</span>mass_range[<span class="nb">1</span>],
+                          body_mass_g <span class="op">&lt;=</span> input<span class="op">$</span>mass_range[<span class="nb">2</span>])
+  })
+
+  output<span class="op">$</span>scatter <span class="op">&lt;-</span> <span class="fn">renderPlot</span>({
+    <span class="fn">ggplot</span>(<span class="fn">filtered_data</span>(), <span class="fn">aes</span>(bill_length_mm, bill_depth_mm, color <span class="op">=</span> species)) <span class="op">+</span>
+      <span class="fn">geom_point</span>(size <span class="op">=</span> <span class="nb">2</span>) <span class="op">+</span> <span class="fn">theme_minimal</span>()
+  })
+
+  output<span class="op">$</span>summary_table <span class="op">&lt;-</span> <span class="fn">renderTable</span>({
+    <span class="fn">filtered_data</span>() <span class="op">|&gt;</span> dplyr<span class="op">::</span><span class="fn">summarize</span>(N <span class="op">=</span> dplyr<span class="op">::</span><span class="fn">n</span>(), Avg_Mass <span class="op">=</span> <span class="fn">mean</span>(body_mass_g))
+  })
+}
+
+<span class="fn">shinyApp</span>(ui, server)
+
+<span class="cm"># Run: click "Run App" in RStudio, or source("app.R")</span></pre>
+
+<div class="concept info">
+  <strong>Deploying Shiny apps</strong>
+  Share your app by deploying to <a href="https://www.shinyapps.io" target="_blank">shinyapps.io</a> (free tier available): <code>rsconnect::deployApp()</code>. For institutional use, Posit Connect or Shiny Server provide more control. You can also embed small Shiny apps in Quarto documents with <code>server: shiny</code> in the YAML header.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>10.14 GitHub Actions for Automated Rendering</h2>
+
+<p>GitHub Actions can automatically render your R Markdown or Quarto reports whenever you push changes, ensuring the output is always up to date.</p>
+
+<pre class="r"><span class="cm"># .github/workflows/render-report.yml</span>
+<span class="cm">name: Render Report</span>
+
+<span class="cm">on:</span>
+<span class="cm">  push:</span>
+<span class="cm">    branches: [main]</span>
+<span class="cm">  workflow_dispatch:</span>
+
+<span class="cm">jobs:</span>
+<span class="cm">  render:</span>
+<span class="cm">    runs-on: ubuntu-latest</span>
+<span class="cm">    steps:</span>
+<span class="cm">      - uses: actions/checkout@v4</span>
+
+<span class="cm">      - uses: r-lib/actions/setup-r@v2</span>
+
+<span class="cm">      - uses: r-lib/actions/setup-r-dependencies@v2</span>
+<span class="cm">        with:</span>
+<span class="cm">          extra-packages: |</span>
+<span class="cm">            rmarkdown</span>
+<span class="cm">            palmerpenguins</span>
+
+<span class="cm">      - name: Render Report</span>
+<span class="cm">        run: Rscript -e 'rmarkdown::render("report.Rmd")'</span>
+
+<span class="cm">      - name: Upload artifact</span>
+<span class="cm">        uses: actions/upload-artifact@v4</span>
+<span class="cm">        with:</span>
+<span class="cm">          name: report</span>
+<span class="cm">          path: report.html</span>
+
+<span class="cm"># For Quarto, replace the render step with:</span>
+<span class="cm"># - uses: quarto-dev/quarto-actions/render@v2</span></pre>
+
+<div class="concept tip">
+  <strong>CI/CD for research</strong>
+  Automated rendering catches errors early: if a package update breaks your code, the GitHub Action fails and alerts you. Combined with <code>renv</code> for pinned packages and <code>targets</code> for pipeline management, this creates a fully reproducible and automated research workflow.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>10.15 Diagnostic Checks</h2>
 
 <pre class="r"><span class="cm"># Residual diagnostics for the linear model</span>
 <span class="fn">par</span>(mfrow <span class="op">=</span> <span class="fn">c</span>(<span class="nb">2</span>, <span class="nb">2</span>))
@@ -232,6 +452,16 @@ rmarkdown<span class="op">::</span><span class="fn">render</span>(<span class="s
   <p>Extend the penguin report by adding a tidymodels section: split the data, build a random forest to classify all three species (not just Gentoo), evaluate with 5-fold CV, and report accuracy. Include the results in your rendered document.</p>
 </div>
 
+<div class="exercise">
+  <h4>Exercise 10.3</h4>
+  <p>Set up a project using <code>here</code> and <code>renv</code>. Create the folder structure: <code>data/</code>, <code>R/</code>, <code>output/</code>. Write an R script in <code>R/</code> that loads data using <code>here("data", "raw", ...)</code>, runs a linear model, and saves a plot to <code>output/</code>. Initialize <code>renv</code> and snapshot. Verify that <code>renv::status()</code> shows no issues.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 10.4</h4>
+  <p>Create a minimal Shiny app that lets users select a variable from the <code>mtcars</code> dataset (via a dropdown) and displays: (1) a histogram of the selected variable, and (2) a summary statistics table below it. Add a checkbox that toggles whether to show the data grouped by cylinder count. Deploy it to shinyapps.io or run it locally.</p>
+</div>
+
 <!-- ────────────────────────────── -->
 <div class="ext-resources">
   <h4>External Resources</h4>
@@ -239,6 +469,11 @@ rmarkdown<span class="op">::</span><span class="fn">render</span>(<span class="s
     <li><a href="https://allisonhorst.github.io/palmerpenguins/" target="_blank" rel="noopener">palmerpenguins Package</a> <span class="ext-badge">External</span></li>
     <li><a href="https://r4ds.hadley.nz/whole-game" target="_blank" rel="noopener">R4DS: Whole Game</a> <span class="ext-badge">External</span></li>
     <li><a href="https://quarto.org/docs/get-started/" target="_blank" rel="noopener">Quarto: Getting Started</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://here.r-lib.org" target="_blank" rel="noopener">here: Project-Relative Paths</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://rstudio.github.io/renv/" target="_blank" rel="noopener">renv: Reproducible Environments</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://docs.ropensci.org/targets/" target="_blank" rel="noopener">targets: Pipeline Automation</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://shiny.posit.co" target="_blank" rel="noopener">Shiny: Interactive Web Apps</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://rstudio.github.io/profvis/" target="_blank" rel="noopener">profvis: Code Profiling</a> <span class="ext-badge">External</span></li>
   </ul>
 </div>
 
@@ -248,8 +483,12 @@ rmarkdown<span class="op">::</span><span class="fn">render</span>(<span class="s
   <ul>
     <li>A data analysis pipeline flows: import, clean, explore, model, communicate.</li>
     <li>R Markdown/Quarto ties code and narrative together so results stay in sync with data.</li>
-    <li>Use <code>broom::tidy()</code> and <code>kable()</code> to produce clean tables inside reports.</li>
-    <li>Always include diagnostic checks (residual plots, accuracy metrics) before drawing conclusions.</li>
+    <li>Use <code>here::here()</code> for portable paths; never hardcode absolute paths or use <code>setwd()</code>.</li>
+    <li>Use <code>renv</code> to lock package versions for reproducibility across machines and over time.</li>
+    <li>The <code>targets</code> package automates pipelines, tracking dependencies and skipping unchanged steps.</li>
+    <li>Profile code with <code>profvis</code> to identify and fix performance bottlenecks.</li>
+    <li>Shiny turns analyses into interactive dashboards deployable to shinyapps.io.</li>
+    <li>GitHub Actions automate rendering and testing, catching breakages early.</li>
     <li>A well-organized project (folders, .Rproj, version control) is as important as the analysis itself.</li>
   </ul>
 </div>

@@ -80,16 +80,94 @@ fit2 <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="o
 <span class="fn">summary</span>(fit2)<span class="op">$</span>adj.r.squared <span class="cm"># Adjusted R-squared</span></pre>
 
 <!-- ────────────────────────────── -->
-<h2>6.3 ANOVA Table for Model Comparison</h2>
+<h2>6.3 Interaction Terms and Polynomial Regression</h2>
+
+<p>Interactions let the effect of one predictor depend on the value of another. Polynomial terms capture non-linear relationships within the linear model framework.</p>
+
+<pre class="r"><span class="cm"># Interaction between weight and transmission type</span>
+fit_int <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> wt <span class="op">*</span> am, data <span class="op">=</span> mtcars)
+<span class="fn">summary</span>(fit_int)
+<span class="cm"># wt:am is the interaction term</span>
+<span class="cm"># Interpretation: the slope of wt differs for manual vs. automatic</span>
+
+<span class="cm"># Equivalent explicit syntax</span>
+fit_int2 <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> wt <span class="op">+</span> am <span class="op">+</span> wt<span class="op">:</span>am, data <span class="op">=</span> mtcars)
+
+<span class="cm"># Polynomial regression: quadratic term for wt</span>
+fit_poly <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> wt <span class="op">+</span> <span class="fn">I</span>(wt<span class="op">^</span><span class="nb">2</span>), data <span class="op">=</span> mtcars)
+<span class="fn">summary</span>(fit_poly)
+
+<span class="cm"># Using poly() for orthogonal polynomials (preferred for stability)</span>
+fit_poly2 <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> <span class="fn">poly</span>(wt, <span class="nb">2</span>), data <span class="op">=</span> mtcars)
+<span class="fn">summary</span>(fit_poly2)
+
+<span class="cm"># Three-way interaction (moderator analysis)</span>
+fit_3way <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> wt <span class="op">*</span> hp <span class="op">*</span> am, data <span class="op">=</span> mtcars)
+<span class="fn">summary</span>(fit_3way)</pre>
+
+<div class="concept info">
+  <strong>When to use interactions</strong>
+  Include an interaction when theory suggests the effect of X1 on Y changes depending on X2. For example, the weight penalty on fuel economy may differ between manual and automatic transmissions. Always include the main effects (wt and am) when modeling an interaction (wt:am); the <code>*</code> operator does this automatically.
+</div>
+
+<div class="concept tip">
+  <strong>Centering predictors before interaction</strong>
+  When two continuous variables interact, center them first (subtract the mean) to reduce multicollinearity and improve interpretability. The main effects then represent the effect at the mean of the other variable: <code>mtcars$wt_c &lt;- scale(mtcars$wt, scale = FALSE)</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>6.4 Estimated Marginal Means with emmeans</h2>
+
+<p>When a model contains interactions or factors, raw coefficients are hard to interpret. The <code>emmeans</code> package computes estimated marginal means (predicted values averaged over other factors) and pairwise contrasts.</p>
+
+<pre class="r"><span class="fn">library</span>(emmeans)
+
+<span class="cm"># Fit a model with a factor and interaction</span>
+mtcars<span class="op">$</span>cyl_f <span class="op">&lt;-</span> <span class="fn">factor</span>(mtcars<span class="op">$</span>cyl)
+fit_emm <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> wt <span class="op">*</span> cyl_f, data <span class="op">=</span> mtcars)
+
+<span class="cm"># Estimated marginal means for each cylinder group (at mean wt)</span>
+emm <span class="op">&lt;-</span> <span class="fn">emmeans</span>(fit_emm, <span class="op">~</span> cyl_f)
+emm
+
+<span class="cm"># Pairwise contrasts with Tukey adjustment</span>
+<span class="fn">pairs</span>(emm)
+
+<span class="cm"># Estimated marginal means at specific values of wt</span>
+<span class="fn">emmeans</span>(fit_emm, <span class="op">~</span> cyl_f, at <span class="op">=</span> <span class="fn">list</span>(wt <span class="op">=</span> <span class="fn">c</span>(<span class="nb">2.5</span>, <span class="nb">3.5</span>)))
+
+<span class="cm"># Visualize the interaction</span>
+<span class="fn">emmip</span>(fit_emm, cyl_f <span class="op">~</span> wt, at <span class="op">=</span> <span class="fn">list</span>(wt <span class="op">=</span> <span class="fn">seq</span>(<span class="nb">1.5</span>, <span class="nb">5.5</span>, <span class="nb">0.5</span>)),
+      CIs <span class="op">=</span> <span class="nb">TRUE</span>) <span class="op">+</span>
+  <span class="fn">labs</span>(y <span class="op">=</span> <span class="st">"Predicted MPG"</span>, x <span class="op">=</span> <span class="st">"Weight (1000 lbs)"</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>6.5 ANOVA Table and Nested Model Comparison</h2>
 
 <pre class="r"><span class="cm"># Test whether hp and am contribute beyond wt alone</span>
 <span class="fn">anova</span>(fit1, fit2)
 
 <span class="cm"># Type II ANOVA table for each predictor</span>
-<span class="fn">anova</span>(fit2)</pre>
+<span class="fn">anova</span>(fit2)
+
+<span class="cm"># Compare a sequence of nested models</span>
+m0 <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> <span class="nb">1</span>, data <span class="op">=</span> mtcars)        <span class="cm"># intercept only</span>
+m1 <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> wt, data <span class="op">=</span> mtcars)
+m2 <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> wt <span class="op">+</span> hp, data <span class="op">=</span> mtcars)
+m3 <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> wt <span class="op">+</span> hp <span class="op">+</span> am, data <span class="op">=</span> mtcars)
+<span class="fn">anova</span>(m0, m1, m2, m3)
+
+<span class="cm"># Type III SS (useful with interactions; requires car package)</span>
+<span class="fn">library</span>(car)
+<span class="fn">Anova</span>(fit_int, type <span class="op">=</span> <span class="st">"III"</span>)</pre>
+
+<div class="concept warn">
+  <strong>Type I vs. Type II vs. Type III sums of squares</strong>
+  Base R's <code>anova()</code> uses sequential (Type I) SS, which are order-dependent. For models with interactions, use <code>car::Anova(model, type = "III")</code> to get marginal SS that do not depend on predictor ordering. Type II is appropriate when there are no significant interactions.
+</div>
 
 <!-- ────────────────────────────── -->
-<h2>6.4 Prediction</h2>
+<h2>6.6 Prediction</h2>
 
 <pre class="r"><span class="cm"># Point predictions</span>
 new_data <span class="op">&lt;-</span> <span class="fn">data.frame</span>(wt <span class="op">=</span> <span class="fn">c</span>(<span class="nb">2.5</span>, <span class="nb">3.0</span>, <span class="nb">3.5</span>),
@@ -103,7 +181,7 @@ new_data <span class="op">&lt;-</span> <span class="fn">data.frame</span>(wt <sp
 <span class="fn">predict</span>(fit2, newdata <span class="op">=</span> new_data, interval <span class="op">=</span> <span class="st">"prediction"</span>)</pre>
 
 <!-- ────────────────────────────── -->
-<h2>6.5 Diagnostic Plots</h2>
+<h2>6.7 Diagnostic Plots</h2>
 
 <p>Four standard diagnostic plots help assess OLS assumptions:</p>
 
@@ -130,7 +208,105 @@ new_data <span class="op">&lt;-</span> <span class="fn">data.frame</span>(wt <sp
 </div>
 
 <!-- ────────────────────────────── -->
-<h2>6.6 Tidy Output with broom</h2>
+<h2>6.8 Robust Standard Errors with sandwich and lmtest</h2>
+
+<p>OLS standard errors assume homoscedastic, uncorrelated errors. When that assumption fails, robust standard errors provide valid inference without changing the point estimates.</p>
+
+<pre class="r"><span class="fn">library</span>(sandwich)
+<span class="fn">library</span>(lmtest)
+
+<span class="cm"># HC1 robust SEs (equivalent to Stata's ", robust")</span>
+<span class="fn">coeftest</span>(fit2, vcov <span class="op">=</span> <span class="fn">vcovHC</span>(fit2, type <span class="op">=</span> <span class="st">"HC1"</span>))
+
+<span class="cm"># HC3 (better for small samples, the default in many textbooks)</span>
+<span class="fn">coeftest</span>(fit2, vcov <span class="op">=</span> <span class="fn">vcovHC</span>(fit2, type <span class="op">=</span> <span class="st">"HC3"</span>))
+
+<span class="cm"># Compare OLS vs. robust SEs side by side</span>
+se_ols    <span class="op">&lt;-</span> <span class="fn">coeftest</span>(fit2)
+se_robust <span class="op">&lt;-</span> <span class="fn">coeftest</span>(fit2, vcov <span class="op">=</span> <span class="fn">vcovHC</span>(fit2, type <span class="op">=</span> <span class="st">"HC1"</span>))
+<span class="fn">cbind</span>(OLS_SE <span class="op">=</span> se_ols[, <span class="nb">2</span>], Robust_SE <span class="op">=</span> se_robust[, <span class="nb">2</span>])
+
+<span class="cm"># Robust confidence intervals</span>
+<span class="fn">coefci</span>(fit2, vcov <span class="op">=</span> <span class="fn">vcovHC</span>(fit2, type <span class="op">=</span> <span class="st">"HC1"</span>))
+
+<span class="cm"># Cluster-robust SEs (e.g., clustered by cylinder count)</span>
+<span class="fn">coeftest</span>(fit2, vcov <span class="op">=</span> <span class="fn">vcovCL</span>(fit2, cluster <span class="op">=</span> mtcars<span class="op">$</span>cyl))</pre>
+
+<div class="table-wrapper">
+<table>
+  <thead><tr><th>Type</th><th>Function</th><th>When to Use</th></tr></thead>
+  <tbody>
+    <tr><td>HC0</td><td><code>vcovHC(fit, "HC0")</code></td><td>White's original estimator (biased in small samples)</td></tr>
+    <tr><td>HC1</td><td><code>vcovHC(fit, "HC1")</code></td><td>Stata default; applies df correction N/(N-k)</td></tr>
+    <tr><td>HC3</td><td><code>vcovHC(fit, "HC3")</code></td><td>Recommended for small samples; conservative</td></tr>
+    <tr><td>Clustered</td><td><code>vcovCL(fit, cluster)</code></td><td>Observations grouped in clusters (firms, schools)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>6.9 Influential Observations: Cook's Distance and Leverage</h2>
+
+<p>Individual data points can disproportionately influence regression estimates. Cook's distance combines leverage (how far an observation's predictors are from the mean) with the size of the residual.</p>
+
+<pre class="r"><span class="cm"># Compute influence diagnostics</span>
+infl <span class="op">&lt;-</span> <span class="fn">influence.measures</span>(fit2)
+<span class="fn">summary</span>(infl)
+
+<span class="cm"># Cook's distance: flag observations where D > 4/n</span>
+cooks_d <span class="op">&lt;-</span> <span class="fn">cooks.distance</span>(fit2)
+threshold <span class="op">&lt;-</span> <span class="nb">4</span> <span class="op">/</span> <span class="fn">nrow</span>(mtcars)
+influential <span class="op">&lt;-</span> <span class="fn">which</span>(cooks_d <span class="op">&gt;</span> threshold)
+<span class="fn">cat</span>(<span class="st">"Influential obs:"</span>, <span class="fn">names</span>(influential), <span class="st">"\n"</span>)
+
+<span class="cm"># Plot Cook's distance</span>
+<span class="fn">plot</span>(cooks_d, type <span class="op">=</span> <span class="st">"h"</span>, ylab <span class="op">=</span> <span class="st">"Cook's Distance"</span>,
+     main <span class="op">=</span> <span class="st">"Cook's Distance by Observation"</span>)
+<span class="fn">abline</span>(h <span class="op">=</span> threshold, col <span class="op">=</span> <span class="st">"red"</span>, lty <span class="op">=</span> <span class="nb">2</span>)
+
+<span class="cm"># Leverage (hat values)</span>
+hat_vals <span class="op">&lt;-</span> <span class="fn">hatvalues</span>(fit2)
+high_lev <span class="op">&lt;-</span> <span class="fn">which</span>(hat_vals <span class="op">&gt;</span> <span class="nb">2</span> <span class="op">*</span> <span class="fn">mean</span>(hat_vals))
+<span class="fn">cat</span>(<span class="st">"High leverage:"</span>, <span class="fn">names</span>(high_lev), <span class="st">"\n"</span>)
+
+<span class="cm"># DFBETAS: how much each coefficient changes when obs i is dropped</span>
+dfb <span class="op">&lt;-</span> <span class="fn">dfbetas</span>(fit2)
+<span class="fn">head</span>(dfb)
+
+<span class="cm"># Sensitivity check: refit without influential observations</span>
+fit2_clean <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> wt <span class="op">+</span> hp <span class="op">+</span> am, data <span class="op">=</span> mtcars[<span class="op">-</span>influential, ])
+<span class="fn">cbind</span>(Full <span class="op">=</span> <span class="fn">coef</span>(fit2), Trimmed <span class="op">=</span> <span class="fn">coef</span>(fit2_clean))</pre>
+
+<div class="concept info">
+  <strong>Rules of thumb for influence diagnostics</strong>
+  Cook's distance: D > 4/n or D > 1 warrants investigation. Leverage: hat values > 2(k+1)/n are high-leverage. DFBETAS: |DFBETA| > 2/sqrt(n) suggests the observation unduly affects that particular coefficient. These are screening tools; always examine flagged observations substantively before removing them.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>6.10 Model Selection: Theory-Driven vs. Data-Driven</h2>
+
+<p>In research, model specification should be guided by theory. Data-driven approaches like stepwise selection are useful for prediction but problematic for causal inference because they inflate Type I error rates and produce biased coefficient estimates.</p>
+
+<pre class="r"><span class="cm"># Stepwise selection (use cautiously; for illustration only)</span>
+full_model <span class="op">&lt;-</span> <span class="fn">lm</span>(mpg <span class="op">~</span> wt <span class="op">+</span> hp <span class="op">+</span> am <span class="op">+</span> cyl <span class="op">+</span> disp <span class="op">+</span> drat, data <span class="op">=</span> mtcars)
+step_model <span class="op">&lt;-</span> <span class="fn">step</span>(full_model, direction <span class="op">=</span> <span class="st">"both"</span>, trace <span class="op">=</span> <span class="nb">0</span>)
+<span class="fn">summary</span>(step_model)
+
+<span class="cm"># Compare AIC and BIC across candidate models</span>
+models <span class="op">&lt;-</span> <span class="fn">list</span>(m1 <span class="op">=</span> m1, m2 <span class="op">=</span> m2, m3 <span class="op">=</span> m3, step <span class="op">=</span> step_model)
+<span class="fn">sapply</span>(models, AIC)
+<span class="fn">sapply</span>(models, BIC)
+
+<span class="cm"># Adjusted R-squared comparison</span>
+<span class="fn">sapply</span>(models, <span class="kw">function</span>(m) <span class="fn">summary</span>(m)<span class="op">$</span>adj.r.squared)</pre>
+
+<div class="concept warn">
+  <strong>Why stepwise selection is discouraged in research</strong>
+  Stepwise procedures (forward, backward, both) select variables based on statistical significance, which depends on sample size and ignores the causal structure. The resulting models tend to overfit, yield biased standard errors, and produce p-values that are too small. In academic research, let your theoretical framework guide which variables to include and report the pre-specified models alongside robustness checks.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>6.11 Tidy Output with broom</h2>
 
 <p>The <code>broom</code> package converts model objects into tidy data frames, perfect for further analysis or visualization.</p>
 
@@ -144,7 +320,7 @@ new_data <span class="op">&lt;-</span> <span class="fn">data.frame</span>(wt <sp
 <span class="fn">tidy</span>(fit2, conf.int <span class="op">=</span> <span class="nb">TRUE</span>)</pre>
 
 <!-- ────────────────────────────── -->
-<h2>6.7 Publication Tables with stargazer</h2>
+<h2>6.12 Publication Tables with stargazer and modelsummary</h2>
 
 <pre class="r"><span class="fn">library</span>(stargazer)
 
@@ -156,9 +332,45 @@ new_data <span class="op">&lt;-</span> <span class="fn">data.frame</span>(wt <sp
           covariate.labels <span class="op">=</span> <span class="fn">c</span>(<span class="st">"Weight"</span>, <span class="st">"Horsepower"</span>, <span class="st">"Manual Trans."</span>),
           out <span class="op">=</span> <span class="st">"regression_table.html"</span>)  <span class="cm"># save to file</span></pre>
 
+<h3>modelsummary: The Modern Alternative</h3>
+
+<p>The <code>modelsummary</code> package produces publication-quality tables with far more flexibility than stargazer, including output to Word, LaTeX, HTML, and gt objects.</p>
+
+<pre class="r"><span class="fn">library</span>(modelsummary)
+
+<span class="cm"># Basic side-by-side table</span>
+models <span class="op">&lt;-</span> <span class="fn">list</span>(
+  <span class="st">"(1) Bivariate"</span> <span class="op">=</span> fit1,
+  <span class="st">"(2) Controls"</span>  <span class="op">=</span> fit2,
+  <span class="st">"(3) Interaction"</span> <span class="op">=</span> fit_int
+)
+
+<span class="fn">modelsummary</span>(models,
+             stars <span class="op">=</span> <span class="fn">c</span>(<span class="st">"*"</span> <span class="op">=</span> <span class="nb">0.1</span>, <span class="st">"**"</span> <span class="op">=</span> <span class="nb">0.05</span>, <span class="st">"***"</span> <span class="op">=</span> <span class="nb">0.01</span>),
+             gof_omit <span class="op">=</span> <span class="st">"IC|Log|RMSE"</span>,
+             coef_rename <span class="op">=</span> <span class="fn">c</span>(wt <span class="op">=</span> <span class="st">"Weight"</span>, hp <span class="op">=</span> <span class="st">"Horsepower"</span>,
+                             am <span class="op">=</span> <span class="st">"Manual Trans."</span>),
+             title <span class="op">=</span> <span class="st">"OLS Regression: Miles per Gallon"</span>,
+             notes <span class="op">=</span> <span class="st">"Standard errors in parentheses."</span>)
+
+<span class="cm"># Output to Word (useful for journal submissions)</span>
+<span class="fn">modelsummary</span>(models,
+             output <span class="op">=</span> <span class="st">"regression_table.docx"</span>,
+             stars <span class="op">=</span> <span class="nb">TRUE</span>)
+
+<span class="cm"># With robust SEs using the vcov argument</span>
+<span class="fn">modelsummary</span>(models,
+             vcov <span class="op">=</span> <span class="st">"HC1"</span>,
+             stars <span class="op">=</span> <span class="nb">TRUE</span>,
+             title <span class="op">=</span> <span class="st">"OLS with Robust Standard Errors"</span>)
+
+<span class="cm"># Coefficient plot</span>
+<span class="fn">modelplot</span>(models, coef_omit <span class="op">=</span> <span class="st">"Intercept"</span>) <span class="op">+</span>
+  <span class="fn">geom_vline</span>(xintercept <span class="op">=</span> <span class="nb">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>)</pre>
+
 <div class="concept tip">
-  <strong>Alternative: modelsummary</strong>
-  The <code>modelsummary</code> package is a modern alternative to stargazer with better customization and output to Word/LaTeX/HTML. Install with <code>install.packages("modelsummary")</code>.
+  <strong>modelsummary vs. stargazer</strong>
+  <code>modelsummary</code> is actively maintained, supports gt/kableExtra/flextable backends, handles robust and clustered SEs via the <code>vcov</code> argument, and can output directly to .docx or .tex files. It is the recommended choice for new projects.
 </div>
 
 <!-- ────────────────────────────── -->
@@ -174,6 +386,16 @@ new_data <span class="op">&lt;-</span> <span class="fn">data.frame</span>(wt <sp
   <p>Fit <code>mpg ~ wt + hp</code> and produce the four diagnostic plots. Do the residuals appear roughly normal? Is there evidence of heteroscedasticity? If so, compute robust standard errors using <code>lmtest</code> and <code>sandwich</code>.</p>
 </div>
 
+<div class="exercise">
+  <h4>Exercise 6.3</h4>
+  <p>Fit a model <code>mpg ~ wt * am</code> (with the interaction). Use <code>emmeans</code> to compute the predicted mpg for manual and automatic cars at wt = 2.5, 3.0, and 3.5. Plot the interaction using <code>emmip()</code>. Does the effect of weight on fuel economy differ by transmission type?</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 6.4</h4>
+  <p>Using your model from Exercise 6.1, compute Cook's distance for all observations. How many observations exceed the 4/n threshold? Refit the model after removing those influential points. Do the coefficients change substantially? Use <code>modelsummary</code> to display both models (full sample and trimmed sample) side by side with robust standard errors.</p>
+</div>
+
 <!-- ────────────────────────────── -->
 <div class="ext-resources">
   <h4>External Resources</h4>
@@ -181,6 +403,8 @@ new_data <span class="op">&lt;-</span> <span class="fn">data.frame</span>(wt <sp
     <li><a href="https://broom.tidymodels.org" target="_blank" rel="noopener">broom Package Documentation</a> <span class="ext-badge">External</span></li>
     <li><a href="https://cran.r-project.org/web/packages/stargazer/vignettes/stargazer.pdf" target="_blank" rel="noopener">stargazer Vignette (PDF)</a> <span class="ext-badge">External</span></li>
     <li><a href="https://modelsummary.com" target="_blank" rel="noopener">modelsummary Documentation</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://cran.r-project.org/web/packages/emmeans/vignettes/basics.html" target="_blank" rel="noopener">emmeans: Getting Started</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://sandwich.r-forge.r-project.org" target="_blank" rel="noopener">sandwich: Robust Covariance Estimators</a> <span class="ext-badge">External</span></li>
   </ul>
 </div>
 
@@ -189,10 +413,13 @@ new_data <span class="op">&lt;-</span> <span class="fn">data.frame</span>(wt <sp
   <h3>Key Takeaways</h3>
   <ul>
     <li><code>lm(y ~ x1 + x2, data)</code> fits OLS. <code>summary()</code> gives coefficients, SEs, p-values, R-squared.</li>
-    <li>Use <code>anova(model1, model2)</code> for nested model comparison.</li>
+    <li>Use <code>y ~ x1 * x2</code> for interactions and <code>I(x^2)</code> or <code>poly(x, 2)</code> for polynomial terms.</li>
+    <li><code>emmeans</code> computes estimated marginal means and pairwise contrasts for models with factors or interactions.</li>
+    <li>Use <code>anova(model1, model2)</code> for nested model comparison; <code>car::Anova(, type="III")</code> when interactions are present.</li>
     <li>Four diagnostic plots check linearity, normality, homoscedasticity, and leverage.</li>
-    <li><code>broom::tidy()</code> converts output to tidy data frames for programmatic use.</li>
-    <li><code>stargazer</code> or <code>modelsummary</code> produce publication-quality regression tables.</li>
+    <li>Use <code>sandwich::vcovHC()</code> with <code>lmtest::coeftest()</code> for robust standard errors; <code>vcovCL()</code> for clustered SEs.</li>
+    <li>Cook's distance, leverage, and DFBETAS identify influential observations that may distort estimates.</li>
+    <li><code>broom::tidy()</code> converts output to tidy data frames; <code>modelsummary</code> produces publication-quality tables.</li>
   </ul>
 </div>
 

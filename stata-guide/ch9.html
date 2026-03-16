@@ -37,7 +37,7 @@
 </nav>
 
 <h1>Chapter 9: Causal Inference</h1>
-<p class="subtitle">Difference-in-Differences, RDD, and Matching</p>
+<p class="subtitle">Difference-in-Differences, RDD, Matching, Entropy Balancing, and Synthetic Control</p>
 
 <h2>9.1 Difference-in-Differences (DID)</h2>
 <p>DID compares the change in outcomes over time between a treatment group and a control group. The key assumption is parallel trends: absent treatment, the two groups would have followed the same trajectory.</p>
@@ -80,6 +80,46 @@
     title(<span class="st">"Event Study: Dynamic Treatment Effects"</span>) ///
     ytitle(<span class="st">"Coefficient"</span>) xtitle(<span class="st">"Periods Relative to Treatment"</span>)</pre>
 
+<h3>9.2.1 Publication-Quality Event Study Plots with coefplot</h3>
+
+<pre class="stata"><span class="cm">* ─── Using factor variables for cleaner event study syntax ───</span>
+<span class="cm">* Binning endpoints to avoid extrapolation bias</span>
+<span class="kw">gen</span> event_time_binned = event_time
+<span class="kw">replace</span> event_time_binned = -5 if event_time < -5
+<span class="kw">replace</span> event_time_binned = 5 if event_time > 5
+
+<span class="cm">* Estimate with factor variables (reference = -1)</span>
+<span class="kw">reghdfe</span> outcome ib(-1).event_time_binned controls, ///
+    absorb(unit_id year) vce(cluster unit_id)
+
+<span class="cm">* Publication-ready coefplot</span>
+<span class="kw">coefplot</span>, keep(*.event_time_binned) vertical ///
+    rename(-5.event_time_binned = <span class="st">"-5"</span> ///
+           -4.event_time_binned = <span class="st">"-4"</span> ///
+           -3.event_time_binned = <span class="st">"-3"</span> ///
+           -2.event_time_binned = <span class="st">"-2"</span> ///
+            0.event_time_binned = <span class="st">"0"</span>  ///
+            1.event_time_binned = <span class="st">"1"</span>  ///
+            2.event_time_binned = <span class="st">"2"</span>  ///
+            3.event_time_binned = <span class="st">"3"</span>  ///
+            4.event_time_binned = <span class="st">"4"</span>  ///
+            5.event_time_binned = <span class="st">"5"</span>) ///
+    yline(0, lcolor(cranberry) lpattern(dash)) ///
+    xline(4.5, lcolor(gs10) lpattern(dash)) ///
+    ciopts(lwidth(thin) lcolor(navy%60)) ///
+    mcolor(navy) msymbol(circle) ///
+    graphregion(color(white)) ///
+    title(<span class="st">"Dynamic Treatment Effects"</span>, size(medium)) ///
+    ytitle(<span class="st">"Coefficient Estimate"</span>) xtitle(<span class="st">"Event Time"</span>) ///
+    note(<span class="st">"Reference period: t = -1. Bars show 95% CIs."</span>)
+
+<span class="kw">graph export</span> <span class="st">"event_study.png"</span>, replace width(1200)</pre>
+
+<div class="concept tip">
+    <strong>Event Study Best Practices for Reviewers</strong>
+    (1) Always bin the endpoints (e.g., aggregate all pre-treatment periods before t=-5 into a single bin) to avoid sparse-data distortions. (2) Show at least 3 pre-treatment periods to assess parallel trends. (3) Include confidence intervals, not just point estimates. (4) If pre-treatment coefficients show a trending pattern (even if individually insignificant), your parallel trends assumption may be questionable. (5) Use <code>vce(cluster unit_id)</code> for clustered SEs at the treatment-assignment level.
+</div>
+
 <h2>9.3 Modern DID with Staggered Treatment</h2>
 <p>When treatment rolls out at different times across units, the classic two-way FE estimator can be biased. Modern DID estimators address this issue.</p>
 
@@ -102,6 +142,34 @@
     The standard two-way FE estimator uses already-treated units as controls for newly-treated units, which introduces bias when treatment effects vary over time. If your treatment rolls out at different dates across units, use one of the modern estimators: Callaway-Sant'Anna, de Chaisemartin-D'Haultfoeuille, or Sun-Abraham.
 </div>
 
+<h3>9.3.1 Borusyak, Jaravel, and Spiess (2024): Imputation DID</h3>
+<p>The imputation approach to staggered DID estimates counterfactual outcomes for treated units by imputing from untreated observations. It is efficient and provides a clean event study decomposition.</p>
+
+<pre class="stata"><span class="cm">* Install: ssc install did_imputation, replace</span>
+
+<span class="cm">* ─── did_imputation (Borusyak, Jaravel, Spiess) ───</span>
+<span class="cm">* Requires: outcome, unit_id, time, first_treat (0 or . for never-treated)</span>
+<span class="kw">did_imputation</span> outcome unit_id year treat_year, ///
+    horizons(0/5) pretrends(5)
+
+<span class="cm">* horizons(0/5): estimate treatment effects for t=0,1,...,5</span>
+<span class="cm">* pretrends(5): estimate placebo effects for t=-5,...,-1</span>
+
+<span class="cm">* The output includes:</span>
+<span class="cm">* - Pre-trend coefficients (should be near zero)</span>
+<span class="cm">* - Horizon-specific ATT estimates</span>
+<span class="cm">* - An aggregate ATT across all horizons</span>
+
+<span class="cm">* Event study plot</span>
+<span class="kw">event_plot</span>, default_look ///
+    graph_opt(title(<span class="st">"BJS Imputation DID"</span>) ///
+    ytitle(<span class="st">"ATT"</span>) xtitle(<span class="st">"Periods Since Treatment"</span>))</pre>
+
+<div class="concept info">
+    <strong>Choosing Among Modern DID Estimators</strong>
+    All modern estimators address the same TWFE bias, but they differ in assumptions and efficiency. <strong>Callaway-Sant'Anna (csdid)</strong> is semiparametric and allows for doubly-robust estimation; it requires a "never treated" or "not yet treated" comparison group. <strong>did_imputation (BJS)</strong> is most efficient under homogeneous treatment effects and provides a clean event study plot. <strong>did_multiplegt (dCDH)</strong> is the most agnostic but can be noisy with many time periods. For most applications, start with <code>csdid</code> and check robustness with <code>did_imputation</code>.
+</div>
+
 <h2>9.4 Regression Discontinuity Design (RDD)</h2>
 <p>RDD exploits a threshold rule to identify causal effects. Units just above and just below the threshold are comparable, providing a local randomized experiment.</p>
 
@@ -122,13 +190,59 @@
 <span class="cm">* Manipulation test (McCrary density test)</span>
 <span class="kw">rddensity</span> running_var, c(0) plot</pre>
 
+<h3>9.4.1 Bandwidth Selection and Sensitivity</h3>
+<p>The bandwidth choice determines which observations near the cutoff are used. Narrower bandwidths reduce bias (more local comparison) but increase variance (fewer observations). Robustness to bandwidth choice is expected by reviewers.</p>
+
+<pre class="stata"><span class="cm">* ─── Bandwidth Selection Methods ───</span>
+<span class="cm">* Default: MSE-optimal bandwidth (Calonico, Cattaneo, Titiunik 2014)</span>
+<span class="kw">rdrobust</span> outcome running_var, c(0)
+<span class="cm">* The output reports the optimal bandwidth (h) and the</span>
+<span class="cm">* bias-corrected robust confidence interval</span>
+
+<span class="cm">* CER-optimal bandwidth (smaller, better coverage)</span>
+<span class="kw">rdrobust</span> outcome running_var, c(0) bwselect(cerrd)
+
+<span class="cm">* ─── Bandwidth Sensitivity Analysis ───</span>
+<span class="cm">* Estimate at 50%, 75%, 100%, 125%, 150%, 200% of optimal</span>
+<span class="kw">rdrobust</span> outcome running_var, c(0)
+<span class="kw">local</span> h_opt = e(h_l)  <span class="cm">// store optimal bandwidth</span>
+
+<span class="kw">foreach</span> mult in 0.5 0.75 1 1.25 1.5 2 {
+    <span class="kw">local</span> h_use = `h_opt' * `mult'
+    <span class="kw">quietly rdrobust</span> outcome running_var, c(0) h(`h_use')
+    <span class="kw">display</span> <span class="st">"h = "</span> %6.2f `h_use' ///
+        <span class="st">" | Estimate = "</span> %8.3f e(tau_cl) ///
+        <span class="st">" | p-value = "</span> %6.3f e(pv_rb)
+}
+
+<span class="cm">* ─── Placebo Tests at Non-Cutoff Points ───</span>
+<span class="cm">* Test at median of running variable (should find no effect)</span>
+<span class="kw">summarize</span> running_var, detail
+<span class="kw">rdrobust</span> outcome running_var, c(`r(p50)')
+<span class="cm">* A significant result at a placebo cutoff suggests confounding</span></pre>
+
+<div class="concept warn">
+    <strong>RDD Validity Checks for Reviewers</strong>
+    Reviewers expect several validity tests: (1) <strong>McCrary density test</strong> (<code>rddensity</code>): no manipulation of the running variable at the cutoff. (2) <strong>Covariate balance</strong>: run <code>rdrobust</code> with pre-determined covariates as the outcome; no jumps should appear. (3) <strong>Bandwidth sensitivity</strong>: results should be stable across a range of bandwidths. (4) <strong>Placebo cutoffs</strong>: no treatment effect at non-cutoff points. (5) <strong>Donut hole test</strong>: exclude observations very close to the cutoff to check whether a few influential observations drive the result.
+</div>
+
 <h2>9.5 Fuzzy RDD</h2>
 <p>In a fuzzy RDD, crossing the threshold increases the probability of treatment but does not determine it perfectly. This is estimated via a local IV approach.</p>
 
 <pre class="stata"><span class="cm">* Fuzzy RDD: treatment is the endogenous variable</span>
 <span class="kw">rdrobust</span> outcome running_var, c(0) fuzzy(treatment)
 
-<span class="cm">* This estimates the LATE at the cutoff</span></pre>
+<span class="cm">* This estimates the LATE at the cutoff</span>
+
+<span class="cm">* ─── Verify the First Stage in Fuzzy RDD ───</span>
+<span class="cm">* There must be a visible jump in treatment probability at the cutoff</span>
+<span class="kw">rdplot</span> treatment running_var, c(0) ///
+    title(<span class="st">"First Stage: Treatment Take-Up at Cutoff"</span>) ///
+    x(<span class="st">"Running Variable"</span>) y(<span class="st">"Pr(Treatment)"</span>)
+
+<span class="cm">* Estimate the first-stage jump</span>
+<span class="kw">rdrobust</span> treatment running_var, c(0)
+<span class="cm">* If the jump is small (weak first stage), fuzzy RDD is imprecise</span></pre>
 
 <h2>9.6 Propensity Score Matching</h2>
 <p>Matching pairs treated and control units based on observed characteristics. The assumption is that, conditional on these characteristics, treatment assignment is as good as random (selection on observables).</p>
@@ -142,6 +256,46 @@
 
 <span class="cm">* Balance plot</span>
 <span class="kw">tebalance</span> density x1</pre>
+
+<h3>9.6.1 Propensity Score Overlap Diagnostics</h3>
+<p>Matching only works when treated and control units share a common region of the propensity score distribution. Lack of overlap means some treated units have no comparable controls, and results rely on extrapolation.</p>
+
+<pre class="stata"><span class="cm">* ─── Estimate Propensity Score Manually ───</span>
+<span class="kw">logit</span> treatment x1 x2 x3
+<span class="kw">predict</span> pscore, pr
+
+<span class="cm">* ─── Overlap (Common Support) Assessment ───</span>
+<span class="cm">* Visual: overlapping density plots</span>
+<span class="kw">twoway</span> (kdensity pscore if treatment == 1, lcolor(cranberry)) ///
+       (kdensity pscore if treatment == 0, lcolor(navy)), ///
+    legend(order(1 <span class="st">"Treated"</span> 2 <span class="st">"Control"</span>)) ///
+    title(<span class="st">"Propensity Score Overlap"</span>) ///
+    xtitle(<span class="st">"Propensity Score"</span>) ytitle(<span class="st">"Density"</span>)
+
+<span class="cm">* Summary statistics by group</span>
+<span class="kw">tabstat</span> pscore, by(treatment) stats(min max mean p25 p75)
+
+<span class="cm">* ─── Trimming for Common Support ───</span>
+<span class="cm">* Drop observations outside the overlap region</span>
+<span class="kw">summarize</span> pscore if treatment == 1
+<span class="kw">local</span> min_treated = r(min)
+<span class="kw">local</span> max_treated = r(max)
+<span class="kw">summarize</span> pscore if treatment == 0
+<span class="kw">local</span> min_control = r(min)
+<span class="kw">local</span> max_control = r(max)
+
+<span class="kw">gen</span> common_support = (pscore >= max(`min_treated', `min_control') & ///
+                      pscore <= min(`max_treated', `max_control'))
+<span class="kw">tab</span> common_support treatment
+
+<span class="cm">* Re-estimate on common support only</span>
+<span class="kw">teffects psmatch</span> (outcome) (treatment x1 x2 x3, logit) ///
+    if common_support == 1, nn(1) atet</pre>
+
+<div class="concept info">
+    <strong>Standardized Mean Differences (SMD) for Balance</strong>
+    After matching, report standardized mean differences (SMD) rather than t-tests to assess covariate balance. The SMD is the difference in means divided by the pooled standard deviation. An SMD below 0.1 indicates good balance, while an SMD above 0.25 is concerning. Use <code>tebalance summarize</code> after <code>teffects</code> or compute manually. Reviewers at top journals expect a balance table showing pre-match and post-match SMDs for all covariates.
+</div>
 
 <h2>9.7 Other Matching Methods</h2>
 
@@ -160,6 +314,50 @@
     <strong>Choosing a Matching Estimator</strong>
     PSM is common but sensitive to propensity score model specification. CEM avoids the propensity score entirely by coarsening covariates and matching exactly within bins. Doubly-robust methods (AIPW/IPWRA) are consistent if either the outcome model or the treatment model is correctly specified.
 </div>
+
+<h3>9.7.1 Entropy Balancing</h3>
+<p>Entropy balancing (Hainmueller, 2012) reweights control observations to match the covariate moments (mean, variance, skewness) of the treated group. It achieves exact balance without discarding observations or relying on a propensity score model.</p>
+
+<pre class="stata"><span class="cm">* Install: ssc install ebalance, replace</span>
+
+<span class="cm">* Entropy balancing on first and second moments</span>
+<span class="kw">ebalance</span> treatment x1 x2 x3 x4, targets(2)
+<span class="cm">* targets(1) = match means only</span>
+<span class="cm">* targets(2) = match means and variances</span>
+<span class="cm">* targets(3) = match means, variances, and skewness</span>
+
+<span class="cm">* The command creates _webal as the balancing weight</span>
+<span class="cm">* Use it in the outcome regression</span>
+<span class="kw">regress</span> outcome treatment x1 x2 x3 [pw=_webal], vce(robust)
+
+<span class="cm">* Verify balance achieved</span>
+<span class="kw">tabstat</span> x1 x2 x3 [aw=_webal], by(treatment) stats(mean sd)</pre>
+
+<div class="concept tip">
+    <strong>Entropy Balancing vs. PSM</strong>
+    Entropy balancing has several advantages over PSM: (1) it guarantees exact covariate balance (by construction), so no iterative checking and re-specification of the propensity score model is needed; (2) it retains all observations (no units are discarded); (3) it is less sensitive to model specification. The downside is that extreme weights can arise if the covariate distributions are very different, reducing effective sample size. Always check the weight distribution: <code>summarize _webal, detail</code>. Entropy balancing has become increasingly popular in management and strategy journals.
+</div>
+
+<h3>9.7.2 Coarsened Exact Matching: Detailed Implementation</h3>
+
+<pre class="stata"><span class="cm">* ─── CEM with Automatic Coarsening ───</span>
+<span class="kw">cem</span> age education income, treatment(treatment)
+
+<span class="cm">* Check the matching result</span>
+<span class="cm">* CEM reports: matched observations, L1 distance before/after</span>
+
+<span class="cm">* ─── CEM with Manual Bin Specification ───</span>
+<span class="cm">* (#k) means k equal-width bins</span>
+<span class="cm">* (10 20 30 40) means use these breakpoints</span>
+<span class="kw">cem</span> age (20 30 40 50 60) education (#4) income (#10), ///
+    treatment(treatment)
+
+<span class="cm">* Use CEM weights in analysis</span>
+<span class="kw">regress</span> outcome treatment x1 x2 [iweight=cem_weights], vce(robust)
+
+<span class="cm">* CEM + panel regression</span>
+<span class="kw">reghdfe</span> outcome treatment [aw=cem_weights], ///
+    absorb(unit_id year) vce(cluster unit_id)</pre>
 
 <h2>9.8 Synthetic Control Method</h2>
 
@@ -180,12 +378,24 @@
     <p>Using <code>rdrobust</code>, simulate a sharp RDD with a known cutoff. Generate a running variable from a uniform distribution, treatment as <code>running_var >= 0</code>, and an outcome with a jump of 3 at the cutoff. Estimate the RDD treatment effect and create an <code>rdplot</code>.</p>
 </div>
 
+<div class="exercise">
+    <h4>Exercise 9.3</h4>
+    <p>Continuing Exercise 9.2, perform a bandwidth sensitivity analysis for your RDD. Estimate the treatment effect at 50%, 75%, 100%, 125%, 150%, and 200% of the MSE-optimal bandwidth. Do the results remain stable? Run a placebo test at the median of the running variable. Also run <code>rddensity</code> to check for manipulation. Present your findings in a summary table.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 9.4</h4>
+    <p>Simulate a staggered DID setting: create 100 units observed for 10 years, where treatment is adopted at different times (years 4, 6, and 8) for different groups, with some units never treated. Set the true treatment effect to 3. Estimate the effect using (a) standard TWFE (<code>reghdfe outcome treat, absorb(unit year)</code>), (b) Callaway-Sant'Anna (<code>csdid</code>), and (c) imputation DID (<code>did_imputation</code>). Compare the estimates. Does TWFE recover the true effect?</p>
+</div>
+
 <div class="ext-resources">
     <h4>External Resources</h4>
     <ul>
         <li><a href="https://asjadnaqvi.github.io/DiD/" target="_blank" rel="noopener">Difference-in-Differences Literature Review (Naqvi)</a> <span class="ext-badge">External</span></li>
         <li><a href="https://rdpackages.github.io/rdrobust/" target="_blank" rel="noopener">rdrobust Documentation (Cattaneo, Idrobo, Titiunik)</a> <span class="ext-badge">External</span></li>
         <li><a href="https://www.stata.com/manuals/teteffects.pdf" target="_blank" rel="noopener">Stata Manual: Treatment Effects</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://github.com/borusyak/did_imputation" target="_blank" rel="noopener">did_imputation (Borusyak, Jaravel, Spiess)</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://friosavila.github.io/playhtm/playhtm/csdid.html" target="_blank" rel="noopener">csdid Walkthrough (Rios-Avila)</a> <span class="ext-badge">External</span></li>
     </ul>
 </div>
 
@@ -193,9 +403,12 @@
     <h3>Key Takeaways</h3>
     <ul>
         <li>DID requires parallel trends; always test with an event study plot before reporting results.</li>
-        <li>Use modern DID estimators (Callaway-Sant'Anna, de Chaisemartin-D'Haultfoeuille) for staggered treatment.</li>
-        <li>RDD provides local causal estimates near the cutoff; run the McCrary density test to check manipulation.</li>
-        <li>Matching relies on selection on observables; always check and report covariate balance.</li>
+        <li>Use modern DID estimators (Callaway-Sant'Anna, BJS imputation, de Chaisemartin-D'Haultfoeuille) for staggered treatment.</li>
+        <li>RDD provides local causal estimates near the cutoff; run the McCrary density test, bandwidth sensitivity, and placebo cutoff tests.</li>
+        <li>For fuzzy RDD, always verify and show the first-stage jump in treatment probability at the cutoff.</li>
+        <li>Matching relies on selection on observables; always check and report covariate balance via standardized mean differences.</li>
+        <li>Entropy balancing achieves exact balance by construction and is increasingly preferred over PSM in management research.</li>
+        <li>Propensity score overlap is critical; visualize the score distributions and trim non-overlapping regions.</li>
     </ul>
 </div>
 

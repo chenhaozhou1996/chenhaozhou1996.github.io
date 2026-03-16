@@ -136,7 +136,221 @@ pivot = df.<span class="fn">pivot_table</span>(
 )
 <span class="fn">print</span>(pivot)</pre>
 
-<h2>5.9 Handling Missing Data</h2>
+<h2>5.9 The apply() Method</h2>
+<p><code>apply()</code> lets you run any function along an axis of a DataFrame. It is useful when vectorized operations are not sufficient, for example when you need row-wise logic that depends on multiple columns. Use it sparingly because it is slower than vectorized operations.</p>
+
+<pre class="python"><span class="cm"># apply a function to each row</span>
+<span class="kw">def</span> <span class="fn">margin_tier</span>(row):
+    margin = (row[<span class="st">"revenue"</span>] - row[<span class="st">"price"</span>] * row[<span class="st">"quantity"</span>] * <span class="nb">0.6</span>) / row[<span class="st">"revenue"</span>]
+    <span class="kw">if</span> margin > <span class="nb">0.4</span>:
+        <span class="kw">return</span> <span class="st">"High"</span>
+    <span class="kw">elif</span> margin > <span class="nb">0.2</span>:
+        <span class="kw">return</span> <span class="st">"Medium"</span>
+    <span class="kw">else</span>:
+        <span class="kw">return</span> <span class="st">"Low"</span>
+
+df[<span class="st">"margin_tier"</span>] = df.<span class="fn">apply</span>(margin_tier, axis=<span class="nb">1</span>)
+
+<span class="cm"># apply to a single column (same as .map())</span>
+df[<span class="st">"price_usd"</span>] = df[<span class="st">"price"</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> x: <span class="fn">round</span>(x * <span class="nb">1.1</span>, <span class="nb">2</span>))
+
+<span class="cm"># applymap — apply element-wise to entire DataFrame (renamed to map in pandas 2.1+)</span>
+numeric_df = df[[<span class="st">"price"</span>, <span class="st">"quantity"</span>]]
+formatted = numeric_df.<span class="fn">applymap</span>(<span class="kw">lambda</span> x: <span class="st">f"</span>{x:,.2f}<span class="st">"</span>)
+<span class="fn">print</span>(formatted)</pre>
+
+<div class="concept warn">
+    <strong>Performance note:</strong> <code>apply()</code> runs Python code row by row and is much slower than vectorized operations. Before using <code>apply()</code>, check whether <code>np.where()</code>, <code>np.select()</code>, or pandas built-in methods can accomplish the same task. Reserve <code>apply()</code> for complex logic that cannot be vectorized.
+</div>
+
+<h2>5.10 String Accessor (.str)</h2>
+<p>The <code>.str</code> accessor exposes string methods on an entire Series, eliminating the need to loop through rows. This is essential for cleaning text columns such as names, addresses, and product descriptions.</p>
+
+<pre class="python">orders = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"customer"</span>: [<span class="st">"  John Smith "</span>, <span class="st">"JANE DOE"</span>, <span class="st">"bob jones"</span>, <span class="st">"Alice Lee"</span>],
+    <span class="st">"sku"</span>: [<span class="st">"WDG-2024-A"</span>, <span class="st">"GDT-2024-B"</span>, <span class="st">"BRK-2023-C"</span>, <span class="st">"BLT-2024-A"</span>],
+    <span class="st">"email"</span>: [<span class="st">"john@co.com"</span>, <span class="st">"jane@co.com"</span>, <span class="st">"bob@co.com"</span>, <span class="nb">None</span>]
+})
+
+<span class="cm"># Clean customer names</span>
+orders[<span class="st">"customer"</span>] = orders[<span class="st">"customer"</span>].<span class="fn">str</span>.<span class="fn">strip</span>().<span class="fn">str</span>.<span class="fn">title</span>()
+<span class="fn">print</span>(orders[<span class="st">"customer"</span>])
+<span class="cm"># 0    John Smith</span>
+<span class="cm"># 1      Jane Doe</span>
+<span class="cm"># 2     Bob Jones</span>
+<span class="cm"># 3     Alice Lee</span>
+
+<span class="cm"># Extract parts from SKU</span>
+orders[<span class="st">"product_code"</span>] = orders[<span class="st">"sku"</span>].<span class="fn">str</span>.<span class="fn">split</span>(<span class="st">"-"</span>).<span class="fn">str</span>[<span class="nb">0</span>]
+orders[<span class="st">"year"</span>] = orders[<span class="st">"sku"</span>].<span class="fn">str</span>.<span class="fn">split</span>(<span class="st">"-"</span>).<span class="fn">str</span>[<span class="nb">1</span>].<span class="fn">astype</span>(<span class="nb">int</span>)
+
+<span class="cm"># Boolean check — contains, startswith, endswith</span>
+<span class="fn">print</span>(orders[<span class="st">"sku"</span>].<span class="fn">str</span>.<span class="fn">contains</span>(<span class="st">"2024"</span>))
+<span class="fn">print</span>(orders[<span class="st">"email"</span>].<span class="fn">str</span>.<span class="fn">endswith</span>(<span class="st">"@co.com"</span>))  <span class="cm"># handles NaN gracefully</span>
+
+<span class="cm"># Replace text</span>
+orders[<span class="st">"sku_clean"</span>] = orders[<span class="st">"sku"</span>].<span class="fn">str</span>.<span class="fn">replace</span>(<span class="st">"-"</span>, <span class="st">""</span>)
+
+<span class="cm"># String length</span>
+<span class="fn">print</span>(orders[<span class="st">"customer"</span>].<span class="fn">str</span>.<span class="fn">len</span>())</pre>
+
+<h2>5.11 DateTime Accessor (.dt)</h2>
+<p>When a column is parsed as datetime, the <code>.dt</code> accessor exposes properties like year, month, day of week, and quarter. This is critical for time-series analysis, seasonal patterns, and cohort-based reporting.</p>
+
+<pre class="python"><span class="cm"># Parse string dates into datetime</span>
+sales = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"date"</span>: [<span class="st">"2024-01-15"</span>, <span class="st">"2024-03-22"</span>, <span class="st">"2024-07-04"</span>, <span class="st">"2024-11-28"</span>],
+    <span class="st">"amount"</span>: [<span class="nb">1200</span>, <span class="nb">3400</span>, <span class="nb">2800</span>, <span class="nb">4100</span>]
+})
+sales[<span class="st">"date"</span>] = pd.<span class="fn">to_datetime</span>(sales[<span class="st">"date"</span>])
+
+<span class="cm"># Extract components</span>
+sales[<span class="st">"year"</span>]    = sales[<span class="st">"date"</span>].<span class="fn">dt</span>.year
+sales[<span class="st">"month"</span>]   = sales[<span class="st">"date"</span>].<span class="fn">dt</span>.month
+sales[<span class="st">"quarter"</span>] = sales[<span class="st">"date"</span>].<span class="fn">dt</span>.quarter
+sales[<span class="st">"weekday"</span>] = sales[<span class="st">"date"</span>].<span class="fn">dt</span>.day_name()
+
+<span class="fn">print</span>(sales)
+
+<span class="cm"># Filter by date range</span>
+h2 = sales[sales[<span class="st">"date"</span>] >= <span class="st">"2024-07-01"</span>]
+<span class="fn">print</span>(h2)
+
+<span class="cm"># Compute days since last sale</span>
+sales[<span class="st">"days_gap"</span>] = sales[<span class="st">"date"</span>].<span class="fn">diff</span>().<span class="fn">dt</span>.days</pre>
+
+<div class="concept tip">
+    <strong>Always parse dates early.</strong> Call <code>pd.to_datetime()</code> right after reading your data. Keeping dates as strings prevents you from filtering by date ranges, extracting components, and computing differences. Many <code>read_csv()</code> calls benefit from the <code>parse_dates=["col"]</code> parameter.
+</div>
+
+<h2>5.12 Window Functions: Rolling and Expanding</h2>
+<p>Window functions compute statistics over a sliding window of rows. <code>rolling(n)</code> uses a fixed window of <code>n</code> observations; <code>expanding()</code> uses all rows from the start up to the current row. These are essential for computing moving averages, cumulative sums, and trend indicators.</p>
+
+<pre class="python"><span class="cm"># Monthly revenue data</span>
+monthly = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"month"</span>: pd.<span class="fn">date_range</span>(<span class="st">"2024-01"</span>, periods=<span class="nb">12</span>, freq=<span class="st">"MS"</span>),
+    <span class="st">"revenue"</span>: [<span class="nb">45</span>, <span class="nb">52</span>, <span class="nb">48</span>, <span class="nb">61</span>, <span class="nb">55</span>, <span class="nb">70</span>, <span class="nb">68</span>, <span class="nb">72</span>, <span class="nb">65</span>, <span class="nb">80</span>, <span class="nb">78</span>, <span class="nb">90</span>]
+})
+
+<span class="cm"># 3-month rolling average (smooths out noise)</span>
+monthly[<span class="st">"rolling_3m"</span>] = monthly[<span class="st">"revenue"</span>].<span class="fn">rolling</span>(<span class="nb">3</span>).<span class="fn">mean</span>()
+
+<span class="cm"># Cumulative (expanding) sum — year-to-date total</span>
+monthly[<span class="st">"ytd_total"</span>] = monthly[<span class="st">"revenue"</span>].<span class="fn">expanding</span>().<span class="fn">sum</span>()
+
+<span class="cm"># Rolling standard deviation (volatility measure)</span>
+monthly[<span class="st">"rolling_std"</span>] = monthly[<span class="st">"revenue"</span>].<span class="fn">rolling</span>(<span class="nb">3</span>).<span class="fn">std</span>()
+
+<span class="cm"># Percent change from previous period</span>
+monthly[<span class="st">"pct_change"</span>] = monthly[<span class="st">"revenue"</span>].<span class="fn">pct_change</span>()
+
+<span class="fn">print</span>(monthly.<span class="fn">round</span>(<span class="nb">2</span>))</pre>
+
+<h2>5.13 MultiIndex (Hierarchical Indexing)</h2>
+<p>A MultiIndex lets you have multiple levels of row or column labels. This is useful when your data has a natural hierarchy (e.g., region and store, or year and quarter). GroupBy operations often produce MultiIndex results.</p>
+
+<pre class="python"><span class="cm"># Create a MultiIndex from groupby</span>
+data = pd.<span class="fn">DataFrame</span>({
+    <span class="st">"region"</span>: [<span class="st">"East"</span>, <span class="st">"East"</span>, <span class="st">"West"</span>, <span class="st">"West"</span>, <span class="st">"East"</span>, <span class="st">"West"</span>],
+    <span class="st">"product"</span>: [<span class="st">"Widget"</span>, <span class="st">"Gadget"</span>, <span class="st">"Widget"</span>, <span class="st">"Gadget"</span>, <span class="st">"Bolt"</span>, <span class="st">"Bolt"</span>],
+    <span class="st">"revenue"</span>: [<span class="nb">15000</span>, <span class="nb">8000</span>, <span class="nb">12000</span>, <span class="nb">9500</span>, <span class="nb">3000</span>, <span class="nb">4500</span>]
+})
+
+summary = data.<span class="fn">groupby</span>([<span class="st">"region"</span>, <span class="st">"product"</span>])[<span class="st">"revenue"</span>].<span class="fn">sum</span>()
+<span class="fn">print</span>(summary)
+<span class="cm"># region  product</span>
+<span class="cm"># East    Bolt        3000</span>
+<span class="cm">#         Gadget      8000</span>
+<span class="cm">#         Widget     15000</span>
+<span class="cm"># West    Bolt        4500</span>
+<span class="cm">#         ...</span>
+
+<span class="cm"># Access with .loc on MultiIndex</span>
+<span class="fn">print</span>(summary.<span class="fn">loc</span>[<span class="st">"East"</span>])          <span class="cm"># All East products</span>
+<span class="fn">print</span>(summary.<span class="fn">loc</span>[(<span class="st">"East"</span>, <span class="st">"Widget"</span>)])  <span class="cm"># 15000</span>
+
+<span class="cm"># Reset back to flat DataFrame</span>
+flat = summary.<span class="fn">reset_index</span>()
+<span class="fn">print</span>(flat)</pre>
+
+<h2>5.14 Reading and Writing: Advanced Options</h2>
+<p>Beyond basic <code>read_csv()</code>, pandas supports Excel files, SQL databases, JSON, and many other formats. Knowing the key parameters saves hours of manual data cleaning.</p>
+
+<pre class="python"><span class="cm"># read_csv — important parameters</span>
+df = pd.<span class="fn">read_csv</span>(
+    <span class="st">"sales.csv"</span>,
+    parse_dates=[<span class="st">"order_date"</span>],      <span class="cm"># auto-parse date columns</span>
+    dtype={<span class="st">"zip_code"</span>: <span class="nb">str</span>},         <span class="cm"># keep leading zeros</span>
+    na_values=[<span class="st">"N/A"</span>, <span class="st">"missing"</span>, <span class="st">""</span>], <span class="cm"># treat these as NaN</span>
+    usecols=[<span class="st">"order_date"</span>, <span class="st">"product"</span>, <span class="st">"revenue"</span>],  <span class="cm"># read only needed cols</span>
+    nrows=<span class="nb">1000</span>                       <span class="cm"># read first 1000 rows (for testing)</span>
+)
+
+<span class="cm"># read_excel — specify sheet and range</span>
+df_xl = pd.<span class="fn">read_excel</span>(
+    <span class="st">"report.xlsx"</span>,
+    sheet_name=<span class="st">"Q4 Data"</span>,
+    skiprows=<span class="nb">2</span>,                      <span class="cm"># skip header rows</span>
+    usecols=<span class="st">"A:F"</span>                     <span class="cm"># Excel-style column range</span>
+)
+
+<span class="cm"># read_sql — query a database directly</span>
+<span class="kw">import</span> sqlite3
+conn = sqlite3.<span class="fn">connect</span>(<span class="st">"warehouse.db"</span>)
+df_sql = pd.<span class="fn">read_sql</span>(<span class="st">"SELECT * FROM orders WHERE year = 2024"</span>, conn)
+
+<span class="cm"># to_csv — important parameters</span>
+df.<span class="fn">to_csv</span>(
+    <span class="st">"output.csv"</span>,
+    index=<span class="nb">False</span>,           <span class="cm"># don't write row numbers</span>
+    encoding=<span class="st">"utf-8-sig"</span>,   <span class="cm"># BOM for Excel compatibility</span>
+    float_format=<span class="st">"%.2f"</span>,    <span class="cm"># limit decimal places</span>
+    columns=[<span class="st">"product"</span>, <span class="st">"revenue"</span>]  <span class="cm"># write only selected columns</span>
+)</pre>
+
+<div class="concept info">
+    <strong>dtype parameter:</strong> Always specify <code>dtype={"zip_code": str}</code> for columns that look like numbers but should remain strings (zip codes, product IDs with leading zeros). Without this, pandas silently converts "07102" to the integer 7102.
+</div>
+
+<h2>5.15 Method Chaining</h2>
+<p>Method chaining is the practice of calling multiple DataFrame methods in sequence, where each method returns a new DataFrame. This produces clean, readable data pipelines that are easy to understand and modify. Think of it as building a recipe, step by step.</p>
+
+<pre class="python"><span class="cm"># Without chaining — hard to follow</span>
+df2 = df.<span class="fn">dropna</span>()
+df3 = df2[df2[<span class="st">"revenue"</span>] > <span class="nb">0</span>]
+df4 = df3.<span class="fn">assign</span>(margin=df3[<span class="st">"revenue"</span>] - df3[<span class="st">"cost"</span>])
+df5 = df4.<span class="fn">sort_values</span>(<span class="st">"margin"</span>, ascending=<span class="nb">False</span>)
+
+<span class="cm"># With chaining — clean, readable pipeline</span>
+result = (
+    df
+    .<span class="fn">dropna</span>()
+    .<span class="fn">query</span>(<span class="st">"revenue > 0"</span>)
+    .<span class="fn">assign</span>(margin=<span class="kw">lambda</span> x: x[<span class="st">"revenue"</span>] - x[<span class="st">"cost"</span>])
+    .<span class="fn">sort_values</span>(<span class="st">"margin"</span>, ascending=<span class="nb">False</span>)
+    .<span class="fn">head</span>(<span class="nb">10</span>)
+)
+
+<span class="cm"># Real-world example: monthly sales report</span>
+report = (
+    pd.<span class="fn">read_csv</span>(<span class="st">"orders.csv"</span>, parse_dates=[<span class="st">"date"</span>])
+    .<span class="fn">assign</span>(
+        month=<span class="kw">lambda</span> x: x[<span class="st">"date"</span>].<span class="fn">dt</span>.to_period(<span class="st">"M"</span>),
+        total=<span class="kw">lambda</span> x: x[<span class="st">"quantity"</span>] * x[<span class="st">"unit_price"</span>]
+    )
+    .<span class="fn">groupby</span>(<span class="st">"month"</span>)
+    .<span class="fn">agg</span>(
+        orders=(<span class="st">"order_id"</span>, <span class="st">"count"</span>),
+        revenue=(<span class="st">"total"</span>, <span class="st">"sum"</span>)
+    )
+    .<span class="fn">reset_index</span>()
+)</pre>
+
+<div class="concept tip">
+    <strong>Best practices for chaining:</strong> (1) Wrap the entire chain in parentheses so you can break across lines without backslashes. (2) Use <code>.assign()</code> instead of <code>df["col"] = ...</code> because <code>assign()</code> returns a new DataFrame and supports chaining. (3) Use <code>.query()</code> instead of boolean indexing inside chains for readability.
+</div>
+
+<h2>5.16 Handling Missing Data</h2>
 
 <pre class="python"><span class="cm"># Detect missing values</span>
 <span class="fn">print</span>(df.<span class="fn">isnull</span>().<span class="fn">sum</span>())
@@ -150,7 +364,7 @@ df_clean = df.<span class="fn">dropna</span>()
 <span class="cm"># Forward fill (useful for time series)</span>
 df[<span class="st">"stock"</span>].<span class="fn">fillna</span>(method=<span class="st">"ffill"</span>, inplace=<span class="nb">True</span>)</pre>
 
-<h2>5.10 Sorting and Exporting</h2>
+<h2>5.17 Sorting and Exporting</h2>
 
 <pre class="python"><span class="cm"># Sort by revenue descending</span>
 df_sorted = df.<span class="fn">sort_values</span>(<span class="st">"revenue"</span>, ascending=<span class="nb">False</span>)
@@ -169,6 +383,16 @@ df_sorted.<span class="fn">to_excel</span>(<span class="st">"output.xlsx"</span>
     <p>Download any public CSV dataset (e.g., from Kaggle). Read it with <code>pd.read_csv()</code>, check for missing values with <code>.isnull().sum()</code>, fill or drop them, and create a pivot table summarizing a numeric column by a categorical column.</p>
 </div>
 
+<div class="exercise">
+    <h4>Exercise 5.3</h4>
+    <p>Create a DataFrame with a "date" column spanning 365 days and a "daily_sales" column with random values. Parse dates with <code>pd.to_datetime()</code>, then: (a) extract month and day-of-week columns using <code>.dt</code>, (b) compute a 7-day rolling average, (c) find the month with the highest total sales using <code>groupby</code>.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 5.4</h4>
+    <p>Given a DataFrame with messy customer names (mixed case, extra spaces), use the <code>.str</code> accessor to clean them. Then rewrite the entire cleaning pipeline using method chaining: read the CSV, strip and title-case names, filter out rows with missing emails, add a "domain" column extracted from the email using <code>.str.split("@").str[1]</code>, and sort by domain.</p>
+</div>
+
 <div class="ext-resources">
     <h4>Official Resources</h4>
     <ul>
@@ -182,9 +406,13 @@ df_sorted.<span class="fn">to_excel</span>(<span class="st">"output.xlsx"</span>
     <h3>Chapter 5 Takeaways</h3>
     <ul>
         <li>The DataFrame is the central data structure in pandas, analogous to a spreadsheet or SQL table.</li>
-        <li>Use loc for label-based selection and iloc for position-based selection.</li>
-        <li>groupby + agg is the pandas equivalent of SQL GROUP BY; pivot_table adds a spreadsheet-style crosstab.</li>
-        <li>Always check for missing data early; use fillna() or dropna() depending on your analysis needs.</li>
+        <li>Use <code>loc</code> for label-based selection and <code>iloc</code> for position-based selection.</li>
+        <li><code>groupby</code> + <code>agg</code> is the pandas equivalent of SQL GROUP BY; <code>pivot_table</code> adds a spreadsheet-style crosstab.</li>
+        <li>The <code>.str</code> accessor cleans text columns without loops; the <code>.dt</code> accessor extracts date components.</li>
+        <li><code>rolling()</code> and <code>expanding()</code> compute moving averages, cumulative sums, and other window-based statistics.</li>
+        <li>Method chaining with <code>.assign()</code>, <code>.query()</code>, and parentheses produces clean, readable data pipelines.</li>
+        <li>Always check for missing data early; use <code>fillna()</code> or <code>dropna()</code> depending on your analysis needs.</li>
+        <li>Specify <code>dtype</code> and <code>parse_dates</code> in <code>read_csv()</code> to avoid silent type conversion errors.</li>
     </ul>
 </div>
 

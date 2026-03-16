@@ -37,7 +37,7 @@
 </nav>
 
 <h1>Chapter 8: Time Series &amp; Forecasting</h1>
-<p class="subtitle">ARIMA, VAR, Unit Roots, and Granger Causality</p>
+<p class="subtitle">ARIMA, VAR, Unit Roots, Cointegration, ARCH/GARCH, and Forecast Evaluation</p>
 
 <h2>8.1 Declaring Time Series Data</h2>
 <p>Before using time-series operators and estimation commands, declare the time variable with <code>tsset</code>.</p>
@@ -97,6 +97,32 @@
     Use the series in levels if stationary (I(0)). If the series is I(1), work with first differences. If two I(1) series are cointegrated, you can estimate a Vector Error Correction Model (VECM) instead of differencing.
 </div>
 
+<h3>8.3.1 KPSS Test: Reversing the Null</h3>
+<p>The ADF and Phillips-Perron tests have stationarity as the alternative hypothesis, meaning a failure to reject leaves you uncertain. The KPSS test reverses this: H0 is stationarity. Using both tests together provides a more complete picture.</p>
+
+<pre class="stata"><span class="cm">* Install KPSS test: ssc install kpss, replace</span>
+<span class="kw">kpss</span> gnp96, maxlag(4)
+<span class="cm">* H0: series is stationary</span>
+<span class="cm">* Reject => series is nonstationary</span>
+
+<span class="cm">* ─── Confirmatory Testing Strategy ───</span>
+<span class="cm">* Run both ADF and KPSS:</span>
+<span class="cm">*   ADF: fails to reject (unit root) + KPSS: rejects (nonstationary)</span>
+<span class="cm">*        => Strong evidence for I(1)</span>
+<span class="cm">*   ADF: rejects (stationary) + KPSS: fails to reject (stationary)</span>
+<span class="cm">*        => Strong evidence for I(0)</span>
+<span class="cm">*   Both reject or both fail to reject => ambiguous, need more data</span>
+
+<span class="cm">* ADF with lag selection via information criteria</span>
+<span class="kw">dfuller</span> gnp96, trend lags(4)
+<span class="kw">dfuller</span> gnp96, trend lags(8)
+<span class="cm">* Choose lag length where further lags do not change the conclusion</span></pre>
+
+<div class="concept warn">
+    <strong>Unit Root Tests Have Low Power</strong>
+    ADF and Phillips-Perron tests have notoriously low power against near-unit-root alternatives. A series with an AR coefficient of 0.95 (stationary but persistent) will often fail to reject the unit root null. With short samples (T &lt; 100), treat unit root test results with caution. The KPSS test has its own size distortions. Always complement statistical tests with visual inspection of the time series plot and ACF/PACF.
+</div>
+
 <h2>8.4 ARIMA Models</h2>
 <p>ARIMA(p,d,q) combines autoregressive (AR) terms, differencing (I), and moving average (MA) terms. It is the standard univariate forecasting model.</p>
 
@@ -118,7 +144,66 @@
 <span class="kw">tsline</span> air air_hat, title(<span class="st">"Actual vs. Fitted"</span>) ///
     legend(order(1 <span class="st">"Actual"</span> 2 <span class="st">"Fitted"</span>))</pre>
 
-<h2>8.5 VAR Models</h2>
+<div class="concept tip">
+    <strong>Box-Jenkins Model Identification</strong>
+    The classic procedure for identifying ARIMA order: (1) Plot the ACF and PACF of the (possibly differenced) series. (2) A sharp cutoff in the PACF at lag p with a slowly decaying ACF suggests AR(p). (3) A sharp cutoff in the ACF at lag q with a slowly decaying PACF suggests MA(q). (4) Both decaying gradually suggests ARMA(p,q). (5) Compare candidate models using AIC/BIC. In practice, try several specifications and let information criteria guide the choice.
+</div>
+
+<h2>8.5 Cointegration</h2>
+<p>When two or more I(1) series share a common stochastic trend, they are cointegrated. A linear combination of them is stationary, representing a long-run equilibrium. Differencing cointegrated series discards this long-run information.</p>
+
+<h3>8.5.1 Engle-Granger Two-Step Test</h3>
+
+<pre class="stata"><span class="kw">webuse</span> wpi1, clear
+<span class="kw">tsset</span> t
+
+<span class="cm">* Step 1: Regress one I(1) variable on the other(s)</span>
+<span class="kw">regress</span> wpi t
+<span class="kw">predict</span> resid_eg, residuals
+
+<span class="cm">* Step 2: Test the residuals for a unit root</span>
+<span class="kw">dfuller</span> resid_eg, notrend lags(4)
+<span class="cm">* IMPORTANT: Use Engle-Granger critical values, not standard ADF</span>
+<span class="cm">* (critical values are more negative because residuals are estimated)</span>
+<span class="cm">* Install: ssc install egranger, replace</span>
+<span class="kw">egranger</span> wpi t, lags(4)</pre>
+
+<h3>8.5.2 Johansen Cointegration Test</h3>
+
+<pre class="stata"><span class="cm">* Johansen test works with multiple variables simultaneously</span>
+<span class="cm">* and can detect multiple cointegrating relationships</span>
+
+<span class="kw">webuse</span> lutkepohl2, clear
+<span class="kw">tsset</span> qtr
+
+<span class="cm">* Johansen trace and max-eigenvalue tests</span>
+<span class="kw">vecrank</span> ln_inv ln_inc ln_consump, trend(constant) lags(2)
+<span class="cm">* Trace stat: tests H0: r <= k cointegrating relationships</span>
+<span class="cm">* Max-eigen stat: tests H0: r = k vs. r = k+1</span>
+<span class="cm">* Choose the rank where you first fail to reject</span></pre>
+
+<div class="concept info">
+    <strong>Cointegration and Error Correction</strong>
+    If you find r cointegrating relationships among k variables, estimate a VECM with rank r. The VECM captures both the short-run dynamics (through lagged differences) and the long-run equilibrium (through the error correction term). The adjustment coefficient (alpha) measures how quickly deviations from equilibrium are corrected. A negative and significant alpha means the variable adjusts back toward equilibrium.
+</div>
+
+<h3>8.5.3 Vector Error Correction Model (VECM)</h3>
+
+<pre class="stata"><span class="cm">* Estimate VECM with 1 cointegrating relationship</span>
+<span class="kw">vec</span> ln_inv ln_inc ln_consump, rank(1) lags(2) trend(constant)
+
+<span class="cm">* Key output:</span>
+<span class="cm">* - Cointegrating equation: the long-run relationship</span>
+<span class="cm">* - Adjustment parameters (alpha): speed of adjustment</span>
+<span class="cm">* - Short-run dynamics: coefficients on lagged differences</span>
+
+<span class="cm">* Test for weak exogeneity (alpha = 0 for a variable)</span>
+<span class="cm">* If alpha is insignificant, that variable does not adjust</span>
+<span class="cm">* to the long-run equilibrium (it is the "driver")</span>
+<span class="kw">vec</span> ln_inv ln_inc ln_consump, rank(1) lags(2)
+<span class="cm">* Inspect the adjustment coefficients</span></pre>
+
+<h2>8.6 VAR Models</h2>
 <p>Vector Autoregression (VAR) models capture the dynamic interdependencies among multiple time series. Each variable is regressed on its own lags and the lags of all other variables in the system.</p>
 
 <pre class="stata"><span class="kw">webuse</span> lutkepohl2, clear
@@ -133,7 +218,7 @@
 <span class="cm">* VAR stability condition</span>
 <span class="kw">varstable</span>, graph</pre>
 
-<h2>8.6 Impulse Response Functions</h2>
+<h2>8.7 Impulse Response Functions</h2>
 <p>IRFs trace the effect of a one-standard-deviation shock to one variable on the other variables over time.</p>
 
 <pre class="stata"><span class="cm">* Create IRF file</span>
@@ -146,7 +231,27 @@
 <span class="cm">* Forecast error variance decomposition</span>
 <span class="kw">irf graph</span> fevd, impulse(dln_inc) response(dln_inv)</pre>
 
-<h2>8.7 Granger Causality</h2>
+<h3>8.7.1 Interpreting and Customizing IRFs</h3>
+
+<pre class="stata"><span class="cm">* ─── Multiple IRFs in One Graph ───</span>
+<span class="kw">irf graph</span> oirf, impulse(dln_inc) ///
+    response(dln_inv dln_consump) ///
+    title(<span class="st">"Responses to Income Shock"</span>)
+
+<span class="cm">* ─── IRF Tables (for precise values) ───</span>
+<span class="kw">irf table</span> oirf, impulse(dln_inc) response(dln_inv) step(12)
+
+<span class="cm">* ─── Cumulative IRFs ───</span>
+<span class="cm">* Shows total accumulated effect over time</span>
+<span class="kw">irf graph</span> coirf, impulse(dln_inc) response(dln_inv) ///
+    title(<span class="st">"Cumulative Response of Investment to Income Shock"</span>)</pre>
+
+<div class="concept warn">
+    <strong>Ordering Matters for Orthogonalized IRFs</strong>
+    Orthogonalized IRFs use a Cholesky decomposition, which imposes a recursive causal ordering among the variables. The first variable in the VAR can affect all others contemporaneously, the second can affect the third but not the first, and so on. This means your results are sensitive to variable ordering. Either justify your ordering with economic theory, or use structural VARs (SVAR) with theory-based restrictions. Generalized IRFs (<code>irf graph girf</code>) are invariant to ordering but have a different interpretation.
+</div>
+
+<h2>8.8 Granger Causality</h2>
 <p>Granger causality tests whether lags of one variable help predict another variable, beyond what the variable's own lags can predict. It is a test of predictive content, not true causality.</p>
 
 <pre class="stata"><span class="cm">* After estimating VAR</span>
@@ -158,9 +263,76 @@
 <span class="cm">* H0: dln_inc does not Granger-cause dln_inv</span>
 <span class="cm">* Reject => lagged income helps predict investment</span></pre>
 
-<h2>8.8 Forecasting and Model Selection</h2>
+<h2>8.9 Structural Breaks</h2>
+<p>Structural breaks occur when the data-generating process changes at some point in time (e.g., a policy change, financial crisis, or regime shift). Ignoring structural breaks can lead to misleading unit root tests, biased parameter estimates, and poor forecasts.</p>
 
-<pre class="stata"><span class="cm">* Information criteria after ARIMA</span>
+<pre class="stata"><span class="kw">webuse</span> gnp96, clear
+<span class="kw">tsset</span> date, quarterly
+
+<span class="cm">* ─── Known Break Date ───</span>
+<span class="cm">* Chow test for a known break point</span>
+<span class="kw">regress</span> gnp96 L.gnp96 if date <= tq(1980q4)
+<span class="kw">estimates store</span> pre_break
+<span class="kw">regress</span> gnp96 L.gnp96 if date > tq(1980q4)
+<span class="kw">estimates store</span> post_break
+
+<span class="cm">* ─── Unknown Break Date ───</span>
+<span class="cm">* Quandt-Andrews / sup-Wald test for unknown break</span>
+<span class="kw">regress</span> gnp96 L.gnp96
+<span class="kw">estat</span> sbsingle
+<span class="cm">* Reports the most likely break date and a p-value</span>
+<span class="cm">* for the null of no structural break</span>
+
+<span class="cm">* ─── Multiple Break Points ───</span>
+<span class="cm">* Bai-Perron test for multiple breaks</span>
+<span class="cm">* estat sbknown can test a specific date:</span>
+<span class="kw">regress</span> gnp96 L.gnp96
+<span class="kw">estat</span> sbknown, break(tq(1980q4))</pre>
+
+<div class="concept tip">
+    <strong>Structural Breaks and Unit Root Tests</strong>
+    A structural break in the trend or intercept can cause ADF tests to fail to reject the unit root null even when the series is trend-stationary with a break. The Zivot-Andrews test (not built into Stata but available via <code>ssc install zandrews</code>) allows for an endogenously determined break point under the alternative hypothesis of stationarity with a break. Always plot your data before running unit root tests to look for obvious regime changes.
+</div>
+
+<h2>8.10 ARCH/GARCH Models for Volatility</h2>
+<p>Financial and economic time series often exhibit volatility clustering: periods of high volatility tend to be followed by more high volatility. ARCH/GARCH models capture this time-varying conditional variance.</p>
+
+<pre class="stata"><span class="cm">* ─── Testing for ARCH Effects ───</span>
+<span class="kw">webuse</span> gnp96, clear
+<span class="kw">tsset</span> date, quarterly
+
+<span class="kw">regress</span> D.gnp96 L.D.gnp96
+<span class="kw">estat</span> archlm, lags(1/4)
+<span class="cm">* H0: no ARCH effects. Reject => ARCH/GARCH needed</span>
+
+<span class="cm">* ─── ARCH(1) Model ───</span>
+<span class="kw">arch</span> D.gnp96 L.D.gnp96, arch(1)
+
+<span class="cm">* ─── GARCH(1,1) Model ───</span>
+<span class="cm">* The workhorse volatility model</span>
+<span class="kw">arch</span> D.gnp96 L.D.gnp96, arch(1) garch(1)
+
+<span class="cm">* Key output:</span>
+<span class="cm">*   Mean equation: coefficients on regressors</span>
+<span class="cm">*   Variance equation: alpha (ARCH) + beta (GARCH)</span>
+<span class="cm">*   alpha + beta < 1 => volatility is mean-reverting</span>
+<span class="cm">*   alpha + beta close to 1 => high volatility persistence</span>
+
+<span class="cm">* ─── Extract Conditional Variance ───</span>
+<span class="kw">predict</span> cond_var, variance
+<span class="kw">gen</span> cond_sd = sqrt(cond_var)
+<span class="kw">tsline</span> cond_sd, title(<span class="st">"Conditional Standard Deviation"</span>) ///
+    ytitle(<span class="st">"Conditional SD"</span>)</pre>
+
+<div class="concept info">
+    <strong>When to Use GARCH</strong>
+    GARCH models are essential for financial returns data and risk management, but they also appear in operations management when modeling demand variability, service time variability, or quality metric fluctuations over time. The GARCH(1,1) model captures most of the volatility dynamics in practice. Higher-order GARCH models rarely improve fit. For asymmetric volatility effects (bad news increases volatility more than good news), consider EGARCH or GJR-GARCH: <code>arch y x, earch(1) egarch(1)</code>.
+</div>
+
+<h2>8.11 Forecast Evaluation</h2>
+<p>Building a time series model without evaluating its out-of-sample forecast accuracy is incomplete. Forecast evaluation compares predicted values against actual outcomes using loss functions.</p>
+
+<pre class="stata"><span class="cm">* ─── In-Sample Fit Measures ───</span>
 <span class="kw">arima</span> air, arima(1,1,1)
 <span class="kw">estat</span> ic
 
@@ -171,7 +343,44 @@
 <span class="kw">quietly arima</span> air, arima(1,1,1)
 <span class="kw">estimates store</span> arma11
 
-<span class="kw">estimates table</span> ar1 arma11, stats(aic bic ll)</pre>
+<span class="kw">estimates table</span> ar1 arma11, stats(aic bic ll)
+
+<span class="cm">* ─── Out-of-Sample Forecast Evaluation ───</span>
+<span class="cm">* Hold out the last 12 periods for evaluation</span>
+<span class="kw">webuse</span> air2, clear
+<span class="kw">tsset</span> t
+
+<span class="kw">local</span> T_total = _N
+<span class="kw">local</span> T_train = `T_total' - 12
+
+<span class="cm">* Estimate on training sample</span>
+<span class="kw">arima</span> air if t <= `T_train', arima(1,1,1)
+
+<span class="cm">* Dynamic forecast from end of training sample</span>
+<span class="kw">predict</span> air_fc, dynamic(tm(`T_train'+1)) xb
+
+<span class="cm">* ─── Forecast Error Metrics ───</span>
+<span class="kw">gen</span> fc_error = air - air_fc if t > `T_train'
+<span class="kw">gen</span> fc_error_sq = fc_error^2
+<span class="kw">gen</span> fc_error_abs = abs(fc_error)
+<span class="kw">gen</span> fc_error_pct = abs(fc_error / air) * 100
+
+<span class="cm">* RMSE: Root Mean Squared Error</span>
+<span class="kw">summarize</span> fc_error_sq if t > `T_train'
+<span class="kw">display</span> <span class="st">"RMSE = "</span> sqrt(r(mean))
+
+<span class="cm">* MAE: Mean Absolute Error</span>
+<span class="kw">summarize</span> fc_error_abs if t > `T_train'
+<span class="kw">display</span> <span class="st">"MAE  = "</span> r(mean)
+
+<span class="cm">* MAPE: Mean Absolute Percentage Error</span>
+<span class="kw">summarize</span> fc_error_pct if t > `T_train'
+<span class="kw">display</span> <span class="st">"MAPE = "</span> r(mean) <span class="st">"%"</span></pre>
+
+<div class="concept tip">
+    <strong>Forecast Evaluation Best Practices</strong>
+    (1) Always evaluate on a held-out test set, not in-sample. In-sample fit measures (R-squared, AIC) reward complexity and can overfit. (2) RMSE penalizes large errors more than MAE, so it matters whether you care about average errors or worst-case errors. (3) MAPE is scale-free and easy to communicate ("our forecast is off by 5% on average"), but it is undefined when the actual value is zero and penalizes underprediction more than overprediction. (4) For rolling or expanding window forecasts, compare your model against a naive benchmark (e.g., random walk: forecast = last observed value).
+</div>
 
 <div class="exercise">
     <h4>Exercise 8.1</h4>
@@ -183,12 +392,24 @@
     <p>Using <code>webuse lutkepohl2</code>, estimate a VAR(2) with <code>dln_inv</code>, <code>dln_inc</code>, and <code>dln_consump</code>. Run <code>vargranger</code>. Which variables Granger-cause which? Generate impulse response functions and interpret the response of consumption to an income shock.</p>
 </div>
 
+<div class="exercise">
+    <h4>Exercise 8.3</h4>
+    <p>Using <code>webuse gnp96</code>, run both an ADF test (<code>dfuller gnp96, trend lags(4)</code>) and a KPSS test (<code>kpss gnp96, maxlag(4)</code>) on the level of <code>gnp96</code>. Do both tests agree on the integration order? Now run <code>estat sbsingle</code> after a regression of <code>gnp96</code> on <code>L.gnp96</code> to check for a structural break. If a break is found, how might it affect your unit root test conclusion?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 8.4</h4>
+    <p>Using <code>webuse lutkepohl2</code>, test whether <code>ln_inv</code>, <code>ln_inc</code>, and <code>ln_consump</code> (in levels) are cointegrated using <code>vecrank</code>. How many cointegrating relationships do you find? Estimate a VECM with the appropriate rank using <code>vec</code>. Interpret the adjustment coefficient: which variable(s) adjust to restore the long-run equilibrium after a shock?</p>
+</div>
+
 <div class="ext-resources">
     <h4>External Resources</h4>
     <ul>
         <li><a href="https://www.stata.com/manuals/ts.pdf" target="_blank" rel="noopener">Stata Time-Series Reference Manual</a> <span class="ext-badge">External</span></li>
         <li><a href="https://stats.oarc.ucla.edu/stata/faq/how-can-i-do-arima-with-stata/" target="_blank" rel="noopener">UCLA OARC: ARIMA in Stata</a> <span class="ext-badge">External</span></li>
         <li><a href="https://www.stata.com/manuals/tsvar.pdf" target="_blank" rel="noopener">Stata Manual: VAR</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.stata.com/manuals/tsvec.pdf" target="_blank" rel="noopener">Stata Manual: VEC (Cointegration)</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.stata.com/manuals/tsarch.pdf" target="_blank" rel="noopener">Stata Manual: ARCH/GARCH</a> <span class="ext-badge">External</span></li>
     </ul>
 </div>
 
@@ -196,9 +417,14 @@
     <h3>Key Takeaways</h3>
     <ul>
         <li>Always test for unit roots before modeling time series; nonstationary data requires differencing.</li>
+        <li>Use both ADF and KPSS tests together for a more reliable assessment of stationarity.</li>
         <li>Use ACF/PACF plots to identify ARIMA order, and AIC/BIC for model selection.</li>
-        <li>VAR models capture multivariate dynamics; use IRFs to interpret shock propagation.</li>
+        <li>Cointegrated I(1) series should be modeled with VECM, not VAR in differences, to preserve long-run information.</li>
+        <li>VAR models capture multivariate dynamics; use IRFs to interpret shock propagation, but justify Cholesky ordering.</li>
+        <li>GARCH models capture time-varying volatility; test for ARCH effects before modeling.</li>
         <li>Granger causality tests predictive content, not structural causation.</li>
+        <li>Evaluate forecasts out of sample with RMSE, MAE, and MAPE; compare against naive benchmarks.</li>
+        <li>Check for structural breaks, which can invalidate unit root tests and destabilize parameter estimates.</li>
     </ul>
 </div>
 

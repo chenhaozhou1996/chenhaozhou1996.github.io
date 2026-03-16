@@ -80,7 +80,30 @@
 <span class="cm">* Spearman rank correlations (robust to outliers)</span>
 <span class="kw">spearman</span> price mpg weight</pre>
 
-<h2>3.4 Exporting Tables with estout</h2>
+<h2>3.4 Using estpost with tabstat</h2>
+<p>The <code>estpost tabstat</code> command gives more flexibility than <code>estpost summarize</code> for constructing descriptive statistics tables. It supports arbitrary statistics and grouping in a single call.</p>
+
+<pre class="stata"><span class="cm">* estpost tabstat for flexible summary statistics</span>
+<span class="kw">estpost</span> tabstat price mpg weight length, ///
+    stats(n mean sd p25 p50 p75) columns(statistics)
+<span class="kw">esttab</span> using <span class="st">"tables/desc_stats_v2.tex"</span>, ///
+    cells(<span class="st">"count(fmt(0)) mean(fmt(2)) sd(fmt(2)) p25(fmt(1)) p50(fmt(1)) p75(fmt(1))"</span>) ///
+    noobs label replace booktabs ///
+    title(<span class="st">"Summary Statistics"</span>)
+
+<span class="cm">* estpost tabstat by group (separate panels)</span>
+<span class="kw">estpost</span> tabstat price mpg weight, by(foreign) ///
+    stats(n mean sd) nototal
+<span class="kw">esttab</span> using <span class="st">"tables/desc_by_origin.tex"</span>, ///
+    main(mean %9.2f) aux(sd %9.2f) ///
+    nostar unstack noobs label replace booktabs</pre>
+
+<div class="concept info">
+    <strong>estpost summarize vs. estpost tabstat</strong>
+    <code>estpost summarize</code> stores results in <code>e()</code> matrices named after each statistic (mean, sd, etc.) and works well for simple tables. <code>estpost tabstat</code> is more flexible: it supports percentiles, custom statistic lists, and the <code>by()</code> option for grouped tables. For publication-quality Table 1, <code>estpost tabstat</code> is usually the better choice.
+</div>
+
+<h2>3.5 Exporting Tables with estout</h2>
 <p>The <code>estout</code> / <code>esttab</code> package lets you export summary statistics and regression tables to LaTeX, CSV, or RTF.</p>
 
 <pre class="stata"><span class="cm">* Install if needed: ssc install estout, replace</span>
@@ -154,6 +177,133 @@
     legend(order(1 <span class="st">"Price"</span> 2 <span class="st">"MPG"</span>)) ///
     blabel(bar, format(%9.1f))</pre>
 
+<h2>3.9 Advanced Scatter Plots</h2>
+<p>Beyond basic scatters with linear fits, you can overlay quadratic fits, confidence intervals, connected lines, and area fills. These are essential for visualizing nonlinear relationships and time trends in research papers.</p>
+
+<pre class="stata"><span class="cm">* Scatter with quadratic fit line</span>
+<span class="kw">twoway</span> (scatter price mpg, mcolor(navy%30) msize(small)) ///
+       (qfit price mpg, lcolor(cranberry) lwidth(medthick)), ///
+    title(<span class="st">"Price vs. MPG with Quadratic Fit"</span>) ///
+    xtitle(<span class="st">"Miles per Gallon"</span>) ytitle(<span class="st">"Price (USD)"</span>) ///
+    legend(order(1 <span class="st">"Observations"</span> 2 <span class="st">"Quadratic fit"</span>))
+
+<span class="cm">* Scatter with confidence interval band</span>
+<span class="kw">twoway</span> (lfitci price mpg, fcolor(navy%15) alcolor(navy%30)) ///
+       (scatter price mpg, mcolor(navy%50) msize(vsmall)), ///
+    title(<span class="st">"Price vs. MPG with 95% CI"</span>) ///
+    legend(order(2 <span class="st">"95% CI"</span> 3 <span class="st">"Observations"</span>))
+
+<span class="cm">* Connected line plot (for time series / trends)</span>
+<span class="kw">collapse</span> (mean) mean_price = price, by(rep78)
+<span class="kw">drop</span> if missing(rep78)
+<span class="kw">twoway</span> connected mean_price rep78, ///
+    mcolor(navy) lcolor(navy) msymbol(circle) ///
+    title(<span class="st">"Mean Price by Repair Record"</span>) ///
+    xtitle(<span class="st">"Repair Record (1-5)"</span>) ytitle(<span class="st">"Mean Price (USD)"</span>)
+
+<span class="cm">* Area plot (useful for cumulative distributions or stacked compositions)</span>
+<span class="kw">sysuse</span> auto, clear
+<span class="kw">twoway</span> area mpg weight, sort ///
+    color(navy%30) lcolor(navy) ///
+    title(<span class="st">"MPG Area Plot"</span>)</pre>
+
+<h2>3.10 Graph Bar with over() and Subgroups</h2>
+<p>Bar charts are the standard way to present categorical comparisons. The <code>over()</code> option lets you group bars by one or more categorical variables.</p>
+
+<pre class="stata"><span class="kw">sysuse</span> auto, clear
+
+<span class="cm">* Bar chart with one grouping variable</span>
+<span class="kw">graph bar</span> (mean) price, over(rep78, label(angle(45))) ///
+    title(<span class="st">"Mean Price by Repair Record"</span>) ///
+    ytitle(<span class="st">"Mean Price (USD)"</span>) ///
+    blabel(bar, format(%9.0f))
+
+<span class="cm">* Grouped bars: two over() levels</span>
+<span class="kw">graph bar</span> (mean) price, over(foreign) over(rep78) ///
+    title(<span class="st">"Mean Price by Origin and Repair"</span>) ///
+    legend(rows(1)) ///
+    blabel(bar, format(%9.0f) size(vsmall))
+
+<span class="cm">* Horizontal bar chart</span>
+<span class="kw">graph hbar</span> (mean) price mpg, over(foreign) ///
+    title(<span class="st">"Price and MPG by Origin"</span>) ///
+    legend(order(1 <span class="st">"Mean Price"</span> 2 <span class="st">"Mean MPG"</span>))</pre>
+
+<h2>3.11 Scatter Plot Matrix</h2>
+<p>A scatter plot matrix shows all pairwise scatter plots for a set of variables. It gives a quick overview of bivariate relationships and potential collinearity, which is useful for the exploratory phase of analysis before running regressions.</p>
+
+<pre class="stata"><span class="cm">* Scatter plot matrix for key variables</span>
+<span class="kw">graph matrix</span> price mpg weight length, ///
+    half msize(vsmall) mcolor(navy%40) ///
+    title(<span class="st">"Pairwise Scatter Plots"</span>)
+
+<span class="cm">* With diagonal labels showing variable names</span>
+<span class="kw">graph matrix</span> price mpg weight, ///
+    half msymbol(circle_hollow) mcolor(cranberry)</pre>
+
+<h2>3.12 Customizing Graph Schemes</h2>
+<p>Stata's default graph scheme (<code>s2color</code>) uses a blue-tinted background that most journals do not accept. Choosing the right scheme is the single biggest improvement you can make to your graphs with minimal effort.</p>
+
+<pre class="stata"><span class="cm">* Built-in clean schemes</span>
+<span class="kw">set</span> scheme s2mono                    <span class="cm">// clean, grayscale</span>
+<span class="kw">set</span> scheme s1color                   <span class="cm">// white background, color</span>
+
+<span class="cm">* Install popular community schemes</span>
+<span class="kw">ssc install</span> blindschemes, replace
+<span class="kw">set</span> scheme plotplain                  <span class="cm">// minimal white background</span>
+<span class="kw">set</span> scheme plotplainblind             <span class="cm">// colorblind-friendly</span>
+
+<span class="cm">* Set a permanent default</span>
+<span class="kw">set</span> scheme plotplain, permanently
+
+<span class="cm">* Or specify per-graph</span>
+<span class="kw">histogram</span> price, scheme(plotplain) ///
+    title(<span class="st">"Price Distribution"</span>)</pre>
+
+<div class="concept tip">
+    <strong>Tip: Colorblind-Friendly Graphs</strong>
+    Approximately 8% of men have color vision deficiency. Use <code>plotplainblind</code> or manually choose colorblind-safe palettes. Avoid relying solely on red vs. green to distinguish groups. Many journals now require colorblind accessibility.
+</div>
+
+<h2>3.13 Automated Reports with putdocx and putexcel</h2>
+<p>For projects that require frequent report updates (e.g., during revision rounds), Stata can generate Word documents and Excel files programmatically. This eliminates copy-paste errors between Stata output and your manuscript.</p>
+
+<pre class="stata"><span class="cm">* --- putdocx: generate a Word document ---</span>
+<span class="kw">putdocx begin</span>
+<span class="kw">putdocx paragraph</span>, style(Heading1)
+<span class="kw">putdocx text</span> (<span class="st">"Summary Statistics"</span>)
+
+<span class="cm">* Add a table from stored results</span>
+<span class="kw">sysuse</span> auto, clear
+<span class="kw">tabstat</span> price mpg weight, stats(n mean sd min max) save
+<span class="kw">putdocx table</span> tbl1 = matrix(r(StatTotal)), rownames colnames
+
+<span class="cm">* Add a graph</span>
+<span class="kw">histogram</span> price, name(hist1, replace) nodraw
+<span class="kw">graph export</span> <span class="st">"temp_hist.png"</span>, name(hist1) replace width(800)
+<span class="kw">putdocx paragraph</span>
+<span class="kw">putdocx image</span> <span class="st">"temp_hist.png"</span>
+
+<span class="kw">putdocx save</span> <span class="st">"reports/summary_report.docx"</span>, replace
+
+<span class="cm">* --- putexcel: write results to Excel ---</span>
+<span class="kw">putexcel set</span> <span class="st">"tables/results.xlsx"</span>, sheet(<span class="st">"DescStats"</span>) replace
+<span class="kw">putexcel</span> A1 = <span class="st">"Variable"</span> B1 = <span class="st">"N"</span> C1 = <span class="st">"Mean"</span> D1 = <span class="st">"SD"</span>
+
+<span class="kw">local</span> row = 2
+<span class="kw">foreach</span> var in price mpg weight {
+    <span class="kw">quietly summarize</span> `var'
+    <span class="kw">putexcel</span> A`row' = <span class="st">"`var'"</span> B`row' = (r(N)) ///
+             C`row' = (r(mean)) D`row' = (r(sd))
+    <span class="kw">local</span> ++row
+}
+<span class="kw">putexcel close</span></pre>
+
+<div class="concept info">
+    <strong>When to Use putdocx vs. LaTeX</strong>
+    If your manuscript is in LaTeX, export tables with <code>esttab</code> to <code>.tex</code> files and include them with <code>\input{}</code>. Use <code>putdocx</code> when your co-authors or journal require Word format, or for interim reports shared with non-technical collaborators. <code>putexcel</code> is best for sharing raw results with co-authors who want to inspect numbers in a spreadsheet.
+</div>
+
 <div class="exercise">
     <h4>Exercise 3.1</h4>
     <p>Using <code>sysuse auto</code>, create a publication-ready scatter plot of <code>price</code> (y-axis) vs. <code>mpg</code> (x-axis) with separate markers for domestic and foreign cars. Add a quadratic fit line. Export it as a PNG file.</p>
@@ -162,6 +312,16 @@
 <div class="exercise">
     <h4>Exercise 3.2</h4>
     <p>Use <code>tabstat</code> to produce a table with mean, standard deviation, and the 5th and 95th percentiles for <code>price</code>, <code>mpg</code>, and <code>weight</code>, separately for domestic and foreign cars. Export it using <code>esttab</code>.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 3.3</h4>
+    <p>Using <code>sysuse auto</code>, create a <code>graph matrix</code> of <code>price</code>, <code>mpg</code>, <code>weight</code>, and <code>length</code> using the <code>plotplain</code> scheme (install <code>blindschemes</code> first). Then use <code>graph export</code> to save it as both PDF and PNG. Which pair of variables shows the strongest visual correlation?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 3.4</h4>
+    <p>Write a do-file that uses <code>putexcel</code> to create an Excel file with two sheets. Sheet 1 should contain summary statistics (N, Mean, SD, Min, Max) for <code>price</code>, <code>mpg</code>, and <code>weight</code>. Sheet 2 should contain the pairwise correlation matrix for the same variables. Use a <code>foreach</code> loop for the summary statistics sheet.</p>
 </div>
 
 <div class="ext-resources">
@@ -176,10 +336,12 @@
 <div class="takeaway">
     <h3>Key Takeaways</h3>
     <ul>
-        <li>Use <code>tabstat</code> for flexible summary statistics and <code>estpost</code>/<code>esttab</code> for export.</li>
+        <li>Use <code>estpost tabstat</code> for maximum flexibility in summary statistics tables.</li>
         <li>Always visualize distributions before modeling to identify skewness and outliers.</li>
-        <li>Set a clean graph scheme (e.g., <code>plotplain</code>) for publication-ready output.</li>
+        <li>Use <code>graph matrix</code> for a quick overview of all pairwise relationships.</li>
+        <li>Set a clean, colorblind-friendly graph scheme (e.g., <code>plotplainblind</code>) for publication-ready output.</li>
         <li>Combine multiple plots with <code>graph combine</code> and export at high resolution.</li>
+        <li>Use <code>putdocx</code> and <code>putexcel</code> to automate report generation and eliminate copy-paste errors.</li>
     </ul>
 </div>
 

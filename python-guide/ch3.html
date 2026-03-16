@@ -134,7 +134,193 @@ pip install -r requirements.txt
 <span class="cm"># Check installed packages</span>
 pip list</pre>
 
-<h2>3.8 Creating Your Own Module</h2>
+<h2>3.8 Type Hints</h2>
+<p>Type hints let you annotate function signatures with expected types. They do not enforce types at runtime; instead, they serve as documentation and enable static analysis tools (like <code>mypy</code>) to catch bugs before your code runs. Adding type hints to your analytics functions makes them easier for collaborators to understand.</p>
+
+<pre class="python"><span class="kw">def</span> <span class="fn">eoq</span>(demand: <span class="nb">float</span>, order_cost: <span class="nb">float</span>, holding_cost: <span class="nb">float</span>) -> <span class="nb">float</span>:
+    <span class="st">"""Calculate Economic Order Quantity."""</span>
+    <span class="kw">return</span> (<span class="nb">2</span> * demand * order_cost / holding_cost) ** <span class="nb">0.5</span>
+
+<span class="kw">def</span> <span class="fn">classify_product</span>(price: <span class="nb">float</span>) -> <span class="nb">str</span>:
+    <span class="st">"""Return 'Premium' or 'Standard' based on price threshold."""</span>
+    <span class="kw">return</span> <span class="st">"Premium"</span> <span class="kw">if</span> price > <span class="nb">20</span> <span class="kw">else</span> <span class="st">"Standard"</span>
+
+<span class="cm"># Common type hint patterns</span>
+<span class="kw">from</span> typing <span class="kw">import</span> <span class="nb">List</span>, <span class="nb">Dict</span>, <span class="nb">Optional</span>, <span class="nb">Tuple</span>
+
+<span class="kw">def</span> <span class="fn">top_products</span>(
+    catalog: <span class="nb">List</span>[<span class="nb">Dict</span>[<span class="nb">str</span>, <span class="nb">float</span>]],
+    n: <span class="nb">int</span> = <span class="nb">5</span>
+) -> <span class="nb">List</span>[<span class="nb">str</span>]:
+    <span class="st">"""Return names of top-n products by revenue."""</span>
+    sorted_items = <span class="fn">sorted</span>(catalog, key=<span class="kw">lambda</span> x: x[<span class="st">"revenue"</span>], reverse=<span class="nb">True</span>)
+    <span class="kw">return</span> [item[<span class="st">"name"</span>] <span class="kw">for</span> item <span class="kw">in</span> sorted_items[:n]]
+
+<span class="kw">def</span> <span class="fn">find_sku</span>(code: <span class="nb">str</span>) -> <span class="nb">Optional</span>[<span class="nb">Dict</span>]:
+    <span class="st">"""Return product dict or None if not found."""</span>
+    ...  <span class="cm"># Optional means the function can return None</span></pre>
+
+<div class="concept info">
+    <strong>When to add type hints:</strong> Always add them to function signatures in shared code. For quick one-off analysis scripts, they are optional but still helpful. In Python 3.10+, you can use the simpler syntax <code>list[str]</code> instead of <code>List[str]</code> and <code>str | None</code> instead of <code>Optional[str]</code>.
+</div>
+
+<h2>3.9 Docstrings and Documentation</h2>
+<p>A docstring is a string literal placed as the first statement in a function, class, or module. It becomes the function's <code>__doc__</code> attribute and is displayed by <code>help()</code>. Following a consistent docstring convention makes your code self-documenting.</p>
+
+<pre class="python"><span class="kw">def</span> <span class="fn">safety_stock</span>(z_score: <span class="nb">float</span>, std_demand: <span class="nb">float</span>, lead_time: <span class="nb">float</span>) -> <span class="nb">float</span>:
+    <span class="st">"""
+    Calculate safety stock for a given service level.
+
+    Parameters
+    ----------
+    z_score : float
+        Z-value for desired service level (e.g., 1.96 for 97.5%).
+    std_demand : float
+        Standard deviation of daily demand.
+    lead_time : float
+        Lead time in days.
+
+    Returns
+    -------
+    float
+        Safety stock quantity in units.
+
+    Examples
+    --------
+    >>> safety_stock(1.96, 20, 7)
+    103.72
+    """</span>
+    <span class="kw">return</span> z_score * std_demand * lead_time ** <span class="nb">0.5</span>
+
+<span class="cm"># Access the docstring</span>
+<span class="fn">help</span>(safety_stock)
+<span class="fn">print</span>(safety_stock.<span class="fn">__doc__</span>)</pre>
+
+<div class="concept tip">
+    <strong>NumPy/Google style:</strong> The example above uses the NumPy docstring convention, which is the most common in data science. Google style is also popular and uses indented sections like <code>Args:</code> and <code>Returns:</code>. Pick one convention and use it consistently across your project.
+</div>
+
+<h2>3.10 Scope: The LEGB Rule</h2>
+<p>When Python encounters a variable name, it searches for it in four scopes, in this order: <strong>L</strong>ocal (inside the current function), <strong>E</strong>nclosing (inside any enclosing function), <strong>G</strong>lobal (module level), <strong>B</strong>uilt-in (Python's built-in names like <code>print</code> and <code>len</code>). Understanding this rule prevents subtle bugs caused by variable shadowing.</p>
+
+<pre class="python">discount = <span class="nb">0.10</span>  <span class="cm"># Global scope</span>
+
+<span class="kw">def</span> <span class="fn">apply_discount</span>(price):
+    <span class="cm"># 'price' is Local, 'discount' is found in Global scope</span>
+    <span class="kw">return</span> price * (<span class="nb">1</span> - discount)
+
+<span class="fn">print</span>(<span class="fn">apply_discount</span>(<span class="nb">100</span>))  <span class="cm"># 90.0</span>
+
+<span class="kw">def</span> <span class="fn">outer</span>():
+    multiplier = <span class="nb">2</span>          <span class="cm"># Enclosing scope</span>
+    <span class="kw">def</span> <span class="fn">inner</span>(x):
+        <span class="kw">return</span> x * multiplier  <span class="cm"># Found in Enclosing scope</span>
+    <span class="kw">return</span> <span class="fn">inner</span>(<span class="nb">5</span>)
+
+<span class="fn">print</span>(<span class="fn">outer</span>())  <span class="cm"># 10</span>
+
+<span class="cm"># Common trap: shadowing built-ins</span>
+<span class="cm"># list = [1, 2, 3]    # BAD — shadows the built-in list()</span>
+<span class="cm"># print = "hello"     # BAD — shadows the built-in print()</span></pre>
+
+<div class="concept warn">
+    <strong>Never shadow built-ins.</strong> If you name a variable <code>list</code>, <code>dict</code>, <code>str</code>, <code>sum</code>, or <code>print</code>, you overwrite Python's built-in function in your current scope. This leads to confusing errors like <code>TypeError: 'list' object is not callable</code>. Use names like <code>my_list</code> or <code>items</code> instead.
+</div>
+
+<h2>3.11 Decorators</h2>
+<p>A decorator is a function that wraps another function to add behavior before or after it runs, without changing the original function's code. The <code>@decorator</code> syntax is shorthand for <code>func = decorator(func)</code>. Decorators are used extensively in web frameworks, testing, and performance monitoring.</p>
+
+<pre class="python"><span class="kw">import</span> time
+
+<span class="kw">def</span> <span class="fn">timer</span>(func):
+    <span class="st">"""Decorator that prints how long a function takes to run."""</span>
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+        start = time.<span class="fn">time</span>()
+        result = <span class="fn">func</span>(*args, **kwargs)
+        elapsed = time.<span class="fn">time</span>() - start
+        <span class="fn">print</span>(<span class="st">f"</span>{func.<span class="fn">__name__</span>}<span class="st"> took </span>{elapsed:.4f}<span class="st">s"</span>)
+        <span class="kw">return</span> result
+    <span class="kw">return</span> wrapper
+
+@timer
+<span class="kw">def</span> <span class="fn">slow_sum</span>(n):
+    <span class="st">"""Sum numbers the slow way."""</span>
+    <span class="kw">return</span> <span class="fn">sum</span>(<span class="fn">range</span>(n))
+
+<span class="fn">slow_sum</span>(<span class="nb">10_000_000</span>)  <span class="cm"># slow_sum took 0.2341s</span></pre>
+
+<h2>3.12 Generators and yield</h2>
+<p>A generator function uses <code>yield</code> instead of <code>return</code>. Each time you iterate over the generator, it runs until the next <code>yield</code> statement, produces a value, and pauses. This is memory-efficient because the entire sequence is never stored in memory at once. Generators are ideal when processing large files or creating infinite sequences.</p>
+
+<pre class="python"><span class="kw">def</span> <span class="fn">monthly_demand</span>(start, growth_rate, months):
+    <span class="st">"""Generate monthly demand with compound growth."""</span>
+    demand = start
+    <span class="kw">for</span> month <span class="kw">in</span> <span class="fn">range</span>(<span class="nb">1</span>, months + <span class="nb">1</span>):
+        <span class="kw">yield</span> month, <span class="fn">round</span>(demand)
+        demand *= (<span class="nb">1</span> + growth_rate)
+
+<span class="cm"># Iterate — only one month in memory at a time</span>
+<span class="kw">for</span> month, units <span class="kw">in</span> <span class="fn">monthly_demand</span>(<span class="nb">1000</span>, <span class="nb">0.05</span>, <span class="nb">6</span>):
+    <span class="fn">print</span>(<span class="st">f"Month </span>{month}<span class="st">: </span>{units}<span class="st"> units"</span>)
+
+<span class="cm"># Generator expression (like a list comprehension, but lazy)</span>
+total = <span class="fn">sum</span>(x**<span class="nb">2</span> <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="nb">1_000_000</span>))  <span class="cm"># No list in memory</span></pre>
+
+<div class="concept info">
+    <strong>Generator vs. list comprehension:</strong> Use square brackets <code>[...]</code> when you need to access elements by index or iterate multiple times. Use parentheses <code>(...)</code> when you only need to iterate once or the data is too large to fit in memory. The rule of thumb: if the result feeds directly into <code>sum()</code>, <code>max()</code>, or another aggregation, use a generator.
+</div>
+
+<h2>3.13 Recursion</h2>
+<p>A recursive function calls itself to solve a smaller version of the same problem. Each call adds a frame to the call stack, so Python limits recursion depth to about 1000 by default. Recursion is natural for tree-structured data (file systems, org charts), but for simple numeric computations, loops are usually clearer and faster.</p>
+
+<pre class="python"><span class="kw">def</span> <span class="fn">factorial</span>(n: <span class="nb">int</span>) -> <span class="nb">int</span>:
+    <span class="st">"""Compute n! recursively."""</span>
+    <span class="kw">if</span> n &lt;= <span class="nb">1</span>:
+        <span class="kw">return</span> <span class="nb">1</span>
+    <span class="kw">return</span> n * <span class="fn">factorial</span>(n - <span class="nb">1</span>)
+
+<span class="fn">print</span>(<span class="fn">factorial</span>(<span class="nb">5</span>))   <span class="cm"># 120 (5 * 4 * 3 * 2 * 1)</span>
+
+<span class="cm"># Practical example: flatten a nested list</span>
+<span class="kw">def</span> <span class="fn">flatten</span>(nested):
+    <span class="st">"""Flatten arbitrarily nested lists."""</span>
+    result = []
+    <span class="kw">for</span> item <span class="kw">in</span> nested:
+        <span class="kw">if</span> <span class="fn">isinstance</span>(item, <span class="nb">list</span>):
+            result.<span class="fn">extend</span>(<span class="fn">flatten</span>(item))
+        <span class="kw">else</span>:
+            result.<span class="fn">append</span>(item)
+    <span class="kw">return</span> result
+
+<span class="fn">print</span>(<span class="fn">flatten</span>([<span class="nb">1</span>, [<span class="nb">2</span>, [<span class="nb">3</span>, <span class="nb">4</span>]], <span class="nb">5</span>]))  <span class="cm"># [1, 2, 3, 4, 5]</span></pre>
+
+<h2>3.14 map, filter, and reduce</h2>
+<p>These functional programming tools apply a function to every element of an iterable. <code>map()</code> transforms each element, <code>filter()</code> keeps elements that pass a test, and <code>reduce()</code> accumulates a single result. In modern Python, list comprehensions often replace <code>map()</code> and <code>filter()</code>, but knowing them helps you read older code and is valuable when the transformation function already exists.</p>
+
+<pre class="python"><span class="kw">from</span> functools <span class="kw">import</span> reduce
+
+prices = [<span class="nb">29.99</span>, <span class="nb">14.50</span>, <span class="nb">7.25</span>, <span class="nb">45.00</span>, <span class="nb">3.50</span>]
+
+<span class="cm"># map — apply a function to each element</span>
+discounted = <span class="fn">list</span>(<span class="fn">map</span>(<span class="kw">lambda</span> p: <span class="fn">round</span>(p * <span class="nb">0.9</span>, <span class="nb">2</span>), prices))
+<span class="fn">print</span>(discounted)  <span class="cm"># [26.99, 13.05, 6.52, 40.5, 3.15]</span>
+
+<span class="cm"># filter — keep elements where the function returns True</span>
+expensive = <span class="fn">list</span>(<span class="fn">filter</span>(<span class="kw">lambda</span> p: p > <span class="nb">10</span>, prices))
+<span class="fn">print</span>(expensive)   <span class="cm"># [29.99, 14.50, 45.00]</span>
+
+<span class="cm"># reduce — accumulate into a single value</span>
+total = <span class="fn">reduce</span>(<span class="kw">lambda</span> a, b: a + b, prices)
+<span class="fn">print</span>(<span class="st">f"Total: $</span>{total:.2f}<span class="st">"</span>)  <span class="cm"># Total: $100.24</span>
+
+<span class="cm"># Equivalent using sum() — preferred for addition</span>
+<span class="fn">print</span>(<span class="st">f"Total: $</span>{<span class="fn">sum</span>(prices):.2f}<span class="st">"</span>)</pre>
+
+<div class="concept tip">
+    <strong>Comprehension vs. map/filter:</strong> The list comprehension <code>[p * 0.9 for p in prices]</code> is generally preferred over <code>list(map(lambda p: p * 0.9, prices))</code> because it is easier to read. However, when the function already exists (e.g., <code>map(str, numbers)</code> or <code>map(len, strings)</code>), using <code>map()</code> is often cleaner than a comprehension.
+</div>
+
+<h2>3.15 Creating Your Own Module</h2>
 <p>Any <code>.py</code> file is a module. Save reusable functions in a file and import them elsewhere.</p>
 
 <pre class="python"><span class="cm"># File: sc_utils.py</span>
@@ -161,6 +347,16 @@ ss = <span class="fn">safety_stock</span>(<span class="nb">1.96</span>, <span cl
     <p>Create a module called <code>metrics.py</code> with functions for <code>fill_rate(fulfilled, requested)</code> and <code>otif(on_time_count, total_orders)</code>. Import them in a separate script and compute both metrics for sample data.</p>
 </div>
 
+<div class="exercise">
+    <h4>Exercise 3.3</h4>
+    <p>Write a <code>@timer</code> decorator (as shown in section 3.11) and apply it to two functions: one that computes the sum of a range using a for-loop, and one that uses the built-in <code>sum()</code>. Compare their execution times for <code>n = 10,000,000</code>.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 3.4</h4>
+    <p>Write a generator function <code>fibonacci(n)</code> that yields the first <code>n</code> Fibonacci numbers (1, 1, 2, 3, 5, 8, ...). Use it in a for-loop to print the first 15 Fibonacci numbers. Then compute their sum using <code>sum(fibonacci(15))</code>.</p>
+</div>
+
 <div class="ext-resources">
     <h4>Official Resources</h4>
     <ul>
@@ -174,8 +370,11 @@ ss = <span class="fn">safety_stock</span>(<span class="nb">1.96</span>, <span cl
     <h3>Chapter 3 Takeaways</h3>
     <ul>
         <li>Functions encapsulate reusable logic; always include a docstring describing what the function does.</li>
-        <li>Default arguments and **kwargs make functions flexible; lambda provides shorthand for simple one-liners.</li>
-        <li>Use <code>import module</code> or <code>from module import func</code> to access standard-library and third-party code.</li>
+        <li>Type hints (<code>def f(x: int) -> str</code>) serve as documentation and enable static analysis without affecting runtime behavior.</li>
+        <li>Understand scope (LEGB rule) to avoid bugs from variable shadowing, and never overwrite built-in names.</li>
+        <li>Decorators add behavior to functions without modifying them; the <code>@timer</code> pattern is useful for benchmarking.</li>
+        <li>Generators (<code>yield</code>) produce values lazily, making them memory-efficient for large data pipelines.</li>
+        <li><code>map()</code>, <code>filter()</code>, and <code>reduce()</code> are functional alternatives to loops; comprehensions are often preferred for readability.</li>
         <li>Any .py file is a module; organize your analytics helpers into separate files as your project grows.</li>
     </ul>
 </div>

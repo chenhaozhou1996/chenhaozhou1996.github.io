@@ -43,7 +43,39 @@
     <strong>Project overview:</strong> This chapter ties together everything from Chapters 1 through 9 into a single, realistic analytics workflow. We will load a raw CSV dataset, clean and explore it, engineer features, build a predictive model, evaluate results, and generate a summary. Each step maps directly to a previous chapter.
 </div>
 
-<h2>10.1 Step 1: Load the Data (Ch 1, 5)</h2>
+<h2>10.1 Project Structure Best Practices</h2>
+<p>Before writing any analysis code, set up a clean project directory. A well-organized project is easier to understand, debug, and share with collaborators. The structure below separates data, code, and output so that each component has a clear role.</p>
+
+<pre class="python"><span class="cm"># Recommended project structure</span>
+<span class="cm"># my_project/</span>
+<span class="cm"># ├── data/</span>
+<span class="cm"># │   ├── raw/          # Original, untouched data files</span>
+<span class="cm"># │   └── processed/    # Cleaned data ready for analysis</span>
+<span class="cm"># ├── src/              # Python source code</span>
+<span class="cm"># │   ├── __init__.py</span>
+<span class="cm"># │   ├── load.py       # Data loading functions</span>
+<span class="cm"># │   ├── clean.py      # Data cleaning functions</span>
+<span class="cm"># │   ├── features.py   # Feature engineering</span>
+<span class="cm"># │   └── model.py      # Model training and evaluation</span>
+<span class="cm"># ├── output/           # Generated figures, reports, model artifacts</span>
+<span class="cm"># ├── notebooks/        # Jupyter notebooks for exploration</span>
+<span class="cm"># ├── tests/            # Unit tests</span>
+<span class="cm"># ├── requirements.txt  # Python dependencies</span>
+<span class="cm"># └── main.py           # Entry point that runs the pipeline</span>
+
+<span class="cm"># Create this structure programmatically</span>
+<span class="kw">import</span> os
+
+dirs = [<span class="st">"data/raw"</span>, <span class="st">"data/processed"</span>, <span class="st">"src"</span>, <span class="st">"output"</span>, <span class="st">"notebooks"</span>, <span class="st">"tests"</span>]
+<span class="kw">for</span> d <span class="kw">in</span> dirs:
+    os.<span class="fn">makedirs</span>(d, exist_ok=<span class="nb">True</span>)
+    <span class="fn">print</span>(<span class="st">f"  Created: </span>{d}<span class="st">/"</span>)</pre>
+
+<div class="concept info">
+    <strong>Why separate raw and processed data?</strong> The <code>data/raw/</code> folder should contain the original, unmodified data files. Never overwrite them. Your cleaning code reads from <code>raw/</code> and writes to <code>processed/</code>. This way, you can always reproduce the entire pipeline from the original data if something goes wrong. It also makes it easy to answer the question "what exactly changed during cleaning?" by comparing the two folders.
+</div>
+
+<h2>10.2 Step 1: Load the Data (Ch 1, 5)</h2>
 
 <pre class="python"><span class="kw">import</span> numpy <span class="kw">as</span> np
 <span class="kw">import</span> pandas <span class="kw">as</span> pd
@@ -81,7 +113,7 @@ df.<span class="fn">loc</span>[mask, <span class="st">"lead_time_days"</span>] =
 <span class="fn">print</span>(df.<span class="fn">shape</span>)
 df.<span class="fn">head</span>()</pre>
 
-<h2>10.2 Step 2: Data Cleaning (Ch 2, 5)</h2>
+<h2>10.3 Step 2: Data Cleaning (Ch 2, 5)</h2>
 
 <pre class="python"><span class="cm"># Check for missing values</span>
 <span class="fn">print</span>(<span class="st">"Missing values:"</span>)
@@ -98,7 +130,7 @@ df = df[df[<span class="st">"lead_time_days"</span>] > <span class="nb">0</span>
 <span class="cm"># Verify</span>
 <span class="fn">print</span>(<span class="st">f"\nClean dataset: </span>{df.shape[<span class="nb">0</span>]}<span class="st"> rows, </span>{df.<span class="fn">isnull</span>().<span class="fn">sum</span>().<span class="fn">sum</span>()}<span class="st"> missing values"</span>)</pre>
 
-<h2>10.3 Step 3: Exploratory Data Analysis (Ch 5, 6)</h2>
+<h2>10.4 Step 3: Exploratory Data Analysis (Ch 5, 6)</h2>
 
 <pre class="python"><span class="cm"># Compute revenue</span>
 df[<span class="st">"revenue"</span>] = df[<span class="st">"units"</span>] * df[<span class="st">"unit_price"</span>]
@@ -140,7 +172,7 @@ axes[<span class="nb">1</span>, <span class="nb">1</span>].<span class="fn">set_
 plt.<span class="fn">tight_layout</span>()
 plt.<span class="fn">show</span>()</pre>
 
-<h2>10.4 Step 4: Feature Engineering (Ch 3, 4)</h2>
+<h2>10.5 Step 4: Feature Engineering (Ch 3, 4)</h2>
 
 <pre class="python"><span class="cm"># Create new features</span>
 df[<span class="st">"log_distance"</span>]   = np.<span class="fn">log1p</span>(df[<span class="st">"distance_miles"</span>])
@@ -153,7 +185,7 @@ df_model = pd.<span class="fn">get_dummies</span>(df, columns=[<span class="st">
 <span class="fn">print</span>(<span class="st">f"Feature matrix: </span>{df_model.shape}<span class="st">"</span>)
 <span class="fn">print</span>(df_model.columns.<span class="fn">tolist</span>())</pre>
 
-<h2>10.5 Step 5: Statistical Testing (Ch 7)</h2>
+<h2>10.6 Step 5: Statistical Testing (Ch 7)</h2>
 
 <pre class="python"><span class="cm"># Is there a significant difference in lead time across warehouses?</span>
 groups = [g[<span class="st">"lead_time_days"</span>].<span class="fn">values</span> <span class="kw">for</span> _, g <span class="kw">in</span> df.<span class="fn">groupby</span>(<span class="st">"warehouse"</span>)]
@@ -167,7 +199,7 @@ ols_model = smf.<span class="fn">ols</span>(
 ).<span class="fn">fit</span>()
 <span class="fn">print</span>(ols_model.<span class="fn">summary</span>().<span class="fn">tables</span>[<span class="nb">1</span>])</pre>
 
-<h2>10.6 Step 6: Predictive Modeling (Ch 8)</h2>
+<h2>10.7 Step 6: Predictive Modeling (Ch 8)</h2>
 
 <pre class="python"><span class="cm"># Target: lead_time_days</span>
 feature_cols = [<span class="st">"units"</span>, <span class="st">"unit_price"</span>, <span class="st">"distance_miles"</span>, <span class="st">"log_distance"</span>,
@@ -202,7 +234,7 @@ rf_pred = rf_pipe.<span class="fn">predict</span>(X_test)
 <span class="fn">print</span>(<span class="st">f"  Linear Regression  RMSE: </span>{<span class="fn">mean_squared_error</span>(y_test, lr_pred, squared=<span class="nb">False</span>):.3f}<span class="st">, R2: </span>{<span class="fn">r2_score</span>(y_test, lr_pred):.3f}<span class="st">"</span>)
 <span class="fn">print</span>(<span class="st">f"  Random Forest      RMSE: </span>{<span class="fn">mean_squared_error</span>(y_test, rf_pred, squared=<span class="nb">False</span>):.3f}<span class="st">, R2: </span>{<span class="fn">r2_score</span>(y_test, rf_pred):.3f}<span class="st">"</span>)</pre>
 
-<h2>10.7 Step 7: Evaluate and Visualize Results (Ch 6, 8)</h2>
+<h2>10.8 Step 7: Evaluate and Visualize Results (Ch 6, 8)</h2>
 
 <pre class="python">fig, axes = plt.<span class="fn">subplots</span>(<span class="nb">1</span>, <span class="nb">2</span>, figsize=(<span class="nb">12</span>, <span class="nb">5</span>))
 
@@ -225,7 +257,7 @@ plt.<span class="fn">tight_layout</span>()
 plt.<span class="fn">savefig</span>(<span class="st">"pipeline_results.png"</span>, dpi=<span class="nb">300</span>, bbox_inches=<span class="st">"tight"</span>)
 plt.<span class="fn">show</span>()</pre>
 
-<h2>10.8 Step 8: Generate a Summary Report (Ch 3)</h2>
+<h2>10.9 Step 8: Generate a Summary Report (Ch 3)</h2>
 
 <pre class="python"><span class="kw">def</span> <span class="fn">generate_report</span>(df, model_name, rmse, r2):
     <span class="st">"""Print a formatted summary report."""</span>
@@ -249,6 +281,199 @@ rf_r2   = <span class="fn">r2_score</span>(y_test, rf_pred)
     <strong>Reproducibility:</strong> Package all steps into functions (load_data, clean_data, build_features, train_model, evaluate, report). This lets you re-run the entire pipeline with a single command when the data updates.
 </div>
 
+<h2>10.10 Logging Instead of Print</h2>
+<p>In quick scripts, <code>print()</code> works fine. But in a real pipeline that runs unattended (e.g., scheduled overnight), you need <code>logging</code> because it can write to files, include timestamps, and distinguish between severity levels (DEBUG, INFO, WARNING, ERROR). When something fails at 3 AM, the log file tells you exactly what happened and when.</p>
+
+<pre class="python"><span class="kw">import</span> logging
+
+<span class="cm"># Configure logging once at the top of your script</span>
+logging.<span class="fn">basicConfig</span>(
+    level=logging.INFO,
+    format=<span class="st">"%(asctime)s [%(levelname)s] %(message)s"</span>,
+    handlers=[
+        logging.<span class="fn">FileHandler</span>(<span class="st">"pipeline.log"</span>),   <span class="cm"># write to file</span>
+        logging.<span class="fn">StreamHandler</span>()                 <span class="cm"># also print to console</span>
+    ]
+)
+logger = logging.<span class="fn">getLogger</span>(__name__)
+
+<span class="cm"># Use it instead of print()</span>
+logger.<span class="fn">info</span>(<span class="st">"Starting data pipeline..."</span>)
+logger.<span class="fn">info</span>(<span class="st">f"Loaded </span>{df.shape[<span class="nb">0</span>]}<span class="st"> rows, </span>{df.shape[<span class="nb">1</span>]}<span class="st"> columns"</span>)
+logger.<span class="fn">warning</span>(<span class="st">f"Found </span>{df.<span class="fn">isnull</span>().<span class="fn">sum</span>().<span class="fn">sum</span>()}<span class="st"> missing values"</span>)
+
+<span class="cm"># In error handling</span>
+<span class="kw">try</span>:
+    model = rf_pipe.<span class="fn">fit</span>(X_train, y_train)
+    logger.<span class="fn">info</span>(<span class="st">"Model training complete"</span>)
+<span class="kw">except</span> <span class="nb">Exception</span> <span class="kw">as</span> e:
+    logger.<span class="fn">error</span>(<span class="st">f"Model training failed: </span>{e}<span class="st">"</span>)
+    <span class="kw">raise</span></pre>
+
+<h2>10.11 Command-Line Arguments with argparse</h2>
+<p>Hard-coding file paths and parameters makes your script inflexible. <code>argparse</code> lets users pass arguments from the command line, making your pipeline reusable across different datasets and configurations without editing the code.</p>
+
+<pre class="python"><span class="kw">import</span> argparse
+
+<span class="kw">def</span> <span class="fn">parse_args</span>():
+    parser = argparse.<span class="fn">ArgumentParser</span>(
+        description=<span class="st">"Supply Chain Analytics Pipeline"</span>
+    )
+    parser.<span class="fn">add_argument</span>(
+        <span class="st">"input_file"</span>,
+        <span class="fn">help</span>=<span class="st">"Path to the input CSV file"</span>
+    )
+    parser.<span class="fn">add_argument</span>(
+        <span class="st">"--output-dir"</span>, default=<span class="st">"output"</span>,
+        <span class="fn">help</span>=<span class="st">"Directory for output files (default: output/)"</span>
+    )
+    parser.<span class="fn">add_argument</span>(
+        <span class="st">"--n-trees"</span>, type=<span class="nb">int</span>, default=<span class="nb">100</span>,
+        <span class="fn">help</span>=<span class="st">"Number of trees in Random Forest (default: 100)"</span>
+    )
+    parser.<span class="fn">add_argument</span>(
+        <span class="st">"--test-size"</span>, type=<span class="nb">float</span>, default=<span class="nb">0.2</span>,
+        <span class="fn">help</span>=<span class="st">"Fraction of data for test set (default: 0.2)"</span>
+    )
+    <span class="kw">return</span> parser.<span class="fn">parse_args</span>()
+
+<span class="cm"># Usage: python main.py data/orders.csv --n-trees 200 --test-size 0.3</span>
+<span class="cm"># In your main function:</span>
+<span class="cm"># args = parse_args()</span>
+<span class="cm"># df = pd.read_csv(args.input_file)</span>
+<span class="cm"># rf = RandomForestRegressor(n_estimators=args.n_trees)</span></pre>
+
+<div class="concept tip">
+    <strong>Combining argparse with logging:</strong> Add a <code>--verbose</code> flag that switches the logging level from INFO to DEBUG. This lets users see detailed diagnostic output when troubleshooting without cluttering normal runs. Example: <code>parser.add_argument("--verbose", action="store_true")</code> followed by <code>logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)</code>.
+</div>
+
+<h2>10.12 Creating requirements.txt</h2>
+<p>A <code>requirements.txt</code> file lists all Python packages your project depends on, with version numbers. This allows anyone (or any server) to recreate your exact environment. Without it, your collaborator might install a different version of pandas that breaks your code.</p>
+
+<pre class="python"><span class="cm"># Generate requirements.txt from your current environment</span>
+<span class="cm"># Run in terminal: pip freeze > requirements.txt</span>
+
+<span class="cm"># Better: create it manually with only the packages you actually use</span>
+<span class="cm"># requirements.txt contents:</span>
+<span class="cm"># pandas==2.1.4</span>
+<span class="cm"># numpy==1.26.2</span>
+<span class="cm"># matplotlib==3.8.2</span>
+<span class="cm"># seaborn==0.13.0</span>
+<span class="cm"># scikit-learn==1.3.2</span>
+<span class="cm"># scipy==1.11.4</span>
+<span class="cm"># statsmodels==0.14.1</span>
+
+<span class="cm"># Install from requirements.txt:</span>
+<span class="cm"># pip install -r requirements.txt</span>
+
+<span class="cm"># For reproducibility, also consider virtual environments:</span>
+<span class="cm"># python -m venv .venv</span>
+<span class="cm"># source .venv/bin/activate   # macOS/Linux</span>
+<span class="cm"># .venv\Scripts\activate      # Windows</span>
+<span class="cm"># pip install -r requirements.txt</span></pre>
+
+<div class="concept info">
+    <strong>pip freeze vs. manual requirements:</strong> <code>pip freeze</code> captures every package in your environment, including transitive dependencies you did not directly install. This can include dozens of packages you do not actually need. A cleaner approach is to manually list only the packages your code imports, then pin their versions. Use <code>pip freeze</code> as a starting reference, then trim it down.
+</div>
+
+<h2>10.13 Unit Testing with pytest</h2>
+<p>Tests verify that your functions produce correct output. When you refactor your cleaning code three months from now, tests catch bugs before they corrupt your analysis. Even a few simple tests can save hours of debugging.</p>
+
+<pre class="python"><span class="cm"># File: tests/test_pipeline.py</span>
+<span class="kw">import</span> pytest
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Assume these functions live in src/clean.py</span>
+<span class="kw">def</span> <span class="fn">fill_missing_lead_times</span>(df):
+    <span class="st">"""Fill missing lead times with group median."""</span>
+    df[<span class="st">"lead_time_days"</span>] = df.<span class="fn">groupby</span>(<span class="st">"warehouse"</span>)[<span class="st">"lead_time_days"</span>].<span class="fn">transform</span>(
+        <span class="kw">lambda</span> x: x.<span class="fn">fillna</span>(x.<span class="fn">median</span>())
+    )
+    <span class="kw">return</span> df
+
+<span class="kw">def</span> <span class="fn">remove_negative_lead_times</span>(df):
+    <span class="st">"""Remove rows with negative lead times."""</span>
+    <span class="kw">return</span> df[df[<span class="st">"lead_time_days"</span>] > <span class="nb">0</span>].<span class="fn">copy</span>()
+
+<span class="cm"># --- Tests ---</span>
+<span class="kw">def</span> <span class="fn">test_fill_missing_no_nulls_remain</span>():
+    <span class="st">"""After filling, no NaN values should remain."""</span>
+    df = pd.<span class="fn">DataFrame</span>({
+        <span class="st">"warehouse"</span>: [<span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>],
+        <span class="st">"lead_time_days"</span>: [<span class="nb">3.0</span>, np.nan, <span class="nb">5.0</span>, np.nan]
+    })
+    result = <span class="fn">fill_missing_lead_times</span>(df)
+    <span class="kw">assert</span> result[<span class="st">"lead_time_days"</span>].<span class="fn">isnull</span>().<span class="fn">sum</span>() == <span class="nb">0</span>
+
+<span class="kw">def</span> <span class="fn">test_remove_negative_values</span>():
+    <span class="st">"""No negative lead times should remain."""</span>
+    df = pd.<span class="fn">DataFrame</span>({
+        <span class="st">"lead_time_days"</span>: [<span class="nb">3.0</span>, -<span class="nb">1.0</span>, <span class="nb">5.0</span>, <span class="nb">0.0</span>, <span class="nb">2.0</span>]
+    })
+    result = <span class="fn">remove_negative_lead_times</span>(df)
+    <span class="kw">assert</span> (result[<span class="st">"lead_time_days"</span>] > <span class="nb">0</span>).<span class="fn">all</span>()
+    <span class="kw">assert</span> <span class="fn">len</span>(result) == <span class="nb">3</span>  <span class="cm"># -1.0 and 0.0 removed</span>
+
+<span class="kw">def</span> <span class="fn">test_revenue_calculation</span>():
+    <span class="st">"""Revenue should equal units * unit_price."""</span>
+    df = pd.<span class="fn">DataFrame</span>({
+        <span class="st">"units"</span>: [<span class="nb">10</span>, <span class="nb">20</span>, <span class="nb">5</span>],
+        <span class="st">"unit_price"</span>: [<span class="nb">5.0</span>, <span class="nb">3.0</span>, <span class="nb">10.0</span>]
+    })
+    df[<span class="st">"revenue"</span>] = df[<span class="st">"units"</span>] * df[<span class="st">"unit_price"</span>]
+    expected = [<span class="nb">50.0</span>, <span class="nb">60.0</span>, <span class="nb">50.0</span>]
+    <span class="kw">assert</span> df[<span class="st">"revenue"</span>].<span class="fn">tolist</span>() == expected
+
+<span class="cm"># Run tests: pytest tests/ -v</span></pre>
+
+<div class="concept tip">
+    <strong>What to test in a data pipeline:</strong> Focus on the functions that transform data. Test that (1) cleaning functions remove the right rows and fill nulls correctly, (2) feature engineering produces the expected values, (3) edge cases are handled (empty DataFrames, all-null columns, single-row inputs). You do not need to test that <code>pandas.read_csv</code> works; pandas already tests that.
+</div>
+
+<h2>10.14 Converting Jupyter Notebooks to Python Scripts</h2>
+<p>Jupyter notebooks are excellent for exploration, but they are difficult to version-control, test, and run in production. Converting your finalized analysis to a <code>.py</code> script makes it reproducible and automatable.</p>
+
+<pre class="python"><span class="cm"># Convert a notebook to a Python script (run in terminal)</span>
+<span class="cm"># jupyter nbconvert --to script analysis.ipynb</span>
+<span class="cm"># This creates analysis.py with all code cells</span>
+
+<span class="cm"># Better: refactor as you go</span>
+<span class="cm"># 1. Move reusable functions from notebook cells into src/*.py files</span>
+<span class="cm"># 2. Keep the notebook for visualization and narrative only</span>
+<span class="cm"># 3. Import your functions: from src.clean import fill_missing_lead_times</span>
+
+<span class="cm"># Typical workflow:</span>
+<span class="cm"># - Explore in Jupyter: notebooks/01_exploration.ipynb</span>
+<span class="cm"># - Extract functions: src/clean.py, src/features.py, src/model.py</span>
+<span class="cm"># - Create entry point: main.py that imports and calls everything</span>
+<span class="cm"># - Run the pipeline: python main.py data/raw/orders.csv</span>
+
+<span class="cm"># Example main.py structure</span>
+<span class="kw">def</span> <span class="fn">main</span>():
+    <span class="cm"># args = parse_args()</span>
+    logger.<span class="fn">info</span>(<span class="st">"=== Pipeline Start ==="</span>)
+
+    <span class="cm"># Step 1: Load</span>
+    <span class="cm"># df = load_data(args.input_file)</span>
+
+    <span class="cm"># Step 2: Clean</span>
+    <span class="cm"># df = clean_data(df)</span>
+
+    <span class="cm"># Step 3: Features</span>
+    <span class="cm"># df = build_features(df)</span>
+
+    <span class="cm"># Step 4: Model</span>
+    <span class="cm"># results = train_and_evaluate(df, args.n_trees)</span>
+
+    <span class="cm"># Step 5: Report</span>
+    <span class="cm"># generate_report(results, args.output_dir)</span>
+
+    logger.<span class="fn">info</span>(<span class="st">"=== Pipeline Complete ==="</span>)
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    <span class="fn">main</span>()</pre>
+
 <div class="exercise">
     <h4>Exercise 10.1</h4>
     <p>Extend this pipeline by adding a third model (GradientBoostingRegressor from scikit-learn). Compare all three models using 5-fold cross-validation and select the best one. Add the cross-validation results to the summary report.</p>
@@ -256,7 +481,17 @@ rf_r2   = <span class="fn">r2_score</span>(y_test, rf_pred)
 
 <div class="exercise">
     <h4>Exercise 10.2</h4>
-    <p>Refactor the entire pipeline into a single Python script with separate functions for each step. The script should accept a CSV filename as a command-line argument (use <code>import sys; filename = sys.argv[1]</code>) and produce both a PNG chart and a printed summary.</p>
+    <p>Refactor the entire pipeline into a single Python script with separate functions for each step. The script should accept a CSV filename as a command-line argument using <code>argparse</code> (not <code>sys.argv</code>) and produce both a PNG chart and a printed summary. Add <code>--output-dir</code> and <code>--verbose</code> flags.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 10.3</h4>
+    <p>Write three pytest test functions for the data pipeline: one that tests the missing value filling logic, one that tests the feature engineering step (revenue = units * unit_price), and one that tests that the model's R-squared is above 0.0 on the test set (a basic sanity check). Run them with <code>pytest tests/ -v</code> and verify all pass.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 10.4</h4>
+    <p>Set up a complete project structure for a new dataset of your choice: create the <code>data/raw/</code>, <code>src/</code>, <code>output/</code>, and <code>tests/</code> directories. Write a <code>requirements.txt</code> file listing only the packages you import. Replace all <code>print()</code> calls with <code>logging</code> statements at appropriate severity levels (INFO for progress, WARNING for data quality issues, ERROR for failures). Run the pipeline and verify that the log file contains all expected messages.</p>
 </div>
 
 <div class="ext-resources">
@@ -271,10 +506,14 @@ rf_r2   = <span class="fn">r2_score</span>(y_test, rf_pred)
 <div class="takeaway">
     <h3>Chapter 10 Takeaways</h3>
     <ul>
+        <li>Organize projects with separate folders for raw data, processed data, source code, output, and tests.</li>
         <li>A real analytics project follows a linear pipeline: load, clean, explore, engineer, model, evaluate, report.</li>
         <li>Feature engineering (log transforms, dummies, derived variables) often matters more than model choice.</li>
-        <li>Always compare multiple models and use cross-validation for reliable performance estimates.</li>
-        <li>Package your pipeline into functions for reproducibility; future you will thank present you.</li>
+        <li>Use <code>logging</code> instead of <code>print()</code> for production pipelines; it provides timestamps, severity levels, and file output.</li>
+        <li>Use <code>argparse</code> to make your scripts flexible and reusable across different datasets and configurations.</li>
+        <li>Pin your dependencies in <code>requirements.txt</code> and use virtual environments for reproducibility.</li>
+        <li>Write pytest tests for your data cleaning and feature engineering functions to catch regressions early.</li>
+        <li>Explore in Jupyter, then extract reusable functions into <code>.py</code> modules for your production pipeline.</li>
     </ul>
 </div>
 

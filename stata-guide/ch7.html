@@ -37,7 +37,7 @@
 </nav>
 
 <h1>Chapter 7: Limited Dependent Variables</h1>
-<p class="subtitle">Logit, Probit, Tobit, and Multinomial Models</p>
+<p class="subtitle">Logit, Probit, Tobit, Count Models, Selection Models, and Multinomial Models</p>
 
 <h2>7.1 Binary Outcome Models</h2>
 <p>When the dependent variable is binary (0/1), linear probability models (LPM) are simple but can produce predictions outside [0,1]. Logit and probit address this by using nonlinear link functions.</p>
@@ -59,6 +59,11 @@
     Logit uses the logistic CDF; probit uses the normal CDF. In practice, they produce very similar results. Logit coefficients can be exponentiated to get odds ratios, which some audiences find more intuitive. Use whichever is conventional in your field.
 </div>
 
+<div class="concept tip">
+    <strong>When LPM Is Acceptable</strong>
+    Despite its theoretical drawbacks, the LPM is often preferred in applied economics and causal inference work. Angrist and Pischke (2009) argue that for estimating average partial effects, the LPM with robust SEs performs well. The LPM is particularly useful when: (1) you need to include fixed effects that would create incidental parameters bias in logit/probit; (2) your main interest is in the average marginal effect rather than individual predictions; (3) predicted probabilities cluster well within [0.2, 0.8]. Reviewers at economics journals generally accept LPM, while management and health journals may insist on logit/probit.
+</div>
+
 <h2>7.2 Interpreting Coefficients</h2>
 <p>Raw logit/probit coefficients give the change in log-odds (logit) or the z-score (probit) for a unit change in X. These are difficult to interpret directly. Use marginal effects instead.</p>
 
@@ -74,12 +79,33 @@
 <span class="kw">margins</span>, dydx(*) atmeans</pre>
 
 <div class="concept warn">
-    <strong>AME vs. MEM</strong>
-    Average marginal effects (AME) compute the marginal effect for each observation and then average. Marginal effects at the mean (MEM) evaluate at the sample means of all variables. AME is generally preferred because MEM evaluates at a potentially nonexistent "average" observation.
+    <strong>AME vs. MEM: A Deeper Look</strong>
+    Average marginal effects (AME) compute the marginal effect for each observation and then average. Marginal effects at the mean (MEM) evaluate at the sample means of all variables. AME is generally preferred because MEM evaluates at a potentially nonexistent "average" observation. With categorical variables, the MEM evaluates at the mean of the dummy (e.g., race = 0.37), which is nonsensical. AME avoids this problem. However, AME depends on the distribution of all covariates in the sample. If you want the effect for a specific subgroup (e.g., male smokers age 30), use <code>margins, dydx(*) at(smoke=1 age=30)</code> instead.
 </div>
 
-<h2>7.3 Predicted Probabilities</h2>
-<p>You can compute predicted probabilities at specific covariate values to make results more tangible for your audience.</p>
+<h3>7.2.1 Marginal Effects for Interaction Terms</h3>
+<p>Interpreting interactions in nonlinear models is more complex than in linear models. The cross-partial derivative is not simply the coefficient on the interaction term. Use <code>margins</code> to compute the correct interaction effect.</p>
+
+<pre class="stata"><span class="cm">* Logit with interaction</span>
+<span class="kw">logit</span> low c.age##i.smoke lwt i.race
+
+<span class="cm">* Wrong: just looking at the interaction coefficient</span>
+<span class="cm">* Right: compute the AME of smoke at different ages</span>
+<span class="kw">margins</span>, dydx(smoke) at(age=(20(5)40))
+<span class="kw">marginsplot</span>, title(<span class="st">"Marginal Effect of Smoking by Age"</span>) ///
+    ytitle(<span class="st">"dPr(Low Birth Weight)/dSmoke"</span>) ///
+    yline(0, lcolor(red) lpattern(dash))
+
+<span class="cm">* Second differences: the true "interaction effect" in nonlinear models</span>
+<span class="kw">margins</span>, dydx(smoke) at(age=(20 40)) contrast(atcontrast(r))</pre>
+
+<div class="concept warn">
+    <strong>Interactions in Nonlinear Models</strong>
+    Ai and Norton (2003) showed that the interaction effect in logit/probit is not the coefficient on the interaction term. In nonlinear models, the magnitude and even the sign of the interaction effect can differ from the interaction coefficient. Always compute interaction effects through <code>margins</code> rather than interpreting interaction term coefficients directly. This remains one of the most common errors in applied health and management research.
+</div>
+
+<h2>7.3 Predicted Probabilities and Margins Plots</h2>
+<p>You can compute predicted probabilities at specific covariate values to make results more tangible for your audience. Margins plots are the standard visualization for nonlinear model results in published papers.</p>
 
 <pre class="stata"><span class="kw">logit</span> low age lwt i.race smoke
 
@@ -93,6 +119,26 @@
 <span class="kw">margins</span>, at(age=(15(5)45)) over(smoke)
 <span class="kw">marginsplot</span>, title(<span class="st">"Predicted Probability of Low Birth Weight"</span>) ///
     ytitle(<span class="st">"Pr(Low Birth Weight)"</span>) xtitle(<span class="st">"Mother's Age"</span>)</pre>
+
+<pre class="stata"><span class="cm">* ─── Publication-Quality Margins Plot ───</span>
+<span class="kw">logit</span> low c.age##i.race lwt smoke
+
+<span class="cm">* Predicted probabilities across age for each race category</span>
+<span class="kw">margins</span> race, at(age=(18(2)42)) vsquish
+
+<span class="cm">* Customized marginsplot</span>
+<span class="kw">marginsplot</span>, ///
+    title(<span class="st">"Predicted Probability of Low Birth Weight"</span>, size(medium)) ///
+    ytitle(<span class="st">"Pr(Low Birth Weight)"</span>) xtitle(<span class="st">"Mother's Age"</span>) ///
+    legend(order(1 <span class="st">"White"</span> 2 <span class="st">"Black"</span> 3 <span class="st">"Other"</span>) rows(1) pos(6)) ///
+    plot1opts(lcolor(navy) mcolor(navy)) ///
+    plot2opts(lcolor(cranberry) mcolor(cranberry)) ///
+    plot3opts(lcolor(forest_green) mcolor(forest_green)) ///
+    ci1opts(color(navy%20)) ci2opts(color(cranberry%20)) ci3opts(color(forest_green%20)) ///
+    graphregion(color(white)) scheme(s2color)
+
+<span class="cm">* Export for manuscript</span>
+<span class="kw">graph export</span> <span class="st">"margins_plot.png"</span>, replace width(1200)</pre>
 
 <h2>7.4 Tobit: Censored Outcomes</h2>
 <p>When the dependent variable is censored (e.g., hours worked cannot be negative, expenditure data piles up at zero), the tobit model accounts for this truncation.</p>
@@ -108,7 +154,62 @@
 <span class="cm">* Marginal effects (on the observed, censored outcome)</span>
 <span class="kw">margins</span>, dydx(*) predict(e(0,.))</pre>
 
-<h2>7.5 Ordered Logit and Probit</h2>
+<div class="concept info">
+    <strong>Three Types of Tobit Marginal Effects</strong>
+    The tobit model supports three different marginal effect predictions: (1) <code>predict(ystar(0,.))</code> gives the effect on the latent (uncensored) variable y*; (2) <code>predict(e(0,.))</code> gives the effect on E[y | y &gt; 0], the expected value conditional on being uncensored; (3) <code>predict(pr(0,.))</code> gives the effect on the probability of being uncensored. In most applications, the conditional expectation <code>e(0,.)</code> is the quantity of interest. Reporting the wrong one is a common error.
+</div>
+
+<h2>7.5 Count Models: Poisson and Negative Binomial</h2>
+<p>When the dependent variable is a non-negative count (e.g., number of hospital admissions, number of defects, number of patents), use Poisson or negative binomial regression rather than OLS. These models use a log link function and ensure predicted counts are non-negative.</p>
+
+<pre class="stata"><span class="cm">* ─── Poisson Regression ───</span>
+<span class="kw">webuse</span> dollhill3, clear
+
+<span class="cm">* Basic Poisson</span>
+<span class="kw">poisson</span> deaths smokes i.agecat, exposure(pyears) irr
+
+<span class="cm">* Incidence Rate Ratios (IRR): exponentiated coefficients</span>
+<span class="cm">* IRR of 1.5 means the rate is 50% higher for a unit increase in X</span>
+
+<span class="cm">* Robust SEs (quasi-Poisson: relaxes the mean=variance assumption)</span>
+<span class="kw">poisson</span> deaths smokes i.agecat, exposure(pyears) irr vce(robust)
+
+<span class="cm">* ─── Negative Binomial (for overdispersion) ───</span>
+<span class="cm">* When Var(Y) > E(Y), Poisson is too restrictive</span>
+<span class="kw">nbreg</span> deaths smokes i.agecat, exposure(pyears) irr
+
+<span class="cm">* Test for overdispersion (alpha = 0 => Poisson is adequate)</span>
+<span class="cm">* The LR test at the bottom of nbreg output tests alpha = 0</span>
+
+<span class="cm">* ─── Marginal Effects for Count Models ───</span>
+<span class="kw">poisson</span> deaths smokes i.agecat, exposure(pyears)
+<span class="kw">margins</span>, dydx(*) predict(n)  <span class="cm">// marginal effect on predicted count</span></pre>
+
+<h3>7.5.1 Zero-Inflated Models</h3>
+<p>When the data has excess zeros beyond what Poisson or negative binomial can explain (e.g., many people report zero doctor visits, but among those who visit, the count follows a standard distribution), zero-inflated models are appropriate.</p>
+
+<pre class="stata"><span class="cm">* Zero-inflated Poisson</span>
+<span class="kw">zip</span> doctor_visits age income chronic, ///
+    inflate(age income distance_to_clinic) vuong
+
+<span class="cm">* Zero-inflated Negative Binomial</span>
+<span class="kw">zinb</span> doctor_visits age income chronic, ///
+    inflate(age income distance_to_clinic)
+
+<span class="cm">* Vuong test: ZIP vs. standard Poisson</span>
+<span class="cm">* Significant positive z => ZIP preferred over Poisson</span>
+
+<span class="cm">* Marginal effects</span>
+<span class="kw">zip</span> doctor_visits age income chronic, inflate(age income)
+<span class="kw">margins</span>, dydx(*) predict(n)
+<span class="kw">margins</span>, dydx(*) predict(pr(0))  <span class="cm">// effect on Pr(Y=0)</span></pre>
+
+<div class="concept tip">
+    <strong>Choosing Among Count Models</strong>
+    Start with Poisson with robust SEs. If the dispersion parameter from <code>nbreg</code> is significantly different from zero, consider negative binomial. If there are excess zeros driven by a qualitatively different process (e.g., "never users" vs. "potential users who happen to have zero counts"), consider zero-inflated models. Wooldridge (2010) recommends Poisson with robust SEs as a default because it only requires correct specification of the conditional mean (not the full distribution).
+</div>
+
+<h2>7.6 Ordered Logit and Probit</h2>
 <p>When the dependent variable has ordered categories (e.g., satisfaction: low/medium/high), use ordered logit or probit.</p>
 
 <pre class="stata"><span class="kw">webuse</span> fullauto, clear
@@ -123,7 +224,12 @@
 <span class="kw">margins</span>, predict(outcome(1)) predict(outcome(2)) predict(outcome(3)) ///
     predict(outcome(4)) predict(outcome(5))</pre>
 
-<h2>7.6 Multinomial Logit</h2>
+<div class="concept warn">
+    <strong>Proportional Odds Assumption</strong>
+    Ordered logit (proportional odds model) assumes that the effect of each predictor is the same across all outcome thresholds. This means the odds ratio for moving from "poor" to "fair" is the same as for "good" to "excellent." Test this assumption with the Brant test: <code>ssc install brant, replace</code> followed by <code>brant</code> after <code>ologit</code>. If the assumption is violated, consider generalized ordered logit (<code>gologit2</code>) or multinomial logit instead.
+</div>
+
+<h2>7.7 Multinomial Logit</h2>
 <p>When the dependent variable is categorical without a natural ordering (e.g., mode of transportation: car, bus, train), use multinomial logit. The model estimates separate coefficients for each category relative to a base category.</p>
 
 <pre class="stata"><span class="kw">webuse</span> sysdsn1, clear
@@ -139,7 +245,67 @@
 <span class="kw">margins</span>, dydx(*) predict(outcome(2))
 <span class="kw">margins</span>, dydx(*) predict(outcome(3))</pre>
 
-<h2>7.7 Model Fit and Classification</h2>
+<h3>7.7.1 Interpreting Multinomial Logit with Margins</h3>
+<p>Raw multinomial logit coefficients are relative to a base category and difficult to interpret. Margins provide the change in predicted probability for each category, which is what readers actually want to know.</p>
+
+<pre class="stata"><span class="cm">* ─── Complete Marginal Effects Table ───</span>
+<span class="kw">mlogit</span> insure age male nonwhite, baseoutcome(1)
+
+<span class="cm">* Marginal effects for all outcomes in one table</span>
+<span class="kw">margins</span>, dydx(*) predict(outcome(1)) post
+<span class="kw">estimates store</span> me_1
+<span class="kw">quietly mlogit</span> insure age male nonwhite, baseoutcome(1)
+<span class="kw">margins</span>, dydx(*) predict(outcome(2)) post
+<span class="kw">estimates store</span> me_2
+<span class="kw">quietly mlogit</span> insure age male nonwhite, baseoutcome(1)
+<span class="kw">margins</span>, dydx(*) predict(outcome(3)) post
+<span class="kw">estimates store</span> me_3
+
+<span class="kw">estimates table</span> me_1 me_2 me_3, se
+
+<span class="cm">* Note: Marginal effects across all categories sum to zero</span>
+<span class="cm">* (a unit increase in X redistributes probability among categories)</span>
+
+<span class="cm">* ─── IIA Test (Hausman-McFadden) ───</span>
+<span class="cm">* Tests whether removing a category changes the remaining coefficients</span>
+<span class="kw">mlogit</span> insure age male nonwhite, baseoutcome(1)
+<span class="kw">estimates store</span> full_model
+<span class="cm">* Re-estimate excluding one category</span>
+<span class="kw">mlogit</span> insure age male nonwhite if insure != 3, baseoutcome(1)
+<span class="kw">estimates store</span> restricted
+<span class="kw">hausman</span> restricted full_model, alleqs constant</pre>
+
+<h2>7.8 Selection Models (Heckman)</h2>
+<p>When the outcome variable is observed only for a non-random subsample, standard regression suffers from selection bias. The Heckman selection model (also called the Heckit) corrects this by modeling the selection process jointly with the outcome.</p>
+
+<pre class="stata"><span class="kw">webuse</span> womenwk, clear
+
+<span class="cm">* Two-step Heckman (Heckit)</span>
+<span class="kw">heckman</span> wage education age, ///
+    select(married children education age) twostep
+
+<span class="cm">* Full MLE estimation (more efficient if correctly specified)</span>
+<span class="kw">heckman</span> wage education age, ///
+    select(married children education age)
+
+<span class="cm">* Key output: lambda (inverse Mills ratio)</span>
+<span class="cm">* If lambda is significant => selection bias present</span>
+<span class="cm">* rho = correlation between selection and outcome errors</span>
+<span class="cm">* sigma = SD of the outcome error</span>
+<span class="cm">* lambda = rho * sigma</span>
+
+<span class="cm">* Predicted wages (corrected for selection)</span>
+<span class="kw">predict</span> wage_hat, ycond     <span class="cm">// E[wage | selected]</span>
+<span class="kw">predict</span> wage_uncon, yexpected <span class="cm">// E[wage] (unconditional)</span>
+<span class="kw">predict</span> psel, psel           <span class="cm">// Pr(selected)</span>
+<span class="kw">predict</span> mills, mills         <span class="cm">// inverse Mills ratio</span></pre>
+
+<div class="concept info">
+    <strong>Exclusion Restriction in Heckman Models</strong>
+    For identification beyond functional form, the selection equation should contain at least one variable that affects selection but not the outcome. Without this exclusion restriction, the Heckman model is identified only through the nonlinearity of the inverse Mills ratio, which is nearly linear over much of its range. In the example above, <code>married</code> and <code>children</code> affect labor force participation but are excluded from the wage equation. Top journals require you to justify this exclusion economically.
+</div>
+
+<h2>7.9 Goodness of Fit for Nonlinear Models</h2>
 
 <pre class="stata"><span class="kw">logit</span> low age lwt i.race smoke
 
@@ -155,6 +321,40 @@
 <span class="cm">* Information criteria for model comparison</span>
 <span class="kw">estat</span> ic</pre>
 
+<h3>7.9.1 Comparing Nested and Non-Nested Models</h3>
+
+<pre class="stata"><span class="cm">* ─── Pseudo R-squared ───</span>
+<span class="cm">* McFadden's R2 = 1 - (ll_full / ll_null)</span>
+<span class="cm">* Reported automatically by logit/probit</span>
+<span class="cm">* Typical values are lower than OLS R2 (0.2-0.4 is often "good")</span>
+
+<span class="cm">* ─── Likelihood Ratio Test (nested models) ───</span>
+<span class="kw">quietly logit</span> low age lwt smoke
+<span class="kw">estimates store</span> m_restricted
+<span class="kw">quietly logit</span> low age lwt i.race smoke
+<span class="kw">estimates store</span> m_full
+<span class="kw">lrtest</span> m_restricted m_full
+
+<span class="cm">* ─── AIC/BIC for Non-Nested Comparison ───</span>
+<span class="kw">quietly logit</span> low age lwt i.race smoke
+<span class="kw">estimates store</span> logit_model
+<span class="kw">quietly probit</span> low age lwt i.race smoke
+<span class="kw">estimates store</span> probit_model
+<span class="kw">estimates table</span> logit_model probit_model, stats(aic bic ll N)
+
+<span class="cm">* ─── Percent Correctly Predicted ───</span>
+<span class="kw">logit</span> low age lwt i.race smoke
+<span class="kw">predict</span> phat, pr
+<span class="kw">gen</span> y_hat = (phat >= 0.5)
+<span class="kw">tab</span> low y_hat
+<span class="cm">* Be careful: with unbalanced data (e.g., 90% zeros),</span>
+<span class="cm">* always predicting 0 gives 90% accuracy but is useless</span></pre>
+
+<div class="concept tip">
+    <strong>Goodness of Fit: What Reviewers Care About</strong>
+    For causal inference papers, reviewers care less about R-squared or classification accuracy and more about identification strategy. For prediction-oriented papers, report AUC (ideally above 0.7), calibration (Hosmer-Lemeshow), and out-of-sample performance. For model selection among competing specifications, AIC/BIC with likelihood ratio tests for nested comparisons is standard. Never report only "percent correctly predicted" without the ROC curve, as it depends on the arbitrary 0.5 threshold.
+</div>
+
 <div class="exercise">
     <h4>Exercise 7.1</h4>
     <p>Using <code>webuse lbw</code>, estimate a logit model of <code>low</code> on <code>age</code>, <code>lwt</code>, <code>smoke</code>, and <code>i.race</code>. Compute average marginal effects with <code>margins, dydx(*)</code>. What is the marginal effect of smoking on the probability of low birth weight?</p>
@@ -165,12 +365,25 @@
     <p>Using <code>webuse fullauto</code>, estimate an ordered logit of <code>rep77</code> on <code>foreign</code>, <code>length</code>, and <code>mpg</code>. Use <code>margins</code> to predict the probability of each outcome category for foreign vs. domestic cars. Create a <code>marginsplot</code>.</p>
 </div>
 
+<div class="exercise">
+    <h4>Exercise 7.3</h4>
+    <p>Using <code>webuse lbw</code>, estimate a logit model of <code>low</code> on <code>c.age##i.smoke</code>, <code>lwt</code>, and <code>i.race</code>. Use <code>margins, dydx(smoke) at(age=(20(5)40))</code> to compute the marginal effect of smoking at different ages. Create a <code>marginsplot</code>. Does the effect of smoking change with age? Now verify your interpretation by computing the "second difference" using <code>margins, dydx(smoke) at(age=(20 40)) contrast(atcontrast(r))</code>.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 7.4</h4>
+    <p>Using <code>webuse womenwk</code>, estimate a Heckman selection model of <code>wage</code> on <code>education</code> and <code>age</code>, with the selection equation including <code>married</code>, <code>children</code>, <code>education</code>, and <code>age</code>. Compare the two-step (<code>twostep</code>) and MLE estimates. Is lambda (the inverse Mills ratio) significant? What does the sign of rho tell you about the selection process?</p>
+</div>
+
 <div class="ext-resources">
     <h4>External Resources</h4>
     <ul>
         <li><a href="https://www.stata.com/manuals/rlogit.pdf" target="_blank" rel="noopener">Stata Manual: logit</a> <span class="ext-badge">External</span></li>
         <li><a href="https://stats.oarc.ucla.edu/stata/dae/logistic-regression/" target="_blank" rel="noopener">UCLA OARC: Logistic Regression</a> <span class="ext-badge">External</span></li>
         <li><a href="https://stats.oarc.ucla.edu/stata/dae/multinomiallogistic-regression/" target="_blank" rel="noopener">UCLA OARC: Multinomial Logistic Regression</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.stata.com/manuals/rpoisson.pdf" target="_blank" rel="noopener">Stata Manual: poisson</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://stats.oarc.ucla.edu/stata/dae/zero-inflated-poisson-regression/" target="_blank" rel="noopener">UCLA OARC: Zero-Inflated Poisson</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://stats.oarc.ucla.edu/stata/dae/heckman-selection-model/" target="_blank" rel="noopener">UCLA OARC: Heckman Selection Model</a> <span class="ext-badge">External</span></li>
     </ul>
 </div>
 
@@ -179,7 +392,10 @@
     <ul>
         <li>Report marginal effects (AME preferred), not raw logit/probit coefficients.</li>
         <li>Odds ratios are convenient for logit but can be misinterpreted with common outcomes.</li>
+        <li>Interaction effects in nonlinear models require <code>margins</code> computation; the interaction coefficient alone is misleading.</li>
         <li>Use tobit for censored continuous outcomes, ordered logit for ordinal data, and multinomial logit for unordered categories.</li>
+        <li>For count data, start with Poisson (robust SEs); consider negative binomial for overdispersion and zero-inflated models for excess zeros.</li>
+        <li>Heckman selection models correct for non-random sample selection; they require a credible exclusion restriction for reliable identification.</li>
         <li>Assess model fit with classification tables, ROC curves, and the Hosmer-Lemeshow test.</li>
     </ul>
 </div>
