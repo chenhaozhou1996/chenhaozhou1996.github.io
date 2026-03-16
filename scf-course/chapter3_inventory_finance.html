@@ -36,6 +36,10 @@
         .takeaway h3{color:#a7f3d0;margin-top:0}
         .takeaway ul{color:#d1fae5}
 
+        .exercise-box{background:#ecfdf5;border-left:4px solid #10b981;padding:16px 20px;border-radius:0 8px 8px 0;margin:16px 0;font-size:14px}
+        .exercise-box h4{color:#065f46;font-size:14px;font-weight:700;margin-bottom:8px;background:#d1fae5;display:inline-block;padding:2px 10px;border-radius:4px}
+        .exercise-box .solution{color:#64748b;font-style:italic;margin-top:8px}
+
         .interactive-section{background:#f0fdf4;border:2px solid #10b981;border-radius:12px;padding:24px;margin:40px 0}
         .interactive-section h2{border:none;margin:0 0 16px;font-size:18px;color:#065f46}
         .slider-group{margin-bottom:14px}
@@ -70,6 +74,18 @@
 
 <h1>Chapter 3: Inventory Finance</h1>
 <p class="subtitle">Warehouse Receipts, Commodity Lending, and Capital-Constrained Inventory Decisions</p>
+
+<div class="key-concept">
+    <strong>Learning Objectives:</strong> After completing this chapter, students should be able to:
+    <ol style="margin:8px 0 0 16px">
+        <li>Explain how inventory serves as collateral and compute advance rates for different asset types</li>
+        <li>Distinguish warehouse receipt structures (public, field, trust receipt) by control level and cost</li>
+        <li>Derive the Newsvendor critical ratio and compute Q* for normally distributed demand</li>
+        <li>Interpret VaR(5%) as a downside risk threshold for inventory decisions</li>
+        <li>Analyze the tradeoff between expected profit and tail risk as Q varies</li>
+        <li>Connect inventory risk to the mean-variance frontier concept from portfolio theory</li>
+    </ol>
+</div>
 
 <!-- ============================================ -->
 <h2>3.1 Inventory as Collateral</h2>
@@ -207,6 +223,109 @@
         <tr><td><strong>In-transit finance</strong></td><td>Goods being shipped (ocean, rail, truck)</td><td>60-75%</td><td>Crude oil on a tanker; secured by bill of lading</td></tr>
     </tbody>
 </table>
+</div>
+
+<!-- ============================================ -->
+<h2>3.5a Monte Carlo Profit Risk Analysis</h2>
+
+<p>The newsvendor model gives us the order quantity that maximizes <em>expected</em> profit. But expected profit tells only half the story. A risk-averse manager also cares about downside outcomes: how bad can things get if demand falls short? Monte Carlo simulation lets us map the full distribution of profit outcomes for any order quantity, connecting inventory management to financial risk analytics.</p>
+
+<h3>Profit Function</h3>
+
+<div class="formula-box">
+    &pi;(Q, D) = p &middot; min(Q, D) + s &middot; max(Q &minus; D, 0) &minus; c &middot; Q
+</div>
+
+<p>The profit function has two regimes depending on whether demand exceeds or falls below the order quantity:</p>
+<ul>
+    <li><strong>When D &ge; Q</strong> (stockout): all units sell, &pi; = (p &minus; c) &middot; Q. Profit is fixed regardless of how high demand goes, because there is no more inventory to sell.</li>
+    <li><strong>When D &lt; Q</strong> (overstock): &pi; = p &middot; D + s &middot; (Q &minus; D) &minus; c &middot; Q = (p &minus; s) &middot; D &minus; (c &minus; s) &middot; Q. Profit falls linearly in the number of unsold units.</li>
+</ul>
+
+<h3>Risk Metrics from Simulation</h3>
+
+<p>Given N simulated demand draws D<sub>1</sub>, ..., D<sub>N</sub>, we compute profit &pi;<sub>i</sub> = &pi;(Q, D<sub>i</sub>) for each draw and then calculate four risk metrics:</p>
+
+<div class="formula-box">
+    E[&pi;] = (1/N) &sum; &pi;<sub>i</sub>
+</div>
+
+<div class="formula-box">
+    &sigma;(&pi;) = &radic;[(1/N) &sum; (&pi;<sub>i</sub> &minus; E[&pi;])&sup2;]
+</div>
+
+<div class="formula-box">
+    VaR(5%) = 5th percentile of {&pi;<sub>1</sub>, ..., &pi;<sub>N</sub>}
+</div>
+
+<div class="formula-box">
+    Sharpe-like Ratio = E[&pi;] / &sigma;(&pi;)
+</div>
+
+<div class="key-concept">
+    <strong>Interpreting VaR(5%):</strong> VaR(5%) answers the question: what is the worst-case profit at the 5th percentile? If VaR(5%) = &minus;$1,800, there is a 5% chance of losing at least $1,800. This connects inventory management to financial risk management. A positive VaR means the firm is profitable even in bad scenarios; a negative VaR signals genuine downside exposure.
+</div>
+
+<h3>Three Ordering Regimes</h3>
+
+<div class="key-concept">
+    <strong>Risk-Return Tradeoff:</strong> Three regimes emerge as Q varies relative to Q*:
+    <ol style="margin:8px 0 0 16px">
+        <li><strong>Q &laquo; Q* (conservative):</strong> Safe but low upside. Nearly all demand scenarios result in a stockout, so profit is nearly deterministic at (p &minus; c) &middot; Q. The Sharpe ratio is high because variance is tiny, but the level of expected profit is well below the optimum.</li>
+        <li><strong>Q &asymp; Q* (optimal expected profit):</strong> Maximum E[&pi;], moderate risk. The profit histogram is right-skewed: a long left tail from overstock scenarios and a flat cap on the upside. VaR is typically positive at this point.</li>
+        <li><strong>Q &gg; Q* (aggressive):</strong> The profit histogram becomes a near-symmetric bell curve centered on (p &minus; c) &middot; D, because almost all demand is fulfilled and the overage cost dominates. Absolute profit variance is higher, VaR turns negative, and the Sharpe ratio falls. The Q that maximizes E[&pi;] is <em>not</em> the same Q that maximizes VaR(5%).</li>
+    </ol>
+</div>
+
+<p>This three-regime structure mirrors the efficient frontier in portfolio theory. Conservative ordering is analogous to holding mostly bonds (low return, low risk). Ordering at Q* is like holding the tangency portfolio (best risk-adjusted return). Aggressive ordering is like a leveraged equity position (higher variance, diminishing marginal return).</p>
+
+<!-- ============================================ -->
+<h2>3.5b Worked Example: Seasonal Product Risk Analysis</h2>
+
+<div class="example-box">
+    <strong>Worked Example: Seasonal Product (&mu; = 500, &sigma; = 120)</strong><br><br>
+    <strong>Step 1 &mdash; Parameters:</strong> &mu; = 500, &sigma; = 120, p = $90, c = $50, s = $15.<br><br>
+    <strong>Step 2 &mdash; Critical Ratio:</strong> CR = (90 &minus; 50) / (90 &minus; 15) = 40/75 = 0.5333.<br><br>
+    <strong>Step 3 &mdash; Optimal Order:</strong> &Phi;<sup>&minus;1</sup>(0.5333) &asymp; 0.084. Q* = 500 + 120 &times; 0.084 &asymp; 510 units.<br><br>
+    <strong>Step 4 &mdash; Aggressive regime (Q = 820):</strong> Well above Q*. E[&pi;] &asymp; $12.9K, VaR(5%) &asymp; &minus;$1.8K, service level &asymp; 99.5%, Sharpe &asymp; 1.44. The profit histogram is a near-perfect bell curve. Although average profit is decent, there is a 5% chance of losing $1,800 or more.<br><br>
+    <strong>Step 5 &mdash; Optimal regime (Q = Q* &asymp; 510):</strong> E[&pi;] &asymp; $16.8K, VaR(5%) &asymp; $6.5K, Sharpe &asymp; 2.9. Higher expected profit <em>and</em> positive VaR. The histogram is right-skewed: most scenarios yield $14K&ndash;$20K, with a long left tail that rarely dips below $6K.<br><br>
+    <strong>Step 6 &mdash; Conservative regime (Q = 300):</strong> E[&pi;] &asymp; $12.5K, VaR(5%) &asymp; $11.8K, Sharpe &asymp; 7.2. Nearly all scenarios yield stable profit around $12K, but upside is capped because the firm stocks out in virtually every scenario.<br><br>
+    <strong>Key Insight:</strong> The optimal Q* simultaneously offers the highest expected profit and a strongly positive VaR. Moving to Q = 820 sacrifices both expected profit and downside protection. Moving to Q = 300 buys safety but leaves substantial profit on the table.
+</div>
+
+<!-- ============================================ -->
+<h2>3.5c Classroom Exercises</h2>
+
+<div class="exercise-box">
+    <h4>Exercise 1: Perishable Goods (s = 0)</h4>
+    <p>Set the salvage value to $0, representing fully perishable goods (e.g., fresh produce, daily newspapers). Using the same parameters (&mu; = 500, &sigma; = 120, p = $90, c = $50), observe how the profit histogram shifts and VaR(5%) drops substantially compared to s = $15.</p>
+    <p>Compute the new optimal order: CR = (90 &minus; 50) / (90 &minus; 0) = 40/90 = 0.444, so &Phi;<sup>&minus;1</sup>(0.444) &asymp; &minus;0.140, and Q* = 500 + 120 &times; (&minus;0.140) &asymp; 483 units.</p>
+    <p class="solution">Compare with the original Q* of 510. The absence of salvage value makes overstocking more costly (C<sub>o</sub> rises from $35 to $50), which pulls Q* below the mean. The downside risk at any given Q is worse because unsold units are a total loss.</p>
+</div>
+
+<div class="exercise-box">
+    <h4>Exercise 2: High-Margin vs. Thin-Margin Products</h4>
+    <p>Compare two products, both with &mu; = 500, &sigma; = 120:</p>
+    <div class="table-wrapper">
+    <table>
+        <thead><tr><th>Parameter</th><th>Product A (High Margin)</th><th>Product B (Thin Margin)</th></tr></thead>
+        <tbody>
+            <tr><td>Selling price (p)</td><td>$200</td><td>$60</td></tr>
+            <tr><td>Unit cost (c)</td><td>$100</td><td>$50</td></tr>
+            <tr><td>Salvage value (s)</td><td>$20</td><td>$40</td></tr>
+            <tr><td>Critical ratio</td><td>(200&minus;100)/(200&minus;20) = 0.556</td><td>(60&minus;50)/(60&minus;40) = 0.500</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p>Run the simulation for each product at various Q values. Product A has higher absolute expected profit but also higher standard deviation and more negative VaR at extreme Q values. Product B has minimal upside but almost no downside risk.</p>
+    <p class="solution">This demonstrates how margin structure shapes the risk profile. High-margin products amplify both gains and losses, while thin-margin products with high salvage values create a natural floor on profits. A risk-averse manager might prefer Product B even though Product A has higher expected profit per unit.</p>
+</div>
+
+<div class="exercise-box">
+    <h4>Exercise 3: AI/ML Extension</h4>
+    <p>In practice, &mu; and &sigma; are estimated from historical data. Suppose a gradient-boosted model trained on 3 years of weekly sales data with features (seasonality, promotions, weather, competitor pricing) produces &mu;&#770; = 520 with a 90% prediction interval of [380, 660], implying &sigma;&#770; &asymp; 85 (compared to the historical &sigma; = 120).</p>
+    <p>Feed these ML-derived parameters into the newsvendor model and observe that Q* shifts and VaR improves.</p>
+    <p class="solution"><strong>Discussion:</strong> Why does a better demand forecast reduce both &sigma; and the gap between E[&pi;] at Q* versus Q = &mu;? Because tighter forecasts compress the profit distribution, making the newsvendor solution less sensitive to the exact choice of Q. The practical implication: investing in forecast accuracy can be more valuable than optimizing Q given a fixed, noisy forecast.</p>
 </div>
 
 <!-- ============================================ -->

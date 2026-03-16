@@ -34,6 +34,10 @@
         .takeaway h3{color:#fef3c7;margin-top:0}
         .takeaway ul{color:#fef3c7}
 
+        .exercise-box{background:#fffbeb;border-left:4px solid #d97706;padding:16px 20px;border-radius:0 8px 8px 0;margin:16px 0;font-size:14px}
+        .exercise-box h4{color:#92400e;font-size:14px;font-weight:700;margin-bottom:8px;background:#fef3c7;display:inline-block;padding:2px 10px;border-radius:4px}
+        .exercise-box .solution{color:#64748b;font-style:italic;margin-top:8px}
+
         .interactive-section{background:#f8fafc;border:2px solid #d97706;border-radius:12px;padding:24px;margin:40px 0}
         .interactive-section h2{border:none;margin:0 0 16px;font-size:18px;color:#92400e}
         .slider-group{margin-bottom:14px}
@@ -69,6 +73,16 @@
 <h1>Chapter 1: Foundations of Supply Chain Finance</h1>
 <p class="subtitle">Working Capital, Cash Conversion, and the SCF Ecosystem</p>
 
+<div class="key-concept">
+    <strong>Learning Objectives:</strong> After completing this chapter, students should be able to:
+    <ol style="margin:8px 0 0 16px">
+        <li>Compute the CCC from financial statement data and interpret each component (DIO, DSO, DPO) in operational terms</li>
+        <li>Calculate the net working capital requirement and annual financing cost implied by a given CCC</li>
+        <li>Evaluate the financial impact of targeted improvements in any single CCC component</li>
+        <li>Explain why firms such as Amazon and Dell have achieved negative CCC values</li>
+    </ol>
+</div>
+
 <!-- ============================================ -->
 <h2>1.1 What Is Supply Chain Finance?</h2>
 
@@ -88,6 +102,30 @@
 </ol>
 
 <p>SCF optimizes the third pillar by leveraging information from the first two. When a buyer confirms receipt of goods (physical flow) and approves an invoice (information flow), a financier can confidently advance payment to the supplier at a low rate, because the buyer's obligation to pay is now established.</p>
+
+<!-- ============================================ -->
+<h2>1.2a Notation</h2>
+
+<p>The following symbols are used throughout this chapter and the remainder of the course.</p>
+
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Symbol</th><th>Definition</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><em>D</em></td><td>Annual revenue, measured in dollars</td></tr>
+        <tr><td>COGS</td><td>Cost of goods sold, annual, measured in dollars</td></tr>
+        <tr><td>DIO</td><td>Days Inventory Outstanding: average number of days inventory is held before sale</td></tr>
+        <tr><td>DSO</td><td>Days Sales Outstanding: average number of days to collect accounts receivable</td></tr>
+        <tr><td>DPO</td><td>Days Payable Outstanding: average number of days the firm defers payment to suppliers</td></tr>
+        <tr><td><em>r</em></td><td>Weighted average cost of capital (WACC), expressed as an annual rate</td></tr>
+        <tr><td>CCC</td><td>Cash Conversion Cycle, measured in days</td></tr>
+        <tr><td>OC</td><td>Operating Cycle = DIO + DSO, measured in days</td></tr>
+        <tr><td>NWC</td><td>Net Working Capital required, measured in dollars</td></tr>
+    </tbody>
+</table>
+</div>
 
 <!-- ============================================ -->
 <h2>1.2 The Working Capital Challenge</h2>
@@ -149,6 +187,35 @@
 </div>
 
 <p>Notice that grocery retailers enjoy a negative CCC because they sell perishable goods quickly (low DIO), customers pay immediately (low DSO), and they negotiate long payment terms with suppliers (high DPO). Pharmaceutical companies, by contrast, carry large inventories and wait months for hospital payments.</p>
+
+<!-- ============================================ -->
+<h3>1.3a Net Working Capital and Financing Cost</h3>
+
+<p>The CCC tells us how many days capital is tied up; the next step is to translate days into dollars. We begin with the Operating Cycle, which captures the full duration from purchasing inventory to collecting cash from customers.</p>
+
+<div class="formula-box">
+    Operating Cycle (OC) = DIO + DSO
+</div>
+
+<p>Net Working Capital combines inventory investment, receivables, and the offsetting benefit of payables. Because DIO and DPO are measured against COGS while DSO is measured against revenue, the dollar conversion uses different bases:</p>
+
+<div class="formula-box">
+    NWC = (COGS / 365) &times; DIO + (<em>D</em> / 365) &times; DSO &minus; (COGS / 365) &times; DPO
+</div>
+
+<p>The annual cost of carrying this working capital is simply NWC multiplied by the firm's weighted average cost of capital:</p>
+
+<div class="formula-box">
+    Annual Financing Cost = NWC &times; <em>r</em>
+</div>
+
+<p>A useful shortcut for sensitivity analysis is the marginal value of reducing the CCC by one day. Approximating with revenue as the common base:</p>
+
+<div class="formula-box">
+    &Delta;Cost per Day = (<em>D</em> / 365) &times; <em>r</em>
+</div>
+
+<p>The marginal value formula shows that each day of CCC reduction saves a fixed dollar amount, regardless of whether the starting CCC is 100 days or 10 days. This linearity makes the sensitivity chart (financing cost vs. CCC) a straight line through the origin.</p>
 
 <!-- ============================================ -->
 <h2>1.4 The SCF Ecosystem</h2>
@@ -333,6 +400,39 @@ function drawChart(dio,dso,dpo,ccc){
 
 updateCCC();
 </script>
+
+<!-- ============================================ -->
+<div class="example-box">
+    <strong>Worked Example: Large Manufacturer (Revenue = $80M, COGS = 60%)</strong>
+    <p style="margin-top:10px"><strong>Step 1:</strong> Set Revenue = $80M, COGS = 60% of revenue = $48M. Set DIO = 45, DSO = 50, DPO = 25.</p>
+    <p><strong>Step 2:</strong> CCC = 45 + 50 &minus; 25 = 70 days. Operating Cycle = 45 + 50 = 95 days.</p>
+    <p><strong>Step 3:</strong> Inventory = ($48M / 365) &times; 45 = $5,917,808. AR = ($80M / 365) &times; 50 = $10,958,904. AP = ($48M / 365) &times; 25 = $3,287,671.</p>
+    <p><strong>Step 4:</strong> NWC = $5,917,808 + $10,958,904 &minus; $3,287,671 = $13,589,041.</p>
+    <p><strong>Step 5:</strong> At <em>r</em> = 6%: Annual Financing Cost = $13,589,041 &times; 0.06 = $815,342.</p>
+    <p><strong>Step 6:</strong> One-day CCC reduction value: ($80M / 365) &times; 0.06 = $13,151/year.</p>
+    <p><strong>Step 7:</strong> Try adjusting DPO from 25 to 70 in the dashboard. CCC drops from 70 to 25 days, NWC falls by approximately $5.92M, and financing cost drops by about $355K. This demonstrates how extending payment terms frees substantial working capital.</p>
+</div>
+
+<!-- ============================================ -->
+<h2>Classroom Exercises</h2>
+
+<div class="exercise-box">
+    <h4>Exercise 1: DSO vs. DPO Levers</h4>
+    <p>A 10-day DSO reduction and a 10-day DPO increase both reduce CCC by 10 days. However, the NWC impact differs because DSO is computed on revenue while DPO is computed on COGS. Using the default parameters (Revenue = $50M, COGS = 65% of revenue = $32.5M), compute the exact dollar difference in working capital freed by each lever.</p>
+    <p class="solution"><strong>Solution:</strong> The DSO reduction frees $50M / 365 &times; 10 = $1,369,863, while the DPO extension frees $32.5M / 365 &times; 10 = $890,411. The DSO lever releases 54% more capital.</p>
+</div>
+
+<div class="exercise-box">
+    <h4>Exercise 2: Negative CCC</h4>
+    <p>Set revenue to $100M and DPO to 120 days while keeping DIO = 35 and DSO = 40. Observe that CCC becomes negative (&minus;45 days). Discuss: Amazon's CCC was approximately &minus;30 days in recent years. What business model features enable this?</p>
+    <p class="solution"><strong>Discussion points:</strong> Consignment inventory (suppliers own goods until sale), credit card settlement in 1&ndash;2 days (near-zero DSO), and 60&ndash;90 day supplier payment terms (high DPO). Is this sustainable for the ecosystem, or does it shift financial burden disproportionately onto smaller suppliers?</p>
+</div>
+
+<div class="exercise-box">
+    <h4>Exercise 3: Interest Rate Sensitivity</h4>
+    <p>Vary the cost of capital from 2% to 15%. Observe how the sensitivity line steepens. For a high-interest-rate environment (e.g., an emerging market at 12%), the same CCC of 45 days costs $739K/year instead of $296K at a 5% rate. Discuss: How should a CFO in a high-rate environment prioritize CCC reduction differently from one in a low-rate environment?</p>
+    <p class="solution"><strong>Discussion points:</strong> In high-rate environments, every day of CCC reduction saves proportionally more, making aggressive working capital management a first-order strategic priority rather than a back-office optimization. CFOs should invest more resources in supply chain finance programs, negotiate harder on payment terms, and consider factoring or reverse factoring even at seemingly high fees, since the alternative cost of capital is higher still.</p>
+</div>
 
 <div class="takeaway">
     <h3>Chapter 1 Takeaways</h3>

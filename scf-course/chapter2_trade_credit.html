@@ -58,6 +58,10 @@
         .result-big .value{font-size:32px;font-weight:800;color:#dc2626}
         .result-big .terms{font-size:15px;font-weight:600;color:#1e293b;margin-top:6px}
 
+        .exercise-box{background:#fff7ed;border-left:4px solid #ea580c;padding:16px 20px;border-radius:0 8px 8px 0;margin:16px 0;font-size:14px}
+        .exercise-box h4{color:#9a3412;font-size:14px;font-weight:700;margin-bottom:8px;background:#ffedd5;display:inline-block;padding:2px 10px;border-radius:4px}
+        .exercise-box .solution{color:#64748b;font-style:italic;margin-top:8px}
+
         @media(max-width:640px){body{padding:1rem}.topnav{padding:0 16px;margin:0 -1rem;width:calc(100% + 2rem)}.course-nav{margin:0 -1rem 1em}.comparison-grid{grid-template-columns:1fr}.result-grid{grid-template-columns:repeat(2,1fr)}}
     </style>
 </head>
@@ -79,6 +83,40 @@
 
 <h1>Chapter 2: Trade Credit &amp; Receivables Finance</h1>
 <p class="subtitle">Factoring, Reverse Factoring, and Dynamic Discounting</p>
+
+<div class="key-concept">
+    <strong>Learning Objectives:</strong> After completing this chapter, students should be able to:
+    <ol style="margin:8px 0 0 16px">
+        <li>Compute the dollar discount and annualized return for a dynamic discounting arrangement</li>
+        <li>Evaluate when dynamic discounting generates a positive net return for the buyer versus when it does not</li>
+        <li>Compare dynamic discounting with bank-intermediated reverse factoring</li>
+        <li>Articulate the win-win condition as a credit arbitrage inequality</li>
+    </ol>
+</div>
+
+<!-- ============================================ -->
+<h2>2.1a Formal Notation</h2>
+
+<p>The following notation is used throughout this chapter and in the interactive calculators below.</p>
+
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Symbol</th><th>Definition</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>F</strong></td><td>Invoice face value (dollars)</td></tr>
+        <tr><td><strong>T</strong></td><td>Standard payment terms (days from invoice date)</td></tr>
+        <tr><td><strong>t</strong></td><td>Early payment day (days from invoice date), where t &lt; T</td></tr>
+        <tr><td><strong>&Delta;t</strong></td><td>Acceleration window = T &minus; t (days of early payment)</td></tr>
+        <tr><td><strong>r<sub>d</sub></strong></td><td>Discount APR: annualized discount rate for early payment</td></tr>
+        <tr><td><strong>r<sub>b</sub></strong></td><td>Buyer's cost of capital (WACC), annualized</td></tr>
+        <tr><td><strong>r<sub>s</sub></strong></td><td>Supplier's cost of capital, annualized</td></tr>
+        <tr><td><strong>r<sub>k</sub></strong></td><td>Bank factoring rate in reverse factoring, annualized</td></tr>
+        <tr><td><strong>d</strong></td><td>Dollar discount on the invoice</td></tr>
+    </tbody>
+</table>
+</div>
 
 <!-- ============================================ -->
 <h2>2.1 The Economics of Trade Credit</h2>
@@ -209,6 +247,99 @@
 </div>
 
 <!-- ============================================ -->
+<h2>2.4a Dynamic Discounting: Formal Framework</h2>
+
+<p>Using the notation from Section 2.1a, we can express the economics of dynamic discounting precisely. All rates are annualized; the factor (T &minus; t) / 365 converts them to the fraction of a year represented by the acceleration window.</p>
+
+<h3>Core Formulas</h3>
+
+<div class="formula-box">
+    Dollar Discount: &ensp; d = F &times; (r<sub>d</sub> / 365) &times; (T &minus; t)
+</div>
+
+<div class="formula-box">
+    Buyer Net Benefit = F &times; (r<sub>d</sub> &minus; r<sub>b</sub>) / 365 &times; (T &minus; t)
+</div>
+
+<p>The buyer earns a positive return only when the discount APR exceeds its own cost of capital. If r<sub>d</sub> &lt; r<sub>b</sub>, the buyer would be better off leaving the cash in its normal operations.</p>
+
+<div class="formula-box">
+    Supplier Net Benefit = F &times; (r<sub>s</sub> &minus; r<sub>d</sub>) / 365 &times; (T &minus; t)
+</div>
+
+<p>The supplier benefits whenever the discount rate is lower than what it would otherwise pay to borrow. The supplier is indifferent when r<sub>d</sub> = r<sub>s</sub>.</p>
+
+<div class="key-concept">
+    <strong>Win-Win Condition (Credit Arbitrage):</strong> Both parties benefit simultaneously if and only if:
+    <div class="formula-box" style="margin:12px 0 8px">
+        r<sub>b</sub> &lt; r<sub>d</sub> &lt; r<sub>s</sub>
+    </div>
+    The total surplus captured when this condition holds:
+    <div class="formula-box" style="margin:8px 0 0">
+        Total Surplus = F &times; (r<sub>s</sub> &minus; r<sub>b</sub>) / 365 &times; (T &minus; t)
+    </div>
+</div>
+
+<p>This inequality is the credit arbitrage at the heart of supply chain finance: value is created whenever there is a gap between the buyer's and supplier's cost of capital, and an SCF instrument channels funds through that gap.</p>
+
+<h3>Comparison: Reverse Factoring</h3>
+
+<p>In a bank-intermediated reverse factoring program, the formulas change because the bank, not the buyer, provides the funding:</p>
+
+<div class="formula-box">
+    Bank Fee = F &times; (r<sub>k</sub> / 365) &times; (T &minus; t)
+</div>
+
+<div class="formula-box">
+    Supplier Net Benefit (Reverse Factoring) = F &times; (r<sub>s</sub> &minus; r<sub>k</sub>) / 365 &times; (T &minus; t)
+</div>
+
+<div class="formula-box">
+    Buyer Net Benefit (Reverse Factoring) = 0
+</div>
+
+<p>In reverse factoring, the buyer captures no direct financial benefit; the value flows to the supplier (cheaper financing) and the bank (fee income). However, the buyer benefits indirectly through extended payment terms and supply chain stability.</p>
+
+<!-- ============================================ -->
+<h2 style="margin-top:48px">Worked Example: Dynamic Discounting vs. Reverse Factoring</h2>
+
+<div class="example-box">
+    <strong>Scenario: $500,000 Invoice, Net 60 (Win-Win)</strong><br><br>
+
+    <strong>Step 1 &mdash; Setup:</strong> F = $500,000, T = 60 days, t = 10 days, &Delta;t = 50 days.<br><br>
+
+    <strong>Step 2 &mdash; Rates:</strong> r<sub>d</sub> = 7.0%, r<sub>b</sub> = 4.0%, r<sub>s</sub> = 14.0%, r<sub>k</sub> = 3.5%.<br><br>
+
+    <strong>Step 3 &mdash; Dynamic discount:</strong><br>
+    d = $500,000 &times; (0.07 / 365) &times; 50 = <strong>$4,795</strong>.<br><br>
+
+    <strong>Step 4 &mdash; Buyer net benefit:</strong><br>
+    Buyer opportunity cost = $500,000 &times; (0.04 / 365) &times; 50 = $2,740.<br>
+    Buyer net = $4,795 &minus; $2,740 = <strong>+$2,055</strong>.<br>
+    The buyer earns a positive return because r<sub>d</sub> (7%) &gt; r<sub>b</sub> (4%).<br><br>
+
+    <strong>Step 5 &mdash; Supplier net benefit:</strong><br>
+    Supplier financing saved = $500,000 &times; (0.14 / 365) &times; 50 = $9,589.<br>
+    Supplier net = $9,589 &minus; $4,795 = <strong>$4,795</strong>.<br>
+    The supplier benefits because r<sub>d</sub> (7%) &lt; r<sub>s</sub> (14%).<br><br>
+
+    <strong>Step 6 &mdash; Win-win check:</strong><br>
+    r<sub>b</sub> (4%) &lt; r<sub>d</sub> (7%) &lt; r<sub>s</sub> (14%). The credit arbitrage condition holds.<br>
+    Total surplus = $2,055 + $4,795 = <strong>$6,849</strong>.<br><br>
+
+    <strong>Step 7 &mdash; Reverse factoring comparison:</strong><br>
+    Bank fee = $500,000 &times; (0.035 / 365) &times; 50 = $2,397.<br>
+    Supplier net = $9,589 &minus; $2,397 = <strong>$7,192</strong>.<br>
+    Buyer net = <strong>$0</strong>.<br><br>
+
+    <strong>Step 8 &mdash; Interpretation:</strong><br>
+    Reverse factoring produces higher combined surplus ($7,192 vs. $6,849) because the bank rate (3.5%) is lower than the buyer's cost of capital (4%). However, dynamic discounting is the only strategy where the buyer also captures value.<br><br>
+
+    <strong>Step 9 &mdash; Breaking the arbitrage:</strong><br>
+    Set r<sub>d</sub> = 3% (below r<sub>b</sub> = 4%). The buyer's net flips to &minus;$685, demonstrating the arbitrage boundary in real time. The discount rate must exceed the buyer's own cost of capital, or the program destroys buyer value.
+</div>
+
+<!-- ============================================ -->
 <h2>2.5 Supplier Payment Optimization</h2>
 
 <p>In practice, a buyer manages a portfolio of suppliers with varying credit profiles, invoice sizes, and payment terms. The optimization problem is: given limited cash or bank capacity, which invoices should be paid early, and through which channel?</p>
@@ -328,6 +459,31 @@ function updateFactoring(){
 updateAPR();
 updateFactoring();
 </script>
+
+<!-- ============================================ -->
+<h2>Classroom Exercises</h2>
+
+<div class="exercise-box">
+    <h4>Exercise 1: Finding the Win-Win Zone</h4>
+    <p>Using the interactive Dynamic Discounting calculator above, slowly increase the Discount APR slider from 1% to 15%. Observe the exact APR at which the buyer's net benefit transitions from negative to positive (it equals r<sub>b</sub> = 5%). Then find the APR at which the supplier's net benefit turns negative (it equals r<sub>s</sub> = 10%). The range 5%&ndash;10% is the win-win zone.</p>
+    <p class="solution">Takeaway: The win-win zone is bounded below by the buyer's WACC and above by the supplier's borrowing rate. Any discount APR inside this band creates value for both parties.</p>
+</div>
+
+<div class="exercise-box">
+    <h4>Exercise 2: Trade Credit vs. Reverse Factoring</h4>
+    <p>A supplier is offered standard terms of 2/10 net 30 (a 2% discount for payment on day 10 instead of day 30). Compute the annualized cost of forgoing the discount:</p>
+    <p style="text-align:center;font-weight:600">(0.02 / 0.98) &times; (365 / 20) = 37.2%</p>
+    <p>Now compare this with a reverse factoring program at 4% APR. The trade credit discount is roughly 9&times; more expensive than reverse factoring, illustrating why SCF platforms are displacing traditional trade discounts for suppliers who need early payment.</p>
+    <p class="solution">Discussion: Traditional trade credit discounts were designed in an era before electronic platforms. Their "all or nothing" structure (take the discount or pay full price) creates high implicit rates. Modern SCF instruments offer a sliding scale tied to actual days accelerated, producing far lower effective costs.</p>
+</div>
+
+<div class="exercise-box">
+    <h4>Exercise 3: Cash-Rich Buyer Scenario</h4>
+    <p>Set the buyer's cost of capital to 2% (a cash-rich tech company like Apple or Google) and the supplier's cost of capital to 15% (a small manufacturer). For a $500,000 invoice with T = 60 and t = 10:</p>
+    <p style="text-align:center;font-weight:600">Total surplus = F &times; (r<sub>s</sub> &minus; r<sub>b</sub>) / 365 &times; &Delta;t = $500,000 &times; (0.15 &minus; 0.02) / 365 &times; 50 = $8,904</p>
+    <p>Why might Apple, Google, and Microsoft run large-scale SCF programs?</p>
+    <p class="solution">Discussion: These companies hold tens of billions in cash earning near-zero returns. Their suppliers, many of them small manufacturers in emerging markets, borrow at 10&ndash;15%. The gap between 2% and 15% creates enormous surplus that can be shared. A well-structured dynamic discounting program turns idle cash into a 5&ndash;8% return while saving suppliers thousands in interest, a genuine win-win made possible by the credit quality differential.</p>
+</div>
 
 <div class="takeaway">
     <h3>Chapter 2 Takeaways</h3>
