@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 3: Joins | SQL Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1{color:#7c2d12}
+        h2{border-bottom:2px solid #fed7aa}
+        .book-nav a.current{background:#c2410c}
+        .exercise{border-color:#c2410c;background:#fff7ed}
+        .exercise h4{background:#c2410c;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#7c2d12,#c2410c)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html" class="current">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 3: Joins</h1>
+<p class="subtitle">Combining Data from Multiple Tables</p>
+
+<h2>3.1 Why Joins?</h2>
+<p>Relational databases split data across multiple tables to avoid duplication. An orders table stores order_id and customer_id, but not the customer's name. A join reconnects the tables by matching related columns, letting you answer questions that span multiple tables.</p>
+
+<div class="concept info">
+    <strong>Foreign keys:</strong> A foreign key is a column in one table that references the primary key of another table. For example, <code>orders.customer_id</code> references <code>customers.customer_id</code>. Joins use these relationships to combine rows.
+</div>
+
+<h2>3.2 INNER JOIN</h2>
+<p>INNER JOIN returns only rows where the join condition matches in both tables. If an order references a customer_id that does not exist in the customers table, that order is excluded.</p>
+
+<pre class="sql"><span class="cm">-- Orders with customer details</span>
+<span class="kw">SELECT</span>
+    o.order_id,
+    o.order_date,
+    c.first_name,
+    c.last_name,
+    o.total
+<span class="kw">FROM</span> orders o
+<span class="kw">INNER JOIN</span> customers c <span class="kw">ON</span> o.customer_id <span class="op">=</span> c.customer_id
+<span class="kw">ORDER BY</span> o.order_date <span class="kw">DESC</span>;
+
+<span class="cm">-- Multiple join conditions</span>
+<span class="kw">SELECT</span> <span class="op">*</span>
+<span class="kw">FROM</span> shipments s
+<span class="kw">INNER JOIN</span> orders o
+    <span class="kw">ON</span> s.order_id <span class="op">=</span> o.order_id
+    <span class="kw">AND</span> s.warehouse_id <span class="op">=</span> o.warehouse_id;</pre>
+
+<div class="concept tip">
+    <strong>Table aliases:</strong> Use short aliases (o for orders, c for customers) to keep queries readable. When two tables have columns with the same name, you must qualify them with the alias: <code>o.order_id</code> vs. <code>c.customer_id</code>.
+</div>
+
+<h2>3.3 LEFT JOIN</h2>
+<p>LEFT JOIN returns all rows from the left table and matching rows from the right table. If there is no match, the right-side columns are filled with NULL.</p>
+
+<pre class="sql"><span class="cm">-- All customers, including those with no orders</span>
+<span class="kw">SELECT</span>
+    c.customer_id,
+    c.first_name,
+    c.last_name,
+    o.order_id,
+    o.total
+<span class="kw">FROM</span> customers c
+<span class="kw">LEFT JOIN</span> orders o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id;
+
+<span class="cm">-- Find customers who have NEVER placed an order</span>
+<span class="kw">SELECT</span> c.customer_id, c.first_name, c.last_name
+<span class="kw">FROM</span> customers c
+<span class="kw">LEFT JOIN</span> orders o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+<span class="kw">WHERE</span> o.order_id <span class="kw">IS NULL</span>;</pre>
+
+<div class="concept warn">
+    <strong>Left vs. Inner in practice:</strong> If you want to keep all rows from the "main" table even when the lookup table has no match, use LEFT JOIN. If you only want rows that have a match in both tables, use INNER JOIN. Choosing the wrong join type is a common source of missing or inflated data.
+</div>
+
+<h2>3.4 RIGHT JOIN and FULL OUTER JOIN</h2>
+
+<pre class="sql"><span class="cm">-- RIGHT JOIN: all rows from the right table</span>
+<span class="cm">-- (same as swapping table order in LEFT JOIN)</span>
+<span class="kw">SELECT</span>
+    o.order_id,
+    p.product_name
+<span class="kw">FROM</span> order_items o
+<span class="kw">RIGHT JOIN</span> products p <span class="kw">ON</span> o.product_id <span class="op">=</span> p.product_id;
+<span class="cm">-- Shows all products, including unsold ones</span>
+
+<span class="cm">-- FULL OUTER JOIN: all rows from both tables</span>
+<span class="cm">-- (Not supported in SQLite; use UNION of LEFT JOINs instead)</span>
+<span class="kw">SELECT</span>
+    c.customer_id,
+    c.first_name,
+    o.order_id
+<span class="kw">FROM</span> customers c
+<span class="kw">FULL OUTER JOIN</span> orders o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id;
+
+<span class="cm">-- SQLite workaround for FULL OUTER JOIN:</span>
+<span class="kw">SELECT</span> c.customer_id, c.first_name, o.order_id
+<span class="kw">FROM</span> customers c
+<span class="kw">LEFT JOIN</span> orders o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> c.customer_id, c.first_name, o.order_id
+<span class="kw">FROM</span> orders o
+<span class="kw">LEFT JOIN</span> customers c <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+<span class="kw">WHERE</span> c.customer_id <span class="kw">IS NULL</span>;</pre>
+
+<h2>3.5 CROSS JOIN</h2>
+<p>A CROSS JOIN produces the Cartesian product: every row from the left table paired with every row from the right table. Useful for generating combinations or scaffolding date/product grids.</p>
+
+<pre class="sql"><span class="cm">-- Generate all product-month combinations for reporting</span>
+<span class="kw">SELECT</span>
+    p.product_name,
+    m.month_start
+<span class="kw">FROM</span> products p
+<span class="kw">CROSS JOIN</span> (
+    <span class="kw">SELECT</span> <span class="st">'2024-01-01'</span> <span class="kw">AS</span> month_start
+    <span class="kw">UNION ALL SELECT</span> <span class="st">'2024-02-01'</span>
+    <span class="kw">UNION ALL SELECT</span> <span class="st">'2024-03-01'</span>
+) m
+<span class="kw">ORDER BY</span> p.product_name, m.month_start;</pre>
+
+<h2>3.6 Self-Joins</h2>
+<p>A self-join joins a table to itself. This is useful for hierarchical data (employee-manager relationships) or comparing rows within the same table.</p>
+
+<pre class="sql"><span class="cm">-- Employee-manager hierarchy</span>
+<span class="kw">SELECT</span>
+    e.name    <span class="kw">AS</span> employee,
+    m.name    <span class="kw">AS</span> manager
+<span class="kw">FROM</span> employees e
+<span class="kw">LEFT JOIN</span> employees m <span class="kw">ON</span> e.manager_id <span class="op">=</span> m.emp_id;
+
+<span class="cm">-- Find products in the same category with different prices</span>
+<span class="kw">SELECT</span>
+    a.product_name <span class="kw">AS</span> product_a,
+    b.product_name <span class="kw">AS</span> product_b,
+    a.category,
+    a.unit_price <span class="op">-</span> b.unit_price <span class="kw">AS</span> price_diff
+<span class="kw">FROM</span> products a
+<span class="kw">INNER JOIN</span> products b
+    <span class="kw">ON</span> a.category <span class="op">=</span> b.category
+    <span class="kw">AND</span> a.product_id <span class="op"><</span> b.product_id;  <span class="cm">-- avoid duplicates</span></pre>
+
+<h2>3.7 Joining Multiple Tables</h2>
+
+<pre class="sql"><span class="cm">-- Order details with customer and product info</span>
+<span class="kw">SELECT</span>
+    o.order_id,
+    c.first_name <span class="op">||</span> <span class="st">' '</span> <span class="op">||</span> c.last_name <span class="kw">AS</span> customer,
+    p.product_name,
+    oi.quantity,
+    oi.quantity <span class="op">*</span> p.unit_price <span class="kw">AS</span> line_total
+<span class="kw">FROM</span> orders o
+<span class="kw">INNER JOIN</span> customers c    <span class="kw">ON</span> o.customer_id <span class="op">=</span> c.customer_id
+<span class="kw">INNER JOIN</span> order_items oi <span class="kw">ON</span> o.order_id    <span class="op">=</span> oi.order_id
+<span class="kw">INNER JOIN</span> products p     <span class="kw">ON</span> oi.product_id <span class="op">=</span> p.product_id
+<span class="kw">ORDER BY</span> o.order_id, p.product_name;</pre>
+
+<h2>3.8 Join Pitfalls</h2>
+
+<div class="concept warn">
+    <strong>Duplicate rows from many-to-many:</strong> If both sides of a join have multiple matching rows, the result multiplies. An order with 3 items joined to a returns table with 2 returns produces 6 rows. Always verify row counts after a join: <code>SELECT COUNT(*) FROM ...</code>.
+</div>
+
+<pre class="sql"><span class="cm">-- Check for row multiplication</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> before_join <span class="kw">FROM</span> orders;
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> after_join
+<span class="kw">FROM</span> orders o
+<span class="kw">INNER JOIN</span> order_items oi <span class="kw">ON</span> o.order_id <span class="op">=</span> oi.order_id;
+<span class="cm">-- If after_join > before_join, the join expanded rows (expected with line items)</span></pre>
+
+<h2>3.9 Set Operations: UNION, INTERSECT, EXCEPT</h2>
+
+<pre class="sql"><span class="cm">-- UNION: combine results, remove duplicates</span>
+<span class="kw">SELECT</span> city <span class="kw">FROM</span> customers
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> city <span class="kw">FROM</span> suppliers;
+
+<span class="cm">-- UNION ALL: combine without removing duplicates (faster)</span>
+<span class="kw">SELECT</span> city <span class="kw">FROM</span> customers
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span> city <span class="kw">FROM</span> suppliers;
+
+<span class="cm">-- INTERSECT: rows that appear in both queries</span>
+<span class="kw">SELECT</span> customer_id <span class="kw">FROM</span> orders <span class="kw">WHERE</span> order_date <span class="op">>=</span> <span class="st">'2024-01-01'</span>
+<span class="kw">INTERSECT</span>
+<span class="kw">SELECT</span> customer_id <span class="kw">FROM</span> orders <span class="kw">WHERE</span> total <span class="op">></span> <span class="nb">500</span>;
+
+<span class="cm">-- EXCEPT: rows in the first query but not the second</span>
+<span class="kw">SELECT</span> customer_id <span class="kw">FROM</span> customers
+<span class="kw">EXCEPT</span>
+<span class="kw">SELECT</span> customer_id <span class="kw">FROM</span> orders;
+<span class="cm">-- Customers who have never ordered (alternative to LEFT JOIN + IS NULL)</span></pre>
+
+<div class="concept tip">
+    <strong>UNION vs UNION ALL:</strong> UNION removes duplicates (like DISTINCT), which requires sorting. UNION ALL skips deduplication and is faster. Use UNION ALL when you know the sets are already disjoint or when duplicates are acceptable.
+</div>
+
+<div class="exercise">
+    <h4>Exercise 3.1</h4>
+    <p>Write a query that returns all orders with the customer's full name and order total. Use INNER JOIN between orders and customers. Sort by order_date descending.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 3.2</h4>
+    <p>Write a query that finds all products that have never been ordered. Use a LEFT JOIN between products and order_items, filtering for NULL order_item_id.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 3.3</h4>
+    <p>Create an employee-manager report using a self-join on an employees table. Show each employee's name alongside their manager's name. Include employees who have no manager (CEO/top level) by using LEFT JOIN.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 3.4</h4>
+    <p>Write a query that joins orders, order_items, and products to calculate the total revenue per product. Group by product_name and sort by revenue descending. Show the top 5 products.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://www.sqlite.org/lang_select.html#fromclause" target="_blank">SQLite FROM Clause (Joins)</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://mode.com/sql-tutorial/sql-joins" target="_blank">Mode: SQL Joins</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://joins.spathon.com/" target="_blank">Visual SQL Joins</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 3 Takeaways</h3>
+    <ul>
+        <li>INNER JOIN returns only matching rows from both tables.</li>
+        <li>LEFT JOIN keeps all rows from the left table; unmatched right-side columns become NULL.</li>
+        <li>Use LEFT JOIN + WHERE IS NULL to find "orphan" rows (customers with no orders, products never sold).</li>
+        <li>Self-joins compare rows within the same table; use aliases to distinguish the two copies.</li>
+        <li>Always check row counts before and after joins to catch unexpected row multiplication.</li>
+        <li>UNION combines result sets; EXCEPT finds differences. Prefer UNION ALL when deduplication is unnecessary.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch2.html">&larr; Chapter 2: SELECT &amp; Filtering</a>
+    <a href="ch4.html">Chapter 4: Aggregation &rarr;</a>
+</div>
+
+</body>
+</html>

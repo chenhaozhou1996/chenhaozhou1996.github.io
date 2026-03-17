@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 10: Project — Business Analytics Report | SQL Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1{color:#7c2d12}
+        h2{border-bottom:2px solid #fed7aa}
+        .book-nav a.current{background:#c2410c}
+        .exercise{border-color:#c2410c;background:#fff7ed}
+        .exercise h4{background:#c2410c;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#7c2d12,#c2410c)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html" class="current">Ch 10</a>
+</nav>
+
+<h1>Chapter 10: Project — Business Analytics Report</h1>
+<p class="subtitle">End-to-End Analytics Pipeline in SQL</p>
+
+<h2>10.1 Project Overview</h2>
+<p>You will build a complete analytics database for a retail company. The pipeline covers schema design, data loading, exploratory queries, revenue analysis, customer segmentation, and connecting SQL results to Python or R for visualization.</p>
+
+<div class="concept info">
+    <strong>Scenario:</strong> You are an analyst at a mid-size e-commerce company. Management wants a quarterly business review covering revenue trends, customer segments, product performance, and retention. All data lives in a SQLite database.
+</div>
+
+<h2>10.2 Schema Design</h2>
+
+<pre class="sql"><span class="cm">-- Enable foreign keys</span>
+<span class="kw">PRAGMA</span> foreign_keys <span class="op">=</span> <span class="kw">ON</span>;
+
+<span class="kw">CREATE TABLE</span> customers (
+    customer_id  <span class="kw">INTEGER PRIMARY KEY</span>,
+    first_name   <span class="kw">TEXT NOT NULL</span>,
+    last_name    <span class="kw">TEXT NOT NULL</span>,
+    email        <span class="kw">TEXT UNIQUE</span>,
+    city         <span class="kw">TEXT</span>,
+    signup_date  <span class="kw">TEXT NOT NULL</span>
+);
+
+<span class="kw">CREATE TABLE</span> categories (
+    category_id   <span class="kw">INTEGER PRIMARY KEY</span>,
+    category_name <span class="kw">TEXT NOT NULL UNIQUE</span>
+);
+
+<span class="kw">CREATE TABLE</span> products (
+    product_id   <span class="kw">INTEGER PRIMARY KEY</span>,
+    product_name <span class="kw">TEXT NOT NULL</span>,
+    category_id  <span class="kw">INTEGER</span>,
+    unit_price   <span class="kw">REAL CHECK</span>(unit_price <span class="op">></span> <span class="nb">0</span>),
+    <span class="kw">FOREIGN KEY</span> (category_id) <span class="kw">REFERENCES</span> categories(category_id)
+);
+
+<span class="kw">CREATE TABLE</span> orders (
+    order_id    <span class="kw">INTEGER PRIMARY KEY</span>,
+    customer_id <span class="kw">INTEGER NOT NULL</span>,
+    order_date  <span class="kw">TEXT NOT NULL</span>,
+    <span class="kw">FOREIGN KEY</span> (customer_id) <span class="kw">REFERENCES</span> customers(customer_id)
+);
+
+<span class="kw">CREATE TABLE</span> order_items (
+    order_id   <span class="kw">INTEGER</span>,
+    product_id <span class="kw">INTEGER</span>,
+    quantity   <span class="kw">INTEGER NOT NULL CHECK</span>(quantity <span class="op">></span> <span class="nb">0</span>),
+    unit_price <span class="kw">REAL NOT NULL</span>,
+    <span class="kw">PRIMARY KEY</span> (order_id, product_id),
+    <span class="kw">FOREIGN KEY</span> (order_id) <span class="kw">REFERENCES</span> orders(order_id),
+    <span class="kw">FOREIGN KEY</span> (product_id) <span class="kw">REFERENCES</span> products(product_id)
+);</pre>
+
+<h2>10.3 Data Loading</h2>
+
+<pre class="sql"><span class="cm">-- Categories</span>
+<span class="kw">INSERT INTO</span> categories <span class="kw">VALUES</span>
+    (<span class="nb">1</span>, <span class="st">'Electronics'</span>), (<span class="nb">2</span>, <span class="st">'Clothing'</span>),
+    (<span class="nb">3</span>, <span class="st">'Home &amp; Kitchen'</span>), (<span class="nb">4</span>, <span class="st">'Books'</span>);
+
+<span class="cm">-- Products (sample)</span>
+<span class="kw">INSERT INTO</span> products <span class="kw">VALUES</span>
+    (<span class="nb">101</span>, <span class="st">'Wireless Headphones'</span>, <span class="nb">1</span>, <span class="nb">79.99</span>),
+    (<span class="nb">102</span>, <span class="st">'USB-C Hub'</span>,            <span class="nb">1</span>, <span class="nb">34.99</span>),
+    (<span class="nb">103</span>, <span class="st">'Running Shoes'</span>,        <span class="nb">2</span>, <span class="nb">119.99</span>),
+    (<span class="nb">104</span>, <span class="st">'Cotton T-Shirt'</span>,       <span class="nb">2</span>, <span class="nb">24.99</span>),
+    (<span class="nb">105</span>, <span class="st">'Coffee Maker'</span>,         <span class="nb">3</span>, <span class="nb">89.99</span>),
+    (<span class="nb">106</span>, <span class="st">'Desk Lamp'</span>,            <span class="nb">3</span>, <span class="nb">45.99</span>),
+    (<span class="nb">107</span>, <span class="st">'Data Science Handbook'</span>, <span class="nb">4</span>, <span class="nb">39.99</span>),
+    (<span class="nb">108</span>, <span class="st">'SQL Cookbook'</span>,          <span class="nb">4</span>, <span class="nb">29.99</span>);
+
+<span class="cm">-- Customers (sample)</span>
+<span class="kw">INSERT INTO</span> customers <span class="kw">VALUES</span>
+    (<span class="nb">1</span>, <span class="st">'Alice'</span>,  <span class="st">'Chen'</span>,  <span class="st">'alice@example.com'</span>,  <span class="st">'New York'</span>,  <span class="st">'2023-01-15'</span>),
+    (<span class="nb">2</span>, <span class="st">'Bob'</span>,    <span class="st">'Smith'</span>, <span class="st">'bob@example.com'</span>,    <span class="st">'Chicago'</span>,   <span class="st">'2023-03-22'</span>),
+    (<span class="nb">3</span>, <span class="st">'Carol'</span>,  <span class="st">'Jones'</span>, <span class="st">'carol@example.com'</span>,  <span class="st">'Austin'</span>,    <span class="st">'2023-06-10'</span>),
+    (<span class="nb">4</span>, <span class="st">'David'</span>,  <span class="st">'Lee'</span>,   <span class="st">'david@example.com'</span>,  <span class="st">'Seattle'</span>,   <span class="st">'2023-09-05'</span>),
+    (<span class="nb">5</span>, <span class="st">'Eve'</span>,    <span class="st">'Park'</span>,  <span class="st">'eve@example.com'</span>,    <span class="st">'Boston'</span>,    <span class="st">'2024-01-12'</span>);
+
+<span class="cm">-- Orders and order items</span>
+<span class="kw">INSERT INTO</span> orders <span class="kw">VALUES</span>
+    (<span class="nb">1001</span>, <span class="nb">1</span>, <span class="st">'2024-01-10'</span>), (<span class="nb">1002</span>, <span class="nb">2</span>, <span class="st">'2024-01-15'</span>),
+    (<span class="nb">1003</span>, <span class="nb">1</span>, <span class="st">'2024-02-20'</span>), (<span class="nb">1004</span>, <span class="nb">3</span>, <span class="st">'2024-03-05'</span>),
+    (<span class="nb">1005</span>, <span class="nb">4</span>, <span class="st">'2024-03-18'</span>), (<span class="nb">1006</span>, <span class="nb">2</span>, <span class="st">'2024-04-02'</span>),
+    (<span class="nb">1007</span>, <span class="nb">1</span>, <span class="st">'2024-05-14'</span>), (<span class="nb">1008</span>, <span class="nb">5</span>, <span class="st">'2024-06-01'</span>),
+    (<span class="nb">1009</span>, <span class="nb">3</span>, <span class="st">'2024-06-20'</span>), (<span class="nb">1010</span>, <span class="nb">1</span>, <span class="st">'2024-07-08'</span>);
+
+<span class="kw">INSERT INTO</span> order_items <span class="kw">VALUES</span>
+    (<span class="nb">1001</span>, <span class="nb">101</span>, <span class="nb">1</span>, <span class="nb">79.99</span>), (<span class="nb">1001</span>, <span class="nb">108</span>, <span class="nb">2</span>, <span class="nb">29.99</span>),
+    (<span class="nb">1002</span>, <span class="nb">103</span>, <span class="nb">1</span>, <span class="nb">119.99</span>), (<span class="nb">1003</span>, <span class="nb">102</span>, <span class="nb">1</span>, <span class="nb">34.99</span>),
+    (<span class="nb">1003</span>, <span class="nb">107</span>, <span class="nb">1</span>, <span class="nb">39.99</span>), (<span class="nb">1004</span>, <span class="nb">105</span>, <span class="nb">1</span>, <span class="nb">89.99</span>),
+    (<span class="nb">1005</span>, <span class="nb">104</span>, <span class="nb">3</span>, <span class="nb">24.99</span>), (<span class="nb">1005</span>, <span class="nb">106</span>, <span class="nb">1</span>, <span class="nb">45.99</span>),
+    (<span class="nb">1006</span>, <span class="nb">101</span>, <span class="nb">1</span>, <span class="nb">79.99</span>), (<span class="nb">1006</span>, <span class="nb">104</span>, <span class="nb">2</span>, <span class="nb">24.99</span>),
+    (<span class="nb">1007</span>, <span class="nb">105</span>, <span class="nb">1</span>, <span class="nb">89.99</span>), (<span class="nb">1008</span>, <span class="nb">103</span>, <span class="nb">1</span>, <span class="nb">119.99</span>),
+    (<span class="nb">1008</span>, <span class="nb">107</span>, <span class="nb">2</span>, <span class="nb">39.99</span>), (<span class="nb">1009</span>, <span class="nb">106</span>, <span class="nb">2</span>, <span class="nb">45.99</span>),
+    (<span class="nb">1010</span>, <span class="nb">101</span>, <span class="nb">1</span>, <span class="nb">79.99</span>), (<span class="nb">1010</span>, <span class="nb">102</span>, <span class="nb">1</span>, <span class="nb">34.99</span>);</pre>
+
+<h2>10.4 Exploratory Queries</h2>
+
+<pre class="sql"><span class="cm">-- Record counts</span>
+<span class="kw">SELECT</span> <span class="st">'customers'</span> <span class="kw">AS</span> tbl, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> n <span class="kw">FROM</span> customers
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span> <span class="st">'orders'</span>,    <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> orders
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span> <span class="st">'items'</span>,     <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> order_items
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span> <span class="st">'products'</span>,  <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> products;
+
+<span class="cm">-- Date range</span>
+<span class="kw">SELECT</span>
+    <span class="fn">MIN</span>(order_date) <span class="kw">AS</span> first_order,
+    <span class="fn">MAX</span>(order_date) <span class="kw">AS</span> last_order
+<span class="kw">FROM</span> orders;</pre>
+
+<h2>10.5 Revenue Analysis</h2>
+
+<pre class="sql"><span class="cm">-- Monthly revenue with year-over-year comparison</span>
+<span class="kw">WITH</span> monthly <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        <span class="fn">STRFTIME</span>(<span class="st">'%Y-%m'</span>, o.order_date) <span class="kw">AS</span> month,
+        <span class="fn">SUM</span>(oi.quantity <span class="op">*</span> oi.unit_price) <span class="kw">AS</span> revenue
+    <span class="kw">FROM</span> orders o
+    <span class="kw">INNER JOIN</span> order_items oi <span class="kw">ON</span> o.order_id <span class="op">=</span> oi.order_id
+    <span class="kw">GROUP BY</span> month
+)
+<span class="kw">SELECT</span>
+    month,
+    revenue,
+    <span class="fn">LAG</span>(revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month) <span class="kw">AS</span> prev_month,
+    <span class="fn">ROUND</span>(
+        (revenue <span class="op">-</span> <span class="fn">LAG</span>(revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month))
+        <span class="op">*</span> <span class="nb">100.0</span>
+        <span class="op">/</span> <span class="fn">LAG</span>(revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month),
+    <span class="nb">1</span>) <span class="kw">AS</span> mom_growth_pct,
+    <span class="fn">SUM</span>(revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month) <span class="kw">AS</span> cumulative_revenue
+<span class="kw">FROM</span> monthly;
+
+<span class="cm">-- Revenue by category</span>
+<span class="kw">SELECT</span>
+    cat.category_name,
+    <span class="fn">SUM</span>(oi.quantity <span class="op">*</span> oi.unit_price) <span class="kw">AS</span> revenue,
+    <span class="fn">ROUND</span>(
+        <span class="fn">SUM</span>(oi.quantity <span class="op">*</span> oi.unit_price) <span class="op">*</span> <span class="nb">100.0</span>
+        <span class="op">/</span> (<span class="kw">SELECT</span> <span class="fn">SUM</span>(quantity <span class="op">*</span> unit_price) <span class="kw">FROM</span> order_items),
+    <span class="nb">1</span>) <span class="kw">AS</span> pct_of_total
+<span class="kw">FROM</span> order_items oi
+<span class="kw">INNER JOIN</span> products p   <span class="kw">ON</span> oi.product_id <span class="op">=</span> p.product_id
+<span class="kw">INNER JOIN</span> categories cat <span class="kw">ON</span> p.category_id <span class="op">=</span> cat.category_id
+<span class="kw">GROUP BY</span> cat.category_name
+<span class="kw">ORDER BY</span> revenue <span class="kw">DESC</span>;</pre>
+
+<h2>10.6 Customer Segmentation (RFM)</h2>
+<p>RFM analysis segments customers by Recency (days since last purchase), Frequency (number of orders), and Monetary value (total spend).</p>
+
+<pre class="sql"><span class="kw">WITH</span> rfm <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        c.customer_id,
+        c.first_name <span class="op">||</span> <span class="st">' '</span> <span class="op">||</span> c.last_name <span class="kw">AS</span> customer_name,
+        <span class="fn">JULIANDAY</span>(<span class="st">'2024-07-31'</span>) <span class="op">-</span> <span class="fn">JULIANDAY</span>(<span class="fn">MAX</span>(o.order_date)) <span class="kw">AS</span> recency_days,
+        <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> frequency,
+        <span class="fn">SUM</span>(oi.quantity <span class="op">*</span> oi.unit_price) <span class="kw">AS</span> monetary
+    <span class="kw">FROM</span> customers c
+    <span class="kw">INNER JOIN</span> orders o       <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+    <span class="kw">INNER JOIN</span> order_items oi <span class="kw">ON</span> o.order_id    <span class="op">=</span> oi.order_id
+    <span class="kw">GROUP BY</span> c.customer_id
+)
+<span class="kw">SELECT</span>
+    customer_name,
+    recency_days,
+    frequency,
+    <span class="fn">ROUND</span>(monetary, <span class="nb">2</span>) <span class="kw">AS</span> monetary,
+    <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> recency_days <span class="op"><=</span> <span class="nb">30</span> <span class="kw">AND</span> frequency <span class="op">>=</span> <span class="nb">3</span> <span class="kw">THEN</span> <span class="st">'Champion'</span>
+        <span class="kw">WHEN</span> recency_days <span class="op"><=</span> <span class="nb">60</span> <span class="kw">AND</span> frequency <span class="op">>=</span> <span class="nb">2</span> <span class="kw">THEN</span> <span class="st">'Loyal'</span>
+        <span class="kw">WHEN</span> recency_days <span class="op"><=</span> <span class="nb">90</span>                      <span class="kw">THEN</span> <span class="st">'Recent'</span>
+        <span class="kw">WHEN</span> frequency <span class="op">>=</span> <span class="nb">2</span>                           <span class="kw">THEN</span> <span class="st">'At Risk'</span>
+        <span class="kw">ELSE</span> <span class="st">'Lapsed'</span>
+    <span class="kw">END AS</span> segment
+<span class="kw">FROM</span> rfm
+<span class="kw">ORDER BY</span> monetary <span class="kw">DESC</span>;</pre>
+
+<h2>10.7 Product Performance</h2>
+
+<pre class="sql"><span class="cm">-- Top products by revenue and quantity</span>
+<span class="kw">SELECT</span>
+    p.product_name,
+    cat.category_name,
+    <span class="fn">SUM</span>(oi.quantity) <span class="kw">AS</span> units_sold,
+    <span class="fn">ROUND</span>(<span class="fn">SUM</span>(oi.quantity <span class="op">*</span> oi.unit_price), <span class="nb">2</span>) <span class="kw">AS</span> revenue,
+    <span class="fn">DENSE_RANK</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="fn">SUM</span>(oi.quantity <span class="op">*</span> oi.unit_price) <span class="kw">DESC</span>) <span class="kw">AS</span> revenue_rank
+<span class="kw">FROM</span> order_items oi
+<span class="kw">INNER JOIN</span> products p    <span class="kw">ON</span> oi.product_id <span class="op">=</span> p.product_id
+<span class="kw">INNER JOIN</span> categories cat <span class="kw">ON</span> p.category_id <span class="op">=</span> cat.category_id
+<span class="kw">GROUP BY</span> p.product_id
+<span class="kw">ORDER BY</span> revenue <span class="kw">DESC</span>;
+
+<span class="cm">-- Products frequently bought together</span>
+<span class="kw">SELECT</span>
+    p1.product_name <span class="kw">AS</span> product_a,
+    p2.product_name <span class="kw">AS</span> product_b,
+    <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> times_bought_together
+<span class="kw">FROM</span> order_items oi1
+<span class="kw">INNER JOIN</span> order_items oi2
+    <span class="kw">ON</span> oi1.order_id <span class="op">=</span> oi2.order_id
+    <span class="kw">AND</span> oi1.product_id <span class="op"><</span> oi2.product_id
+<span class="kw">INNER JOIN</span> products p1 <span class="kw">ON</span> oi1.product_id <span class="op">=</span> p1.product_id
+<span class="kw">INNER JOIN</span> products p2 <span class="kw">ON</span> oi2.product_id <span class="op">=</span> p2.product_id
+<span class="kw">GROUP BY</span> oi1.product_id, oi2.product_id
+<span class="kw">ORDER BY</span> times_bought_together <span class="kw">DESC</span>;</pre>
+
+<h2>10.8 Cohort Retention</h2>
+
+<pre class="sql"><span class="cm">-- Customer retention by signup quarter</span>
+<span class="kw">WITH</span> cohort <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        c.customer_id,
+        <span class="fn">STRFTIME</span>(<span class="st">'%Y-Q'</span>, c.signup_date) ||
+            ((<span class="fn">CAST</span>(<span class="fn">STRFTIME</span>(<span class="st">'%m'</span>, c.signup_date) <span class="kw">AS INTEGER</span>) <span class="op">-</span> <span class="nb">1</span>) <span class="op">/</span> <span class="nb">3</span> <span class="op">+</span> <span class="nb">1</span>)
+            <span class="kw">AS</span> signup_quarter,
+        <span class="fn">MIN</span>(o.order_date) <span class="kw">AS</span> first_order
+    <span class="kw">FROM</span> customers c
+    <span class="kw">LEFT JOIN</span> orders o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+    <span class="kw">GROUP BY</span> c.customer_id
+)
+<span class="kw">SELECT</span>
+    signup_quarter,
+    <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> total_customers,
+    <span class="fn">COUNT</span>(first_order) <span class="kw">AS</span> converted,
+    <span class="fn">ROUND</span>(<span class="fn">COUNT</span>(first_order) <span class="op">*</span> <span class="nb">100.0</span> <span class="op">/</span> <span class="fn">COUNT</span>(<span class="op">*</span>), <span class="nb">1</span>) <span class="kw">AS</span> conversion_pct
+<span class="kw">FROM</span> cohort
+<span class="kw">GROUP BY</span> signup_quarter
+<span class="kw">ORDER BY</span> signup_quarter;</pre>
+
+<h2>10.9 Dashboard Views</h2>
+
+<pre class="sql"><span class="cm">-- Create reusable views for dashboards</span>
+<span class="kw">CREATE VIEW</span> v_monthly_revenue <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+    <span class="fn">STRFTIME</span>(<span class="st">'%Y-%m'</span>, o.order_date) <span class="kw">AS</span> month,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> orders,
+    <span class="fn">SUM</span>(oi.quantity <span class="op">*</span> oi.unit_price) <span class="kw">AS</span> revenue
+<span class="kw">FROM</span> orders o
+<span class="kw">INNER JOIN</span> order_items oi <span class="kw">ON</span> o.order_id <span class="op">=</span> oi.order_id
+<span class="kw">GROUP BY</span> month;
+
+<span class="kw">CREATE VIEW</span> v_customer_lifetime <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+    c.customer_id,
+    c.first_name <span class="op">||</span> <span class="st">' '</span> <span class="op">||</span> c.last_name <span class="kw">AS</span> name,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id) <span class="kw">AS</span> total_orders,
+    <span class="fn">ROUND</span>(<span class="fn">SUM</span>(oi.quantity <span class="op">*</span> oi.unit_price), <span class="nb">2</span>) <span class="kw">AS</span> lifetime_value
+<span class="kw">FROM</span> customers c
+<span class="kw">LEFT JOIN</span> orders o       <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+<span class="kw">LEFT JOIN</span> order_items oi <span class="kw">ON</span> o.order_id    <span class="op">=</span> oi.order_id
+<span class="kw">GROUP BY</span> c.customer_id;</pre>
+
+<h2>10.10 Connecting to Python and R</h2>
+
+<pre class="sql"><span class="cm">-- Python: sqlite3 (built-in)</span></pre>
+<pre class="python"><span class="kw">import</span> sqlite3
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+conn = sqlite3.<span class="fn">connect</span>(<span class="st">'analytics.db'</span>)
+df = pd.<span class="fn">read_sql_query</span>(<span class="st">"SELECT * FROM v_monthly_revenue"</span>, conn)
+<span class="fn">print</span>(df)
+conn.<span class="fn">close</span>()</pre>
+
+<pre class="sql"><span class="cm">-- R: DBI + RSQLite</span></pre>
+<pre class="r"><span class="fn">library</span>(DBI)
+<span class="fn">library</span>(RSQLite)
+
+con <span class="op">&lt;-</span> <span class="fn">dbConnect</span>(<span class="fn">SQLite</span>(), <span class="st">"analytics.db"</span>)
+df  <span class="op">&lt;-</span> <span class="fn">dbGetQuery</span>(con, <span class="st">"SELECT * FROM v_customer_lifetime"</span>)
+<span class="fn">print</span>(df)
+<span class="fn">dbDisconnect</span>(con)</pre>
+
+<div class="concept tip">
+    <strong>SQL + Python/R workflow:</strong> Keep heavy data transformations in SQL (faster, runs on the server). Pull aggregated results into Python/R for visualization, statistical modeling, and reporting. This division of labor scales to very large datasets.
+</div>
+
+<div class="exercise">
+    <h4>Exercise 10.1</h4>
+    <p>Extend the schema with a <code>returns</code> table. Insert sample return data and write a query that calculates the return rate per product (returns / units sold) and per category.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 10.2</h4>
+    <p>Build a complete RFM segmentation for the sample data. Assign each customer a score from 1-3 on Recency, Frequency, and Monetary. Combine the scores into a single RFM code (e.g., "3-3-3" for the best customers) and count how many customers fall into each segment.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 10.3</h4>
+    <p>Write a Python script that connects to the analytics.db database, executes the monthly revenue query, and creates a line chart using matplotlib. Save the chart as a PNG file.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 10.4</h4>
+    <p>Design and build your own analytics database for a domain you are interested in (e.g., a gym membership system, a library, a restaurant). Create at least 4 tables, load sample data, and write 5 analytical queries that would be useful for a manager in that domain.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://docs.python.org/3/library/sqlite3.html" target="_blank">Python sqlite3 Module</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://rsqlite.r-dbi.org/" target="_blank">RSQLite: R Interface to SQLite</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://pandas.pydata.org/docs/reference/api/pandas.read_sql_query.html" target="_blank">pandas.read_sql_query</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 10 Takeaways</h3>
+    <ul>
+        <li>A well-designed schema (normalized tables with proper keys and constraints) is the foundation of reliable analytics.</li>
+        <li>CTEs and window functions enable complex analyses like RFM segmentation and cohort retention in pure SQL.</li>
+        <li>Views package common queries for reuse, making dashboards consistent and easy to maintain.</li>
+        <li>Basket analysis uses self-joins on line items to discover products frequently bought together.</li>
+        <li>Connect SQL results to Python (sqlite3/pandas) or R (DBI/RSQLite) for visualization and statistical modeling.</li>
+        <li>Keep heavy transformations in SQL; pull aggregated results into Python/R for charts and reports.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch9.html">&larr; Chapter 9: Query Optimization</a>
+    <a href="index.html">Back to Guide Home &rarr;</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL for Data Analytics | Chenhao Zhou</title>
+    <meta name="description" content="A practical SQL guide for business analytics and data science students, covering queries, joins, aggregation, window functions, and database design.">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        /* === TOPNAV === */
+        .topnav{position:sticky;top:0;z-index:2000;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;padding:0 48px}
+        .topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+        .topnav-brand{font-weight:700;font-size:15px;color:#0f2442;display:flex;align-items:center;gap:10px;text-decoration:none!important}
+        .topnav-brand:hover{text-decoration:none!important;color:#0f2442}
+        .topnav-brand img{width:32px;height:32px;border-radius:50%;object-fit:cover}
+        .topnav-links{display:flex;gap:4px}
+        .topnav-links a{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;color:#475569;text-decoration:none!important}
+        .topnav-links a:hover{background:#f8fafc;color:#1a365d}
+        .topnav-links a.active{background:#f8fafc;color:#1a365d;font-weight:600}
+        @media(max-width:640px){.topnav{padding:0 16px}.topnav-links a{padding:4px 8px;font-size:12px}}
+
+        /* === RESET === */
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth}
+        body{font-family:'Inter',-apple-system,sans-serif;background:#fff;color:#1e293b;line-height:1.6;-webkit-font-smoothing:antialiased}
+        a{color:#c2410c;text-decoration:none;transition:color 0.15s}
+        a:hover{color:#ea580c}
+
+        /* === HERO === */
+        .hero{background:linear-gradient(135deg,#7c2d12 0%,#c2410c 50%,#ea580c 100%);color:#fff;padding:80px 20px 60px;text-align:center;position:relative;overflow:hidden}
+        .hero::before{content:'';position:absolute;top:-50%;right:-20%;width:600px;height:600px;background:radial-gradient(circle,rgba(255,255,255,0.08) 0%,transparent 70%)}
+        .hero::after{content:'';position:absolute;bottom:-30%;left:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%)}
+        .hero-content{position:relative;z-index:1;max-width:800px;margin:0 auto}
+        .hero-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;background:rgba(255,255,255,0.2);margin-bottom:16px}
+        .hero h1{font-size:clamp(28px,4vw,42px);font-weight:800;line-height:1.15;margin-bottom:12px}
+        .hero p{font-size:clamp(14px,1.8vw,17px);opacity:0.9;max-width:600px;margin:0 auto 24px}
+        .hero-stats{display:flex;justify-content:center;gap:32px;font-size:13px;font-weight:600;opacity:0.85}
+        .hero-stats span{display:flex;align-items:center;gap:6px}
+
+        /* === CHAPTER GRID === */
+        .chapters{max-width:1200px;margin:0 auto;padding:48px 20px}
+        .chapters h2{font-size:24px;font-weight:800;color:#1e293b;text-align:center;margin-bottom:32px}
+        .chapter-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+        .card{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:24px;transition:all 0.2s;text-decoration:none!important;display:block}
+        .card:hover{border-color:#c2410c;box-shadow:0 8px 24px rgba(194,65,12,0.12);transform:translateY(-3px)}
+        .card .ch-num{font-size:11px;font-weight:700;color:#c2410c;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+        .card h3{font-size:15px;font-weight:700;color:#1e293b;margin-bottom:8px}
+        .card p{font-size:13px;color:#64748b;line-height:1.5;margin:0}
+        .card .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-top:10px}
+        .badge-core{background:#fff7ed;color:#c2410c}
+        .badge-query{background:#fef3c7;color:#92400e}
+        .badge-design{background:#ecfdf5;color:#065f46}
+        .badge-capstone{background:#ede9fe;color:#5b21b6}
+
+        /* === RESOURCES === */
+        .resources{max-width:1200px;margin:0 auto;padding:0 20px 60px}
+        .resources h2{font-size:20px;font-weight:800;color:#1e293b;margin-bottom:20px}
+        .res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+        .res-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:20px;transition:all 0.2s}
+        .res-card:hover{border-color:#ea580c;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+        .res-card h4{font-size:14px;font-weight:700;color:#c2410c;margin-bottom:6px}
+        .res-card h4 a{color:#c2410c}
+        .res-card p{font-size:12px;color:#64748b;margin:0;line-height:1.5}
+
+        /* === FOOTER === */
+        .footer{text-align:center;padding:24px;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;max-width:1200px;margin:0 auto}
+    </style>
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">Interactive Coding Guide</div>
+        <h1>SQL for Data Analytics</h1>
+        <p>Master relational databases and SQL querying for business intelligence, data science, and research. From basic SELECT statements to advanced window functions and database design.</p>
+        <div class="hero-stats">
+            <span>10 Chapters</span>
+            <span>50+ Code Examples</span>
+            <span>Hands-on Exercises</span>
+        </div>
+    </div>
+</section>
+
+<section class="chapters">
+    <h2>Chapters</h2>
+    <div class="chapter-grid">
+
+        <a href="ch1.html" class="card">
+            <div class="ch-num">Chapter 1</div>
+            <h3>Getting Started</h3>
+            <p>Install SQLite and DBeaver, create your first database, and run your first queries.</p>
+            <span class="badge badge-core">Core</span>
+        </a>
+
+        <a href="ch2.html" class="card">
+            <div class="ch-num">Chapter 2</div>
+            <h3>SELECT &amp; Filtering</h3>
+            <p>Retrieve and filter data with WHERE, LIKE, IN, BETWEEN, ORDER BY, and LIMIT.</p>
+            <span class="badge badge-core">Core</span>
+        </a>
+
+        <a href="ch3.html" class="card">
+            <div class="ch-num">Chapter 3</div>
+            <h3>Joins</h3>
+            <p>Combine tables with INNER, LEFT, RIGHT, FULL, CROSS, and self-joins.</p>
+            <span class="badge badge-query">Query</span>
+        </a>
+
+        <a href="ch4.html" class="card">
+            <div class="ch-num">Chapter 4</div>
+            <h3>Aggregation &amp; GROUP BY</h3>
+            <p>Summarize data with COUNT, SUM, AVG, MIN, MAX, GROUP BY, and HAVING.</p>
+            <span class="badge badge-query">Query</span>
+        </a>
+
+        <a href="ch5.html" class="card">
+            <div class="ch-num">Chapter 5</div>
+            <h3>Subqueries &amp; CTEs</h3>
+            <p>Nest queries, use WITH (Common Table Expressions), and write recursive CTEs.</p>
+            <span class="badge badge-query">Query</span>
+        </a>
+
+        <a href="ch6.html" class="card">
+            <div class="ch-num">Chapter 6</div>
+            <h3>Window Functions</h3>
+            <p>ROW_NUMBER, RANK, LAG, LEAD, running totals, and moving averages.</p>
+            <span class="badge badge-query">Query</span>
+        </a>
+
+        <a href="ch7.html" class="card">
+            <div class="ch-num">Chapter 7</div>
+            <h3>Data Manipulation</h3>
+            <p>INSERT, UPDATE, DELETE, MERGE, transactions, and data loading workflows.</p>
+            <span class="badge badge-design">Design</span>
+        </a>
+
+        <a href="ch8.html" class="card">
+            <div class="ch-num">Chapter 8</div>
+            <h3>Database Design</h3>
+            <p>Normalization, ER diagrams, constraints, data types, and schema planning.</p>
+            <span class="badge badge-design">Design</span>
+        </a>
+
+        <a href="ch9.html" class="card">
+            <div class="ch-num">Chapter 9</div>
+            <h3>Query Optimization</h3>
+            <p>Indexes, EXPLAIN plans, query tuning, views, and performance best practices.</p>
+            <span class="badge badge-design">Design</span>
+        </a>
+
+        <a href="ch10.html" class="card">
+            <div class="ch-num">Chapter 10</div>
+            <h3>Project: Business Analytics Report</h3>
+            <p>Build a complete analytics pipeline: schema design, data loading, analysis queries, and reporting.</p>
+            <span class="badge badge-capstone">Capstone</span>
+        </a>
+    </div>
+</section>
+
+<section class="resources">
+    <h2>Official Resources</h2>
+    <div class="res-grid">
+        <div class="res-card">
+            <h4><a href="https://www.sqlite.org/docs.html" target="_blank">SQLite Documentation</a></h4>
+            <p>Official docs for the most widely deployed database engine.</p>
+        </div>
+        <div class="res-card">
+            <h4><a href="https://www.postgresql.org/docs/" target="_blank">PostgreSQL Manual</a></h4>
+            <p>Comprehensive documentation for the most advanced open-source RDBMS.</p>
+        </div>
+        <div class="res-card">
+            <h4><a href="https://mode.com/sql-tutorial" target="_blank">Mode SQL Tutorial</a></h4>
+            <p>Interactive SQL lessons with real-world datasets for data analysts.</p>
+        </div>
+        <div class="res-card">
+            <h4><a href="https://sqlzoo.net/" target="_blank">SQLZoo</a></h4>
+            <p>Free interactive SQL exercises with instant feedback.</p>
+        </div>
+    </div>
+</section>
+
+<div class="footer">&copy; 2026 Chenhao Zhou. Built for teaching.</div>
+
+</body>
+</html>

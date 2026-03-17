@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 7: Data Manipulation | SQL Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1{color:#7c2d12}
+        h2{border-bottom:2px solid #fed7aa}
+        .book-nav a.current{background:#c2410c}
+        .exercise{border-color:#c2410c;background:#fff7ed}
+        .exercise h4{background:#c2410c;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#7c2d12,#c2410c)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html" class="current">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 7: Data Manipulation</h1>
+<p class="subtitle">INSERT, UPDATE, DELETE, and Transactions</p>
+
+<h2>7.1 INSERT Basics</h2>
+
+<pre class="sql"><span class="cm">-- Insert a single row (named columns)</span>
+<span class="kw">INSERT INTO</span> customers (first_name, last_name, email, city)
+<span class="kw">VALUES</span> (<span class="st">'Alice'</span>, <span class="st">'Chen'</span>, <span class="st">'alice@example.com'</span>, <span class="st">'New York'</span>);
+
+<span class="cm">-- Insert multiple rows</span>
+<span class="kw">INSERT INTO</span> customers (first_name, last_name, email, city)
+<span class="kw">VALUES</span>
+    (<span class="st">'Bob'</span>,   <span class="st">'Smith'</span>,  <span class="st">'bob@example.com'</span>,   <span class="st">'Chicago'</span>),
+    (<span class="st">'Carol'</span>, <span class="st">'Jones'</span>,  <span class="st">'carol@example.com'</span>, <span class="st">'Austin'</span>),
+    (<span class="st">'David'</span>, <span class="st">'Lee'</span>,    <span class="kw">NULL</span>,                  <span class="st">'Seattle'</span>);
+
+<span class="cm">-- INSERT INTO ... SELECT (copy data from one table to another)</span>
+<span class="kw">INSERT INTO</span> archived_orders (order_id, customer_id, order_date, total)
+<span class="kw">SELECT</span> order_id, customer_id, order_date, total
+<span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> order_date <span class="op"><</span> <span class="st">'2023-01-01'</span>;</pre>
+
+<h2>7.2 UPDATE Statements</h2>
+
+<pre class="sql"><span class="cm">-- Update a single column</span>
+<span class="kw">UPDATE</span> products
+<span class="kw">SET</span> unit_price <span class="op">=</span> <span class="nb">34.99</span>
+<span class="kw">WHERE</span> product_id <span class="op">=</span> <span class="nb">1</span>;
+
+<span class="cm">-- Update multiple columns</span>
+<span class="kw">UPDATE</span> products
+<span class="kw">SET</span>
+    unit_price <span class="op">=</span> unit_price <span class="op">*</span> <span class="nb">1.10</span>,
+    category   <span class="op">=</span> <span class="st">'Premium Hardware'</span>
+<span class="kw">WHERE</span> category <span class="op">=</span> <span class="st">'Hardware'</span> <span class="kw">AND</span> unit_price <span class="op">></span> <span class="nb">40</span>;
+
+<span class="cm">-- UPDATE with a subquery</span>
+<span class="kw">UPDATE</span> products
+<span class="kw">SET</span> unit_price <span class="op">=</span> (
+    <span class="kw">SELECT</span> <span class="fn">AVG</span>(unit_price) <span class="kw">FROM</span> products
+)
+<span class="kw">WHERE</span> unit_price <span class="kw">IS NULL</span>;</pre>
+
+<div class="concept warn">
+    <strong>Always include WHERE:</strong> An UPDATE without WHERE modifies every row in the table. This is the most common destructive mistake in SQL. Before running an UPDATE, test the WHERE clause with a SELECT to verify which rows will be affected.
+</div>
+
+<h2>7.3 DELETE Statements</h2>
+
+<pre class="sql"><span class="cm">-- Delete specific rows</span>
+<span class="kw">DELETE FROM</span> orders
+<span class="kw">WHERE</span> order_date <span class="op"><</span> <span class="st">'2020-01-01'</span>;
+
+<span class="cm">-- Delete all rows (keeps table structure)</span>
+<span class="kw">DELETE FROM</span> temp_data;
+
+<span class="cm">-- Delete rows based on a subquery</span>
+<span class="kw">DELETE FROM</span> order_items
+<span class="kw">WHERE</span> order_id <span class="kw">IN</span> (
+    <span class="kw">SELECT</span> order_id <span class="kw">FROM</span> orders
+    <span class="kw">WHERE</span> status <span class="op">=</span> <span class="st">'cancelled'</span>
+);</pre>
+
+<div class="concept info">
+    <strong>DELETE vs. DROP vs. TRUNCATE:</strong> DELETE removes rows (can use WHERE, logged, can be rolled back). TRUNCATE removes all rows instantly (no WHERE, not logged in some databases, cannot roll back). DROP removes the entire table structure. In SQLite, there is no TRUNCATE; use <code>DELETE FROM table</code>.
+</div>
+
+<h2>7.4 UPSERT (INSERT or UPDATE)</h2>
+
+<pre class="sql"><span class="cm">-- SQLite: INSERT OR REPLACE</span>
+<span class="kw">INSERT OR REPLACE INTO</span> products (product_id, product_name, unit_price)
+<span class="kw">VALUES</span> (<span class="nb">1</span>, <span class="st">'Widget A v2'</span>, <span class="nb">32.99</span>);
+
+<span class="cm">-- SQLite 3.24+: ON CONFLICT (more flexible)</span>
+<span class="kw">INSERT INTO</span> products (product_id, product_name, unit_price, in_stock)
+<span class="kw">VALUES</span> (<span class="nb">1</span>, <span class="st">'Widget A'</span>, <span class="nb">32.99</span>, <span class="nb">200</span>)
+<span class="kw">ON CONFLICT</span>(product_id) <span class="kw">DO UPDATE SET</span>
+    unit_price <span class="op">=</span> excluded.unit_price,
+    in_stock   <span class="op">=</span> excluded.in_stock;
+
+<span class="cm">-- PostgreSQL: ON CONFLICT</span>
+<span class="cm">-- INSERT INTO products (...) VALUES (...)</span>
+<span class="cm">-- ON CONFLICT (product_id) DO UPDATE SET</span>
+<span class="cm">--     unit_price = EXCLUDED.unit_price;</span></pre>
+
+<h2>7.5 Transactions</h2>
+<p>A transaction groups multiple statements into an atomic unit: either all succeed or all fail. This prevents partial updates that leave data in an inconsistent state.</p>
+
+<pre class="sql"><span class="cm">-- Transfer inventory between warehouses</span>
+<span class="kw">BEGIN TRANSACTION</span>;
+
+<span class="kw">UPDATE</span> inventory
+<span class="kw">SET</span> quantity <span class="op">=</span> quantity <span class="op">-</span> <span class="nb">50</span>
+<span class="kw">WHERE</span> warehouse_id <span class="op">=</span> <span class="nb">1</span> <span class="kw">AND</span> product_id <span class="op">=</span> <span class="nb">101</span>;
+
+<span class="kw">UPDATE</span> inventory
+<span class="kw">SET</span> quantity <span class="op">=</span> quantity <span class="op">+</span> <span class="nb">50</span>
+<span class="kw">WHERE</span> warehouse_id <span class="op">=</span> <span class="nb">2</span> <span class="kw">AND</span> product_id <span class="op">=</span> <span class="nb">101</span>;
+
+<span class="cm">-- If both succeed:</span>
+<span class="kw">COMMIT</span>;
+
+<span class="cm">-- If something goes wrong:</span>
+<span class="cm">-- ROLLBACK;</span></pre>
+
+<div class="concept tip">
+    <strong>ACID properties:</strong> Transactions guarantee Atomicity (all or nothing), Consistency (database stays valid), Isolation (concurrent transactions don't interfere), and Durability (committed changes survive crashes). In SQLite, each individual statement is implicitly wrapped in a transaction if you don't specify one explicitly.
+</div>
+
+<h2>7.6 Bulk Data Loading</h2>
+
+<pre class="sql"><span class="cm">-- SQLite: import a CSV file</span>
+.mode csv
+.import sales_data.csv sales
+
+<span class="cm">-- PostgreSQL: COPY (fastest for large datasets)</span>
+<span class="cm">-- COPY sales FROM '/path/to/sales_data.csv'</span>
+<span class="cm">--     WITH (FORMAT csv, HEADER true);</span>
+
+<span class="cm">-- PostgreSQL: \copy (runs client-side, no superuser needed)</span>
+<span class="cm">-- \copy sales FROM 'sales_data.csv' WITH (FORMAT csv, HEADER true);</span></pre>
+
+<h2>7.7 Data Validation</h2>
+
+<pre class="sql"><span class="cm">-- Check constraints prevent invalid data at insert/update time</span>
+<span class="kw">CREATE TABLE</span> products_v2 (
+    product_id   <span class="kw">INTEGER PRIMARY KEY</span>,
+    product_name <span class="kw">TEXT NOT NULL</span>,
+    unit_price   <span class="kw">REAL CHECK</span>(unit_price <span class="op">></span> <span class="nb">0</span>),
+    in_stock     <span class="kw">INTEGER DEFAULT</span> <span class="nb">0</span> <span class="kw">CHECK</span>(in_stock <span class="op">>=</span> <span class="nb">0</span>),
+    category     <span class="kw">TEXT CHECK</span>(category <span class="kw">IN</span> (<span class="st">'Electronics'</span>, <span class="st">'Hardware'</span>, <span class="st">'Accessories'</span>))
+);
+
+<span class="cm">-- This will fail due to CHECK constraint</span>
+<span class="kw">INSERT INTO</span> products_v2 (product_name, unit_price)
+<span class="kw">VALUES</span> (<span class="st">'Bad Product'</span>, <span class="op">-</span><span class="nb">5.00</span>);
+<span class="cm">-- Error: CHECK constraint failed</span></pre>
+
+<div class="exercise">
+    <h4>Exercise 7.1</h4>
+    <p>Create an <code>inventory</code> table and insert 10 rows. Write an UPDATE that increases the quantity of all items in the 'Electronics' category by 20%. Then write a DELETE that removes items with zero quantity.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 7.2</h4>
+    <p>Write a transaction that: (1) inserts a new order into the orders table, (2) inserts two line items into order_items, and (3) decrements the in_stock count for both products. Use BEGIN, COMMIT, and test with ROLLBACK.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 7.3</h4>
+    <p>Create a table with CHECK constraints that ensure: price is positive, quantity is non-negative, and status is one of 'active', 'inactive', or 'discontinued'. Test by inserting both valid and invalid rows.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://www.sqlite.org/lang_insert.html" target="_blank">SQLite INSERT</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.sqlite.org/lang_update.html" target="_blank">SQLite UPDATE</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.sqlite.org/lang_transaction.html" target="_blank">SQLite Transactions</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 7 Takeaways</h3>
+    <ul>
+        <li>INSERT adds rows; INSERT INTO ... SELECT copies data between tables.</li>
+        <li>Always test your UPDATE's WHERE clause with SELECT before executing.</li>
+        <li>DELETE removes rows; DROP removes the table entirely. There is no undo without transactions.</li>
+        <li>UPSERT (ON CONFLICT) handles "insert if new, update if exists" in a single statement.</li>
+        <li>Transactions (BEGIN/COMMIT/ROLLBACK) ensure multiple statements succeed or fail atomically.</li>
+        <li>CHECK constraints validate data at the database level, catching errors before they enter the system.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch6.html">&larr; Chapter 6: Window Functions</a>
+    <a href="ch8.html">Chapter 8: Database Design &rarr;</a>
+</div>
+
+</body>
+</html>

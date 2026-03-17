@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 2: SELECT &amp; Filtering | SQL Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1{color:#7c2d12}
+        h2{border-bottom:2px solid #fed7aa}
+        .book-nav a.current{background:#c2410c}
+        .exercise{border-color:#c2410c;background:#fff7ed}
+        .exercise h4{background:#c2410c;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#7c2d12,#c2410c)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html" class="current">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 2: SELECT &amp; Filtering</h1>
+<p class="subtitle">Retrieving and Filtering Data</p>
+
+<h2>2.1 The SELECT Statement</h2>
+<p>Every SQL query starts with SELECT. You specify which columns to retrieve, computed expressions, and the table to read from.</p>
+
+<pre class="sql"><span class="cm">-- Select specific columns</span>
+<span class="kw">SELECT</span> product_name, unit_price
+<span class="kw">FROM</span> products;
+
+<span class="cm">-- Arithmetic in SELECT</span>
+<span class="kw">SELECT</span>
+    product_name,
+    unit_price,
+    unit_price <span class="op">*</span> <span class="nb">1.08</span> <span class="kw">AS</span> price_with_tax
+<span class="kw">FROM</span> products;
+
+<span class="cm">-- String concatenation</span>
+<span class="kw">SELECT</span>
+    first_name <span class="op">||</span> <span class="st">' '</span> <span class="op">||</span> last_name <span class="kw">AS</span> full_name
+<span class="kw">FROM</span> customers;</pre>
+
+<h2>2.2 WHERE Clause</h2>
+<p>WHERE filters rows before they appear in the result set. Only rows that satisfy the condition are returned.</p>
+
+<pre class="sql"><span class="cm">-- Exact match</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> category <span class="op">=</span> <span class="st">'Electronics'</span>;
+
+<span class="cm">-- Numeric comparison</span>
+<span class="kw">SELECT</span> product_name, unit_price
+<span class="kw">FROM</span> products
+<span class="kw">WHERE</span> unit_price <span class="op">></span> <span class="nb">50</span>;
+
+<span class="cm">-- Not equal (two equivalent syntaxes)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> category <span class="op"><></span> <span class="st">'Accessories'</span>;
+
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> category <span class="op">!=</span> <span class="st">'Accessories'</span>;  <span class="cm">-- also valid</span></pre>
+
+<h2>2.3 Logical Operators</h2>
+
+<pre class="sql"><span class="cm">-- AND: both conditions must be true</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> category <span class="op">=</span> <span class="st">'Electronics'</span> <span class="kw">AND</span> unit_price <span class="op"><</span> <span class="nb">100</span>;
+
+<span class="cm">-- OR: at least one condition must be true</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> category <span class="op">=</span> <span class="st">'Electronics'</span> <span class="kw">OR</span> category <span class="op">=</span> <span class="st">'Hardware'</span>;
+
+<span class="cm">-- NOT: negates a condition</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE NOT</span> category <span class="op">=</span> <span class="st">'Accessories'</span>;</pre>
+
+<div class="concept warn">
+    <strong>Operator precedence:</strong> AND is evaluated before OR. Use parentheses to make your intent explicit. <code>WHERE a = 1 OR b = 2 AND c = 3</code> means <code>WHERE a = 1 OR (b = 2 AND c = 3)</code>. If you want <code>(a = 1 OR b = 2) AND c = 3</code>, you must write the parentheses.
+</div>
+
+<h2>2.4 Pattern Matching with LIKE</h2>
+
+<pre class="sql"><span class="cm">-- % matches zero or more characters</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> product_name <span class="kw">LIKE</span> <span class="st">'Widget%'</span>;  <span class="cm">-- starts with 'Widget'</span>
+
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers
+<span class="kw">WHERE</span> email <span class="kw">LIKE</span> <span class="st">'%@gmail.com'</span>;  <span class="cm">-- ends with @gmail.com</span>
+
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> product_name <span class="kw">LIKE</span> <span class="st">'%Pro%'</span>;  <span class="cm">-- contains 'Pro' anywhere</span>
+
+<span class="cm">-- _ matches exactly one character</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> product_name <span class="kw">LIKE</span> <span class="st">'Widget _'</span>;  <span class="cm">-- 'Widget A', 'Widget B', etc.</span>
+
+<span class="cm">-- PostgreSQL: ILIKE for case-insensitive matching</span>
+<span class="cm">-- SELECT * FROM products WHERE product_name ILIKE '%widget%';</span></pre>
+
+<h2>2.5 Range and Set Operators</h2>
+
+<pre class="sql"><span class="cm">-- BETWEEN: inclusive range</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> unit_price <span class="kw">BETWEEN</span> <span class="nb">10</span> <span class="kw">AND</span> <span class="nb">100</span>;
+
+<span class="cm">-- Equivalent to:</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> unit_price <span class="op">>=</span> <span class="nb">10</span> <span class="kw">AND</span> unit_price <span class="op"><=</span> <span class="nb">100</span>;
+
+<span class="cm">-- IN: match any value in a list</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> category <span class="kw">IN</span> (<span class="st">'Electronics'</span>, <span class="st">'Hardware'</span>);
+
+<span class="cm">-- NOT IN: exclude values</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> category <span class="kw">NOT IN</span> (<span class="st">'Accessories'</span>);
+
+<span class="cm">-- Date ranges with BETWEEN</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> order_date <span class="kw">BETWEEN</span> <span class="st">'2024-01-01'</span> <span class="kw">AND</span> <span class="st">'2024-03-31'</span>;</pre>
+
+<h2>2.6 NULL Handling</h2>
+<p>NULL means "unknown" or "missing." It is not the same as zero or an empty string. Any comparison with NULL returns NULL (not TRUE or FALSE), so you must use IS NULL / IS NOT NULL.</p>
+
+<pre class="sql"><span class="cm">-- Find rows with missing values</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers
+<span class="kw">WHERE</span> email <span class="kw">IS NULL</span>;
+
+<span class="cm">-- Find rows WITH values</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers
+<span class="kw">WHERE</span> email <span class="kw">IS NOT NULL</span>;
+
+<span class="cm">-- COALESCE: return the first non-NULL value</span>
+<span class="kw">SELECT</span>
+    product_name,
+    <span class="fn">COALESCE</span>(category, <span class="st">'Uncategorized'</span>) <span class="kw">AS</span> category
+<span class="kw">FROM</span> products;
+
+<span class="cm">-- NULLIF: return NULL if two values are equal</span>
+<span class="kw">SELECT</span>
+    product_name,
+    <span class="fn">NULLIF</span>(in_stock, <span class="nb">0</span>) <span class="kw">AS</span> stock_or_null
+<span class="kw">FROM</span> products;
+<span class="cm">-- Useful to avoid division by zero: revenue / NULLIF(units, 0)</span></pre>
+
+<div class="concept info">
+    <strong>The NULL trap:</strong> <code>WHERE column = NULL</code> never returns any rows because NULL = NULL evaluates to NULL, not TRUE. Always use <code>IS NULL</code>. Similarly, <code>NOT IN</code> with a list containing NULL returns no rows. Use <code>NOT EXISTS</code> instead when NULLs may be present.
+</div>
+
+<h2>2.7 Sorting with ORDER BY</h2>
+
+<pre class="sql"><span class="cm">-- Ascending order (default)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">ORDER BY</span> unit_price <span class="kw">ASC</span>;
+
+<span class="cm">-- Descending order</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">ORDER BY</span> unit_price <span class="kw">DESC</span>;
+
+<span class="cm">-- Multi-column sort: first by category, then by price within each category</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">ORDER BY</span> category <span class="kw">ASC</span>, unit_price <span class="kw">DESC</span>;
+
+<span class="cm">-- Sort by a computed expression</span>
+<span class="kw">SELECT</span>
+    product_name,
+    unit_price <span class="op">*</span> in_stock <span class="kw">AS</span> inventory_value
+<span class="kw">FROM</span> products
+<span class="kw">ORDER BY</span> inventory_value <span class="kw">DESC</span>;</pre>
+
+<h2>2.8 LIMIT and OFFSET</h2>
+
+<pre class="sql"><span class="cm">-- Return only the first 5 rows</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">ORDER BY</span> unit_price <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="nb">5</span>;
+
+<span class="cm">-- Skip the first 5 rows, then return the next 5 (pagination)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">ORDER BY</span> product_name
+<span class="kw">LIMIT</span> <span class="nb">5</span> <span class="kw">OFFSET</span> <span class="nb">5</span>;
+
+<span class="cm">-- Top-N query: most expensive product</span>
+<span class="kw">SELECT</span> product_name, unit_price
+<span class="kw">FROM</span> products
+<span class="kw">ORDER BY</span> unit_price <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="nb">1</span>;</pre>
+
+<div class="concept tip">
+    <strong>LIMIT without ORDER BY is unpredictable.</strong> Without ORDER BY, the database returns rows in whatever order is convenient (often insertion order, but not guaranteed). Always pair LIMIT with ORDER BY so results are deterministic.
+</div>
+
+<h2>2.9 DISTINCT</h2>
+
+<pre class="sql"><span class="cm">-- Unique categories in the products table</span>
+<span class="kw">SELECT DISTINCT</span> category <span class="kw">FROM</span> products;
+
+<span class="cm">-- Unique combinations of city and state</span>
+<span class="kw">SELECT DISTINCT</span> city, state <span class="kw">FROM</span> customers;
+
+<span class="cm">-- Count unique values</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> category) <span class="kw">AS</span> num_categories
+<span class="kw">FROM</span> products;</pre>
+
+<h2>2.10 CASE Expressions</h2>
+<p>CASE is SQL's if-else construct. It lets you create conditional logic directly in your query, which is invaluable for categorizing data on the fly.</p>
+
+<pre class="sql"><span class="cm">-- Simple CASE: categorize products by price tier</span>
+<span class="kw">SELECT</span>
+    product_name,
+    unit_price,
+    <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> unit_price <span class="op"><</span> <span class="nb">20</span>  <span class="kw">THEN</span> <span class="st">'Budget'</span>
+        <span class="kw">WHEN</span> unit_price <span class="op"><</span> <span class="nb">100</span> <span class="kw">THEN</span> <span class="st">'Mid-range'</span>
+        <span class="kw">ELSE</span> <span class="st">'Premium'</span>
+    <span class="kw">END AS</span> price_tier
+<span class="kw">FROM</span> products;
+
+<span class="cm">-- CASE in ORDER BY (custom sort order)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> orders
+<span class="kw">ORDER BY</span>
+    <span class="kw">CASE</span> status
+        <span class="kw">WHEN</span> <span class="st">'Urgent'</span>    <span class="kw">THEN</span> <span class="nb">1</span>
+        <span class="kw">WHEN</span> <span class="st">'Normal'</span>    <span class="kw">THEN</span> <span class="nb">2</span>
+        <span class="kw">WHEN</span> <span class="st">'Low'</span>       <span class="kw">THEN</span> <span class="nb">3</span>
+        <span class="kw">ELSE</span> <span class="nb">4</span>
+    <span class="kw">END</span>;
+
+<span class="cm">-- CASE with aggregation (pivot-style counting)</span>
+<span class="kw">SELECT</span>
+    <span class="fn">COUNT</span>(<span class="kw">CASE WHEN</span> category <span class="op">=</span> <span class="st">'Electronics'</span> <span class="kw">THEN</span> <span class="nb">1</span> <span class="kw">END</span>) <span class="kw">AS</span> electronics,
+    <span class="fn">COUNT</span>(<span class="kw">CASE WHEN</span> category <span class="op">=</span> <span class="st">'Hardware'</span> <span class="kw">THEN</span> <span class="nb">1</span> <span class="kw">END</span>) <span class="kw">AS</span> hardware,
+    <span class="fn">COUNT</span>(<span class="kw">CASE WHEN</span> category <span class="op">=</span> <span class="st">'Accessories'</span> <span class="kw">THEN</span> <span class="nb">1</span> <span class="kw">END</span>) <span class="kw">AS</span> accessories
+<span class="kw">FROM</span> products;</pre>
+
+<div class="exercise">
+    <h4>Exercise 2.1</h4>
+    <p>Write a query that returns all products priced between $20 and $100 that are in the 'Electronics' or 'Hardware' category, sorted by price descending. Use BETWEEN and IN.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 2.2</h4>
+    <p>Write a query that returns customers whose email is missing (NULL) or whose last name starts with 'S'. Use IS NULL and LIKE with appropriate logical operators.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 2.3</h4>
+    <p>Using the CASE expression, create a query that labels each order as 'Small' (total < 50), 'Medium' (50-200), or 'Large' (> 200). Return the order_id, total, and the size label. Sort by total descending and show only the top 10.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 2.4</h4>
+    <p>Write a query that returns the 3 cheapest products that are NOT in the 'Accessories' category and have stock greater than zero. Use NOT IN, comparison operators, ORDER BY, and LIMIT.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://www.sqlite.org/lang_select.html" target="_blank">SQLite SELECT Documentation</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.sqlite.org/lang_expr.html" target="_blank">SQLite Expression Syntax</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://mode.com/sql-tutorial/sql-where" target="_blank">Mode: SQL WHERE</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 2 Takeaways</h3>
+    <ul>
+        <li>WHERE filters rows; use comparison operators, AND/OR/NOT, and parentheses for complex conditions.</li>
+        <li>LIKE with % and _ enables flexible pattern matching on text columns.</li>
+        <li>BETWEEN and IN simplify range and set membership checks.</li>
+        <li>NULL requires IS NULL / IS NOT NULL; never compare with = or !=.</li>
+        <li>COALESCE provides default values for NULL; NULLIF prevents division by zero.</li>
+        <li>Always pair LIMIT with ORDER BY for deterministic results.</li>
+        <li>CASE expressions bring conditional logic into queries, enabling inline categorization and pivot-style aggregation.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch1.html">&larr; Chapter 1: Getting Started</a>
+    <a href="ch3.html">Chapter 3: Joins &rarr;</a>
+</div>
+
+</body>
+</html>

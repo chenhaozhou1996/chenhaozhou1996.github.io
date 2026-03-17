@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 6: Window Functions | SQL Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1{color:#7c2d12}
+        h2{border-bottom:2px solid #fed7aa}
+        .book-nav a.current{background:#c2410c}
+        .exercise{border-color:#c2410c;background:#fff7ed}
+        .exercise h4{background:#c2410c;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#7c2d12,#c2410c)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html" class="current">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 6: Window Functions</h1>
+<p class="subtitle">Analytics over Partitions</p>
+
+<h2>6.1 What Are Window Functions?</h2>
+<p>Window functions compute a value for each row based on a set of related rows (the "window"), without collapsing the result into a single row like GROUP BY does. You keep all your detail rows and add an analytical column alongside them.</p>
+
+<pre class="sql"><span class="cm">-- Compare: GROUP BY collapses rows</span>
+<span class="kw">SELECT</span> category, <span class="fn">SUM</span>(unit_price) <span class="kw">AS</span> total
+<span class="kw">FROM</span> products
+<span class="kw">GROUP BY</span> category;
+<span class="cm">-- Returns one row per category</span>
+
+<span class="cm">-- Window function: keeps all rows, adds a column</span>
+<span class="kw">SELECT</span>
+    product_name,
+    category,
+    unit_price,
+    <span class="fn">SUM</span>(unit_price) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> category) <span class="kw">AS</span> category_total
+<span class="kw">FROM</span> products;</pre>
+
+<div class="concept info">
+    <strong>The OVER clause:</strong> Every window function requires OVER(). Inside the parentheses you specify PARTITION BY (which groups to compute over) and ORDER BY (the sequence within each group). An empty OVER() treats the entire result set as one window.
+</div>
+
+<h2>6.2 ROW_NUMBER, RANK, DENSE_RANK</h2>
+
+<pre class="sql"><span class="cm">-- ROW_NUMBER: unique sequential number within each partition</span>
+<span class="kw">SELECT</span>
+    product_name,
+    category,
+    unit_price,
+    <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (
+        <span class="kw">PARTITION BY</span> category
+        <span class="kw">ORDER BY</span> unit_price <span class="kw">DESC</span>
+    ) <span class="kw">AS</span> price_rank
+<span class="kw">FROM</span> products;
+
+<span class="cm">-- RANK: same rank for ties, skips next rank</span>
+<span class="cm">-- Prices: 100, 100, 80 → ranks: 1, 1, 3</span>
+<span class="kw">SELECT</span>
+    product_name,
+    unit_price,
+    <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> unit_price <span class="kw">DESC</span>) <span class="kw">AS</span> rnk
+<span class="kw">FROM</span> products;
+
+<span class="cm">-- DENSE_RANK: same rank for ties, no gaps</span>
+<span class="cm">-- Prices: 100, 100, 80 → ranks: 1, 1, 2</span>
+<span class="kw">SELECT</span>
+    product_name,
+    unit_price,
+    <span class="fn">DENSE_RANK</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> unit_price <span class="kw">DESC</span>) <span class="kw">AS</span> dense_rnk
+<span class="kw">FROM</span> products;
+
+<span class="cm">-- Top 3 products per category</span>
+<span class="kw">WITH</span> ranked <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        product_name,
+        category,
+        unit_price,
+        <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (
+            <span class="kw">PARTITION BY</span> category
+            <span class="kw">ORDER BY</span> unit_price <span class="kw">DESC</span>
+        ) <span class="kw">AS</span> rn
+    <span class="kw">FROM</span> products
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> ranked <span class="kw">WHERE</span> rn <span class="op"><=</span> <span class="nb">3</span>;</pre>
+
+<div class="concept tip">
+    <strong>Top-N per group:</strong> The CTE + ROW_NUMBER() + WHERE rn <= N pattern is the standard way to get the top N rows per group. You cannot put window functions directly in WHERE, so you must wrap them in a CTE or subquery first.
+</div>
+
+<h2>6.3 NTILE</h2>
+
+<pre class="sql"><span class="cm">-- Divide products into 4 price quartiles</span>
+<span class="kw">SELECT</span>
+    product_name,
+    unit_price,
+    <span class="fn">NTILE</span>(<span class="nb">4</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> unit_price) <span class="kw">AS</span> price_quartile
+<span class="kw">FROM</span> products;
+
+<span class="cm">-- Deciles for customer spending</span>
+<span class="kw">SELECT</span>
+    customer_id,
+    total_spend,
+    <span class="fn">NTILE</span>(<span class="nb">10</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> total_spend <span class="kw">DESC</span>) <span class="kw">AS</span> spend_decile
+<span class="kw">FROM</span> (
+    <span class="kw">SELECT</span> customer_id, <span class="fn">SUM</span>(total) <span class="kw">AS</span> total_spend
+    <span class="kw">FROM</span> orders <span class="kw">GROUP BY</span> customer_id
+);</pre>
+
+<h2>6.4 LAG and LEAD</h2>
+<p>LAG accesses a value from a previous row; LEAD accesses a value from a following row. Essential for period-over-period comparisons.</p>
+
+<pre class="sql"><span class="cm">-- Month-over-month revenue change</span>
+<span class="kw">WITH</span> monthly <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        <span class="fn">STRFTIME</span>(<span class="st">'%Y-%m'</span>, order_date) <span class="kw">AS</span> month,
+        <span class="fn">SUM</span>(total) <span class="kw">AS</span> revenue
+    <span class="kw">FROM</span> orders
+    <span class="kw">GROUP BY</span> month
+)
+<span class="kw">SELECT</span>
+    month,
+    revenue,
+    <span class="fn">LAG</span>(revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month) <span class="kw">AS</span> prev_month,
+    revenue <span class="op">-</span> <span class="fn">LAG</span>(revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month) <span class="kw">AS</span> change,
+    <span class="fn">ROUND</span>(
+        (revenue <span class="op">-</span> <span class="fn">LAG</span>(revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month))
+        <span class="op">*</span> <span class="nb">100.0</span>
+        <span class="op">/</span> <span class="fn">LAG</span>(revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month),
+    <span class="nb">1</span>) <span class="kw">AS</span> pct_change
+<span class="kw">FROM</span> monthly;
+
+<span class="cm">-- LEAD: look ahead to the next row</span>
+<span class="kw">SELECT</span>
+    order_id,
+    order_date,
+    <span class="fn">LEAD</span>(order_date) <span class="kw">OVER</span> (
+        <span class="kw">PARTITION BY</span> customer_id
+        <span class="kw">ORDER BY</span> order_date
+    ) <span class="kw">AS</span> next_order_date
+<span class="kw">FROM</span> orders;</pre>
+
+<h2>6.5 Running Totals and Moving Averages</h2>
+
+<pre class="sql"><span class="cm">-- Running total of revenue</span>
+<span class="kw">SELECT</span>
+    order_date,
+    total,
+    <span class="fn">SUM</span>(total) <span class="kw">OVER</span> (
+        <span class="kw">ORDER BY</span> order_date
+        <span class="kw">ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</span>
+    ) <span class="kw">AS</span> running_total
+<span class="kw">FROM</span> orders;
+
+<span class="cm">-- 3-month moving average</span>
+<span class="kw">WITH</span> monthly <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        <span class="fn">STRFTIME</span>(<span class="st">'%Y-%m'</span>, order_date) <span class="kw">AS</span> month,
+        <span class="fn">SUM</span>(total) <span class="kw">AS</span> revenue
+    <span class="kw">FROM</span> orders <span class="kw">GROUP BY</span> month
+)
+<span class="kw">SELECT</span>
+    month,
+    revenue,
+    <span class="fn">AVG</span>(revenue) <span class="kw">OVER</span> (
+        <span class="kw">ORDER BY</span> month
+        <span class="kw">ROWS BETWEEN</span> <span class="nb">2</span> <span class="kw">PRECEDING AND CURRENT ROW</span>
+    ) <span class="kw">AS</span> moving_avg_3m
+<span class="kw">FROM</span> monthly;</pre>
+
+<h2>6.6 FIRST_VALUE and LAST_VALUE</h2>
+
+<pre class="sql"><span class="cm">-- Compare each product's price to the cheapest in its category</span>
+<span class="kw">SELECT</span>
+    product_name,
+    category,
+    unit_price,
+    <span class="fn">FIRST_VALUE</span>(product_name) <span class="kw">OVER</span> (
+        <span class="kw">PARTITION BY</span> category
+        <span class="kw">ORDER BY</span> unit_price <span class="kw">ASC</span>
+    ) <span class="kw">AS</span> cheapest_product,
+    unit_price <span class="op">-</span> <span class="fn">FIRST_VALUE</span>(unit_price) <span class="kw">OVER</span> (
+        <span class="kw">PARTITION BY</span> category
+        <span class="kw">ORDER BY</span> unit_price <span class="kw">ASC</span>
+    ) <span class="kw">AS</span> price_above_min
+<span class="kw">FROM</span> products;</pre>
+
+<div class="concept warn">
+    <strong>LAST_VALUE gotcha:</strong> By default, the window frame extends from the start of the partition to the current row, so LAST_VALUE returns the current row's value. To get the actual last value, you must specify the frame: <code>ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</code>.
+</div>
+
+<h2>6.7 Window Frame Clause</h2>
+
+<pre class="sql"><span class="cm">-- ROWS BETWEEN controls which rows the function sees</span>
+<span class="cm">-- UNBOUNDED PRECEDING = first row of partition</span>
+<span class="cm">-- N PRECEDING = N rows before current</span>
+<span class="cm">-- CURRENT ROW = current row</span>
+<span class="cm">-- N FOLLOWING = N rows after current</span>
+<span class="cm">-- UNBOUNDED FOLLOWING = last row of partition</span>
+
+<span class="cm">-- Running total (default frame for ordered window)</span>
+<span class="fn">SUM</span>(total) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> date <span class="kw">ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</span>)
+
+<span class="cm">-- Centered 5-row moving average</span>
+<span class="fn">AVG</span>(total) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> date <span class="kw">ROWS BETWEEN</span> <span class="nb">2</span> <span class="kw">PRECEDING AND</span> <span class="nb">2</span> <span class="kw">FOLLOWING</span>)
+
+<span class="cm">-- Grand total (entire partition)</span>
+<span class="fn">SUM</span>(total) <span class="kw">OVER</span> ()</pre>
+
+<h2>6.8 Named Windows</h2>
+
+<pre class="sql"><span class="cm">-- Define a window once, reuse it (PostgreSQL and newer SQLite)</span>
+<span class="kw">SELECT</span>
+    product_name,
+    category,
+    unit_price,
+    <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> w <span class="kw">AS</span> rn,
+    <span class="fn">RANK</span>() <span class="kw">OVER</span> w <span class="kw">AS</span> rnk,
+    <span class="fn">SUM</span>(unit_price) <span class="kw">OVER</span> w <span class="kw">AS</span> running_total
+<span class="kw">FROM</span> products
+<span class="kw">WINDOW</span> w <span class="kw">AS</span> (<span class="kw">PARTITION BY</span> category <span class="kw">ORDER BY</span> unit_price <span class="kw">DESC</span>);</pre>
+
+<div class="exercise">
+    <h4>Exercise 6.1</h4>
+    <p>Write a query that ranks all products by price within each category using DENSE_RANK. Return the product_name, category, unit_price, and rank.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 6.2</h4>
+    <p>Using LAG, write a query that shows month-over-month revenue growth as a percentage. Include the month, revenue, previous month's revenue, and the percentage change.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 6.3</h4>
+    <p>Write a query that computes a running total of order amounts for each customer, partitioned by customer_id and ordered by order_date.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 6.4</h4>
+    <p>Use the CTE + ROW_NUMBER pattern to find the single most expensive product in each category. Return the category, product_name, and unit_price.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://www.sqlite.org/windowfunctions.html" target="_blank">SQLite Window Functions</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.postgresql.org/docs/current/tutorial-window.html" target="_blank">PostgreSQL Window Functions Tutorial</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://mode.com/sql-tutorial/sql-window-functions" target="_blank">Mode: Window Functions</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 6 Takeaways</h3>
+    <ul>
+        <li>Window functions add analytical columns without collapsing rows like GROUP BY.</li>
+        <li>ROW_NUMBER, RANK, and DENSE_RANK number rows within partitions; use ROW_NUMBER for top-N-per-group queries.</li>
+        <li>LAG and LEAD access previous/next row values for period-over-period comparisons.</li>
+        <li>Running totals use SUM() OVER(ORDER BY ...) with the appropriate frame clause.</li>
+        <li>The frame clause (ROWS BETWEEN ... AND ...) controls exactly which rows feed into the window function.</li>
+        <li>Wrap window functions in a CTE or subquery to filter on their results, since they cannot appear directly in WHERE.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch5.html">&larr; Chapter 5: Subqueries &amp; CTEs</a>
+    <a href="ch7.html">Chapter 7: Data Manipulation &rarr;</a>
+</div>
+
+</body>
+</html>

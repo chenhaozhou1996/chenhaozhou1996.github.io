@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 9: Query Optimization | SQL Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1{color:#7c2d12}
+        h2{border-bottom:2px solid #fed7aa}
+        .book-nav a.current{background:#c2410c}
+        .exercise{border-color:#c2410c;background:#fff7ed}
+        .exercise h4{background:#c2410c;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#7c2d12,#c2410c)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html" class="current">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 9: Query Optimization</h1>
+<p class="subtitle">Indexes, EXPLAIN, and Performance Tuning</p>
+
+<h2>9.1 Why Optimization Matters</h2>
+<p>On small tables, every query runs fast. On tables with millions of rows, the difference between a well-optimized query and a naive one can be seconds versus minutes. Understanding indexes and query plans lets you write queries that scale.</p>
+
+<h2>9.2 Indexes</h2>
+<p>An index is a data structure (typically a B-tree) that lets the database find rows without scanning the entire table. Think of it like the index at the back of a textbook: instead of reading every page, you look up the topic and jump directly to the right page.</p>
+
+<pre class="sql"><span class="cm">-- Create an index on a frequently filtered column</span>
+<span class="kw">CREATE INDEX</span> idx_orders_customer
+<span class="kw">ON</span> orders(customer_id);
+
+<span class="cm">-- Composite index (for queries that filter on both columns)</span>
+<span class="kw">CREATE INDEX</span> idx_orders_date_customer
+<span class="kw">ON</span> orders(order_date, customer_id);
+
+<span class="cm">-- Unique index (enforces uniqueness + speeds lookups)</span>
+<span class="kw">CREATE UNIQUE INDEX</span> idx_customers_email
+<span class="kw">ON</span> customers(email);
+
+<span class="cm">-- List all indexes on a table (SQLite)</span>
+.indexes orders
+
+<span class="cm">-- Drop an index</span>
+<span class="kw">DROP INDEX</span> idx_orders_customer;</pre>
+
+<div class="concept info">
+    <strong>Index trade-offs:</strong> Indexes speed up reads (SELECT, WHERE, JOIN, ORDER BY) but slow down writes (INSERT, UPDATE, DELETE), because the database must update the index alongside the table. Index columns you query often; do not index every column.
+</div>
+
+<h2>9.3 EXPLAIN and Query Plans</h2>
+
+<pre class="sql"><span class="cm">-- SQLite: EXPLAIN QUERY PLAN shows how the query will execute</span>
+<span class="kw">EXPLAIN QUERY PLAN</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> customer_id <span class="op">=</span> <span class="nb">42</span>;
+<span class="cm">-- Without index: SCAN orders (reads every row)</span>
+<span class="cm">-- With index:    SEARCH orders USING INDEX idx_orders_customer</span>
+
+<span class="cm">-- PostgreSQL: EXPLAIN ANALYZE (executes and reports actual timing)</span>
+<span class="cm">-- EXPLAIN ANALYZE</span>
+<span class="cm">-- SELECT * FROM orders WHERE customer_id = 42;</span></pre>
+
+<div class="concept tip">
+    <strong>Reading EXPLAIN output:</strong> Look for "SCAN" (bad: full table scan) vs. "SEARCH" or "USING INDEX" (good: index lookup). If you see SCAN on a large table with a WHERE clause, you probably need an index on that column.
+</div>
+
+<h2>9.4 Index Selection Guidelines</h2>
+
+<div class="table-wrapper">
+<table>
+    <thead><tr><th>Scenario</th><th>Index Recommendation</th></tr></thead>
+    <tbody>
+        <tr><td>WHERE column = value</td><td>Single-column index on that column</td></tr>
+        <tr><td>WHERE a = x AND b = y</td><td>Composite index on (a, b)</td></tr>
+        <tr><td>JOIN ON a.id = b.foreign_id</td><td>Index on the foreign key column</td></tr>
+        <tr><td>ORDER BY column</td><td>Index on that column (avoids sorting)</td></tr>
+        <tr><td>WHERE a = x ORDER BY b</td><td>Composite index on (a, b)</td></tr>
+        <tr><td>Rarely queried column</td><td>No index (saves write overhead)</td></tr>
+    </tbody>
+</table>
+</div>
+
+<h2>9.5 Common Anti-Patterns</h2>
+
+<pre class="sql"><span class="cm">-- BAD: function on indexed column disables the index</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> <span class="fn">STRFTIME</span>(<span class="st">'%Y'</span>, order_date) <span class="op">=</span> <span class="st">'2024'</span>;
+<span class="cm">-- Database cannot use index on order_date</span>
+
+<span class="cm">-- GOOD: rewrite to preserve index usage</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> order_date <span class="op">>=</span> <span class="st">'2024-01-01'</span> <span class="kw">AND</span> order_date <span class="op"><</span> <span class="st">'2025-01-01'</span>;
+
+<span class="cm">-- BAD: SELECT * when you only need two columns</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> orders;  <span class="cm">-- reads all columns from disk</span>
+
+<span class="cm">-- GOOD: name only the columns you need</span>
+<span class="kw">SELECT</span> order_id, total <span class="kw">FROM</span> orders;
+
+<span class="cm">-- BAD: implicit type conversion</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> product_id <span class="op">=</span> <span class="st">'42'</span>;  <span class="cm">-- string compared to integer column</span>
+
+<span class="cm">-- GOOD: match the column type</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> product_id <span class="op">=</span> <span class="nb">42</span>;</pre>
+
+<h2>9.6 Views</h2>
+<p>A view is a saved query that acts like a virtual table. It does not store data; it re-executes the underlying query each time you reference it.</p>
+
+<pre class="sql"><span class="cm">-- Create a view for frequently used report</span>
+<span class="kw">CREATE VIEW</span> monthly_revenue <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+    <span class="fn">STRFTIME</span>(<span class="st">'%Y-%m'</span>, order_date) <span class="kw">AS</span> month,
+    <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> order_count,
+    <span class="fn">SUM</span>(total) <span class="kw">AS</span> revenue
+<span class="kw">FROM</span> orders
+<span class="kw">GROUP BY</span> month;
+
+<span class="cm">-- Query the view like a table</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> monthly_revenue
+<span class="kw">WHERE</span> revenue <span class="op">></span> <span class="nb">10000</span>;
+
+<span class="cm">-- Drop a view</span>
+<span class="kw">DROP VIEW</span> monthly_revenue;
+
+<span class="cm">-- PostgreSQL: materialized views (cached, need manual refresh)</span>
+<span class="cm">-- CREATE MATERIALIZED VIEW monthly_revenue AS ...</span>
+<span class="cm">-- REFRESH MATERIALIZED VIEW monthly_revenue;</span></pre>
+
+<div class="concept info">
+    <strong>Views vs. materialized views:</strong> Regular views run the query every time, so they always return fresh data. Materialized views store the result on disk, making reads fast but requiring a manual REFRESH to update. Use materialized views for expensive aggregations that do not need real-time freshness.
+</div>
+
+<h2>9.7 Temporary Tables</h2>
+
+<pre class="sql"><span class="cm">-- Create a temp table (exists only for the current session)</span>
+<span class="kw">CREATE TEMP TABLE</span> high_value_customers <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+    customer_id,
+    <span class="fn">SUM</span>(total) <span class="kw">AS</span> lifetime_value
+<span class="kw">FROM</span> orders
+<span class="kw">GROUP BY</span> customer_id
+<span class="kw">HAVING</span> <span class="fn">SUM</span>(total) <span class="op">></span> <span class="nb">1000</span>;
+
+<span class="cm">-- Use it in subsequent queries</span>
+<span class="kw">SELECT</span> c.first_name, c.last_name, hvc.lifetime_value
+<span class="kw">FROM</span> high_value_customers hvc
+<span class="kw">INNER JOIN</span> customers c <span class="kw">ON</span> hvc.customer_id <span class="op">=</span> c.customer_id;</pre>
+
+<h2>9.8 Query Rewriting Tips</h2>
+
+<pre class="sql"><span class="cm">-- EXISTS is often faster than IN for large subqueries</span>
+<span class="cm">-- Instead of:</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products
+<span class="kw">WHERE</span> product_id <span class="kw">IN</span> (<span class="kw">SELECT</span> product_id <span class="kw">FROM</span> order_items);
+
+<span class="cm">-- Use:</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products p
+<span class="kw">WHERE EXISTS</span> (
+    <span class="kw">SELECT</span> <span class="nb">1</span> <span class="kw">FROM</span> order_items oi
+    <span class="kw">WHERE</span> oi.product_id <span class="op">=</span> p.product_id
+);
+
+<span class="cm">-- Avoid correlated subqueries in SELECT when a JOIN works</span>
+<span class="cm">-- Instead of:</span>
+<span class="kw">SELECT</span> c.first_name,
+    (<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> orders o <span class="kw">WHERE</span> o.customer_id <span class="op">=</span> c.customer_id) <span class="kw">AS</span> cnt
+<span class="kw">FROM</span> customers c;
+
+<span class="cm">-- Use:</span>
+<span class="kw">SELECT</span> c.first_name, <span class="fn">COUNT</span>(o.order_id) <span class="kw">AS</span> cnt
+<span class="kw">FROM</span> customers c
+<span class="kw">LEFT JOIN</span> orders o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+<span class="kw">GROUP BY</span> c.customer_id, c.first_name;</pre>
+
+<div class="exercise">
+    <h4>Exercise 9.1</h4>
+    <p>Create a products table with 1000+ rows (use a recursive CTE to generate data). Run <code>EXPLAIN QUERY PLAN SELECT * FROM products WHERE category = 'Electronics'</code> before and after adding an index on category. Compare the output.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 9.2</h4>
+    <p>Create a view called <code>customer_summary</code> that shows each customer's name, total number of orders, total spend, and average order value. Query the view to find the top 10 customers by total spend.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 9.3</h4>
+    <p>Identify a query you wrote in a previous chapter that could benefit from an index. Add the index, run EXPLAIN QUERY PLAN before and after, and document the difference.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://www.sqlite.org/queryplanner.html" target="_blank">SQLite Query Planner</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.sqlite.org/lang_createindex.html" target="_blank">SQLite CREATE INDEX</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://use-the-index-luke.com/" target="_blank">Use The Index, Luke!</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 9 Takeaways</h3>
+    <ul>
+        <li>Indexes speed up reads by avoiding full table scans, but add overhead to writes.</li>
+        <li>Use EXPLAIN QUERY PLAN to see whether a query uses an index or scans the entire table.</li>
+        <li>Index columns that appear in WHERE, JOIN ON, and ORDER BY clauses.</li>
+        <li>Avoid applying functions to indexed columns in WHERE; rewrite the condition to preserve index usage.</li>
+        <li>Views provide reusable, named queries; materialized views cache results for expensive aggregations.</li>
+        <li>Prefer EXISTS over IN for large subqueries; prefer JOINs over correlated subqueries in SELECT.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch8.html">&larr; Chapter 8: Database Design</a>
+    <a href="ch10.html">Chapter 10: Project &rarr;</a>
+</div>
+
+</body>
+</html>

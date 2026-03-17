@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 5: Subqueries &amp; CTEs | SQL Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1{color:#7c2d12}
+        h2{border-bottom:2px solid #fed7aa}
+        .book-nav a.current{background:#c2410c}
+        .exercise{border-color:#c2410c;background:#fff7ed}
+        .exercise h4{background:#c2410c;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#7c2d12,#c2410c)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html" class="current">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 5: Subqueries &amp; CTEs</h1>
+<p class="subtitle">Nesting and Structuring Complex Queries</p>
+
+<h2>5.1 What Are Subqueries?</h2>
+<p>A subquery is a query nested inside another query. Subqueries can return a single value (scalar), a single column, or an entire table. They allow you to break complex problems into logical steps without creating temporary tables.</p>
+
+<h2>5.2 Subqueries in WHERE</h2>
+
+<pre class="sql"><span class="cm">-- Scalar subquery: products priced above average</span>
+<span class="kw">SELECT</span> product_name, unit_price
+<span class="kw">FROM</span> products
+<span class="kw">WHERE</span> unit_price <span class="op">></span> (
+    <span class="kw">SELECT</span> <span class="fn">AVG</span>(unit_price) <span class="kw">FROM</span> products
+);
+
+<span class="cm">-- IN subquery: customers who placed orders in 2024</span>
+<span class="kw">SELECT</span> first_name, last_name
+<span class="kw">FROM</span> customers
+<span class="kw">WHERE</span> customer_id <span class="kw">IN</span> (
+    <span class="kw">SELECT DISTINCT</span> customer_id
+    <span class="kw">FROM</span> orders
+    <span class="kw">WHERE</span> order_date <span class="op">>=</span> <span class="st">'2024-01-01'</span>
+);
+
+<span class="cm">-- EXISTS: customers who have at least one order</span>
+<span class="kw">SELECT</span> c.first_name, c.last_name
+<span class="kw">FROM</span> customers c
+<span class="kw">WHERE EXISTS</span> (
+    <span class="kw">SELECT</span> <span class="nb">1</span> <span class="kw">FROM</span> orders o
+    <span class="kw">WHERE</span> o.customer_id <span class="op">=</span> c.customer_id
+);
+
+<span class="cm">-- NOT EXISTS: customers with no orders</span>
+<span class="kw">SELECT</span> c.first_name, c.last_name
+<span class="kw">FROM</span> customers c
+<span class="kw">WHERE NOT EXISTS</span> (
+    <span class="kw">SELECT</span> <span class="nb">1</span> <span class="kw">FROM</span> orders o
+    <span class="kw">WHERE</span> o.customer_id <span class="op">=</span> c.customer_id
+);</pre>
+
+<div class="concept info">
+    <strong>EXISTS vs. IN:</strong> EXISTS stops scanning as soon as it finds one match, making it efficient for large tables. IN materializes the entire subquery result into a list. For small lists, IN is fine. For large subqueries, EXISTS often performs better.
+</div>
+
+<h2>5.3 Correlated Subqueries</h2>
+<p>A correlated subquery references a column from the outer query, so it executes once per row of the outer query. They are powerful but can be slow on large tables.</p>
+
+<pre class="sql"><span class="cm">-- Find the most recent order for each customer</span>
+<span class="kw">SELECT</span>
+    c.first_name,
+    c.last_name,
+    (
+        <span class="kw">SELECT</span> <span class="fn">MAX</span>(o.order_date)
+        <span class="kw">FROM</span> orders o
+        <span class="kw">WHERE</span> o.customer_id <span class="op">=</span> c.customer_id
+    ) <span class="kw">AS</span> last_order_date
+<span class="kw">FROM</span> customers c;
+
+<span class="cm">-- Products priced above their category average</span>
+<span class="kw">SELECT</span> p.product_name, p.category, p.unit_price
+<span class="kw">FROM</span> products p
+<span class="kw">WHERE</span> p.unit_price <span class="op">></span> (
+    <span class="kw">SELECT</span> <span class="fn">AVG</span>(p2.unit_price)
+    <span class="kw">FROM</span> products p2
+    <span class="kw">WHERE</span> p2.category <span class="op">=</span> p.category
+);</pre>
+
+<h2>5.4 Subqueries in SELECT</h2>
+
+<pre class="sql"><span class="cm">-- Add order count as a column for each customer</span>
+<span class="kw">SELECT</span>
+    c.first_name,
+    c.last_name,
+    (
+        <span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="op">*</span>)
+        <span class="kw">FROM</span> orders o
+        <span class="kw">WHERE</span> o.customer_id <span class="op">=</span> c.customer_id
+    ) <span class="kw">AS</span> order_count
+<span class="kw">FROM</span> customers c
+<span class="kw">ORDER BY</span> order_count <span class="kw">DESC</span>;</pre>
+
+<h2>5.5 Subqueries in FROM (Derived Tables)</h2>
+
+<pre class="sql"><span class="cm">-- Average of category averages (two-level aggregation)</span>
+<span class="kw">SELECT</span> <span class="fn">AVG</span>(cat_avg) <span class="kw">AS</span> grand_avg
+<span class="kw">FROM</span> (
+    <span class="kw">SELECT</span>
+        category,
+        <span class="fn">AVG</span>(unit_price) <span class="kw">AS</span> cat_avg
+    <span class="kw">FROM</span> products
+    <span class="kw">GROUP BY</span> category
+) <span class="kw">AS</span> category_averages;
+
+<span class="cm">-- Top customer by total spend</span>
+<span class="kw">SELECT</span> customer_id, total_spend
+<span class="kw">FROM</span> (
+    <span class="kw">SELECT</span>
+        customer_id,
+        <span class="fn">SUM</span>(total) <span class="kw">AS</span> total_spend
+    <span class="kw">FROM</span> orders
+    <span class="kw">GROUP BY</span> customer_id
+) <span class="kw">AS</span> customer_totals
+<span class="kw">ORDER BY</span> total_spend <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="nb">5</span>;</pre>
+
+<h2>5.6 Common Table Expressions (CTEs)</h2>
+<p>A CTE uses the <code>WITH</code> clause to define a named temporary result set that you can reference in the main query. CTEs make complex queries far more readable than nested subqueries.</p>
+
+<pre class="sql"><span class="cm">-- Same "top customer" query using a CTE</span>
+<span class="kw">WITH</span> customer_totals <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        customer_id,
+        <span class="fn">SUM</span>(total) <span class="kw">AS</span> total_spend
+    <span class="kw">FROM</span> orders
+    <span class="kw">GROUP BY</span> customer_id
+)
+<span class="kw">SELECT</span>
+    c.first_name,
+    c.last_name,
+    ct.total_spend
+<span class="kw">FROM</span> customer_totals ct
+<span class="kw">INNER JOIN</span> customers c <span class="kw">ON</span> ct.customer_id <span class="op">=</span> c.customer_id
+<span class="kw">ORDER BY</span> ct.total_spend <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="nb">5</span>;
+
+<span class="cm">-- Multiple CTEs in a single query</span>
+<span class="kw">WITH</span>
+monthly_revenue <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        <span class="fn">STRFTIME</span>(<span class="st">'%Y-%m'</span>, order_date) <span class="kw">AS</span> month,
+        <span class="fn">SUM</span>(total) <span class="kw">AS</span> revenue
+    <span class="kw">FROM</span> orders
+    <span class="kw">GROUP BY</span> month
+),
+avg_revenue <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> <span class="fn">AVG</span>(revenue) <span class="kw">AS</span> avg_rev <span class="kw">FROM</span> monthly_revenue
+)
+<span class="kw">SELECT</span>
+    mr.month,
+    mr.revenue,
+    ar.avg_rev,
+    <span class="kw">CASE WHEN</span> mr.revenue <span class="op">></span> ar.avg_rev <span class="kw">THEN</span> <span class="st">'Above'</span> <span class="kw">ELSE</span> <span class="st">'Below'</span> <span class="kw">END AS</span> performance
+<span class="kw">FROM</span> monthly_revenue mr, avg_revenue ar
+<span class="kw">ORDER BY</span> mr.month;</pre>
+
+<div class="concept tip">
+    <strong>CTEs vs. subqueries:</strong> CTEs and derived-table subqueries produce identical results. The advantage of CTEs is readability: you read the query top to bottom, each CTE building on the previous one. For one-off calculations, a subquery is fine. For multi-step analysis, CTEs are clearer.
+</div>
+
+<h2>5.7 Recursive CTEs</h2>
+<p>Recursive CTEs can traverse hierarchical data like organizational charts, bill of materials, or category trees.</p>
+
+<pre class="sql"><span class="cm">-- Org chart: find all reports (direct and indirect) under employee 1</span>
+<span class="kw">WITH RECURSIVE</span> org_tree <span class="kw">AS</span> (
+    <span class="cm">-- Anchor: start with the root employee</span>
+    <span class="kw">SELECT</span> emp_id, name, manager_id, <span class="nb">0</span> <span class="kw">AS</span> depth
+    <span class="kw">FROM</span> employees
+    <span class="kw">WHERE</span> emp_id <span class="op">=</span> <span class="nb">1</span>
+
+    <span class="kw">UNION ALL</span>
+
+    <span class="cm">-- Recursive: find employees who report to current level</span>
+    <span class="kw">SELECT</span> e.emp_id, e.name, e.manager_id, ot.depth <span class="op">+</span> <span class="nb">1</span>
+    <span class="kw">FROM</span> employees e
+    <span class="kw">INNER JOIN</span> org_tree ot <span class="kw">ON</span> e.manager_id <span class="op">=</span> ot.emp_id
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> org_tree
+<span class="kw">ORDER BY</span> depth, name;
+
+<span class="cm">-- Generate a number series (useful for date scaffolding)</span>
+<span class="kw">WITH RECURSIVE</span> numbers <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> <span class="nb">1</span> <span class="kw">AS</span> n
+    <span class="kw">UNION ALL</span>
+    <span class="kw">SELECT</span> n <span class="op">+</span> <span class="nb">1</span> <span class="kw">FROM</span> numbers <span class="kw">WHERE</span> n <span class="op"><</span> <span class="nb">12</span>
+)
+<span class="kw">SELECT</span> n <span class="kw">AS</span> month_number <span class="kw">FROM</span> numbers;</pre>
+
+<h2>5.8 CTE vs. Subquery vs. Temp Table</h2>
+
+<div class="table-wrapper">
+<table>
+    <thead><tr><th>Approach</th><th>Scope</th><th>Reusable in Query?</th><th>Best For</th></tr></thead>
+    <tbody>
+        <tr><td>Subquery</td><td>Inside one clause</td><td>No</td><td>Simple, one-off calculations</td></tr>
+        <tr><td>CTE</td><td>One statement</td><td>Yes (within that statement)</td><td>Multi-step analytics, readability</td></tr>
+        <tr><td>Temp Table</td><td>Entire session</td><td>Yes (across statements)</td><td>Intermediate results used by multiple queries</td></tr>
+    </tbody>
+</table>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 5.1</h4>
+    <p>Write a query using a subquery in WHERE to find all products whose price is greater than the average price of their category. Use a correlated subquery.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 5.2</h4>
+    <p>Rewrite the query from Exercise 5.1 using a CTE. First compute the average price per category in the CTE, then join it with the products table.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 5.3</h4>
+    <p>Write a CTE-based query that computes monthly revenue, then finds the month with the highest revenue and the month with the lowest revenue.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 5.4</h4>
+    <p>Create an <code>employees</code> table with <code>emp_id</code>, <code>name</code>, and <code>manager_id</code>. Insert a hierarchy of at least 8 employees across 3 levels. Write a recursive CTE that lists each employee, their manager's name, and their depth in the hierarchy.</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://www.sqlite.org/lang_with.html" target="_blank">SQLite WITH Clause (CTEs)</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.postgresql.org/docs/current/queries-with.html" target="_blank">PostgreSQL WITH Queries</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://mode.com/sql-tutorial/sql-sub-queries" target="_blank">Mode: SQL Subqueries</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 5 Takeaways</h3>
+    <ul>
+        <li>Subqueries nest a query inside another, appearing in WHERE, SELECT, or FROM clauses.</li>
+        <li>EXISTS is often more efficient than IN for checking existence against large tables.</li>
+        <li>Correlated subqueries reference the outer query and execute once per outer row.</li>
+        <li>CTEs (WITH clause) improve readability by breaking complex queries into named, sequential steps.</li>
+        <li>Multiple CTEs can be chained in a single statement, each building on the previous.</li>
+        <li>Recursive CTEs handle hierarchical data like org charts and category trees.</li>
+        <li>Choose subqueries for simplicity, CTEs for readability, and temp tables for cross-query reuse.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch4.html">&larr; Chapter 4: Aggregation</a>
+    <a href="ch6.html">Chapter 6: Window Functions &rarr;</a>
+</div>
+
+</body>
+</html>

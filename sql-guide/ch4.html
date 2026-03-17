@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 4: Aggregation & GROUP BY | SQL Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1{color:#7c2d12}
+        h2{border-bottom:2px solid #fed7aa}
+        .book-nav a.current{background:#c2410c}
+        .exercise{border-color:#c2410c;background:#fff7ed}
+        .exercise h4{background:#c2410c;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#7c2d12,#c2410c)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html" class="current">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<div class="chapter-content">
+<h1>Chapter 4: Aggregation &amp; GROUP BY</h1>
+<p class="subtitle">Summarizing Data</p>
+
+<p>Raw detail rows are useful, but business decisions require summaries. How much revenue did we earn last quarter? Which product category sells best? Aggregation functions collapse many rows into a single summary value, and <code>GROUP BY</code> lets you produce those summaries for each group independently.</p>
+
+<!-- 4.1 -->
+<h2>4.1 Aggregate Functions</h2>
+
+<p>SQL provides five core aggregate functions. Each takes a set of values from multiple rows and returns one result.</p>
+
+<pre class="sql"><span class="cm">-- Basic aggregate functions on the orders table</span>
+<span class="kw">SELECT</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)        <span class="kw">AS</span> total_orders,
+    <span class="fn">SUM</span>(amount)     <span class="kw">AS</span> total_revenue,
+    <span class="fn">AVG</span>(amount)     <span class="kw">AS</span> avg_order_value,
+    <span class="fn">MIN</span>(amount)     <span class="kw">AS</span> smallest_order,
+    <span class="fn">MAX</span>(amount)     <span class="kw">AS</span> largest_order
+<span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> order_date <span class="op">>=</span> <span class="st">'2024-01-01'</span>;</pre>
+
+<div class="concept-box">
+<h4>Aggregates Collapse Rows</h4>
+<p>When you use an aggregate function without <code>GROUP BY</code>, the entire result set is treated as one group. The query above returns exactly one row, no matter how many orders exist.</p>
+</div>
+
+<pre class="sql"><span class="cm">-- Combining aggregates with a filter</span>
+<span class="kw">SELECT</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)                           <span class="kw">AS</span> num_products,
+    <span class="fn">AVG</span>(unit_price)                    <span class="kw">AS</span> avg_price,
+    <span class="fn">MAX</span>(unit_price) <span class="op">-</span> <span class="fn">MIN</span>(unit_price)  <span class="kw">AS</span> price_range
+<span class="kw">FROM</span> products
+<span class="kw">WHERE</span> discontinued <span class="op">=</span> <span class="nb">0</span>;</pre>
+
+<!-- 4.2 -->
+<h2>4.2 COUNT Variations</h2>
+
+<p>COUNT behaves differently depending on its argument. Understanding the three forms prevents subtle bugs.</p>
+
+<pre class="sql"><span class="kw">SELECT</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)                 <span class="kw">AS</span> total_rows,
+    <span class="fn">COUNT</span>(ship_date)         <span class="kw">AS</span> shipped_orders,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> customer_id) <span class="kw">AS</span> unique_customers
+<span class="kw">FROM</span> orders;</pre>
+
+<div class="concept-box">
+<h4>COUNT(*) vs COUNT(column)</h4>
+<p><code>COUNT(*)</code> counts every row, including those with NULLs. <code>COUNT(column)</code> counts only non-NULL values in that column. <code>COUNT(DISTINCT column)</code> counts unique non-NULL values. If <code>ship_date</code> is NULL for unshipped orders, <code>COUNT(ship_date)</code> excludes them.</p>
+</div>
+
+<!-- 4.3 -->
+<h2>4.3 GROUP BY Basics</h2>
+
+<p>GROUP BY splits the result set into groups. Each group gets its own aggregate calculation.</p>
+
+<pre class="sql"><span class="cm">-- Revenue by product category</span>
+<span class="kw">SELECT</span>
+    category,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)       <span class="kw">AS</span> num_orders,
+    <span class="fn">SUM</span>(amount)    <span class="kw">AS</span> total_revenue,
+    <span class="fn">AVG</span>(amount)    <span class="kw">AS</span> avg_order_value
+<span class="kw">FROM</span> orders o
+<span class="kw">JOIN</span> products p <span class="kw">ON</span> o.product_id <span class="op">=</span> p.product_id
+<span class="kw">GROUP BY</span> category
+<span class="kw">ORDER BY</span> total_revenue <span class="kw">DESC</span>;</pre>
+
+<pre class="sql"><span class="cm">-- Grouping by multiple columns: sales by region and quarter</span>
+<span class="kw">SELECT</span>
+    region,
+    <span class="fn">EXTRACT</span>(<span class="kw">YEAR</span> <span class="kw">FROM</span> order_date)    <span class="kw">AS</span> order_year,
+    <span class="fn">EXTRACT</span>(<span class="kw">QUARTER</span> <span class="kw">FROM</span> order_date) <span class="kw">AS</span> order_quarter,
+    <span class="fn">SUM</span>(amount)                        <span class="kw">AS</span> quarterly_revenue,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> customer_id)        <span class="kw">AS</span> active_customers
+<span class="kw">FROM</span> orders
+<span class="kw">GROUP BY</span> region,
+         <span class="fn">EXTRACT</span>(<span class="kw">YEAR</span> <span class="kw">FROM</span> order_date),
+         <span class="fn">EXTRACT</span>(<span class="kw">QUARTER</span> <span class="kw">FROM</span> order_date)
+<span class="kw">ORDER BY</span> region, order_year, order_quarter;</pre>
+
+<p>Every non-aggregated column in your SELECT list must appear in the GROUP BY clause. Violating this rule produces an error in standard SQL (though MySQL historically allowed it with unpredictable results).</p>
+
+<!-- 4.4 -->
+<h2>4.4 HAVING Clause</h2>
+
+<p>WHERE filters individual rows before grouping. HAVING filters groups after aggregation. This distinction matters because you cannot reference aggregate results in a WHERE clause.</p>
+
+<pre class="sql"><span class="cm">-- Find categories with more than $50,000 in total sales</span>
+<span class="kw">SELECT</span>
+    category,
+    <span class="fn">SUM</span>(amount) <span class="kw">AS</span> total_sales,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)    <span class="kw">AS</span> order_count
+<span class="kw">FROM</span> orders o
+<span class="kw">JOIN</span> products p <span class="kw">ON</span> o.product_id <span class="op">=</span> p.product_id
+<span class="kw">WHERE</span> order_date <span class="op">>=</span> <span class="st">'2024-01-01'</span>      <span class="cm">-- row-level filter</span>
+<span class="kw">GROUP BY</span> category
+<span class="kw">HAVING</span> <span class="fn">SUM</span>(amount) <span class="op">></span> <span class="nb">50000</span>             <span class="cm">-- group-level filter</span>
+<span class="kw">ORDER BY</span> total_sales <span class="kw">DESC</span>;</pre>
+
+<pre class="sql"><span class="cm">-- Customers who placed at least 5 orders with average value above $200</span>
+<span class="kw">SELECT</span>
+    customer_id,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)    <span class="kw">AS</span> order_count,
+    <span class="fn">AVG</span>(amount) <span class="kw">AS</span> avg_order_value
+<span class="kw">FROM</span> orders
+<span class="kw">GROUP BY</span> customer_id
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">>=</span> <span class="nb">5</span>
+   <span class="kw">AND</span> <span class="fn">AVG</span>(amount) <span class="op">></span> <span class="nb">200</span>;</pre>
+
+<div class="concept-box">
+<h4>Execution Order Matters</h4>
+<p>The logical processing order is: FROM &rarr; WHERE &rarr; GROUP BY &rarr; HAVING &rarr; SELECT &rarr; ORDER BY. WHERE cannot see aggregate results because aggregation has not happened yet. HAVING operates on the already-formed groups.</p>
+</div>
+
+<!-- 4.5 -->
+<h2>4.5 Aggregation with NULL</h2>
+
+<p>All aggregate functions except COUNT(*) ignore NULL values. This can produce surprising results if you are not careful.</p>
+
+<pre class="sql"><span class="cm">-- Suppose discount is NULL when no discount was applied</span>
+<span class="kw">SELECT</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)           <span class="kw">AS</span> total_orders,
+    <span class="fn">COUNT</span>(discount)    <span class="kw">AS</span> discounted_orders,
+    <span class="fn">AVG</span>(discount)      <span class="kw">AS</span> avg_discount_given,
+    <span class="fn">AVG</span>(<span class="fn">COALESCE</span>(discount, <span class="nb">0</span>)) <span class="kw">AS</span> avg_discount_all
+<span class="kw">FROM</span> order_details;</pre>
+
+<p>In this example, <code>AVG(discount)</code> averages only the rows that actually have a discount, yielding a higher number. <code>AVG(COALESCE(discount, 0))</code> treats missing discounts as zero, giving the true average across all orders.</p>
+
+<pre class="sql"><span class="cm">-- SUM of an all-NULL group returns NULL, not zero</span>
+<span class="kw">SELECT</span>
+    department,
+    <span class="fn">COALESCE</span>(<span class="fn">SUM</span>(bonus), <span class="nb">0</span>) <span class="kw">AS</span> total_bonus
+<span class="kw">FROM</span> employees
+<span class="kw">GROUP BY</span> department;</pre>
+
+<!-- 4.6 -->
+<h2>4.6 GROUP BY with Expressions</h2>
+
+<p>You can group by computed expressions, not just raw columns. This is especially useful for date-based summaries and conditional aggregation.</p>
+
+<pre class="sql"><span class="cm">-- Monthly revenue summary</span>
+<span class="kw">SELECT</span>
+    <span class="fn">DATE_TRUNC</span>(<span class="st">'month'</span>, order_date) <span class="kw">AS</span> month,
+    <span class="fn">SUM</span>(amount)                       <span class="kw">AS</span> monthly_revenue,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> customer_id)       <span class="kw">AS</span> unique_buyers
+<span class="kw">FROM</span> orders
+<span class="kw">GROUP BY</span> <span class="fn">DATE_TRUNC</span>(<span class="st">'month'</span>, order_date)
+<span class="kw">ORDER BY</span> month;</pre>
+
+<pre class="sql"><span class="cm">-- Conditional aggregation with CASE inside SUM</span>
+<span class="kw">SELECT</span>
+    region,
+    <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> total_orders,
+    <span class="fn">SUM</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> status <span class="op">=</span> <span class="st">'completed'</span>  <span class="kw">THEN</span> <span class="nb">1</span> <span class="kw">ELSE</span> <span class="nb">0</span> <span class="kw">END</span>) <span class="kw">AS</span> completed,
+    <span class="fn">SUM</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> status <span class="op">=</span> <span class="st">'cancelled'</span>  <span class="kw">THEN</span> <span class="nb">1</span> <span class="kw">ELSE</span> <span class="nb">0</span> <span class="kw">END</span>) <span class="kw">AS</span> cancelled,
+    <span class="fn">ROUND</span>(
+        <span class="nb">100.0</span> <span class="op">*</span> <span class="fn">SUM</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> status <span class="op">=</span> <span class="st">'cancelled'</span> <span class="kw">THEN</span> <span class="nb">1</span> <span class="kw">ELSE</span> <span class="nb">0</span> <span class="kw">END</span>)
+        <span class="op">/</span> <span class="fn">COUNT</span>(<span class="op">*</span>), <span class="nb">1</span>
+    ) <span class="kw">AS</span> cancel_rate_pct
+<span class="kw">FROM</span> orders
+<span class="kw">GROUP BY</span> region;</pre>
+
+<p>Conditional aggregation with CASE is a powerful pattern. It lets you pivot data and compute multiple filtered metrics in a single pass, avoiding the need for repeated subqueries.</p>
+
+<!-- 4.7 -->
+<h2>4.7 ROLLUP and CUBE</h2>
+
+<p>Standard GROUP BY produces one level of grouping. ROLLUP adds subtotals and a grand total. CUBE generates all possible subtotal combinations. Both are supported in PostgreSQL, SQL Server, and Oracle.</p>
+
+<pre class="sql"><span class="cm">-- ROLLUP: subtotals by region, then grand total</span>
+<span class="kw">SELECT</span>
+    <span class="fn">COALESCE</span>(region, <span class="st">'ALL REGIONS'</span>)   <span class="kw">AS</span> region,
+    <span class="fn">COALESCE</span>(category, <span class="st">'ALL CATEGORIES'</span>) <span class="kw">AS</span> category,
+    <span class="fn">SUM</span>(amount)   <span class="kw">AS</span> total_sales,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)      <span class="kw">AS</span> num_orders
+<span class="kw">FROM</span> orders o
+<span class="kw">JOIN</span> products p <span class="kw">ON</span> o.product_id <span class="op">=</span> p.product_id
+<span class="kw">GROUP BY</span> <span class="kw">ROLLUP</span>(region, category)
+<span class="kw">ORDER BY</span> region <span class="kw">NULLS LAST</span>, category <span class="kw">NULLS LAST</span>;</pre>
+
+<pre class="sql"><span class="cm">-- CUBE: subtotals for every combination of region and year</span>
+<span class="kw">SELECT</span>
+    region,
+    <span class="fn">EXTRACT</span>(<span class="kw">YEAR</span> <span class="kw">FROM</span> order_date) <span class="kw">AS</span> yr,
+    <span class="fn">SUM</span>(amount) <span class="kw">AS</span> revenue
+<span class="kw">FROM</span> orders
+<span class="kw">GROUP BY</span> <span class="kw">CUBE</span>(region, <span class="fn">EXTRACT</span>(<span class="kw">YEAR</span> <span class="kw">FROM</span> order_date))
+<span class="kw">ORDER BY</span> region <span class="kw">NULLS LAST</span>, yr <span class="kw">NULLS LAST</span>;</pre>
+
+<p>ROLLUP(A, B) produces grouping sets: (A, B), (A), and (). CUBE(A, B) produces: (A, B), (A), (B), and (). Use <code>GROUPING()</code> to distinguish real NULLs from subtotal NULLs when needed.</p>
+
+<!-- 4.8 -->
+<h2>4.8 STRING_AGG / GROUP_CONCAT</h2>
+
+<p>Sometimes you need to concatenate text values within a group rather than count or sum them.</p>
+
+<pre class="sql"><span class="cm">-- PostgreSQL: list all product names per category</span>
+<span class="kw">SELECT</span>
+    category,
+    <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_products,
+    <span class="fn">STRING_AGG</span>(product_name, <span class="st">', '</span> <span class="kw">ORDER BY</span> product_name) <span class="kw">AS</span> product_list
+<span class="kw">FROM</span> products
+<span class="kw">GROUP BY</span> category;</pre>
+
+<pre class="sql"><span class="cm">-- MySQL equivalent using GROUP_CONCAT</span>
+<span class="kw">SELECT</span>
+    department,
+    <span class="fn">GROUP_CONCAT</span>(employee_name <span class="kw">ORDER BY</span> hire_date <span class="kw">SEPARATOR</span> <span class="st">', '</span>) <span class="kw">AS</span> team_members
+<span class="kw">FROM</span> employees
+<span class="kw">GROUP BY</span> department;</pre>
+
+<pre class="sql"><span class="cm">-- Practical example: customer order history summary</span>
+<span class="kw">SELECT</span>
+    c.customer_name,
+    <span class="fn">COUNT</span>(o.order_id) <span class="kw">AS</span> total_orders,
+    <span class="fn">SUM</span>(o.amount)     <span class="kw">AS</span> lifetime_value,
+    <span class="fn">MIN</span>(o.order_date) <span class="kw">AS</span> first_order,
+    <span class="fn">MAX</span>(o.order_date) <span class="kw">AS</span> last_order,
+    <span class="fn">STRING_AGG</span>(<span class="kw">DISTINCT</span> p.category, <span class="st">', '</span> <span class="kw">ORDER BY</span> p.category)
+        <span class="kw">AS</span> categories_purchased
+<span class="kw">FROM</span> customers c
+<span class="kw">JOIN</span> orders o    <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+<span class="kw">JOIN</span> products p  <span class="kw">ON</span> o.product_id <span class="op">=</span> p.product_id
+<span class="kw">GROUP BY</span> c.customer_id, c.customer_name
+<span class="kw">ORDER BY</span> lifetime_value <span class="kw">DESC</span>;</pre>
+
+<!-- Exercises -->
+<h2>Exercises</h2>
+
+<div class="exercise">
+<h4>Exercise 4.1: Basic Aggregation</h4>
+<p>Write a query that returns, for each <code>department</code> in the <code>employees</code> table: the number of employees, the average salary, the highest salary, and the lowest salary. Order results by average salary descending.</p>
+</div>
+
+<div class="exercise">
+<h4>Exercise 4.2: HAVING Filter</h4>
+<p>Using the <code>orders</code> table, find all customers who have placed more than 10 orders and whose total spending exceeds $5,000. Return the customer_id, order count, and total amount.</p>
+</div>
+
+<div class="exercise">
+<h4>Exercise 4.3: Conditional Aggregation</h4>
+<p>Write a single query against the <code>orders</code> table that shows, for each month in 2024: total revenue, revenue from completed orders only, revenue from cancelled orders only, and the completion rate as a percentage.</p>
+</div>
+
+<div class="exercise">
+<h4>Exercise 4.4: ROLLUP Report</h4>
+<p>Create a sales report using ROLLUP that shows total sales by <code>region</code> and <code>product_category</code>, with subtotals per region and a grand total row. Use COALESCE to label the subtotal rows clearly.</p>
+</div>
+
+<!-- Resources -->
+<h2>Resources</h2>
+<ul>
+    <li><a href="https://www.postgresql.org/docs/current/functions-aggregate.html" target="_blank">PostgreSQL: Aggregate Functions</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/sql/t-sql/queries/select-group-by-transact-sql" target="_blank">SQL Server: GROUP BY (Transact-SQL)</a></li>
+    <li><a href="https://mode.com/sql-tutorial/sql-group-by" target="_blank">Mode Analytics: GROUP BY Tutorial</a></li>
+    <li><a href="https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS" target="_blank">PostgreSQL: GROUPING SETS, CUBE, and ROLLUP</a></li>
+</ul>
+
+<!-- Takeaways -->
+<div class="takeaway">
+<h4>Key Takeaways</h4>
+<ul>
+    <li>The five core aggregates (COUNT, SUM, AVG, MIN, MAX) collapse rows into summary values.</li>
+    <li>COUNT(*) counts all rows; COUNT(col) skips NULLs; COUNT(DISTINCT col) counts unique non-NULL values.</li>
+    <li>GROUP BY produces one output row per group. Every non-aggregated SELECT column must appear in GROUP BY.</li>
+    <li>WHERE filters rows before grouping; HAVING filters groups after aggregation.</li>
+    <li>All aggregates except COUNT(*) ignore NULLs. Use COALESCE when zero should replace NULL.</li>
+    <li>CASE inside an aggregate enables conditional aggregation, a versatile pattern for pivoting and rate calculations.</li>
+    <li>ROLLUP and CUBE generate subtotals and grand totals automatically.</li>
+</ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch3.html">&larr; Chapter 3</a>
+    <a href="ch5.html">Chapter 5 &rarr;</a>
+</div>
+</div>
+
+</body>
+</html>

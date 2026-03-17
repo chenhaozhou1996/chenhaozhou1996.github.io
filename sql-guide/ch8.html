@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 8: Database Design | SQL Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        h1{color:#7c2d12}
+        h2{border-bottom:2px solid #fed7aa}
+        .book-nav a.current{background:#c2410c}
+        .exercise{border-color:#c2410c;background:#fff7ed}
+        .exercise h4{background:#c2410c;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#7c2d12,#c2410c)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html" class="current">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 8: Database Design</h1>
+<p class="subtitle">Normalization, Constraints, and Schema Planning</p>
+
+<h2>8.1 The Relational Model</h2>
+<p>A relational database stores data in tables (relations). Each table has a fixed set of columns with defined data types and a collection of rows. A primary key uniquely identifies each row. The relational model enforces structure, which makes querying predictable and efficient.</p>
+
+<h2>8.2 Data Types</h2>
+
+<div class="table-wrapper">
+<table>
+    <thead><tr><th>Category</th><th>SQLite</th><th>PostgreSQL</th><th>Use Case</th></tr></thead>
+    <tbody>
+        <tr><td>Integer</td><td>INTEGER</td><td>SMALLINT / INTEGER / BIGINT</td><td>IDs, counts, boolean flags</td></tr>
+        <tr><td>Decimal</td><td>REAL</td><td>NUMERIC(p,s) / DOUBLE PRECISION</td><td>Prices, rates, measurements</td></tr>
+        <tr><td>Text</td><td>TEXT</td><td>VARCHAR(n) / TEXT</td><td>Names, descriptions, codes</td></tr>
+        <tr><td>Date/Time</td><td>TEXT (ISO 8601)</td><td>DATE / TIMESTAMP / INTERVAL</td><td>Order dates, durations</td></tr>
+        <tr><td>Boolean</td><td>INTEGER (0/1)</td><td>BOOLEAN</td><td>Active flags, feature toggles</td></tr>
+        <tr><td>Binary</td><td>BLOB</td><td>BYTEA</td><td>Files, images (rarely used)</td></tr>
+    </tbody>
+</table>
+</div>
+
+<div class="concept tip">
+    <strong>Use NUMERIC for money:</strong> REAL/FLOAT can introduce rounding errors (e.g., 0.1 + 0.2 = 0.30000000000000004). In PostgreSQL, use <code>NUMERIC(10,2)</code> for prices and financial calculations. In SQLite, store cents as INTEGER (e.g., $29.99 = 2999) to avoid floating-point issues.
+</div>
+
+<h2>8.3 Primary Keys and Foreign Keys</h2>
+
+<pre class="sql"><span class="cm">-- Primary key: uniquely identifies each row</span>
+<span class="kw">CREATE TABLE</span> customers (
+    customer_id <span class="kw">INTEGER PRIMARY KEY</span>,
+    first_name  <span class="kw">TEXT NOT NULL</span>,
+    last_name   <span class="kw">TEXT NOT NULL</span>,
+    email       <span class="kw">TEXT UNIQUE</span>
+);
+
+<span class="cm">-- Foreign key: references another table's primary key</span>
+<span class="kw">CREATE TABLE</span> orders (
+    order_id    <span class="kw">INTEGER PRIMARY KEY</span>,
+    customer_id <span class="kw">INTEGER NOT NULL</span>,
+    order_date  <span class="kw">TEXT NOT NULL</span>,
+    total       <span class="kw">REAL</span>,
+    <span class="kw">FOREIGN KEY</span> (customer_id) <span class="kw">REFERENCES</span> customers(customer_id)
+);
+
+<span class="cm">-- Composite primary key (for junction/bridge tables)</span>
+<span class="kw">CREATE TABLE</span> order_items (
+    order_id   <span class="kw">INTEGER</span>,
+    product_id <span class="kw">INTEGER</span>,
+    quantity   <span class="kw">INTEGER NOT NULL DEFAULT</span> <span class="nb">1</span>,
+    <span class="kw">PRIMARY KEY</span> (order_id, product_id),
+    <span class="kw">FOREIGN KEY</span> (order_id)   <span class="kw">REFERENCES</span> orders(order_id),
+    <span class="kw">FOREIGN KEY</span> (product_id) <span class="kw">REFERENCES</span> products(product_id)
+);</pre>
+
+<div class="concept warn">
+    <strong>SQLite foreign keys:</strong> SQLite does not enforce foreign keys by default. You must enable them for each connection: <code>PRAGMA foreign_keys = ON;</code>. Without this, you can insert an order with a customer_id that does not exist in the customers table.
+</div>
+
+<h2>8.4 Constraints</h2>
+
+<pre class="sql"><span class="kw">CREATE TABLE</span> employees (
+    emp_id      <span class="kw">INTEGER PRIMARY KEY</span>,
+    name        <span class="kw">TEXT NOT NULL</span>,                      <span class="cm">-- cannot be NULL</span>
+    email       <span class="kw">TEXT UNIQUE</span>,                        <span class="cm">-- no duplicates</span>
+    department  <span class="kw">TEXT DEFAULT</span> <span class="st">'General'</span>,             <span class="cm">-- default value</span>
+    salary      <span class="kw">REAL CHECK</span>(salary <span class="op">></span> <span class="nb">0</span>),             <span class="cm">-- must be positive</span>
+    hire_date   <span class="kw">TEXT NOT NULL</span>,
+    manager_id  <span class="kw">INTEGER</span>,
+    <span class="kw">FOREIGN KEY</span> (manager_id) <span class="kw">REFERENCES</span> employees(emp_id)
+);</pre>
+
+<h2>8.5 Normalization</h2>
+<p>Normalization organizes tables to reduce redundancy and prevent update anomalies. The three normal forms (1NF, 2NF, 3NF) provide a roadmap.</p>
+
+<h3>First Normal Form (1NF)</h3>
+<p>Each cell contains a single value; each row is unique. Violated when a column holds comma-separated lists.</p>
+
+<pre class="sql"><span class="cm">-- BAD: violates 1NF (multiple values in one cell)</span>
+<span class="cm">-- | order_id | products          |</span>
+<span class="cm">-- | 1        | Widget A, Cable C  |</span>
+
+<span class="cm">-- GOOD: separate table for order items</span>
+<span class="cm">-- orders: order_id, customer_id, order_date</span>
+<span class="cm">-- order_items: order_id, product_id, quantity</span></pre>
+
+<h3>Second Normal Form (2NF)</h3>
+<p>Every non-key column depends on the entire primary key (relevant for composite keys).</p>
+
+<pre class="sql"><span class="cm">-- BAD: product_name depends only on product_id, not on order_id</span>
+<span class="cm">-- | order_id | product_id | product_name | quantity |</span>
+<span class="cm">-- Splitting into orders, products, and order_items fixes this.</span></pre>
+
+<h3>Third Normal Form (3NF)</h3>
+<p>No transitive dependencies: non-key columns depend only on the primary key, not on other non-key columns.</p>
+
+<pre class="sql"><span class="cm">-- BAD: city depends on zip_code, not on customer_id</span>
+<span class="cm">-- | customer_id | zip_code | city     |</span>
+
+<span class="cm">-- GOOD: separate zip_codes table</span>
+<span class="kw">CREATE TABLE</span> zip_codes (
+    zip_code <span class="kw">TEXT PRIMARY KEY</span>,
+    city     <span class="kw">TEXT</span>,
+    state    <span class="kw">TEXT</span>
+);</pre>
+
+<div class="concept info">
+    <strong>When to denormalize:</strong> Normalization reduces redundancy but increases the number of joins. For analytics workloads (OLAP), a denormalized star schema with fewer joins is often faster. Normalize for transactional systems (OLTP); denormalize for reporting and analytics.
+</div>
+
+<h2>8.6 Schema Design Patterns</h2>
+
+<h3>Star Schema (Data Warehousing)</h3>
+<pre class="sql"><span class="cm">-- Fact table: one row per event/transaction</span>
+<span class="kw">CREATE TABLE</span> fact_sales (
+    sale_id     <span class="kw">INTEGER PRIMARY KEY</span>,
+    date_key    <span class="kw">INTEGER</span>,
+    product_key <span class="kw">INTEGER</span>,
+    store_key   <span class="kw">INTEGER</span>,
+    quantity    <span class="kw">INTEGER</span>,
+    revenue     <span class="kw">REAL</span>
+);
+
+<span class="cm">-- Dimension tables: descriptive attributes</span>
+<span class="kw">CREATE TABLE</span> dim_date (
+    date_key    <span class="kw">INTEGER PRIMARY KEY</span>,
+    full_date   <span class="kw">TEXT</span>,
+    year        <span class="kw">INTEGER</span>,
+    quarter     <span class="kw">INTEGER</span>,
+    month       <span class="kw">INTEGER</span>,
+    day_of_week <span class="kw">TEXT</span>
+);
+
+<span class="kw">CREATE TABLE</span> dim_product (
+    product_key  <span class="kw">INTEGER PRIMARY KEY</span>,
+    product_name <span class="kw">TEXT</span>,
+    category     <span class="kw">TEXT</span>,
+    brand        <span class="kw">TEXT</span>
+);</pre>
+
+<h2>8.7 ALTER TABLE</h2>
+
+<pre class="sql"><span class="cm">-- Add a column</span>
+<span class="kw">ALTER TABLE</span> customers <span class="kw">ADD COLUMN</span> phone <span class="kw">TEXT</span>;
+
+<span class="cm">-- Rename a column (SQLite 3.25+)</span>
+<span class="kw">ALTER TABLE</span> customers <span class="kw">RENAME COLUMN</span> phone <span class="kw">TO</span> phone_number;
+
+<span class="cm">-- Rename a table</span>
+<span class="kw">ALTER TABLE</span> customers <span class="kw">RENAME TO</span> clients;
+
+<span class="cm">-- Drop a column (SQLite 3.35+, PostgreSQL)</span>
+<span class="kw">ALTER TABLE</span> clients <span class="kw">DROP COLUMN</span> phone_number;</pre>
+
+<div class="exercise">
+    <h4>Exercise 8.1</h4>
+    <p>Design a schema for a university course registration system. Create tables for students, courses, instructors, and enrollments. Define appropriate primary keys, foreign keys, and constraints. Draw the relationships on paper before writing the CREATE TABLE statements.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 8.2</h4>
+    <p>Given a flat table with columns (order_id, customer_name, customer_email, product_name, product_price, quantity, order_date), normalize it into 3NF. Create the appropriate tables with proper keys and constraints.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 8.3</h4>
+    <p>Design a star schema for a retail analytics database. Create a fact table (fact_sales) and at least three dimension tables (dim_date, dim_product, dim_store). Populate each with sample data and write a query that answers: "What was the total revenue per product category per quarter?"</p>
+</div>
+
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://www.sqlite.org/lang_createtable.html" target="_blank">SQLite CREATE TABLE</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.postgresql.org/docs/current/ddl-constraints.html" target="_blank">PostgreSQL Constraints</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Database_normalization" target="_blank">Wikipedia: Database Normalization</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 8 Takeaways</h3>
+    <ul>
+        <li>Primary keys uniquely identify rows; foreign keys enforce referential integrity between tables.</li>
+        <li>Constraints (NOT NULL, UNIQUE, CHECK, DEFAULT) enforce data quality at the database level.</li>
+        <li>Normalization (1NF through 3NF) reduces redundancy and prevents update anomalies.</li>
+        <li>Denormalize strategically for analytics workloads where join performance matters.</li>
+        <li>Star schemas (fact + dimension tables) are the standard pattern for data warehousing.</li>
+        <li>ALTER TABLE modifies existing tables; support varies across database systems.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch7.html">&larr; Chapter 7: Data Manipulation</a>
+    <a href="ch9.html">Chapter 9: Query Optimization &rarr;</a>
+</div>
+
+</body>
+</html>
