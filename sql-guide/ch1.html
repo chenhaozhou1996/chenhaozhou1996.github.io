@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 1: Getting Started | SQL Coding Guide</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
-    <link rel="stylesheet" href="../coding-guide-shared.css">
+    <title>Ch 1: Getting Started | SQL Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
     <style>
-        h1 { color: #7c2d12; }
-        h2 { border-color: #fed7aa; }
-        .book-nav a.current { background: #c2410c; color: #fff; }
-        .exercise { border-color: #c2410c; background: #fff7ed; }
-        .exercise h4 { background: #c2410c; }
-        .takeaway { background: linear-gradient(135deg, #7c2d12, #c2410c); }
+        h1{color:#7c2d12}
+        h2{border-bottom:2px solid #fed7aa}
+        .book-nav a.current{background:#c2410c}
+        .exercise{border-color:#c2410c;background:#fff7ed}
+        .exercise h4{background:#c2410c;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#7c2d12,#c2410c)}
     </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
 </head>
 <body>
+
 <nav class="topnav"><div class="topnav-inner">
     <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
     <div class="topnav-links"><a href="../index.html">Home</a><a href="../research.html">Research</a><a href="../conference.html">Conferences</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
@@ -35,22 +36,18 @@
     <a href="ch10.html">Ch 10</a>
 </nav>
 
-<div class="container">
 <h1>Chapter 1: Getting Started</h1>
 <p class="subtitle">Installation, Tools, and Your First Queries</p>
 
-<!-- 1.1 -->
 <h2>1.1 Why SQL for Analytics?</h2>
 <p>SQL (Structured Query Language) is the universal language for working with relational databases. Whether you are pulling sales reports, analyzing customer behavior, or building dashboards, SQL is the tool that sits between you and the data.</p>
 <p>Almost every company stores its operational data in a relational database. Orders, customers, products, inventory levels, employee records: all of these live in tables made up of rows and columns. SQL lets you ask precise questions of that data without writing a full program.</p>
 <p>The relational model organizes data into <strong>tables</strong> (also called relations). Each table has a fixed set of <strong>columns</strong> (attributes) and a variable number of <strong>rows</strong> (records). A column in one table can reference a column in another through a <strong>foreign key</strong>, linking the tables together. This structure eliminates redundancy and keeps data consistent.</p>
 
 <div class="concept info">
-    <h4>Concept: Declarative vs. Procedural</h4>
-    <p>SQL is <strong>declarative</strong>: you describe <em>what</em> data you want, not <em>how</em> to retrieve it. The database engine decides the most efficient execution plan. This is different from procedural languages like Python, where you write step-by-step instructions.</p>
+    <strong>Declarative vs. Procedural:</strong> SQL is declarative: you describe <em>what</em> data you want, not <em>how</em> to retrieve it. The database engine decides the most efficient execution plan. This is different from procedural languages like Python, where you write step-by-step instructions.
 </div>
 
-<!-- 1.2 -->
 <h2>1.2 Installing SQLite</h2>
 <p>SQLite is the simplest way to start. It requires no server, no configuration, and runs as a single file on your computer. Download it from <a href="https://www.sqlite.org/download.html" target="_blank">sqlite.org</a>.</p>
 <p><strong>macOS:</strong> SQLite comes pre-installed. Open Terminal and type:</p>
@@ -62,70 +59,78 @@ sqlite3 <span class="op">--</span>version</pre>
 
 <p>You should see the SQLite prompt: <code>sqlite></code>. Type <code>.quit</code> to exit.</p>
 
-<!-- 1.3 -->
-<h2>1.3 Database Tools</h2>
-<p>While the command line works, a graphical tool makes learning easier. Here are the most popular options:</p>
-<ul>
-    <li><strong>DB Browser for SQLite</strong> (free, open-source) &mdash; lightweight, great for beginners working with SQLite files.</li>
-    <li><strong>DBeaver</strong> (free Community Edition) &mdash; supports dozens of databases; good once you move beyond SQLite.</li>
-    <li><strong>DataGrip</strong> (JetBrains, paid) &mdash; full-featured IDE with intelligent code completion and refactoring.</li>
-    <li><strong>pgAdmin</strong> (free) &mdash; the standard tool for PostgreSQL administration and querying.</li>
-</ul>
-<p>For this guide, any of these tools will work. Pick one and connect it to a local SQLite file to follow along.</p>
+<h3>PostgreSQL (for Advanced Use)</h3>
+<p>For production-grade work, PostgreSQL is the most capable open-source database. Install via <a href="https://www.postgresql.org/download/" target="_blank">postgresql.org/download</a> or use Homebrew on macOS: <code>brew install postgresql@16</code>.</p>
 
-<!-- 1.4 -->
+<h2>1.3 Database Tools</h2>
+
+<div class="table-wrapper">
+<table>
+    <thead><tr><th>Tool</th><th>Best For</th><th>Key Feature</th></tr></thead>
+    <tbody>
+        <tr><td>DB Browser for SQLite</td><td>Beginners, SQLite files</td><td>Visual table browser, no setup</td></tr>
+        <tr><td>DBeaver</td><td>Multi-database work</td><td>Supports 80+ databases, free Community edition</td></tr>
+        <tr><td>pgAdmin</td><td>PostgreSQL</td><td>Official PostgreSQL admin tool</td></tr>
+        <tr><td>DataGrip</td><td>Professional development</td><td>IntelliJ-based, intelligent autocomplete</td></tr>
+        <tr><td>VS Code + SQLite ext</td><td>Lightweight editing</td><td>Runs queries inside your code editor</td></tr>
+    </tbody>
+</table>
+</div>
+
+<div class="concept tip">
+    <strong>Recommendation:</strong> Start with DB Browser for SQLite for visual exploration. Move to DBeaver when you need to connect to PostgreSQL or MySQL. Both are free and cross-platform.
+</div>
+
 <h2>1.4 Creating Your First Database</h2>
 <p>A database starts with tables. The <code>CREATE TABLE</code> statement defines a table's name and columns. Each column has a name and a data type.</p>
 
 <pre class="sql"><span class="kw">CREATE TABLE</span> customers (
     customer_id   <span class="kw">INTEGER PRIMARY KEY</span>,
-    first_name    <span class="kw">TEXT</span> <span class="kw">NOT NULL</span>,
-    last_name     <span class="kw">TEXT</span> <span class="kw">NOT NULL</span>,
+    first_name    <span class="kw">TEXT NOT NULL</span>,
+    last_name     <span class="kw">TEXT NOT NULL</span>,
     email         <span class="kw">TEXT</span>,
     signup_date   <span class="kw">TEXT</span>    <span class="cm">-- SQLite stores dates as TEXT</span>
-);</pre>
+);
 
-<pre class="sql"><span class="kw">CREATE TABLE</span> products (
+<span class="kw">CREATE TABLE</span> products (
     product_id    <span class="kw">INTEGER PRIMARY KEY</span>,
-    product_name  <span class="kw">TEXT</span> <span class="kw">NOT NULL</span>,
+    product_name  <span class="kw">TEXT NOT NULL</span>,
     category      <span class="kw">TEXT</span>,
     unit_price    <span class="kw">REAL</span>,
-    stock_qty     <span class="kw">INTEGER</span> <span class="kw">DEFAULT</span> <span class="nb">0</span>
-);</pre>
+    in_stock      <span class="kw">INTEGER DEFAULT</span> <span class="nb">0</span>
+);
 
-<pre class="sql"><span class="kw">CREATE TABLE</span> orders (
+<span class="kw">CREATE TABLE</span> orders (
     order_id      <span class="kw">INTEGER PRIMARY KEY</span>,
-    customer_id   <span class="kw">INTEGER</span> <span class="kw">REFERENCES</span> customers(customer_id),
+    customer_id   <span class="kw">INTEGER REFERENCES</span> customers(customer_id),
     order_date    <span class="kw">TEXT</span>,
-    total_amount  <span class="kw">REAL</span>
+    total         <span class="kw">REAL</span>
 );</pre>
 
-<div class="concept tip">
-    <h4>Tip: Common Data Types</h4>
-    <p><strong>INTEGER</strong> &mdash; whole numbers (IDs, quantities). <strong>TEXT</strong> &mdash; variable-length strings (names, emails). <strong>REAL</strong> &mdash; floating-point numbers (prices, measurements). In PostgreSQL you also have <strong>DATE</strong>, <strong>TIMESTAMP</strong>, <strong>NUMERIC</strong>, and <strong>BOOLEAN</strong>.</p>
+<div class="concept info">
+    <strong>Common data types:</strong> <strong>INTEGER</strong> for whole numbers (IDs, quantities). <strong>TEXT</strong> for variable-length strings (names, emails). <strong>REAL</strong> for floating-point numbers (prices, measurements). In PostgreSQL you also have <strong>DATE</strong>, <strong>TIMESTAMP</strong>, <strong>NUMERIC</strong>, and <strong>BOOLEAN</strong>.
 </div>
 
-<!-- 1.5 -->
 <h2>1.5 Inserting Data</h2>
 <p>Use <code>INSERT INTO</code> to add rows to a table. You specify the table, the columns, and the values.</p>
 
 <pre class="sql"><span class="kw">INSERT INTO</span> customers (customer_id, first_name, last_name, email, signup_date)
 <span class="kw">VALUES</span>
-    (<span class="nb">1</span>, <span class="st">'Alice'</span>,   <span class="st">'Chen'</span>,    <span class="st">'alice@example.com'</span>,   <span class="st">'2024-01-15'</span>),
-    (<span class="nb">2</span>, <span class="st">'Bob'</span>,     <span class="st">'Martinez'</span>,<span class="st">'bob.m@example.com'</span>,   <span class="st">'2024-02-20'</span>),
-    (<span class="nb">3</span>, <span class="st">'Carol'</span>,   <span class="st">'Johnson'</span>, <span class="st">'carol.j@example.com'</span>, <span class="st">'2024-03-05'</span>),
-    (<span class="nb">4</span>, <span class="st">'David'</span>,   <span class="st">'Kim'</span>,     <span class="kw">NULL</span>,                    <span class="st">'2024-03-18'</span>),
-    (<span class="nb">5</span>, <span class="st">'Emma'</span>,    <span class="st">'Wilson'</span>,  <span class="st">'emma.w@example.com'</span>,  <span class="st">'2024-04-01'</span>);</pre>
+    (<span class="nb">1</span>, <span class="st">'Alice'</span>,  <span class="st">'Chen'</span>,    <span class="st">'alice@example.com'</span>,   <span class="st">'2024-01-15'</span>),
+    (<span class="nb">2</span>, <span class="st">'Bob'</span>,    <span class="st">'Martinez'</span>,<span class="st">'bob.m@example.com'</span>,   <span class="st">'2024-02-20'</span>),
+    (<span class="nb">3</span>, <span class="st">'Carol'</span>,  <span class="st">'Johnson'</span>, <span class="st">'carol.j@example.com'</span>, <span class="st">'2024-03-05'</span>),
+    (<span class="nb">4</span>, <span class="st">'David'</span>,  <span class="st">'Kim'</span>,     <span class="kw">NULL</span>,                    <span class="st">'2024-03-18'</span>),
+    (<span class="nb">5</span>, <span class="st">'Emma'</span>,   <span class="st">'Wilson'</span>,  <span class="st">'emma.w@example.com'</span>,  <span class="st">'2024-04-01'</span>);
 
-<pre class="sql"><span class="kw">INSERT INTO</span> products (product_id, product_name, category, unit_price, stock_qty)
+<span class="kw">INSERT INTO</span> products (product_id, product_name, category, unit_price, in_stock)
 <span class="kw">VALUES</span>
     (<span class="nb">101</span>, <span class="st">'Wireless Mouse'</span>,     <span class="st">'Electronics'</span>, <span class="nb">29.99</span>,  <span class="nb">150</span>),
     (<span class="nb">102</span>, <span class="st">'Mechanical Keyboard'</span>, <span class="st">'Electronics'</span>, <span class="nb">89.99</span>,  <span class="nb">75</span>),
     (<span class="nb">103</span>, <span class="st">'Notebook (A5)'</span>,       <span class="st">'Stationery'</span>,  <span class="nb">4.50</span>,   <span class="nb">500</span>),
     (<span class="nb">104</span>, <span class="st">'Standing Desk'</span>,       <span class="st">'Furniture'</span>,   <span class="nb">349.00</span>, <span class="nb">20</span>),
-    (<span class="nb">105</span>, <span class="st">'Monitor 27-inch'</span>,     <span class="st">'Electronics'</span>, <span class="nb">299.00</span>, <span class="nb">45</span>);</pre>
+    (<span class="nb">105</span>, <span class="st">'Monitor 27-inch'</span>,     <span class="st">'Electronics'</span>, <span class="nb">299.00</span>, <span class="nb">45</span>);
 
-<pre class="sql"><span class="kw">INSERT INTO</span> orders (order_id, customer_id, order_date, total_amount)
+<span class="kw">INSERT INTO</span> orders (order_id, customer_id, order_date, total)
 <span class="kw">VALUES</span>
     (<span class="nb">1001</span>, <span class="nb">1</span>, <span class="st">'2024-03-10'</span>, <span class="nb">119.98</span>),
     (<span class="nb">1002</span>, <span class="nb">2</span>, <span class="st">'2024-03-12'</span>, <span class="nb">29.99</span>),
@@ -133,63 +138,57 @@ sqlite3 <span class="op">--</span>version</pre>
     (<span class="nb">1004</span>, <span class="nb">3</span>, <span class="st">'2024-04-05'</span>, <span class="nb">13.50</span>),
     (<span class="nb">1005</span>, <span class="nb">5</span>, <span class="st">'2024-04-10'</span>, <span class="nb">388.99</span>);</pre>
 
-<!-- 1.6 -->
 <h2>1.6 Your First SELECT</h2>
 <p>The <code>SELECT</code> statement retrieves data. The simplest form selects all columns from a table.</p>
 
 <pre class="sql"><span class="cm">-- Select all columns and all rows</span>
-<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers;</pre>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers;
 
-<p>In practice, you should name the columns you need rather than using <code>*</code>. This makes your query self-documenting and avoids pulling unnecessary data.</p>
-
-<pre class="sql"><span class="cm">-- Select specific columns</span>
+<span class="cm">-- Select specific columns</span>
 <span class="kw">SELECT</span> first_name, last_name, email
-<span class="kw">FROM</span> customers;</pre>
+<span class="kw">FROM</span> customers;
 
-<p>You can rename columns in the output using <code>AS</code> (an alias):</p>
-
-<pre class="sql"><span class="kw">SELECT</span>
+<span class="cm">-- Use aliases to rename columns in output</span>
+<span class="kw">SELECT</span>
     product_name        <span class="kw">AS</span> product,
     unit_price          <span class="kw">AS</span> price,
     unit_price <span class="op">*</span> <span class="nb">1.08</span>  <span class="kw">AS</span> price_with_tax,
-    stock_qty           <span class="kw">AS</span> inventory
-<span class="kw">FROM</span> products;</pre>
+    in_stock            <span class="kw">AS</span> inventory
+<span class="kw">FROM</span> products;
 
-<p>Notice the computed column <code>price_with_tax</code>. SQL lets you write expressions directly in the SELECT list. The result is calculated on the fly and does not change the stored data.</p>
-
-<pre class="sql"><span class="cm">-- Quick revenue estimate per product</span>
+<span class="cm">-- Computed column: inventory value</span>
 <span class="kw">SELECT</span>
     product_name,
     unit_price,
-    stock_qty,
-    unit_price <span class="op">*</span> stock_qty <span class="kw">AS</span> inventory_value
+    in_stock,
+    unit_price <span class="op">*</span> in_stock <span class="kw">AS</span> inventory_value
 <span class="kw">FROM</span> products;</pre>
 
-<!-- 1.7 -->
+<div class="concept tip">
+    <strong>SELECT * vs. named columns:</strong> Use <code>SELECT *</code> for quick exploration. In production queries and scripts, always name the columns you need. This makes queries faster and protects your code from breaking when someone adds or renames a column.
+</div>
+
 <h2>1.7 SQL Dialects</h2>
 <p>SQL has an ISO standard, but every database adds its own extensions. The core statements (<code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>) work the same way everywhere. Differences show up in data types, functions, and advanced features.</p>
 
+<div class="table-wrapper">
 <table>
-    <thead><tr><th>Feature</th><th>SQLite</th><th>PostgreSQL</th><th>MySQL</th><th>SQL Server</th></tr></thead>
+    <thead><tr><th>Feature</th><th>SQLite</th><th>PostgreSQL</th><th>MySQL</th></tr></thead>
     <tbody>
-        <tr><td>Auto-increment PK</td><td>INTEGER PRIMARY KEY</td><td>SERIAL / GENERATED</td><td>AUTO_INCREMENT</td><td>IDENTITY(1,1)</td></tr>
-        <tr><td>String concatenation</td><td>||</td><td>||</td><td>CONCAT()</td><td>+</td></tr>
-        <tr><td>Current timestamp</td><td>datetime('now')</td><td>NOW()</td><td>NOW()</td><td>GETDATE()</td></tr>
-        <tr><td>Limit rows</td><td>LIMIT n</td><td>LIMIT n</td><td>LIMIT n</td><td>TOP n</td></tr>
-        <tr><td>Boolean type</td><td>INTEGER (0/1)</td><td>BOOLEAN</td><td>TINYINT(1)</td><td>BIT</td></tr>
+        <tr><td>String concatenation</td><td><code>||</code></td><td><code>||</code></td><td><code>CONCAT()</code></td></tr>
+        <tr><td>Current date</td><td><code>DATE('now')</code></td><td><code>CURRENT_DATE</code></td><td><code>CURDATE()</code></td></tr>
+        <tr><td>Auto-increment PK</td><td><code>INTEGER PRIMARY KEY</code></td><td><code>SERIAL</code> / <code>GENERATED</code></td><td><code>AUTO_INCREMENT</code></td></tr>
+        <tr><td>Case-insensitive LIKE</td><td>Default behavior</td><td>Use <code>ILIKE</code></td><td>Default behavior</td></tr>
+        <tr><td>Boolean type</td><td>INTEGER (0/1)</td><td>Native BOOLEAN</td><td>TINYINT(1)</td></tr>
     </tbody>
 </table>
-
-<p>This guide uses SQLite syntax. When a concept differs in other databases, we will note it explicitly.</p>
-
-<div class="concept warn">
-    <h4>Warning: Portability Pitfalls</h4>
-    <p>If you write queries in SQLite and later move to PostgreSQL, watch out for: (1) date/time functions are completely different, (2) SQLite has dynamic typing while PostgreSQL enforces types strictly, and (3) SQLite's <code>GROUP BY</code> allows non-aggregated columns that other databases reject.</p>
 </div>
 
-<!-- 1.8 -->
+<div class="concept warn">
+    <strong>Portability pitfalls:</strong> If you write queries in SQLite and later move to PostgreSQL, watch out for: (1) date/time functions are completely different, (2) SQLite has dynamic typing while PostgreSQL enforces types strictly, and (3) SQLite's GROUP BY allows non-aggregated columns that other databases reject.
+</div>
+
 <h2>1.8 Comments and Formatting</h2>
-<p>Good formatting makes SQL readable. Use comments to explain your logic, especially in long queries.</p>
 
 <pre class="sql"><span class="cm">-- Single-line comment: everything after -- is ignored</span>
 <span class="kw">SELECT</span> first_name, last_name
@@ -202,105 +201,108 @@ sqlite3 <span class="op">--</span>version</pre>
 */</span>
 <span class="kw">SELECT</span>
     product_name,
-    unit_price <span class="op">*</span> stock_qty <span class="kw">AS</span> inventory_value
+    unit_price <span class="op">*</span> in_stock <span class="kw">AS</span> inventory_value
 <span class="kw">FROM</span> products
 <span class="kw">WHERE</span> category <span class="op">=</span> <span class="st">'Electronics'</span>;</pre>
 
-<p><strong>Formatting conventions:</strong></p>
-<ul>
-    <li>Write SQL keywords in UPPERCASE (<code>SELECT</code>, <code>FROM</code>, <code>WHERE</code>).</li>
-    <li>Write table and column names in lowercase with underscores (<code>order_date</code>, <code>customer_id</code>).</li>
-    <li>Put each major clause on its own line.</li>
-    <li>Indent column lists and conditions for readability.</li>
-    <li>End every statement with a semicolon.</li>
-</ul>
-
-<!-- 1.9 -->
-<h2>1.9 Common Beginner Errors</h2>
-<p>Every SQL learner hits these mistakes. Recognizing them saves hours of frustration.</p>
-
-<p><strong>Missing semicolon:</strong> Most SQL tools expect a semicolon to mark the end of a statement. Without it, the tool waits for more input.</p>
-<pre class="sql"><span class="cm">-- This will hang in many tools (no semicolon):</span>
-<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers
-
-<span class="cm">-- Fix: always end with a semicolon</span>
-<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers;</pre>
-
-<p><strong>Case sensitivity:</strong> SQL keywords are case-insensitive (<code>SELECT</code> and <code>select</code> both work). However, string comparisons may be case-sensitive depending on the database. In SQLite, <code>LIKE</code> is case-insensitive for ASCII characters, but <code>=</code> is case-sensitive.</p>
-
-<pre class="sql"><span class="cm">-- These return different results in SQLite:</span>
-<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers <span class="kw">WHERE</span> first_name <span class="op">=</span> <span class="st">'alice'</span>;   <span class="cm">-- no match</span>
-<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers <span class="kw">WHERE</span> first_name <span class="op">=</span> <span class="st">'Alice'</span>;   <span class="cm">-- match</span></pre>
-
-<p><strong>Quoting mistakes:</strong> Use single quotes for string values. Double quotes are for identifiers (column/table names) in standard SQL. Mixing them up causes errors.</p>
-
-<pre class="sql"><span class="cm">-- Correct: single quotes for values</span>
-<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products <span class="kw">WHERE</span> category <span class="op">=</span> <span class="st">'Electronics'</span>;
-
-<span class="cm">-- Wrong: double quotes treat it as a column name</span>
-<span class="cm">-- SELECT * FROM products WHERE category = "Electronics";</span>
-<span class="cm">-- (This works in SQLite/MySQL but fails in PostgreSQL)</span></pre>
-
 <div class="concept tip">
-    <h4>Tip: Debugging Strategy</h4>
-    <p>When a query fails, try three things: (1) check for missing commas between column names, (2) check for missing or extra parentheses, and (3) run just the FROM clause with <code>SELECT *</code> to make sure the table exists and has the columns you expect.</p>
+    <strong>Formatting conventions:</strong> Write SQL keywords in UPPERCASE. Write table and column names in lowercase with underscores. Put each major clause on its own line. Indent column lists. End every statement with a semicolon. These are conventions, not rules, but they make queries far easier to read.
 </div>
 
-<!-- Exercises -->
-<h2>Exercises</h2>
+<h2>1.9 Common Beginner Errors</h2>
+
+<pre class="sql"><span class="cm">-- 1. Missing semicolon (query hangs in many tools)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers   <span class="cm">-- no semicolon: won't execute</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers;  <span class="cm">-- fixed</span>
+
+<span class="cm">-- 2. Quoting: single quotes for values, double for identifiers</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products <span class="kw">WHERE</span> category <span class="op">=</span> <span class="st">'Electronics'</span>;  <span class="cm">-- correct</span>
+<span class="cm">-- WHERE category = "Electronics"  -- works in SQLite, fails in PostgreSQL</span>
+
+<span class="cm">-- 3. Case sensitivity in string comparisons</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers <span class="kw">WHERE</span> first_name <span class="op">=</span> <span class="st">'alice'</span>;  <span class="cm">-- no match</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers <span class="kw">WHERE</span> first_name <span class="op">=</span> <span class="st">'Alice'</span>;  <span class="cm">-- match</span>
+
+<span class="cm">-- 4. Missing comma between columns (treated as alias)</span>
+<span class="kw">SELECT</span> product_name unit_price <span class="kw">FROM</span> products;  <span class="cm">-- bug: alias</span>
+<span class="kw">SELECT</span> product_name, unit_price <span class="kw">FROM</span> products; <span class="cm">-- fixed</span></pre>
+
+<div class="concept warn">
+    <strong>Debugging strategy:</strong> When a query fails: (1) check for missing commas between column names, (2) check for missing or extra parentheses, (3) run just <code>SELECT * FROM table</code> to make sure the table exists and has the columns you expect. Read error messages carefully; look for the word "near" followed by a quoted token.
+</div>
+
+<h2>1.10 The SQLite Dot Commands</h2>
+<p>SQLite's command-line shell has special commands prefixed with a dot. These are not SQL statements; they are shell-specific utilities.</p>
+
+<pre class="sql"><span class="cm">-- List all tables in the database</span>
+.tables
+
+<span class="cm">-- Show the CREATE statement for a table</span>
+.schema products
+
+<span class="cm">-- Toggle column headers and set readable output</span>
+.headers on
+.mode column
+
+<span class="cm">-- Export query results to CSV</span>
+.mode csv
+.output results.csv
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> products;
+.output stdout
+
+<span class="cm">-- Import a CSV file into a table</span>
+.import data.csv products
+
+<span class="cm">-- Exit the shell</span>
+.quit</pre>
 
 <div class="exercise">
-    <h4>Exercise 1.1: Create a Table</h4>
-    <p>Create a table called <code>employees</code> with these columns: <code>employee_id</code> (integer, primary key), <code>full_name</code> (text, not null), <code>department</code> (text), <code>hire_date</code> (text), and <code>salary</code> (real). Then insert at least three rows of sample data.</p>
+    <h4>Exercise 1.1</h4>
+    <p>Create a table called <code>employees</code> with columns: <code>emp_id</code> (INTEGER PRIMARY KEY), <code>full_name</code> (TEXT NOT NULL), <code>department</code> (TEXT), <code>hire_date</code> (TEXT), and <code>salary</code> (REAL). Insert at least 5 employees and write a SELECT query that shows all employees sorted by salary descending.</p>
 </div>
 
 <div class="exercise">
-    <h4>Exercise 1.2: Computed Columns</h4>
-    <p>Write a query against the <code>products</code> table that shows each product's name, unit price, a 15% discount price (labeled <code>sale_price</code>), and the savings amount (labeled <code>discount_amount</code>). Round to two decimal places if your database supports it.</p>
+    <h4>Exercise 1.2</h4>
+    <p>Write a query against the <code>products</code> table that shows each product's name, unit price, a 15% discount price (labeled <code>sale_price</code>), and the savings amount. Which product has the largest savings in dollar terms?</p>
 </div>
 
 <div class="exercise">
-    <h4>Exercise 1.3: Explore Your Data</h4>
-    <p>Using the <code>orders</code> table created above, write a query that selects the order ID, order date, and total amount, with the total amount renamed to <code>revenue</code>. Which order had the highest revenue?</p>
+    <h4>Exercise 1.3</h4>
+    <p>Create a <code>customers</code> table and insert 5 customers. Write a query that returns their full name (first + last) as a single column using the <code>||</code> concatenation operator.</p>
 </div>
 
 <div class="exercise">
-    <h4>Exercise 1.4: Fix the Errors</h4>
-    <p>The following query has three errors. Identify and fix all of them:</p>
-    <pre class="sql"><span class="kw">SELECT</span> product_name unit_price, stock_qty
-<span class="kw">FROM</span> products
-<span class="kw">WHERE</span> category <span class="op">=</span> Electronics</pre>
+    <h4>Exercise 1.4</h4>
+    <p>The following query has three errors. Identify and fix all of them:<br>
+    <code>SELECT product_name unit_price, in_stock FROM products WHERE category = Electronics</code></p>
+    <p class="solution">Hint: missing comma, missing quotes, missing semicolon.</p>
 </div>
 
-<!-- Resources -->
-<h2>External Resources</h2>
-<ul>
-    <li><a href="https://www.sqlite.org/lang.html" target="_blank">SQLite SQL Language Reference</a></li>
-    <li><a href="https://sqlitebrowser.org/" target="_blank">DB Browser for SQLite (download)</a></li>
-    <li><a href="https://www.w3schools.com/sql/sql_intro.asp" target="_blank">W3Schools SQL Tutorial</a></li>
-    <li><a href="https://mode.com/sql-tutorial/" target="_blank">Mode Analytics SQL Tutorial</a></li>
-    <li><a href="https://sqlzoo.net/" target="_blank">SQLZoo Interactive Exercises</a></li>
-</ul>
+<div class="ext-resources">
+    <h4>Official Resources</h4>
+    <ul>
+        <li><a href="https://www.sqlite.org/cli.html" target="_blank">SQLite Command Line Shell</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://sqlitebrowser.org/" target="_blank">DB Browser for SQLite</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://www.w3schools.com/sql/" target="_blank">W3Schools SQL Tutorial</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
 
-<!-- Takeaway -->
 <div class="takeaway">
-    <h3>Key Takeaways</h3>
+    <h3>Chapter 1 Takeaways</h3>
     <ul>
         <li>SQL is a declarative language for querying relational databases. You describe what you want; the engine figures out how.</li>
         <li>SQLite is the easiest database to start with: no server, no setup, just a single file.</li>
         <li><code>CREATE TABLE</code> defines structure; <code>INSERT INTO</code> adds data; <code>SELECT</code> retrieves data.</li>
         <li>Always name your columns explicitly instead of using <code>SELECT *</code> in production queries.</li>
-        <li>Use <code>AS</code> to give readable aliases to columns and computed expressions.</li>
-        <li>SQL dialects share core syntax but differ in functions, data types, and edge cases. Write portable SQL when you can.</li>
-        <li>Format your queries consistently: uppercase keywords, lowercase identifiers, one clause per line, and always end with a semicolon.</li>
+        <li>Use single quotes for string values in all SQL dialects.</li>
+        <li>SQL dialects share core syntax but differ in functions, data types, and edge cases.</li>
+        <li>Format consistently: uppercase keywords, lowercase identifiers, one clause per line, always end with a semicolon.</li>
     </ul>
-</div>
-
 </div>
 
 <div class="chapter-nav">
     <a href="index.html">&larr; Guide Home</a>
-    <a href="ch2.html">Ch 2: SELECT &amp; Filtering &rarr;</a>
+    <a href="ch2.html">Chapter 2: SELECT &amp; Filtering &rarr;</a>
 </div>
 
 </body>
