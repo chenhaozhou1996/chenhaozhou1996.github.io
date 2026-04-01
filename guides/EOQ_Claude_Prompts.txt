@@ -1,0 +1,65 @@
+========================================================
+  EOQ Interactive Demo — Claude Prompts for Students
+  Inventory Optimization & the Economic Order Quantity
+  Chenhao Zhou | Rutgers Business School
+========================================================
+
+Below are the two prompts used in class. Copy-paste them
+into Claude (claude.ai) or any AI assistant to reproduce
+the interactive tool and the mathematical derivation.
+
+
+--- PROMPT 1: Interactive HTML EOQ Chart -------------------
+
+Create an HTML page with an interactive EOQ chart.
+Plot ordering cost DB/Q in red, carrying cost QH/2 in blue,
+total cost in dark. Add sliders for D, B, H.
+Fix the axes (x: 0-800, y: 0-12000) so only the curves move.
+Mark Q* with a star.
+
+Default values: D = 12000, B = 60, H = 16.
+
+Instructions:
+  1. Copy this prompt into Claude.
+  2. Claude will generate a complete HTML file.
+  3. Save it as eoq_interactive.html on your computer.
+  4. Open it in any browser (Chrome, Safari, Firefox).
+  5. Drag the sliders and observe:
+     - How do the curves change?
+     - Where is the minimum of total cost?
+     - What happens at the intersection of ordering and carrying?
+
+
+--- PROMPT 2: Mathematical Derivation ---------------------
+
+We have TC(Q) = (D/Q)B + (Q/2)H. We observed that the
+minimum always occurs where ordering cost = carrying cost.
+Please:
+1. Set (D/Q)B = (Q/2)H and solve for Q.
+2. Take dTC/dQ, set to zero, verify minimum.
+3. Explain the economic intuition.
+4. Verify with D=12000, B=60, H=16.
+
+Instructions:
+  1. Copy this prompt into Claude.
+  2. Read through the step-by-step derivation.
+  3. Verify that Q* = sqrt(2DB/H) = 300 cases.
+  4. Confirm ordering cost = carrying cost = $2,400 at Q*.
+  5. Try changing D, B, or H and re-derive.
+
+
+--- BONUS: Extend the Model ------------------------------
+
+After completing the above, try this prompt:
+
+Now extend the EOQ model to include a quantity discount.
+The supplier offers: order 500+ cases and the unit price
+drops from $80 to $75. Should the distributor take the
+discount? Show the total cost comparison.
+
+
+========================================================
+  Course: Demand Planning and Fulfillment
+  Website: www.chenhaozhou.me
+  Contact: chenhao.zhou@rutgers.edu
+========================================================
