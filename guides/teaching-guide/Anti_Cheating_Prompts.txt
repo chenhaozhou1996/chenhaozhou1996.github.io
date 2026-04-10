@@ -1,0 +1,13 @@
+ANTI-CHEATING PROMPT COLLECTION
+
+=== 1. PER-STUDENT EXAM VARIANTS ===
+Write a Python script that generates 40 unique versions of a quantitative exam. Same structure, different numbers per student. Include answer keys.
+
+=== 2. INVISIBLE DOCUMENT WATERMARK ===
+Write a Python script that encodes a student ID into text using invisible zero-width Unicode characters. Also decodes to trace leaked documents.
+
+=== 3. WHITE-TEXT AI TRAP ===
+In Word/Google Docs: type fake instructions between paragraphs, change font to WHITE. AI reads it, humans don't. Any submission citing your fake reference = AI-generated.
+
+=== 4. INVISIBLE IMAGE OVERLAY ===
+Write a Python script that overlays 1-2% opacity text onto a PDF. Human eye sees nothing. AI vision models read it and follow wrong instructions.
