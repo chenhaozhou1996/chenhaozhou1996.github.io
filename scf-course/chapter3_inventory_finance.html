@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3: Inventory Finance</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        .topnav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;padding:0 48px;margin:0 -2rem;width:calc(100% + 4rem)}.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}.topnav-brand{font-weight:700;font-size:15px;color:#0f2442;display:flex;align-items:center;gap:10px;text-decoration:none!important}.topnav-brand:hover{text-decoration:none!important}.topnav-brand img{width:32px;height:32px;border-radius:50%;object-fit:cover}.topnav-links{display:flex;gap:4px}.topnav-links a{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;color:#475569;text-decoration:none!important}.topnav-links a:hover{background:#f8fafc;color:#1a365d}.topnav-links a.active{background:#f8fafc;color:#1a365d;font-weight:600}
+        .course-nav{background:#f8fafc;padding:10px 0;text-align:center;border-bottom:1px solid #e2e8f0;margin:0 -2rem 1.5em;padding-left:2rem;padding-right:2rem;position:sticky;top:56px;z-index:100}.course-nav a{margin:0 8px;color:#1a365d;font-weight:600;font-size:13px;text-decoration:none}.course-nav a:hover{color:#92400e;text-decoration:underline}.course-nav a.current{color:#92400e;border-bottom:2px solid #92400e;padding-bottom:2px}
+
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',-apple-system,sans-serif;max-width:900px;margin:0 auto;padding:2rem;background:#fff;color:#1e293b;line-height:1.7;font-size:15px;-webkit-font-smoothing:antialiased}
+        h1{font-size:clamp(24px,3.5vw,32px);font-weight:800;color:#065f46;margin-bottom:8px;line-height:1.2}
+        .subtitle{font-size:16px;color:#047857;font-weight:500;margin-bottom:32px}
+        h2{font-size:20px;font-weight:700;color:#1a365d;margin:40px 0 16px;padding-bottom:8px;border-bottom:2px solid #a7f3d0}
+        h3{font-size:16px;font-weight:700;color:#475569;margin:24px 0 10px}
+        p{margin-bottom:14px;color:#334155}
+        ul,ol{margin:0 0 16px 20px;color:#334155}
+        li{margin-bottom:6px}
+        strong{color:#1e293b}
+
+        .key-concept{background:#ecfdf5;border-left:4px solid #10b981;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .key-concept strong{color:#065f46}
+        .formula-box{background:#f1f5f9;border:1px solid #e2e8f0;padding:20px;border-radius:8px;margin:20px 0;text-align:center;font-size:16px;font-weight:600;color:#1e293b}
+        .example-box{background:#fffbeb;border-left:4px solid #f59e0b;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .example-box strong{color:#92400e}
+        .warning-box{background:#fef2f2;border-left:4px solid #ef4444;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .warning-box strong{color:#991b1b}
+        .table-wrapper{overflow-x:auto;margin:20px 0}
+        table{width:100%;border-collapse:collapse;font-size:13px}
+        th{background:#f8fafc;color:#1a365d;font-weight:700;text-align:left;padding:10px 14px;border-bottom:2px solid #e2e8f0}
+        td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#334155}
+        .takeaway{background:linear-gradient(135deg,#065f46,#047857);color:#fff;padding:24px;border-radius:10px;margin:40px 0}
+        .takeaway h3{color:#a7f3d0;margin-top:0}
+        .takeaway ul{color:#d1fae5}
+
+        .exercise-box{background:#ecfdf5;border-left:4px solid #10b981;padding:16px 20px;border-radius:0 8px 8px 0;margin:16px 0;font-size:14px}
+        .exercise-box h4{color:#065f46;font-size:14px;font-weight:700;margin-bottom:8px;background:#d1fae5;display:inline-block;padding:2px 10px;border-radius:4px}
+        .exercise-box .solution{color:#64748b;font-style:italic;margin-top:8px}
+
+        .interactive-section{background:#f0fdf4;border:2px solid #10b981;border-radius:12px;padding:24px;margin:40px 0}
+        .interactive-section h2{border:none;margin:0 0 16px;font-size:18px;color:#065f46}
+        .slider-group{margin-bottom:14px}
+        .slider-group label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px}
+        .slider-group input[type="range"]{width:100%;height:6px;border-radius:3px;-webkit-appearance:none;background:#e2e8f0;outline:none}
+        .slider-group input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#10b981;cursor:pointer}
+        .result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0}
+        .result-card{background:#fff;border-radius:8px;padding:14px;text-align:center;border:1px solid #e2e8f0}
+        .result-card .label{font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:4px}
+        .result-card .value{font-size:22px;font-weight:800;color:#065f46}
+        .sim-info{font-size:13px;color:#475569;margin:12px 0;line-height:1.6}
+        .sim-info strong{color:#065f46}
+
+        @media(max-width:640px){body{padding:1rem}.topnav{padding:0 16px;margin:0 -1rem;width:calc(100% + 2rem)}.course-nav{margin:0 -1rem 1em}}
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+<div class="course-nav">
+    <a href="index.html">🏠 Course Home</a>
+    <a href="chapter1_foundations.html">Ch 1</a>
+    <a href="chapter2_trade_credit.html">Ch 2</a>
+    <a href="chapter3_inventory_finance.html" class="current">Ch 3</a>
+    <a href="chapter4_futures_hedging.html">Ch 4</a>
+    <a href="chapter5_fintech_blockchain.html">Ch 5</a>
+    <a href="chapter6_quantitative_models.html">Ch 6</a>
+</div>
+
+<h1>Chapter 3: Inventory Finance</h1>
+<p class="subtitle">Warehouse Receipts, Commodity Lending, and Capital-Constrained Inventory Decisions</p>
+
+<div class="key-concept">
+    <strong>Learning Objectives:</strong> After completing this chapter, students should be able to:
+    <ol style="margin:8px 0 0 16px">
+        <li>Explain how inventory serves as collateral and compute advance rates for different asset types</li>
+        <li>Distinguish warehouse receipt structures (public, field, trust receipt) by control level and cost</li>
+        <li>Derive the Newsvendor critical ratio and compute Q* for normally distributed demand</li>
+        <li>Interpret VaR(5%) as a downside risk threshold for inventory decisions</li>
+        <li>Analyze the tradeoff between expected profit and tail risk as Q varies</li>
+        <li>Connect inventory risk to the mean-variance frontier concept from portfolio theory</li>
+    </ol>
+</div>
+
+<!-- ============================================ -->
+<h2>3.1 Inventory as Collateral</h2>
+
+<p>Inventory finance uses physical goods as collateral for short-term borrowing. For firms that hold significant inventories (manufacturers, commodity traders, agricultural cooperatives), the inventory sitting in warehouses represents locked-up capital. Inventory finance converts that dead stock into working liquidity.</p>
+
+<p>The lender's primary concern is the collateral's value. Unlike financial assets with transparent market prices, physical inventory raises several questions:</p>
+
+<ul>
+    <li><strong>Valuation:</strong> What is the inventory actually worth? Market prices can fluctuate, and specialized goods may have limited resale markets.</li>
+    <li><strong>Physical control:</strong> How does the lender ensure the borrower doesn't sell the collateral? This is where warehouse receipts and field warehousing become critical.</li>
+    <li><strong>Perishability:</strong> Agricultural products, chemicals, and certain manufactured goods degrade over time, eroding collateral value.</li>
+    <li><strong>Liquidity:</strong> How quickly can the lender sell the collateral in case of default? Standardized commodities (oil, grain, metals) are far more liquid than custom-manufactured parts.</li>
+</ul>
+
+<div class="key-concept">
+    <strong>The Advance Rate:</strong> Lenders never finance 100% of inventory value. The <em>advance rate</em> (typically 50-80%) reflects the lender's assessment of liquidation risk. Standardized, exchange-traded commodities receive higher advance rates; specialized, perishable, or fashion-sensitive goods receive lower rates.
+</div>
+
+<!-- ============================================ -->
+<h2>3.2 Warehouse Receipt Financing</h2>
+
+<p>A warehouse receipt is a document issued by a licensed warehouse operator certifying that specific goods of a stated quantity and quality have been deposited. The receipt serves as both proof of ownership and a negotiable financial instrument.</p>
+
+<h3>How It Works</h3>
+<ol>
+    <li><strong>Deposit:</strong> The borrower deposits goods in a licensed, independent warehouse.</li>
+    <li><strong>Receipt issuance:</strong> The warehouse operator issues a receipt specifying quantity, grade, and condition.</li>
+    <li><strong>Pledge:</strong> The borrower pledges the receipt to a lender as collateral for a loan.</li>
+    <li><strong>Monitoring:</strong> The warehouse operator controls access. Goods cannot be released without the lender's consent.</li>
+    <li><strong>Repayment and release:</strong> When the loan is repaid, the lender releases the receipt, and the borrower retrieves the goods.</li>
+</ol>
+
+<h3>Types of Warehouse Arrangements</h3>
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Type</th><th>Description</th><th>Control Level</th><th>Cost</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Public warehouse</strong></td><td>Goods stored in an independent, third-party facility</td><td>High (full separation)</td><td>Higher (storage + handling fees)</td></tr>
+        <tr><td><strong>Field warehouse</strong></td><td>A section of the borrower's own facility is legally segregated and controlled by an independent custodian</td><td>Medium (depends on custodian quality)</td><td>Lower (goods don't move)</td></tr>
+        <tr><td><strong>Trust receipt</strong></td><td>Goods released to borrower for processing/sale under trust agreement</td><td>Low (borrower has possession)</td><td>Lowest (no warehousing cost)</td></tr>
+    </tbody>
+</table>
+</div>
+
+<div class="example-box">
+    <strong>Example (Agricultural):</strong> A coffee cooperative in Colombia harvests 500 metric tons of Arabica coffee. At $4,000/ton, the crop is worth $2M. The cooperative deposits the coffee in a certified warehouse and pledges the receipt to a local bank. At a 70% advance rate, the bank lends $1.4M. The cooperative uses this cash to fund the next planting season. When the coffee is sold to an exporter 4 months later, the loan is repaid.
+</div>
+
+<div class="warning-box">
+    <strong>Risk Alert (The Allied Crude Vegetable Oil Scandal, 1963):</strong> Anthony "Tino" De Angelis filled storage tanks with water and floated a thin layer of soybean oil on top, deceiving inspectors. When the fraud was discovered, banks holding warehouse receipts as collateral for $175M in loans found the tanks were nearly empty. The scandal bankrupted two major brokerage firms. This case established the principle that lenders must independently verify warehouse contents rather than rely solely on documentation.
+</div>
+
+<!-- ============================================ -->
+<h2>3.3 Commodity-Backed Lending</h2>
+
+<p>Commodity finance extends inventory financing to standardized, exchange-traded commodities such as crude oil, metals, and grains. The key difference from general inventory finance is that commodities have transparent market prices and established hedging instruments.</p>
+
+<h3>Structured Commodity Finance</h3>
+<p>In a typical structure:</p>
+<ol>
+    <li>A commodity trader purchases 10,000 metric tons of copper at $8,500/ton ($85M).</li>
+    <li>The copper is stored in a London Metal Exchange (LME) approved warehouse.</li>
+    <li>A bank finances 85% of the purchase ($72.25M) secured by the warehouse warrants.</li>
+    <li>The trader hedges price risk by selling copper futures on the LME.</li>
+    <li>When the physical copper is sold to an end-user, the bank is repaid.</li>
+</ol>
+
+<div class="key-concept">
+    <strong>Self-Liquidating Structure:</strong> The loan is repaid from the sale proceeds of the very commodity that serves as collateral. This "self-liquidating" nature makes commodity finance lower risk than general corporate lending, which is why it typically carries lower interest rates.
+</div>
+
+<h3>Key Risk Controls</h3>
+<ul>
+    <li><strong>Margin calls:</strong> If the commodity price falls, the lender may require additional collateral (cash margin) to maintain the loan-to-value ratio.</li>
+    <li><strong>Price hedging:</strong> Lenders often require borrowers to hedge commodity price risk using futures or options (Chapter 4).</li>
+    <li><strong>Title control:</strong> The lender holds title documents (bills of lading, warehouse warrants) until repayment.</li>
+    <li><strong>Insurance:</strong> Goods must be insured against theft, fire, and natural disaster.</li>
+</ul>
+
+<!-- ============================================ -->
+<h2>3.4 The Capital-Constrained Newsvendor</h2>
+
+<p>The classical newsvendor problem assumes the firm has unlimited capital to order any quantity. In reality, firms face budget constraints, and this changes the optimal order quantity.</p>
+
+<h3>Classical Newsvendor Review</h3>
+<p>A retailer orders quantity <em>Q</em> of a perishable product before observing demand <em>D</em>. The product costs <em>c</em> per unit and sells for <em>p</em>. Unsold units have salvage value <em>s</em>.</p>
+
+<div class="formula-box">
+    Critical Ratio: &nbsp; Q* satisfies &nbsp; F(Q*) = (p &minus; c) / (p &minus; s) = C<sub>u</sub> / (C<sub>u</sub> + C<sub>o</sub>)
+</div>
+
+<p>Where C<sub>u</sub> = p &minus; c is the underage cost (lost profit) and C<sub>o</sub> = c &minus; s is the overage cost (loss on unsold units).</p>
+
+<h3>Adding a Budget Constraint</h3>
+<p>Now suppose the firm has initial wealth <em>W</em> and can borrow at interest rate <em>r</em>. If cQ &le; W, the firm can self-finance. If cQ &gt; W, the firm must borrow (cQ &minus; W) at rate <em>r</em>, and the effective cost per unit rises.</p>
+
+<div class="formula-box">
+    Effective cost with borrowing: &nbsp; c<sub>eff</sub> = c &times; (1 + r) &nbsp; for units financed by debt
+</div>
+
+<p>The capital-constrained optimal order is lower than the unconstrained optimal because borrowing increases the effective overage cost. The firm trades off the risk of overstocking (and paying interest on unsold inventory) against the risk of lost sales.</p>
+
+<div class="example-box">
+    <strong>Numerical Example:</strong><br>
+    p = $20, c = $10, s = $2, r = 12%, W = $8,000, Demand ~ Normal(1000, 200)<br><br>
+    <strong>Unconstrained:</strong> Critical ratio = (20&minus;10)/(20&minus;2) = 0.556 → Q* = 1,028 units. Cost = $10,280 (exceeds W).<br>
+    <strong>With borrowing:</strong> The firm borrows $2,280 at 12%. For financed units, c<sub>eff</sub> = $11.20. The adjusted critical ratio falls, and Q*<sub>constrained</sub> &asymp; 985 units.<br>
+    <strong>Gap:</strong> The capital constraint costs approximately 43 units of sales, translating to ~$430 in expected lost profit.
+</div>
+
+<h3>Role of Inventory Finance</h3>
+<p>Inventory finance partially alleviates the budget constraint. If the firm can pledge its inventory as collateral and borrow at a rate <em>r<sub>secured</sub></em> &lt; <em>r<sub>unsecured</sub></em>, the effective cost of capital drops, and the constrained order quantity moves closer to the unconstrained optimum.</p>
+
+<div class="key-concept">
+    <strong>Buzacott &amp; Zhang (2004):</strong> The seminal paper integrating production/inventory decisions with asset-based financing. Their key result: the optimal order quantity under asset-based lending depends on both the critical ratio and the loan-to-value ratio. As the advance rate increases, the constrained solution converges to the unconstrained newsvendor solution.
+</div>
+
+<!-- ============================================ -->
+<h2>3.5 Inventory Pledging Structures</h2>
+
+<p>Different supply chain configurations require different pledging structures:</p>
+
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Structure</th><th>When to Use</th><th>Advance Rate</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Blanket lien</strong></td><td>General business lending; lender takes security interest in all inventory</td><td>40-60%</td><td>Retail chain pledges all store inventory</td></tr>
+        <tr><td><strong>Floor plan</strong></td><td>High-value, serialized goods (cars, appliances)</td><td>80-100%</td><td>Auto dealer; each vehicle individually tracked</td></tr>
+        <tr><td><strong>Warehouse receipt</strong></td><td>Standardized commodities with independent storage</td><td>70-85%</td><td>Grain elevator, metal warehouse</td></tr>
+        <tr><td><strong>In-transit finance</strong></td><td>Goods being shipped (ocean, rail, truck)</td><td>60-75%</td><td>Crude oil on a tanker; secured by bill of lading</td></tr>
+    </tbody>
+</table>
+</div>
+
+<!-- ============================================ -->
+<h2>3.5a Monte Carlo Profit Risk Analysis</h2>
+
+<p>The newsvendor model gives us the order quantity that maximizes <em>expected</em> profit. But expected profit tells only half the story. A risk-averse manager also cares about downside outcomes: how bad can things get if demand falls short? Monte Carlo simulation lets us map the full distribution of profit outcomes for any order quantity, connecting inventory management to financial risk analytics.</p>
+
+<h3>Profit Function</h3>
+
+<div class="formula-box">
+    &pi;(Q, D) = p &middot; min(Q, D) + s &middot; max(Q &minus; D, 0) &minus; c &middot; Q
+</div>
+
+<p>The profit function has two regimes depending on whether demand exceeds or falls below the order quantity:</p>
+<ul>
+    <li><strong>When D &ge; Q</strong> (stockout): all units sell, &pi; = (p &minus; c) &middot; Q. Profit is fixed regardless of how high demand goes, because there is no more inventory to sell.</li>
+    <li><strong>When D &lt; Q</strong> (overstock): &pi; = p &middot; D + s &middot; (Q &minus; D) &minus; c &middot; Q = (p &minus; s) &middot; D &minus; (c &minus; s) &middot; Q. Profit falls linearly in the number of unsold units.</li>
+</ul>
+
+<h3>Risk Metrics from Simulation</h3>
+
+<p>Given N simulated demand draws D<sub>1</sub>, ..., D<sub>N</sub>, we compute profit &pi;<sub>i</sub> = &pi;(Q, D<sub>i</sub>) for each draw and then calculate four risk metrics:</p>
+
+<div class="formula-box">
+    E[&pi;] = (1/N) &sum; &pi;<sub>i</sub>
+</div>
+
+<div class="formula-box">
+    &sigma;(&pi;) = &radic;[(1/N) &sum; (&pi;<sub>i</sub> &minus; E[&pi;])&sup2;]
+</div>
+
+<div class="formula-box">
+    VaR(5%) = 5th percentile of {&pi;<sub>1</sub>, ..., &pi;<sub>N</sub>}
+</div>
+
+<div class="formula-box">
+    Sharpe-like Ratio = E[&pi;] / &sigma;(&pi;)
+</div>
+
+<div class="key-concept">
+    <strong>Interpreting VaR(5%):</strong> VaR(5%) answers the question: what is the worst-case profit at the 5th percentile? If VaR(5%) = &minus;$1,800, there is a 5% chance of losing at least $1,800. This connects inventory management to financial risk management. A positive VaR means the firm is profitable even in bad scenarios; a negative VaR signals genuine downside exposure.
+</div>
+
+<h3>Three Ordering Regimes</h3>
+
+<div class="key-concept">
+    <strong>Risk-Return Tradeoff:</strong> Three regimes emerge as Q varies relative to Q*:
+    <ol style="margin:8px 0 0 16px">
+        <li><strong>Q &laquo; Q* (conservative):</strong> Safe but low upside. Nearly all demand scenarios result in a stockout, so profit is nearly deterministic at (p &minus; c) &middot; Q. The Sharpe ratio is high because variance is tiny, but the level of expected profit is well below the optimum.</li>
+        <li><strong>Q &asymp; Q* (optimal expected profit):</strong> Maximum E[&pi;], moderate risk. The profit histogram is right-skewed: a long left tail from overstock scenarios and a flat cap on the upside. VaR is typically positive at this point.</li>
+        <li><strong>Q &gg; Q* (aggressive):</strong> The profit histogram becomes a near-symmetric bell curve centered on (p &minus; c) &middot; D, because almost all demand is fulfilled and the overage cost dominates. Absolute profit variance is higher, VaR turns negative, and the Sharpe ratio falls. The Q that maximizes E[&pi;] is <em>not</em> the same Q that maximizes VaR(5%).</li>
+    </ol>
+</div>
+
+<p>This three-regime structure mirrors the efficient frontier in portfolio theory. Conservative ordering is analogous to holding mostly bonds (low return, low risk). Ordering at Q* is like holding the tangency portfolio (best risk-adjusted return). Aggressive ordering is like a leveraged equity position (higher variance, diminishing marginal return).</p>
+
+<!-- ============================================ -->
+<h2>3.5b Worked Example: Seasonal Product Risk Analysis</h2>
+
+<div class="example-box">
+    <strong>Worked Example: Seasonal Product (&mu; = 500, &sigma; = 120)</strong><br><br>
+    <strong>Step 1 &mdash; Parameters:</strong> &mu; = 500, &sigma; = 120, p = $90, c = $50, s = $15.<br><br>
+    <strong>Step 2 &mdash; Critical Ratio:</strong> CR = (90 &minus; 50) / (90 &minus; 15) = 40/75 = 0.5333.<br><br>
+    <strong>Step 3 &mdash; Optimal Order:</strong> &Phi;<sup>&minus;1</sup>(0.5333) &asymp; 0.084. Q* = 500 + 120 &times; 0.084 &asymp; 510 units.<br><br>
+    <strong>Step 4 &mdash; Aggressive regime (Q = 820):</strong> Well above Q*. E[&pi;] &asymp; $12.9K, VaR(5%) &asymp; &minus;$1.8K, service level &asymp; 99.5%, Sharpe &asymp; 1.44. The profit histogram is a near-perfect bell curve. Although average profit is decent, there is a 5% chance of losing $1,800 or more.<br><br>
+    <strong>Step 5 &mdash; Optimal regime (Q = Q* &asymp; 510):</strong> E[&pi;] &asymp; $16.8K, VaR(5%) &asymp; $6.5K, Sharpe &asymp; 2.9. Higher expected profit <em>and</em> positive VaR. The histogram is right-skewed: most scenarios yield $14K&ndash;$20K, with a long left tail that rarely dips below $6K.<br><br>
+    <strong>Step 6 &mdash; Conservative regime (Q = 300):</strong> E[&pi;] &asymp; $12.5K, VaR(5%) &asymp; $11.8K, Sharpe &asymp; 7.2. Nearly all scenarios yield stable profit around $12K, but upside is capped because the firm stocks out in virtually every scenario.<br><br>
+    <strong>Key Insight:</strong> The optimal Q* simultaneously offers the highest expected profit and a strongly positive VaR. Moving to Q = 820 sacrifices both expected profit and downside protection. Moving to Q = 300 buys safety but leaves substantial profit on the table.
+</div>
+
+<!-- ============================================ -->
+<h2>3.5c Classroom Exercises</h2>
+
+<div class="exercise-box">
+    <h4>Exercise 1: Perishable Goods (s = 0)</h4>
+    <p>Set the salvage value to $0, representing fully perishable goods (e.g., fresh produce, daily newspapers). Using the same parameters (&mu; = 500, &sigma; = 120, p = $90, c = $50), observe how the profit histogram shifts and VaR(5%) drops substantially compared to s = $15.</p>
+    <p>Compute the new optimal order: CR = (90 &minus; 50) / (90 &minus; 0) = 40/90 = 0.444, so &Phi;<sup>&minus;1</sup>(0.444) &asymp; &minus;0.140, and Q* = 500 + 120 &times; (&minus;0.140) &asymp; 483 units.</p>
+    <p class="solution">Compare with the original Q* of 510. The absence of salvage value makes overstocking more costly (C<sub>o</sub> rises from $35 to $50), which pulls Q* below the mean. The downside risk at any given Q is worse because unsold units are a total loss.</p>
+</div>
+
+<div class="exercise-box">
+    <h4>Exercise 2: High-Margin vs. Thin-Margin Products</h4>
+    <p>Compare two products, both with &mu; = 500, &sigma; = 120:</p>
+    <div class="table-wrapper">
+    <table>
+        <thead><tr><th>Parameter</th><th>Product A (High Margin)</th><th>Product B (Thin Margin)</th></tr></thead>
+        <tbody>
+            <tr><td>Selling price (p)</td><td>$200</td><td>$60</td></tr>
+            <tr><td>Unit cost (c)</td><td>$100</td><td>$50</td></tr>
+            <tr><td>Salvage value (s)</td><td>$20</td><td>$40</td></tr>
+            <tr><td>Critical ratio</td><td>(200&minus;100)/(200&minus;20) = 0.556</td><td>(60&minus;50)/(60&minus;40) = 0.500</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p>Run the simulation for each product at various Q values. Product A has higher absolute expected profit but also higher standard deviation and more negative VaR at extreme Q values. Product B has minimal upside but almost no downside risk.</p>
+    <p class="solution">This demonstrates how margin structure shapes the risk profile. High-margin products amplify both gains and losses, while thin-margin products with high salvage values create a natural floor on profits. A risk-averse manager might prefer Product B even though Product A has higher expected profit per unit.</p>
+</div>
+
+<div class="exercise-box">
+    <h4>Exercise 3: AI/ML Extension</h4>
+    <p>In practice, &mu; and &sigma; are estimated from historical data. Suppose a gradient-boosted model trained on 3 years of weekly sales data with features (seasonality, promotions, weather, competitor pricing) produces &mu;&#770; = 520 with a 90% prediction interval of [380, 660], implying &sigma;&#770; &asymp; 85 (compared to the historical &sigma; = 120).</p>
+    <p>Feed these ML-derived parameters into the newsvendor model and observe that Q* shifts and VaR improves.</p>
+    <p class="solution"><strong>Discussion:</strong> Why does a better demand forecast reduce both &sigma; and the gap between E[&pi;] at Q* versus Q = &mu;? Because tighter forecasts compress the profit distribution, making the newsvendor solution less sensitive to the exact choice of Q. The practical implication: investing in forecast accuracy can be more valuable than optimizing Q given a fixed, noisy forecast.</p>
+</div>
+
+<!-- ============================================ -->
+<div class="interactive-section">
+    <h2>Capital-Constrained Newsvendor Simulator</h2>
+    <p style="font-size:13px;color:#475569;margin-bottom:16px;">Adjust the parameters below to see how budget constraints and borrowing costs shift the optimal order quantity and expected profit.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+        <div class="slider-group">
+            <label><span>Selling Price (p)</span><span id="v_price">$20</span></label>
+            <input type="range" id="s_price" min="5" max="50" value="20" step="1">
+        </div>
+        <div class="slider-group">
+            <label><span>Unit Cost (c)</span><span id="v_cost">$10</span></label>
+            <input type="range" id="s_cost" min="2" max="30" value="10" step="1">
+        </div>
+        <div class="slider-group">
+            <label><span>Salvage Value (s)</span><span id="v_salvage">$2</span></label>
+            <input type="range" id="s_salvage" min="0" max="15" value="2" step="1">
+        </div>
+        <div class="slider-group">
+            <label><span>Mean Demand (&mu;)</span><span id="v_mu">1000</span></label>
+            <input type="range" id="s_mu" min="100" max="2000" value="1000" step="10">
+        </div>
+        <div class="slider-group">
+            <label><span>Std Deviation (&sigma;)</span><span id="v_sigma">200</span></label>
+            <input type="range" id="s_sigma" min="20" max="500" value="200" step="5">
+        </div>
+        <div class="slider-group">
+            <label><span>Budget (W)</span><span id="v_budget">$8,000</span></label>
+            <input type="range" id="s_budget" min="500" max="50000" value="8000" step="100">
+        </div>
+        <div class="slider-group">
+            <label><span>Interest Rate (r)</span><span id="v_rate">12%</span></label>
+            <input type="range" id="s_rate" min="0" max="30" value="12" step="0.5">
+        </div>
+    </div>
+
+    <div class="sim-info"><span id="sim_cr"></span> <span id="sim_borrow"></span></div>
+
+    <div class="result-grid">
+        <div class="result-card"><div class="label">Q* Unconstrained</div><div class="value" id="r_qu">--</div></div>
+        <div class="result-card"><div class="label">Q* Constrained</div><div class="value" id="r_qc">--</div></div>
+        <div class="result-card"><div class="label">E[Profit] Uncon.</div><div class="value" id="r_pu">--</div></div>
+        <div class="result-card"><div class="label">E[Profit] Con.</div><div class="value" id="r_pc">--</div></div>
+        <div class="result-card"><div class="label">Financing Cost</div><div class="value" id="r_fc">--</div></div>
+    </div>
+
+    <canvas id="nv_chart" width="860" height="340" style="width:100%;border-radius:8px;background:#fff;border:1px solid #e2e8f0;margin-top:8px;"></canvas>
+</div>
+
+<script>
+(function(){
+    function normCDF(x){
+        if(x<-8) return 0; if(x>8) return 1;
+        var a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,pp=0.3275911;
+        var sign=1; if(x<0){sign=-1;x=-x;}
+        var t=1/(1+pp*x);
+        var y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x/2);
+        return 0.5*(1+sign*y);
+    }
+    function normInv(p){
+        if(p<=0) return -8; if(p>=1) return 8;
+        if(p<0.5) return -normInv(1-p);
+        var t=Math.sqrt(-2*Math.log(1-p));
+        var c0=2.515517,c1=0.802853,c2=0.010328,d1=1.432788,d2=0.189269,d3=0.001308;
+        return t-(c0+c1*t+c2*t*t)/(1+d1*t+d2*t*t+d3*t*t*t);
+    }
+    function normPDF(x){return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI);}
+    function stdLoss(z){return normPDF(z)-z*(1-normCDF(z));}
+    function expectedProfit(Q,p,ceff,s,mu,sigma){
+        var z=(Q-mu)/sigma;
+        var eSales=Q-sigma*stdLoss(z);
+        var eLeftover=Q-eSales;
+        return p*eSales+s*eLeftover-ceff*Q;
+    }
+
+    var ids=['s_price','s_cost','s_salvage','s_mu','s_sigma','s_budget','s_rate'];
+    ids.forEach(function(id){document.getElementById(id).addEventListener('input',update);});
+
+    function update(){
+        var pr=+document.getElementById('s_price').value;
+        var co=+document.getElementById('s_cost').value;
+        var sa=+document.getElementById('s_salvage').value;
+        var mu=+document.getElementById('s_mu').value;
+        var si=+document.getElementById('s_sigma').value;
+        var W=+document.getElementById('s_budget').value;
+        var r=+document.getElementById('s_rate').value/100;
+        if(co>=pr) co=pr-1;
+        if(sa>=co) sa=co-1;
+        if(sa<0) sa=0;
+        document.getElementById('v_price').textContent='$'+pr;
+        document.getElementById('v_cost').textContent='$'+co;
+        document.getElementById('v_salvage').textContent='$'+sa;
+        document.getElementById('v_mu').textContent=mu;
+        document.getElementById('v_sigma').textContent=si;
+        document.getElementById('v_budget').textContent='$'+W.toLocaleString();
+        document.getElementById('v_rate').textContent=(r*100)+'%';
+
+        var CR=(pr-co)/(pr-sa);
+        var zStar=normInv(CR);
+        var Qu=Math.round(mu+zStar*si);
+        if(Qu<0) Qu=0;
+        var Wunits=Math.floor(W/co);
+        var needsBorrow=(Qu>Wunits);
+        var Qc,ceff_avg;
+        if(!needsBorrow){Qc=Qu;ceff_avg=co;}
+        else{
+            var cBorrow=co*(1+r);
+            if(cBorrow>=pr){Qc=Wunits;ceff_avg=co;needsBorrow=(Qc>Wunits);}
+            else{
+                var CR_c=(pr-cBorrow)/(pr-sa);
+                var zC=normInv(CR_c);
+                Qc=Math.round(mu+zC*si);
+                if(Qc<0) Qc=0;
+                if(Qc<=Wunits){needsBorrow=false;ceff_avg=co;}
+            }
+        }
+        var profitU=expectedProfit(Qu,pr,co,sa,mu,si);
+        var profitC;
+        if(!needsBorrow||Qc<=Wunits){profitC=expectedProfit(Qc,pr,co,sa,mu,si);}
+        else{
+            var totalCost=Wunits*co+(Qc-Wunits)*co*(1+r);
+            ceff_avg=totalCost/Qc;
+            profitC=expectedProfit(Qc,pr,ceff_avg,sa,mu,si);
+        }
+        var finCost=needsBorrow?(Qc-Wunits)*co*r:0;
+        if(finCost<0) finCost=0;
+
+        document.getElementById('r_qu').textContent=Qu.toLocaleString();
+        document.getElementById('r_qc').textContent=Qc.toLocaleString();
+        document.getElementById('r_pu').textContent='$'+Math.round(profitU).toLocaleString();
+        document.getElementById('r_pc').textContent='$'+Math.round(profitC).toLocaleString();
+        document.getElementById('r_fc').textContent='$'+Math.round(finCost).toLocaleString();
+
+        document.getElementById('sim_cr').textContent='Critical ratio (unconstrained): '+CR.toFixed(3);
+        if(needsBorrow){
+            document.getElementById('sim_borrow').textContent=' | Needs to borrow: Yes ($'+Math.round((Qc-Wunits)*co).toLocaleString()+' at '+(r*100).toFixed(1)+'%)';
+        } else {
+            document.getElementById('sim_borrow').textContent=' | Needs to borrow: No (budget covers Q*)';
+        }
+        drawChart(pr,co,sa,mu,si,Qu,Qc,W,r,needsBorrow,Wunits);
+    }
+
+    function drawChart(pr,co,sa,mu,si,Qu,Qc,W,r,needsBorrow,Wunits){
+        var canvas=document.getElementById('nv_chart');
+        var ctx=canvas.getContext('2d');
+        var dpr=window.devicePixelRatio||1;
+        canvas.width=860*dpr;canvas.height=340*dpr;
+        ctx.scale(dpr,dpr);
+        var cw=860,ch=340;
+        ctx.clearRect(0,0,cw,ch);ctx.fillStyle='#fff';ctx.fillRect(0,0,cw,ch);
+        var pad={l:70,r:20,t:30,b:50};
+        var pw=cw-pad.l-pad.r,ph=ch-pad.t-pad.b;
+        var qMin=Math.max(0,Math.round(mu-3*si));
+        var qMax=Math.round(mu+3*si);
+        if(qMax<Qu+si) qMax=Qu+si;
+        if(qMax<Qc+si) qMax=Qc+si;
+        var pts=120;
+        var profitsU=[],profitsC=[];
+        var minP=Infinity,maxP=-Infinity;
+        for(var i=0;i<=pts;i++){
+            var q=qMin+i*(qMax-qMin)/pts;
+            var pu=expectedProfit(q,pr,co,sa,mu,si);
+            var pc;
+            if(q<=Wunits){pc=expectedProfit(q,pr,co,sa,mu,si);}
+            else{var tc=Wunits*co+(q-Wunits)*co*(1+r);var ce=tc/q;pc=expectedProfit(q,pr,ce,sa,mu,si);}
+            profitsU.push({q:q,p:pu});profitsC.push({q:q,p:pc});
+            if(pu<minP) minP=pu;if(pu>maxP) maxP=pu;
+            if(pc<minP) minP=pc;if(pc>maxP) maxP=pc;
+        }
+        var pRange=maxP-minP;if(pRange<10) pRange=10;
+        minP-=pRange*0.08;maxP+=pRange*0.08;
+        function xPos(q){return pad.l+(q-qMin)/(qMax-qMin)*pw;}
+        function yPos(p){return pad.t+(1-(p-minP)/(maxP-minP))*ph;}
+        ctx.strokeStyle='#f1f5f9';ctx.lineWidth=1;
+        for(var g=0;g<=5;g++){var gy=pad.t+g*ph/5;ctx.beginPath();ctx.moveTo(pad.l,gy);ctx.lineTo(pad.l+pw,gy);ctx.stroke();}
+        if(minP<0&&maxP>0){ctx.strokeStyle='#cbd5e1';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(pad.l,yPos(0));ctx.lineTo(pad.l+pw,yPos(0));ctx.stroke();ctx.setLineDash([]);}
+        ctx.strokeStyle='#3b82f6';ctx.lineWidth=2.5;ctx.beginPath();
+        profitsU.forEach(function(pt,i){if(i===0) ctx.moveTo(xPos(pt.q),yPos(pt.p));else ctx.lineTo(xPos(pt.q),yPos(pt.p));});
+        ctx.stroke();
+        ctx.strokeStyle='#ef4444';ctx.lineWidth=2.5;ctx.beginPath();
+        profitsC.forEach(function(pt,i){if(i===0) ctx.moveTo(xPos(pt.q),yPos(pt.p));else ctx.lineTo(xPos(pt.q),yPos(pt.p));});
+        ctx.stroke();
+        ctx.strokeStyle='#3b82f6';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);
+        ctx.beginPath();ctx.moveTo(xPos(Qu),pad.t);ctx.lineTo(xPos(Qu),pad.t+ph);ctx.stroke();ctx.setLineDash([]);
+        ctx.strokeStyle='#ef4444';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);
+        ctx.beginPath();ctx.moveTo(xPos(Qc),pad.t);ctx.lineTo(xPos(Qc),pad.t+ph);ctx.stroke();ctx.setLineDash([]);
+        ctx.font='bold 11px Inter,sans-serif';ctx.textAlign='center';
+        ctx.fillStyle='#3b82f6';ctx.fillText('Q*='+Qu,xPos(Qu),pad.t-8);
+        ctx.fillStyle='#ef4444';ctx.fillText('Q*c='+Qc,xPos(Qc),pad.t-8);
+        ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,pad.t+ph);ctx.lineTo(pad.l+pw,pad.t+ph);ctx.stroke();
+        ctx.fillStyle='#64748b';ctx.font='11px Inter,sans-serif';ctx.textAlign='center';
+        for(var t=0;t<=5;t++){var qv=qMin+t*(qMax-qMin)/5;ctx.fillText(Math.round(qv),xPos(qv),pad.t+ph+18);}
+        ctx.fillText('Order Quantity (Q)',pad.l+pw/2,pad.t+ph+40);
+        ctx.textAlign='right';
+        for(var t=0;t<=5;t++){var pv=minP+t*(maxP-minP)/5;ctx.fillText('$'+Math.round(pv).toLocaleString(),pad.l-8,pad.t+ph-t*ph/5+4);}
+        ctx.save();ctx.translate(14,pad.t+ph/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText('Expected Profit',0,0);ctx.restore();
+        ctx.font='bold 12px Inter,sans-serif';
+        ctx.fillStyle='#3b82f6';ctx.fillRect(pad.l+pw-200,pad.t+10,14,3);ctx.textAlign='left';ctx.fillText('Unconstrained',pad.l+pw-182,pad.t+15);
+        ctx.fillStyle='#ef4444';ctx.fillRect(pad.l+pw-200,pad.t+28,14,3);ctx.fillText('Constrained',pad.l+pw-182,pad.t+33);
+    }
+    update();
+})();
+</script>
+
+<div class="takeaway">
+    <h3>Chapter 3 Takeaways</h3>
+    <ul>
+        <li>Inventory finance converts physical goods into liquidity. The advance rate (50-80%) reflects liquidation risk and collateral quality.</li>
+        <li>Warehouse receipts provide legal certainty and physical control. Public warehousing offers the strongest protections; trust receipts offer the weakest.</li>
+        <li>Commodity finance benefits from transparent pricing and hedging instruments, enabling higher advance rates and lower borrowing costs.</li>
+        <li>Capital constraints reduce the optimal newsvendor order. Inventory-based lending partially closes this gap by lowering the effective cost of capital.</li>
+        <li>The structure of the pledge (blanket lien, floor plan, warehouse receipt, in-transit) should match the nature of the inventory and the lender's ability to monitor and liquidate.</li>
+    </ul>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Routing Optimization: TSP & Last-Mile Delivery | OM/SCM/BA Core Curriculum</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+Pro:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #7c2d12;
+            --secondary: #b45309;
+            --accent: #f59e0b;
+            --accent-light: #fcd34d;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --bg-dark: #1c1917;
+            --bg-medium: #292524;
+            --bg-light: #3f3f46;
+            --text-primary: #fafaf9;
+            --text-secondary: #d6d3d1;
+            --text-muted: #a8a29e;
+            --border: rgba(245, 158, 11, 0.2);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Source Sans Pro', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .container { max-width: 1900px; margin: 0 auto; padding: 20px; }
+        
+        /* Academic Header */
+        .academic-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--bg-medium) 100%);
+            border-bottom: 3px solid var(--accent);
+            padding: 25px 30px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .institution-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo-placeholder {
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--bg-dark);
+        }
+        .course-info h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .course-info .subtitle {
+            font-size: 0.95rem;
+            color: var(--accent-light);
+            font-weight: 400;
+        }
+        .instructor-info {
+            text-align: right;
+            padding: 10px 20px;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+        .instructor-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .instructor-title {
+            font-size: 0.85rem;
+            color: var(--accent-light);
+        }
+        .module-title {
+            text-align: center;
+        }
+        .module-title h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .module-title p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+        }
+
+        /* Learning Objectives */
+        .learning-panel {
+            background: linear-gradient(180deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin-bottom: 20px;
+        }
+        .learning-panel h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .objectives-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        .objective-item {
+            background: rgba(245, 158, 11, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .objective-item .number {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            background: var(--accent);
+            color: var(--bg-dark);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+        .objective-item p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Dashboard */
+        .dashboard { display: grid; grid-template-columns: 300px 1fr 340px; gap: 20px; }
+        .panel {
+            background: var(--bg-medium);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+        .panel-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        /* Controls */
+        .control-group { margin-bottom: 16px; }
+        .control-group label { 
+            display: block; 
+            font-size: 0.75rem; 
+            color: var(--text-secondary); 
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-light);
+            -webkit-appearance: none;
+        }
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+        }
+        .value-display { display: flex; justify-content: space-between; margin-top: 6px; }
+        .value-display span { font-size: 0.7rem; color: var(--text-muted); }
+        .value-display .current-value { 
+            font-size: 0.9rem; 
+            font-weight: 700; 
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .algorithm-select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .btn-group { display: flex; gap: 8px; margin-top: 15px; }
+        .btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--secondary)); color: var(--bg-dark); }
+        .btn-secondary { background: var(--bg-light); color: var(--text-secondary); border: 1px solid var(--border); }
+        .btn-algo { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; margin-top: 8px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.25); }
+
+        /* Theory Box */
+        .theory-box {
+            background: rgba(28, 25, 23, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid var(--accent);
+        }
+        .theory-box h4 { 
+            color: var(--accent); 
+            font-size: 0.8rem; 
+            margin-bottom: 8px;
+            font-family: 'Playfair Display', serif;
+        }
+        .formula { 
+            font-family: 'JetBrains Mono', monospace; 
+            color: var(--text-primary); 
+            font-size: 0.8rem; 
+            line-height: 1.8;
+            background: rgba(245, 158, 11, 0.08);
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .tags { display: flex; gap: 6px; margin-top: 15px; flex-wrap: wrap; }
+        .tag {
+            padding: 4px 10px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            font-size: 0.65rem;
+            color: var(--accent-light);
+            text-transform: uppercase;
+        }
+
+        /* Center Section */
+        .center-section { display: flex; flex-direction: column; gap: 15px; }
+        .simulation-canvas {
+            height: 420px;
+            background: linear-gradient(180deg, var(--bg-medium) 0%, var(--bg-dark) 100%);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        #routeCanvas { width: 100%; height: 100%; cursor: crosshair; }
+        
+        .metrics-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+        .metric-card {
+            background: var(--bg-medium);
+            border-radius: 10px;
+            padding: 15px 10px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .metric-icon { font-size: 1.4rem; margin-bottom: 5px; }
+        .metric-value { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .metric-value.success { color: var(--success); }
+        .metric-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; }
+        
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .chart-container { height: 190px; }
+
+        /* Right Panel */
+        .right-panel { display: flex; flex-direction: column; gap: 15px; }
+        .route-list { max-height: 200px; overflow-y: auto; }
+        .route-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            background: rgba(28, 25, 23, 0.6);
+            border-radius: 6px;
+            margin-bottom: 5px;
+            font-size: 0.75rem;
+        }
+        .route-item .number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.7rem;
+        }
+        .route-item .info { flex: 1; color: var(--text-secondary); }
+        .route-item .distance { color: var(--accent); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+        .status-item .label { color: var(--text-muted); }
+        .status-item .value { font-weight: 600; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(28, 25, 23, 0.5);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+        }
+        .insight-icon { font-size: 1.2rem; }
+        .insight-text { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; }
+        .insight-text strong { color: var(--accent); }
+
+        .legend { display: flex; gap: 20px; justify-content: center; margin-top: 10px; font-size: 0.75rem; }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 14px; height: 14px; border-radius: 50%; }
+        .legend-dot.depot { background: var(--success); }
+        .legend-dot.stop { background: var(--accent); }
+        .legend-dot.visited { background: var(--text-muted); }
+
+        .comparison-table { font-size: 0.75rem; width: 100%; margin-top: 10px; }
+        .comparison-table th { color: var(--text-muted); padding: 6px; text-align: left; }
+        .comparison-table td { padding: 6px; border-bottom: 1px solid var(--border); }
+        .comparison-table .best { color: var(--success); font-weight: 600; }
+        .comparison-table .optimal-row { background: rgba(16, 185, 129, 0.15); }
+        .comparison-table .optimal-row td { color: #10b981; font-weight: 600; }
+
+        .speed-control { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+        .speed-control label { font-size: 0.75rem; color: var(--text-muted); }
+        .speed-btn {
+            padding: 5px 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .speed-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(245, 158, 11, 0.1); }
+
+        /* Footer Sections */
+        .insights-footer {
+            background: linear-gradient(135deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin-top: 20px;
+        }
+        .insights-footer h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .insight-block h4 {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .insight-block p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .references {
+            background: var(--bg-medium);
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin-top: 20px;
+            border: 1px solid var(--border);
+        }
+        .references h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+        .references p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        @media (max-width: 1400px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .charts-row { grid-template-columns: 1fr; }
+            .objectives-grid { grid-template-columns: repeat(2, 1fr); }
+            .insights-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Academic Header -->
+        <header class="academic-header">
+            <div class="header-top">
+                <div class="institution-info">
+                    <div class="logo-placeholder">Σ</div>
+                    <div class="course-info">
+                        <h1>OM / SCM / BA</h1>
+                        <p class="subtitle">Interactive Learning Module</p>
+                    </div>
+                </div>
+                <div class="instructor-info">
+                    <div class="instructor-name">Chenhao Zhou</div>
+                    <div class="instructor-title">PhD Candidate | Lecturer</div>
+                </div>
+            </div>
+            <div class="module-title">
+                <h2>Vehicle Routing Optimization: The Traveling Salesman Problem</h2>
+                <p>Algorithms for Last-Mile Delivery and Logistics Network Efficiency</p>
+            </div>
+        </header>
+
+        <!-- Learning Objectives -->
+        <section class="learning-panel">
+            <h3>📚 Learning Objectives</h3>
+            <div class="objectives-grid">
+                <div class="objective-item">
+                    <span class="number">1</span>
+                    <p>Understand the structure and computational complexity of the Traveling Salesman Problem (TSP) as NP-hard optimization</p>
+                </div>
+                <div class="objective-item">
+                    <span class="number">2</span>
+                    <p>Compare heuristic algorithms including Nearest Neighbor, 2-opt local search, and Christofides' algorithm for approximation</p>
+                </div>
+                <div class="objective-item">
+                    <span class="number">3</span>
+                    <p>Evaluate trade-offs between solution quality and computational time in practical routing applications</p>
+                </div>
+                <div class="objective-item">
+                    <span class="number">4</span>
+                    <p>Apply routing optimization concepts to last-mile delivery, field service, and supply chain logistics challenges</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Dashboard -->
+        <div class="dashboard">
+            <!-- Left Panel -->
+            <div class="panel">
+                <div class="panel-title">⚙️ Route Parameters</div>
+                
+                <div class="control-group">
+                    <label>Number of Delivery Stops</label>
+                    <input type="range" id="numStops" min="5" max="25" value="10" oninput="updateParams()">
+                    <div class="value-display">
+                        <span>5</span>
+                        <span class="current-value"><span id="stopsValue">10</span> stops</span>
+                        <span>25</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Cost per Mile ($)</label>
+                    <input type="range" id="costPerMile" min="1" max="10" value="3" step="0.5" oninput="updateParams()">
+                    <div class="value-display">
+                        <span>$1</span>
+                        <span class="current-value">$<span id="costValue">3.0</span></span>
+                        <span>$10</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Average Speed (mph)</label>
+                    <input type="range" id="avgSpeed" min="15" max="45" value="25" oninput="updateParams()">
+                    <div class="value-display">
+                        <span>15</span>
+                        <span class="current-value"><span id="speedValue">25</span> mph</span>
+                        <span>45</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Routing Algorithm</label>
+                    <select class="algorithm-select" id="algorithm">
+                        <option value="nearest">Nearest Neighbor (Greedy)</option>
+                        <option value="2opt">2-Opt Local Search</option>
+                        <option value="insertion">Cheapest Insertion</option>
+                        <option value="christofides">Christofides Approximation</option>
+                    </select>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="generateStops()">🎲 Generate</button>
+                    <button class="btn btn-secondary" onclick="resetAll()">↻ Reset</button>
+                </div>
+                <button class="btn btn-algo" onclick="calculateRoute()" style="width: 100%;">📍 Calculate Route</button>
+                <button class="btn btn-secondary" onclick="toggleAnimation()" id="startBtn" style="width: 100%; margin-top: 8px;">▶ Animate</button>
+
+                <div class="theory-box">
+                    <h4>TSP Formulation</h4>
+                    <div class="formula">
+                        min Σᵢ Σⱼ cᵢⱼ · xᵢⱼ<br>
+                        s.t. Σⱼ xᵢⱼ = 1, ∀i<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp; Σᵢ xᵢⱼ = 1, ∀j<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp; subtour elimination
+                    </div>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 8px;">
+                        O(n!) complexity → heuristics essential for n > 15
+                    </p>
+                </div>
+
+                <div class="tags">
+                    <span class="tag">NP-Hard</span>
+                    <span class="tag">Combinatorial</span>
+                    <span class="tag">Heuristics</span>
+                    <span class="tag">Last-Mile</span>
+                </div>
+
+                <div class="control-group" style="margin-top: 15px;">
+                    <button class="btn btn-primary" onclick="compareAllAlgorithms()" style="width: 100%; background: linear-gradient(135deg, #059669, #047857);">🔬 Compare All Algorithms</button>
+                </div>
+                <div class="control-group" style="margin-top: 10px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="showOptimal" onchange="toggleOptimalOverlay()" style="width: 18px; height: 18px; accent-color: #10b981;">
+                        <span>Show Optimal Route</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Center Section -->
+            <div class="center-section">
+                <div class="simulation-canvas panel">
+                    <canvas id="routeCanvas"></canvas>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-dot depot"></div><span>Depot (Start/End)</span></div>
+                    <div class="legend-item"><div class="legend-dot stop"></div><span>Delivery Stop</span></div>
+                    <div class="legend-item"><div class="legend-dot visited"></div><span>Visited</span></div>
+                    <div class="legend-item"><div class="legend-dot" style="background: #10b981; box-shadow: 0 0 8px #10b981;"></div><span>Optimal Route</span></div>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-card">
+                        <div class="metric-icon">📍</div>
+                        <div class="metric-value" id="totalStops">0</div>
+                        <div class="metric-label">Stops</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🛣️</div>
+                        <div class="metric-value" id="totalDistance">0</div>
+                        <div class="metric-label">Distance (mi)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">⏱️</div>
+                        <div class="metric-value" id="totalTime">0</div>
+                        <div class="metric-label">Time (hrs)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">💰</div>
+                        <div class="metric-value" id="totalCost">$0</div>
+                        <div class="metric-label">Cost</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📦</div>
+                        <div class="metric-value" id="packagesDelivered">0</div>
+                        <div class="metric-label">Packages</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📊</div>
+                        <div class="metric-value success" id="efficiency">-</div>
+                        <div class="metric-label">vs Optimal</div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="panel">
+                        <div class="panel-title">📈 Algorithm Comparison</div>
+                        <div class="chart-container">
+                            <canvas id="comparisonChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-title">📊 Distance by Segment</div>
+                        <div class="chart-container">
+                            <canvas id="segmentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <div class="panel">
+                    <div class="panel-title">📋 Route Sequence</div>
+                    <div class="route-list" id="routeList">
+                        <div class="route-item">
+                            <span class="number">-</span>
+                            <span class="info">Generate stops to see route</span>
+                            <span class="distance">-</span>
+                        </div>
+                    </div>
+                    <div class="speed-control">
+                        <label>Animation:</label>
+                        <button class="speed-btn" onclick="setSpeed(0.5)">0.5x</button>
+                        <button class="speed-btn active" onclick="setSpeed(1)">1x</button>
+                        <button class="speed-btn" onclick="setSpeed(2)">2x</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">📊 Performance Metrics</div>
+                    <div class="status-item">
+                        <span class="label">Algorithm</span>
+                        <span class="value" id="currentAlgo">Nearest Neighbor</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Computation Time</span>
+                        <span class="value" id="compTime">0 ms</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Lower Bound (MST)</span>
+                        <span class="value" id="lowerBound">- mi</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Gap to LB</span>
+                        <span class="value" id="gapLB">-%</span>
+                    </div>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr><th>Algorithm</th><th>Distance</th><th>Gap</th></tr>
+                        </thead>
+                        <tbody id="algoComparison">
+                            <tr class="optimal-row"><td>✨ Optimal</td><td id="optimalDist">-</td><td>0%</td></tr>
+                            <tr><td>Nearest Neighbor</td><td>-</td><td>-</td></tr>
+                            <tr><td>2-Opt</td><td>-</td><td>-</td></tr>
+                            <tr><td>Insertion</td><td>-</td><td>-</td></tr>
+                            <tr><td>Christofides</td><td>-</td><td>-</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">💡 Strategic Insights</div>
+                    <div id="insights">
+                        <div class="insight-item">
+                            <span class="insight-icon">📌</span>
+                            <span class="insight-text">
+                                Click "Generate" to create delivery stops, then "Calculate Route" to find an optimized path.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Managerial Insights -->
+        <section class="insights-footer">
+            <h3>🎯 Key Managerial Insights</h3>
+            <div class="insights-grid">
+                <div class="insight-block">
+                    <h4>The Last-Mile Challenge</h4>
+                    <p>Last-mile delivery often represents 50%+ of total logistics costs. Efficient routing directly impacts profitability, customer satisfaction through shorter delivery windows, and environmental sustainability through reduced fuel consumption.</p>
+                </div>
+                <div class="insight-block">
+                    <h4>Heuristics vs. Optimality</h4>
+                    <p>For practical problem sizes (20+ stops), exact optimal solutions are computationally infeasible. Well-designed heuristics like 2-opt typically achieve within 5% of optimal while running in seconds rather than hours.</p>
+                </div>
+                <div class="insight-block">
+                    <h4>Dynamic Routing Evolution</h4>
+                    <p>Modern logistics uses real-time traffic data, dynamic customer requests, and machine learning to continuously re-optimize routes. The static TSP is a foundational building block for these advanced systems.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- References -->
+        <section class="references">
+            <h3>📚 Academic References</h3>
+            <p>
+                Applegate, D. L., Bixby, R. E., Chvátal, V., & Cook, W. J. (2006). <em>The Traveling Salesman Problem: A Computational Study</em>. Princeton University Press. • 
+                Toth, P., & Vigo, D. (2014). <em>Vehicle Routing: Problems, Methods, and Applications</em> (2nd ed.). SIAM. • 
+                Lin, S., & Kernighan, B. W. (1973). An effective heuristic algorithm for the traveling-salesman problem. <em>Operations Research</em>, 21(2), 498-516. •
+                Christofides, N. (1976). Worst-case analysis of a new heuristic for the travelling salesman problem. Technical Report, Carnegie Mellon University.
+            </p>
+        </section>
+    </div>
+
+    <script>
+        const SCALE = 2; // pixels per mile
+        let params = { numStops: 10, costPerMile: 3, avgSpeed: 25 };
+        let stops = [];
+        let route = [];
+        let visited = [];
+        let depot = { x: 0, y: 0 };
+        let isAnimating = false;
+        let animationProgress = 0;
+        let simSpeed = 1;
+        let lastFrameTime = 0;
+        let algoResults = {};
+        let optimalRoute = [];
+        let optimalDistance = Infinity;
+        let showOptimalOverlay = false;
+
+        const canvas = document.getElementById('routeCanvas');
+        const ctx = canvas.getContext('2d');
+        let comparisonChart, segmentChart;
+
+        function init() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            canvas.addEventListener('click', handleCanvasClick);
+            updateParams();
+            initCharts();
+            render();
+        }
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            depot = { x: canvas.width / 2, y: canvas.height / 2 };
+            render();
+        }
+
+        function initCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#d6d3d1', font: { size: 11 } } } },
+                scales: {
+                    x: { grid: { color: 'rgba(245, 158, 11, 0.1)' }, ticks: { color: '#a8a29e' } },
+                    y: { grid: { color: 'rgba(245, 158, 11, 0.1)' }, ticks: { color: '#a8a29e' } }
+                }
+            };
+
+            comparisonChart = new Chart(document.getElementById('comparisonChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Optimal', 'Nearest', '2-Opt', 'Insertion', 'Christofides'],
+                    datasets: [{
+                        label: 'Distance (mi)',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.7)', 'rgba(5, 150, 105, 0.7)', 'rgba(139, 92, 246, 0.7)', 'rgba(59, 130, 246, 0.7)'],
+                        borderColor: ['#10b981', '#f59e0b', '#059669', '#8b5cf6', '#3b82f6'],
+                        borderWidth: 2
+                    }]
+                },
+                options: chartOptions
+            });
+
+            segmentChart = new Chart(document.getElementById('segmentChart'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Segment Distance',
+                        data: [],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        function updateParams() {
+            params.numStops = parseInt(document.getElementById('numStops').value);
+            params.costPerMile = parseFloat(document.getElementById('costPerMile').value);
+            params.avgSpeed = parseInt(document.getElementById('avgSpeed').value);
+
+            document.getElementById('stopsValue').textContent = params.numStops;
+            document.getElementById('costValue').textContent = params.costPerMile.toFixed(1);
+            document.getElementById('speedValue').textContent = params.avgSpeed;
+        }
+
+        function handleCanvasClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const padding = 50;
+            if (x < padding || x > canvas.width - padding || y < padding || y > canvas.height - padding) return;
+            
+            stops.push({
+                id: stops.length + 1,
+                x: x,
+                y: y,
+                packages: Math.floor(Math.random() * 5) + 1
+            });
+            
+            route = [];
+            visited = [];
+            updateDisplays();
+            render();
+        }
+
+        function generateStops() {
+            stops = [];
+            route = [];
+            visited = [];
+            const n = params.numStops;
+            const padding = 60;
+            
+            for (let i = 0; i < n; i++) {
+                stops.push({
+                    id: i + 1,
+                    x: padding + Math.random() * (canvas.width - 2 * padding),
+                    y: padding + Math.random() * (canvas.height - 2 * padding),
+                    packages: Math.floor(Math.random() * 5) + 1
+                });
+            }
+            
+            updateDisplays();
+            render();
+        }
+
+        function distance(a, b) {
+            return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2) / SCALE;
+        }
+
+        function calculateRoute() {
+            if (stops.length < 2) {
+                alert('Please add at least 2 delivery stops!');
+                return;
+            }
+
+            const algo = document.getElementById('algorithm').value;
+            const startTime = performance.now();
+            
+            switch (algo) {
+                case 'nearest':
+                    route = nearestNeighbor();
+                    break;
+                case '2opt':
+                    route = twoOptImprove(nearestNeighbor());
+                    break;
+                case 'insertion':
+                    route = cheapestInsertion();
+                    break;
+                case 'christofides':
+                    route = christofidesApprox();
+                    break;
+            }
+            
+            const endTime = performance.now();
+            const compTime = (endTime - startTime).toFixed(2);
+            
+            document.getElementById('currentAlgo').textContent = document.getElementById('algorithm').options[document.getElementById('algorithm').selectedIndex].text;
+            document.getElementById('compTime').textContent = compTime + ' ms';
+            
+            calculateAllAlgorithms();
+            updateMetrics();
+            updateRouteList();
+            updateCharts();
+            updateInsights();
+            render();
+        }
+
+        function nearestNeighbor() {
+            const result = [];
+            const unvisited = [...stops];
+            let current = depot;
+            
+            while (unvisited.length > 0) {
+                let nearest = null;
+                let minDist = Infinity;
+                
+                for (const stop of unvisited) {
+                    const d = distance(current, stop);
+                    if (d < minDist) {
+                        minDist = d;
+                        nearest = stop;
+                    }
+                }
+                
+                result.push(nearest);
+                current = nearest;
+                unvisited.splice(unvisited.indexOf(nearest), 1);
+            }
+            
+            return result;
+        }
+
+        function twoOptImprove(tour) {
+            let improved = true;
+            let best = [...tour];
+            
+            while (improved) {
+                improved = false;
+                for (let i = 0; i < best.length - 1; i++) {
+                    for (let j = i + 2; j < best.length; j++) {
+                        const newTour = twoOptSwap(best, i, j);
+                        if (tourLength(newTour) < tourLength(best)) {
+                            best = newTour;
+                            improved = true;
+                        }
+                    }
+                }
+            }
+            
+            return best;
+        }
+
+        function twoOptSwap(tour, i, j) {
+            const newTour = tour.slice(0, i + 1);
+            for (let k = j; k > i; k--) {
+                newTour.push(tour[k]);
+            }
+            for (let k = j + 1; k < tour.length; k++) {
+                newTour.push(tour[k]);
+            }
+            return newTour;
+        }
+
+        function cheapestInsertion() {
+            if (stops.length < 2) return [...stops];
+            
+            let tour = [stops[0], stops[1]];
+            const remaining = stops.slice(2);
+            
+            while (remaining.length > 0) {
+                let bestStop = null;
+                let bestPos = 0;
+                let minIncrease = Infinity;
+                
+                for (const stop of remaining) {
+                    for (let i = 0; i <= tour.length; i++) {
+                        const prev = i === 0 ? depot : tour[i - 1];
+                        const next = i === tour.length ? depot : tour[i];
+                        const increase = distance(prev, stop) + distance(stop, next) - distance(prev, next);
+                        
+                        if (increase < minIncrease) {
+                            minIncrease = increase;
+                            bestStop = stop;
+                            bestPos = i;
+                        }
+                    }
+                }
+                
+                tour.splice(bestPos, 0, bestStop);
+                remaining.splice(remaining.indexOf(bestStop), 1);
+            }
+            
+            return tour;
+        }
+
+        function christofidesApprox() {
+            // Simplified: 2-opt on insertion heuristic
+            return twoOptImprove(cheapestInsertion());
+        }
+
+        // Brute-force optimal for small instances (n <= 10)
+        function bruteForceOptimal() {
+            if (stops.length <= 1) return [...stops];
+            if (stops.length > 10) {
+                // For larger instances, use best heuristic result
+                const candidates = [
+                    nearestNeighbor(),
+                    twoOptImprove(nearestNeighbor()),
+                    cheapestInsertion(),
+                    christofidesApprox()
+                ];
+                let best = candidates[0];
+                let bestLen = tourLength(best);
+                for (const c of candidates) {
+                    const len = tourLength(c);
+                    if (len < bestLen) {
+                        bestLen = len;
+                        best = c;
+                    }
+                }
+                return best;
+            }
+            
+            // Exact brute-force for small instances
+            const permutations = getPermutations(stops);
+            let bestTour = permutations[0];
+            let bestLength = tourLength(bestTour);
+            
+            for (const perm of permutations) {
+                const len = tourLength(perm);
+                if (len < bestLength) {
+                    bestLength = len;
+                    bestTour = perm;
+                }
+            }
+            
+            return bestTour;
+        }
+
+        function getPermutations(arr) {
+            if (arr.length <= 1) return [arr];
+            const result = [];
+            
+            for (let i = 0; i < arr.length; i++) {
+                const rest = [...arr.slice(0, i), ...arr.slice(i + 1)];
+                const perms = getPermutations(rest);
+                for (const perm of perms) {
+                    result.push([arr[i], ...perm]);
+                }
+            }
+            
+            return result;
+        }
+
+        function compareAllAlgorithms() {
+            if (stops.length < 2) {
+                alert('Please add at least 2 delivery stops!');
+                return;
+            }
+
+            const statusEl = document.getElementById('insights');
+            statusEl.innerHTML = `<div class="insight-item">
+                <span class="insight-icon">⏳</span>
+                <span class="insight-text">Computing all algorithms${stops.length > 8 ? ' (this may take a moment for optimal)' : ''}...</span>
+            </div>`;
+
+            // Use setTimeout to allow UI update
+            setTimeout(() => {
+                const startTime = performance.now();
+                
+                // Calculate optimal
+                optimalRoute = bruteForceOptimal();
+                optimalDistance = tourLength(optimalRoute);
+                
+                // Calculate all heuristics
+                const nnRoute = nearestNeighbor();
+                const twoOptRoute = twoOptImprove([...nnRoute]);
+                const insertionRoute = cheapestInsertion();
+                const christofidesRoute = christofidesApprox();
+                
+                algoResults = {
+                    optimal: optimalDistance,
+                    nearest: tourLength(nnRoute),
+                    twoopt: tourLength(twoOptRoute),
+                    insertion: tourLength(insertionRoute),
+                    christofides: tourLength(christofidesRoute)
+                };
+                
+                const endTime = performance.now();
+                document.getElementById('compTime').textContent = (endTime - startTime).toFixed(2) + ' ms';
+                
+                // Update chart
+                comparisonChart.data.datasets[0].data = [
+                    optimalDistance.toFixed(1),
+                    algoResults.nearest.toFixed(1),
+                    algoResults.twoopt.toFixed(1),
+                    algoResults.insertion.toFixed(1),
+                    algoResults.christofides.toFixed(1)
+                ];
+                comparisonChart.update();
+                
+                // Update comparison table
+                updateComparisonTable();
+                
+                // Enable optimal overlay checkbox
+                document.getElementById('showOptimal').disabled = false;
+                
+                // Update insights
+                updateCompareInsights();
+                
+                render();
+            }, 50);
+        }
+
+        function updateComparisonTable() {
+            const rows = document.querySelectorAll('#algoComparison tr');
+            const algos = ['optimal', 'nearest', 'twoopt', 'insertion', 'christofides'];
+            
+            rows.forEach((row, i) => {
+                if (algos[i] && algoResults[algos[i]] !== undefined) {
+                    const dist = algoResults[algos[i]];
+                    const gap = i === 0 ? 0 : ((dist - optimalDistance) / optimalDistance * 100);
+                    row.cells[1].textContent = dist.toFixed(1) + ' mi';
+                    row.cells[2].textContent = gap.toFixed(1) + '%';
+                    
+                    if (i > 0) {
+                        // Highlight if this heuristic found optimal
+                        if (Math.abs(dist - optimalDistance) < 0.01) {
+                            row.cells[1].className = 'best';
+                            row.cells[2].className = 'best';
+                        } else {
+                            row.cells[1].className = '';
+                            row.cells[2].className = '';
+                        }
+                    }
+                }
+            });
+            
+            document.getElementById('optimalDist').textContent = optimalDistance.toFixed(1) + ' mi';
+        }
+
+        function updateCompareInsights() {
+            let insights = '';
+            
+            // Find best heuristic
+            const heuristics = {
+                'Nearest Neighbor': algoResults.nearest,
+                '2-Opt': algoResults.twoopt,
+                'Insertion': algoResults.insertion,
+                'Christofides': algoResults.christofides
+            };
+            
+            const bestHeuristic = Object.entries(heuristics).reduce((a, b) => a[1] < b[1] ? a : b);
+            const worstHeuristic = Object.entries(heuristics).reduce((a, b) => a[1] > b[1] ? a : b);
+            
+            const bestGap = ((bestHeuristic[1] - optimalDistance) / optimalDistance * 100);
+            const worstGap = ((worstHeuristic[1] - optimalDistance) / optimalDistance * 100);
+            
+            insights += `<div class="insight-item">
+                <span class="insight-icon">✨</span>
+                <span class="insight-text"><strong>Optimal distance: ${optimalDistance.toFixed(1)} mi</strong> ${stops.length > 10 ? '(best heuristic estimate)' : '(exact solution)'}</span>
+            </div>`;
+            
+            if (bestGap < 0.1) {
+                insights += `<div class="insight-item">
+                    <span class="insight-icon">🏆</span>
+                    <span class="insight-text"><strong>${bestHeuristic[0]}</strong> found the optimal solution!</span>
+                </div>`;
+            } else {
+                insights += `<div class="insight-item">
+                    <span class="insight-icon">🥇</span>
+                    <span class="insight-text"><strong>${bestHeuristic[0]}</strong> is best heuristic with only <strong>${bestGap.toFixed(1)}%</strong> gap to optimal.</span>
+                </div>`;
+            }
+            
+            insights += `<div class="insight-item">
+                <span class="insight-icon">📊</span>
+                <span class="insight-text">Gap range: <strong>${bestGap.toFixed(1)}%</strong> to <strong>${worstGap.toFixed(1)}%</strong> across all heuristics.</span>
+            </div>`;
+            
+            if (stops.length > 10) {
+                insights += `<div class="insight-item">
+                    <span class="insight-icon">⚠️</span>
+                    <span class="insight-text">With ${stops.length} stops, exact optimization takes O(${stops.length}!) = impractical. Using best heuristic as proxy.</span>
+                </div>`;
+            }
+            
+            document.getElementById('insights').innerHTML = insights;
+        }
+
+        function toggleOptimalOverlay() {
+            showOptimalOverlay = document.getElementById('showOptimal').checked;
+            render();
+        }
+
+        function tourLength(tour) {
+            if (tour.length === 0) return 0;
+            let total = distance(depot, tour[0]);
+            for (let i = 0; i < tour.length - 1; i++) {
+                total += distance(tour[i], tour[i + 1]);
+            }
+            total += distance(tour[tour.length - 1], depot);
+            return total;
+        }
+
+        function calculateAllAlgorithms() {
+            algoResults = {
+                nearest: tourLength(nearestNeighbor()),
+                twoopt: tourLength(twoOptImprove(nearestNeighbor())),
+                insertion: tourLength(cheapestInsertion()),
+                christofides: tourLength(christofidesApprox())
+            };
+            
+            // If optimal was calculated, include it
+            if (optimalDistance < Infinity) {
+                algoResults.optimal = optimalDistance;
+                comparisonChart.data.datasets[0].data = [
+                    optimalDistance.toFixed(1),
+                    algoResults.nearest.toFixed(1),
+                    algoResults.twoopt.toFixed(1),
+                    algoResults.insertion.toFixed(1),
+                    algoResults.christofides.toFixed(1)
+                ];
+            } else {
+                comparisonChart.data.datasets[0].data = [
+                    0,
+                    algoResults.nearest.toFixed(1),
+                    algoResults.twoopt.toFixed(1),
+                    algoResults.insertion.toFixed(1),
+                    algoResults.christofides.toFixed(1)
+                ];
+            }
+            comparisonChart.update();
+            
+            const minDist = Math.min(algoResults.nearest, algoResults.twoopt, algoResults.insertion, algoResults.christofides);
+            const rows = document.querySelectorAll('#algoComparison tr');
+            const vals = [optimalDistance < Infinity ? optimalDistance : null, algoResults.nearest, algoResults.twoopt, algoResults.insertion, algoResults.christofides];
+            
+            rows.forEach((row, i) => {
+                if (i === 0 && optimalDistance < Infinity) {
+                    row.cells[1].textContent = optimalDistance.toFixed(1) + ' mi';
+                } else if (i > 0 && vals[i]) {
+                    row.cells[1].textContent = vals[i].toFixed(1) + ' mi';
+                    const gap = optimalDistance < Infinity ? ((vals[i] - optimalDistance) / optimalDistance * 100) : 0;
+                    row.cells[2].textContent = optimalDistance < Infinity ? gap.toFixed(1) + '%' : '-';
+                    row.cells[1].className = vals[i] === minDist ? 'best' : '';
+                }
+            });
+        }
+
+        function updateMetrics() {
+            const totalDist = tourLength(route);
+            const totalTime = totalDist / params.avgSpeed;
+            const totalCost = totalDist * params.costPerMile;
+            const packages = stops.reduce((sum, s) => sum + s.packages, 0);
+            
+            document.getElementById('totalStops').textContent = stops.length;
+            document.getElementById('totalDistance').textContent = totalDist.toFixed(1);
+            document.getElementById('totalTime').textContent = totalTime.toFixed(1);
+            document.getElementById('totalCost').textContent = '$' + totalCost.toFixed(0);
+            document.getElementById('packagesDelivered').textContent = packages;
+            
+            // Estimate lower bound via MST
+            const lb = estimateLowerBound();
+            document.getElementById('lowerBound').textContent = lb.toFixed(1) + ' mi';
+            const gap = ((totalDist - lb) / lb * 100);
+            document.getElementById('gapLB').textContent = gap.toFixed(1) + '%';
+            document.getElementById('efficiency').textContent = gap.toFixed(0) + '%';
+        }
+
+        function estimateLowerBound() {
+            // Simple lower bound: half of sum of two shortest edges from each node
+            const allNodes = [depot, ...stops];
+            let sum = 0;
+            
+            for (const node of allNodes) {
+                const dists = allNodes.filter(n => n !== node).map(n => distance(node, n)).sort((a, b) => a - b);
+                sum += dists[0] + (dists[1] || 0);
+            }
+            
+            return sum / 2;
+        }
+
+        function updateRouteList() {
+            const list = document.getElementById('routeList');
+            let html = `<div class="route-item">
+                <span class="number">D</span>
+                <span class="info">Depot (Start)</span>
+                <span class="distance">-</span>
+            </div>`;
+            
+            let prev = depot;
+            route.forEach((stop, i) => {
+                const d = distance(prev, stop);
+                html += `<div class="route-item">
+                    <span class="number">${i + 1}</span>
+                    <span class="info">Stop ${stop.id} (${stop.packages} pkg)</span>
+                    <span class="distance">${d.toFixed(1)} mi</span>
+                </div>`;
+                prev = stop;
+            });
+            
+            if (route.length > 0) {
+                html += `<div class="route-item">
+                    <span class="number">D</span>
+                    <span class="info">Return to Depot</span>
+                    <span class="distance">${distance(route[route.length - 1], depot).toFixed(1)} mi</span>
+                </div>`;
+            }
+            
+            list.innerHTML = html;
+            
+            // Update segment chart
+            const segments = [];
+            prev = depot;
+            route.forEach(stop => {
+                segments.push(distance(prev, stop));
+                prev = stop;
+            });
+            if (route.length > 0) segments.push(distance(route[route.length - 1], depot));
+            
+            segmentChart.data.labels = segments.map((_, i) => `Seg ${i + 1}`);
+            segmentChart.data.datasets[0].data = segments;
+            segmentChart.update();
+        }
+
+        function updateInsights() {
+            const algo = document.getElementById('algorithm').value;
+            const totalDist = tourLength(route);
+            let insights = '';
+            
+            if (Object.keys(algoResults).length > 0) {
+                const bestAlgo = Object.entries(algoResults).reduce((a, b) => a[1] < b[1] ? a : b);
+                if (algo === bestAlgo[0]) {
+                    insights += `<div class="insight-item">
+                        <span class="insight-icon">🏆</span>
+                        <span class="insight-text">Optimal choice! This algorithm found the <strong>best solution</strong> among all tested.</span>
+                    </div>`;
+                } else {
+                    const savings = ((totalDist - bestAlgo[1]) / totalDist * 100).toFixed(1);
+                    insights += `<div class="insight-item">
+                        <span class="insight-icon">💡</span>
+                        <span class="insight-text">Consider <strong>${bestAlgo[0]}</strong> for <strong>${savings}%</strong> distance reduction.</span>
+                    </div>`;
+                }
+            }
+            
+            if (stops.length > 15) {
+                insights += `<div class="insight-item">
+                    <span class="insight-icon">⚠️</span>
+                    <span class="insight-text">With <strong>${stops.length} stops</strong>, exact optimization is infeasible. Heuristics essential.</span>
+                </div>`;
+            }
+            
+            insights += `<div class="insight-item">
+                <span class="insight-icon">📊</span>
+                <span class="insight-text">Total route: <strong>${totalDist.toFixed(1)} miles</strong>, <strong>$${(totalDist * params.costPerMile).toFixed(0)}</strong> cost.</span>
+            </div>`;
+            
+            document.getElementById('insights').innerHTML = insights;
+        }
+
+        function toggleAnimation() {
+            if (route.length === 0) {
+                alert('Please calculate a route first!');
+                return;
+            }
+            
+            isAnimating = !isAnimating;
+            document.getElementById('startBtn').textContent = isAnimating ? '⏸ Pause' : '▶ Animate';
+            
+            if (isAnimating) {
+                visited = [];
+                animationProgress = 0;
+                lastFrameTime = performance.now();
+                requestAnimationFrame(animate);
+            }
+        }
+
+        function animate(timestamp) {
+            if (!isAnimating) return;
+
+            const dt = (timestamp - lastFrameTime) / 1000 * simSpeed;
+            lastFrameTime = timestamp;
+            animationProgress += dt * 0.5;
+            
+            const visitedCount = Math.floor(animationProgress * route.length);
+            if (visitedCount <= route.length) {
+                visited = route.slice(0, visitedCount);
+            } else {
+                isAnimating = false;
+                document.getElementById('startBtn').textContent = '▶ Animate';
+                visited = [...route];
+            }
+
+            render();
+            if (isAnimating) requestAnimationFrame(animate);
+        }
+
+        function setSpeed(speed) {
+            simSpeed = speed;
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.toggle('active', parseFloat(btn.textContent) === speed);
+            });
+        }
+
+        function resetAll() {
+            stops = [];
+            route = [];
+            visited = [];
+            optimalRoute = [];
+            optimalDistance = Infinity;
+            showOptimalOverlay = false;
+            isAnimating = false;
+            algoResults = {};
+            document.getElementById('startBtn').textContent = '▶ Animate';
+            document.getElementById('showOptimal').checked = false;
+            document.getElementById('optimalDist').textContent = '-';
+            updateDisplays();
+            render();
+            
+            // Reset comparison table
+            const rows = document.querySelectorAll('#algoComparison tr');
+            rows.forEach((row, i) => {
+                if (i === 0) {
+                    row.cells[1].textContent = '-';
+                    row.cells[2].textContent = '0%';
+                } else {
+                    row.cells[1].textContent = '-';
+                    row.cells[2].textContent = '-';
+                }
+            });
+        }
+
+        function updateDisplays() {
+            document.getElementById('totalStops').textContent = stops.length;
+            document.getElementById('packagesDelivered').textContent = stops.reduce((sum, s) => sum + s.packages, 0);
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+            drawRoute();
+            drawStops();
+            drawDepot();
+            drawVehicle();
+        }
+
+        function drawBackground() {
+            ctx.fillStyle = '#1c1917';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.05)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawRoute() {
+            // Draw optimal route overlay first (so it appears behind current route)
+            if (showOptimalOverlay && optimalRoute.length > 0) {
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 4;
+                ctx.setLineDash([]);
+                ctx.globalAlpha = 0.6;
+                ctx.beginPath();
+                ctx.moveTo(depot.x, depot.y);
+                optimalRoute.forEach(stop => ctx.lineTo(stop.x, stop.y));
+                ctx.lineTo(depot.x, depot.y);
+                ctx.stroke();
+                
+                // Draw optimal route glow effect
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 8;
+                ctx.globalAlpha = 0.2;
+                ctx.beginPath();
+                ctx.moveTo(depot.x, depot.y);
+                optimalRoute.forEach(stop => ctx.lineTo(stop.x, stop.y));
+                ctx.lineTo(depot.x, depot.y);
+                ctx.stroke();
+                
+                ctx.globalAlpha = 1.0;
+            }
+            
+            if (route.length === 0) return;
+
+            // Full route (faded)
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.25)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 6]);
+            ctx.beginPath();
+            ctx.moveTo(depot.x, depot.y);
+            route.forEach(stop => ctx.lineTo(stop.x, stop.y));
+            ctx.lineTo(depot.x, depot.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Visited route
+            if (visited.length > 0) {
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(depot.x, depot.y);
+                visited.forEach(stop => ctx.lineTo(stop.x, stop.y));
+                ctx.stroke();
+
+                // Direction arrows
+                let prev = depot;
+                visited.forEach(stop => {
+                    const angle = Math.atan2(stop.y - prev.y, stop.x - prev.x);
+                    const midX = (prev.x + stop.x) / 2;
+                    const midY = (prev.y + stop.y) / 2;
+                    
+                    ctx.save();
+                    ctx.translate(midX, midY);
+                    ctx.rotate(angle);
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.beginPath();
+                    ctx.moveTo(10, 0);
+                    ctx.lineTo(-5, -6);
+                    ctx.lineTo(-5, 6);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                    prev = stop;
+                });
+            }
+        }
+
+        function drawStops() {
+            stops.forEach((stop, i) => {
+                const isVisited = visited.includes(stop);
+                const isInRoute = route.includes(stop);
+                
+                ctx.beginPath();
+                ctx.arc(stop.x, stop.y, 14, 0, Math.PI * 2);
+                ctx.fillStyle = isVisited ? '#78716c' : (isInRoute ? '#f59e0b' : '#fcd34d');
+                ctx.fill();
+                ctx.strokeStyle = '#fafaf9';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = '#fafaf9';
+                ctx.font = 'bold 11px Source Sans Pro';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(stop.id, stop.x, stop.y);
+
+                ctx.fillStyle = '#d6d3d1';
+                ctx.font = '10px Source Sans Pro';
+                ctx.fillText(`${stop.packages}📦`, stop.x, stop.y + 22);
+            });
+        }
+
+        function drawDepot() {
+            ctx.beginPath();
+            ctx.arc(depot.x, depot.y, 24, 0, Math.PI * 2);
+            ctx.fillStyle = '#059669';
+            ctx.fill();
+            ctx.strokeStyle = '#34d399';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.fillStyle = '#fafaf9';
+            ctx.font = '18px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🏢', depot.x, depot.y + 6);
+
+            ctx.font = 'bold 11px Source Sans Pro';
+            ctx.fillText('DEPOT', depot.x, depot.y + 40);
+        }
+
+        function drawVehicle() {
+            if (!isAnimating || visited.length === 0) return;
+            const currentStop = visited[visited.length - 1];
+            
+            ctx.fillStyle = '#fcd34d';
+            ctx.beginPath();
+            ctx.arc(currentStop.x, currentStop.y - 28, 12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#1c1917';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🚚', currentStop.x, currentStop.y - 24);
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chenhao Zhou | Ph.D. Candidate in Supply Chain Management | Rutgers Business School</title>
+  <meta name="description" content="Chenhao Zhou — Ph.D. Candidate in Supply Chain Management at Rutgers Business School. Research: healthcare operations, workforce dynamics, AI-driven scheduling optimization." />
+  <meta name="keywords" content="Chenhao Zhou, Supply Chain Management, Operations Management, Healthcare Operations, Rutgers Business School, Ph.D. Candidate, Operations Research, Scheduling Optimization, Simulation Studies" />
+  <meta name="author" content="Chenhao Zhou" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://chenhaozhou1996.github.io/" />
+  <meta property="og:title" content="Chenhao Zhou | Ph.D. Candidate in Supply Chain Management" />
+  <meta property="og:description" content="Ph.D. Candidate at Rutgers Business School specializing in operations management, healthcare operations, and optimization research." />
+  <meta property="og:image" content="https://chenhaozhou1996.github.io/images/profile.jpg" />
+  <meta property="twitter:card" content="summary" />
+  <meta property="twitter:url" content="https://chenhaozhou1996.github.io/" />
+  <meta property="twitter:title" content="Chenhao Zhou | Ph.D. Candidate in Supply Chain Management" />
+  <meta property="twitter:description" content="Ph.D. Candidate at Rutgers Business School specializing in operations management, healthcare operations, and optimization research." />
+  <meta property="twitter:image" content="https://chenhaozhou1996.github.io/images/profile.jpg" />
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Chenhao Zhou",
+    "url": "https://chenhaozhou1996.github.io/",
+    "image": "https://chenhaozhou1996.github.io/images/profile.jpg",
+    "jobTitle": "Ph.D. Candidate",
+    "worksFor": { "@type": "EducationalOrganization", "name": "Rutgers Business School" },
+    "alumniOf": [
+      { "@type": "EducationalOrganization", "name": "New York University" },
+      { "@type": "EducationalOrganization", "name": "Boston University" }
+    ],
+    "knowsAbout": ["Supply Chain Management", "Operations Management", "Healthcare Operations", "Optimization", "Simulation"],
+    "email": "chenhao.zhou@rutgers.edu"
+  }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1a365d;
+      --navy-light: #2b4c7e;
+      --navy-dark: #0f2442;
+      --slate: #475569;
+      --slate-light: #64748b;
+      --slate-pale: #94a3b8;
+      --bg: #ffffff;
+      --bg-alt: #f8fafc;
+      --border: #e2e8f0;
+      --sidebar-w: 300px;
+      --gap: 48px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #1e293b;
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--navy); text-decoration: none; }
+    a:hover { color: var(--navy-light); text-decoration: underline; }
+
+    /* === NAV === */
+    .topnav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 var(--gap);
+    }
+    .topnav-inner {
+      max-width: 1600px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px;
+    }
+    .topnav-brand {
+      font-weight: 700; font-size: 15px; color: var(--navy-dark);
+      display: flex; align-items: center; gap: 10px; text-decoration: none;
+    }
+    .topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+    .topnav-links { display: flex; gap: 4px; }
+    .topnav-links a {
+      padding: 6px 14px; border-radius: 6px;
+      font-size: 13px; font-weight: 500; color: var(--slate);
+      text-decoration: none; transition: background 0.15s;
+    }
+    .topnav-links a:hover { background: var(--bg-alt); color: var(--navy); }
+    .topnav-links a.active { background: var(--bg-alt); color: var(--navy); font-weight: 600; }
+
+    /* === LAYOUT === */
+    .page {
+      max-width: 1600px; margin: 0 auto;
+      padding: var(--gap);
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      gap: var(--gap);
+      min-height: calc(100vh - 56px);
+    }
+
+    /* === SIDEBAR === */
+    .sidebar {
+      position: sticky; top: calc(56px + var(--gap));
+      align-self: start;
+    }
+    .sidebar-photo {
+      width: 200px; height: 200px; border-radius: 12px; object-fit: cover;
+      margin-bottom: 20px;
+    }
+    .sidebar-name {
+      font-size: 22px; font-weight: 700; color: var(--navy-dark);
+      line-height: 1.2; margin-bottom: 4px;
+    }
+    .sidebar-title {
+      font-size: 13px; color: var(--slate-light); line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .sidebar-badges {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px;
+    }
+    .sbadge {
+      display: inline-block; padding: 3px 10px; border-radius: 4px;
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .sbadge-navy { background: var(--navy); color: #fff; }
+    .sbadge-green { background: #047857; color: #fff; }
+
+    .sidebar-contact {
+      font-size: 13px; color: var(--slate); line-height: 2;
+      border-top: 1px solid var(--border); padding-top: 16px; margin-top: 4px;
+    }
+    .sidebar-contact a { color: var(--navy); font-weight: 500; }
+
+    .sidebar-section {
+      margin-top: 20px; padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .sidebar-section-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--slate-pale); margin-bottom: 8px;
+    }
+    .sidebar-list {
+      list-style: none; font-size: 13px; color: var(--slate); line-height: 1.8;
+    }
+    .sidebar-tags {
+      display: flex; flex-wrap: wrap; gap: 4px;
+    }
+    .sidebar-tag {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; background: var(--bg-alt); color: var(--slate);
+      border: 1px solid var(--border);
+    }
+    .sidebar-nav {
+      list-style: none; font-size: 13px;
+    }
+    .sidebar-nav li { margin-bottom: 2px; }
+    .sidebar-nav a {
+      display: block; padding: 4px 0; color: var(--slate);
+      text-decoration: none; font-weight: 500;
+    }
+    .sidebar-nav a:hover { color: var(--navy); }
+
+    /* === MAIN CONTENT === */
+    .content { min-width: 0; }
+
+    .section { margin-bottom: 40px; }
+    .section-title {
+      font-size: 14px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--navy);
+      padding-bottom: 8px; border-bottom: 2px solid var(--navy);
+      margin-bottom: 16px;
+    }
+
+    /* Publications */
+    .pub { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+    .pub:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .pub-t { font-weight: 600; color: var(--navy-dark); font-size: 14px; line-height: 1.4; }
+    .pub-j { font-size: 13px; color: var(--slate); margin-top: 2px; }
+    .pub-j em { color: #1e293b; }
+    .rstatus {
+      display: inline-block; padding: 1px 7px; border-radius: 3px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.03em; vertical-align: middle; margin-left: 6px;
+    }
+    .r3 { background: #e0e7ff; color: #3730a3; }
+    .r2 { background: #dbeafe; color: #1e40af; }
+    .r1 { background: #fef3c7; color: #92400e; }
+    .accepted { background: #d1fae5; color: #065f46; }
+
+    /* Education */
+    .edu { margin-bottom: 12px; }
+    .edu-school { font-weight: 600; color: var(--navy-dark); font-size: 14px; }
+    .edu-year { font-size: 12px; color: var(--slate-pale); float: right; font-weight: 500; }
+    .edu-detail { font-size: 13px; color: var(--slate); line-height: 1.5; }
+
+    /* Teaching */
+    .teach-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .teach-table td { padding: 6px 0; vertical-align: top; }
+    .teach-table td:first-child { font-weight: 600; color: var(--navy-dark); padding-right: 16px; width: 55%; }
+    .teach-table td:last-child { color: var(--slate); }
+    .teach-eval {
+      margin-top: 12px; padding: 10px 14px; background: var(--bg-alt);
+      border-radius: 6px; font-size: 13px; color: var(--slate);
+      border-left: 3px solid var(--navy);
+    }
+    .teach-eval strong { color: var(--navy-dark); }
+
+    /* References */
+    .ref-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+    .ref {
+      padding: 12px 14px; background: var(--bg-alt); border-radius: 6px;
+      font-size: 13px; line-height: 1.5;
+    }
+    .ref strong { color: var(--navy-dark); display: block; margin-bottom: 2px; font-size: 13px; }
+    .ref span { color: var(--slate); font-size: 12px; }
+
+    .wp { margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
+    .wp-t { font-weight: 600; color: var(--navy-dark); }
+    .wp-m { color: var(--slate); }
+
+    /* Three-col for skills */
+    .skills-3col {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .skills-col h4 {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--slate-pale); margin-bottom: 6px;
+    }
+    .skills-col .sidebar-tags { margin-bottom: 12px; }
+
+    /* Footer */
+    .site-footer {
+      margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--slate-pale); text-align: center;
+    }
+    .site-footer a { color: var(--slate-light); }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 1000px) {
+      .page {
+        grid-template-columns: 1fr;
+        padding: 24px;
+        gap: 32px;
+      }
+      .sidebar {
+        position: static;
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 24px;
+      }
+      .sidebar-photo { margin-bottom: 0; }
+      .skills-3col { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .sidebar { grid-template-columns: 1fr; }
+      .sidebar-photo { width: 140px; height: 140px; }
+      .topnav-links { gap: 0; flex-wrap: wrap; }
+      .topnav-links a { padding: 4px 8px; font-size: 12px; }
+      .skills-3col { grid-template-columns: 1fr; }
+      .ref-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  
+
+  <!-- NAV -->
+  <nav class="topnav">
+    <div class="topnav-inner">
+      <a href="index.html" class="topnav-brand">
+        <img alt="CZ" src="images/profile.jpg" />
+        Chenhao Zhou
+      </a>
+      <div class="topnav-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="teaching.html">Teaching</a>
+        <a href="professional.html">Professional</a>
+        <a href="cv.html">CV</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE -->
+  <div class="page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div>
+        <img class="sidebar-photo" alt="Chenhao Zhou" src="images/profile.jpg" />
+        <h1 class="sidebar-name">Chenhao Zhou</h1>
+        <div class="sidebar-title">
+          Ph.D. Candidate<br>
+          Supply Chain Management<br>
+          Rutgers Business School
+        </div>
+        <div class="sidebar-badges">
+          <span class="sbadge sbadge-navy">Ph.D. Candidate</span>
+          <span class="sbadge sbadge-green">Job Market 2025–26</span>
+        </div>
+        <div class="sidebar-contact">
+          <a href="mailto:chenhao.zhou@rutgers.edu">chenhao.zhou@rutgers.edu</a><br>
+          (929) 314-1613<br>
+          <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank">LinkedIn</a> ·
+          <a href="cv.html">CV</a> ·
+          <a href="Chenhao_Zhou_CV_2026.pdf" target="_blank">PDF</a>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Quick Info</div>
+          <ul class="sidebar-list">
+            <li><strong>Advisor:</strong> Lei Lei</li>
+            <li><strong>Graduation:</strong> May 2026</li>
+            <li><strong>GPA:</strong> 4.00 / 4.00</li>
+          </ul>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Methods</div>
+          <div class="sidebar-tags">
+            <span class="sidebar-tag">Causal Inference</span>
+            <span class="sidebar-tag">Econometrics</span>
+            <span class="sidebar-tag">Deep RL</span>
+            <span class="sidebar-tag">Simulation</span>
+            <span class="sidebar-tag">Optimization</span>
+            <span class="sidebar-tag">Causal ML</span>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Memberships</div>
+          <ul class="sidebar-list">
+            <li>AOM · DSI · IEEE · INFORMS · POMS</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="content">
+
+      <!-- EDUCATION -->
+      <div class="section">
+        <div class="section-title">Education</div>
+        <div class="edu">
+          <div><span class="edu-school">Rutgers Business School, Rutgers University</span> <span class="edu-year">Expected May 2026</span></div>
+          <div class="edu-detail">Ph.D. in Management — Supply Chain Management · GPA: 4.00/4.00<br>Awards: Academic Excellence Award (2025), Battaglia Fellowship (2024–25), Summer Research Grant (2022–24)</div>
+        </div>
+        <div class="edu">
+          <div><span class="edu-school">Tandon School of Engineering, New York University</span> <span class="edu-year">2021</span></div>
+          <div class="edu-detail">M.S. Engineering/Industrial Management</div>
+        </div>
+        <div class="edu">
+          <div><span class="edu-school">Questrom School of Business, Boston University</span> <span class="edu-year">2019</span></div>
+          <div class="edu-detail">B.S. Business Administration</div>
+        </div>
+      </div>
+
+      
+
+      
+
+      <!-- TEACHING -->
+      <div class="section">
+        <div class="section-title">Teaching</div>
+        <table class="teach-table">
+          <tr>
+            <td>Supply Chain Analytics (52:620:326)</td>
+            <td>Spring 2026, Rutgers-Camden</td>
+          </tr>
+          <tr>
+            <td>Demand Planning &amp; Fulfillment (29:799:310)</td>
+            <td>Summer 2025, Spring 2026</td>
+          </tr>
+          <tr>
+            <td>Introduction to Six Sigma &amp; Lean Manufacturing (33:799:460)</td>
+            <td>TBA</td>
+          </tr>
+        </table>
+        <div class="teach-eval">
+          Evaluations: Effectiveness <strong>4.91</strong>/5.00 · Course Quality <strong>5.00</strong>/5.00 ·
+          <a href="teaching.html" style="font-weight: 600;">Teaching portfolio, courses &amp; simulations →</a>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="site-footer">
+        <p>Last updated March 2026 · © 2026 Chenhao Zhou</p>
+        <p style="margin-top: 4px;">
+          <a href="mailto:chenhao.zhou@rutgers.edu">Email</a> ·
+          <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank">LinkedIn</a> ·
+          <a href="https://scholar.google.com" target="_blank">Google Scholar</a>
+        </p>
+      </footer>
+
+    </main>
+  </div>
+
+</body>
+</html>

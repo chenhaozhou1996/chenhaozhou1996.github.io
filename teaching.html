@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teaching – Chenhao Zhou</title>
+  <meta name="description" content="Teaching experience, self-developed interactive courses, simulations, and materials by Chenhao Zhou." />
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1a365d; --navy-light: #2b4c7e; --navy-dark: #0f2442;
+      --slate: #475569; --slate-light: #64748b; --slate-pale: #94a3b8;
+      --bg: #ffffff; --bg-alt: #f8fafc; --border: #e2e8f0;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', -apple-system, sans-serif; font-size: 15px; line-height: 1.6; color: #1e293b; background: var(--bg); -webkit-font-smoothing: antialiased; }
+    a { color: var(--navy); text-decoration: none; } a:hover { color: var(--navy-light); text-decoration: underline; }
+
+    .topnav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 48px; }
+    .topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+    .topnav-brand { font-weight: 700; font-size: 15px; color: var(--navy-dark); display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+    .topnav-links { display: flex; gap: 4px; }
+    .topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--slate); text-decoration: none; }
+    .topnav-links a:hover { background: var(--bg-alt); color: var(--navy); }
+    .topnav-links a.active { background: var(--bg-alt); color: var(--navy); font-weight: 600; }
+
+    /* LAYOUT: sidebar + main */
+    .page-grid {
+      max-width: 1600px; margin: 0 auto; padding: 48px;
+      display: grid; grid-template-columns: 280px 1fr; gap: 48px;
+      align-items: start;
+    }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: calc(56px + 48px); }
+    .sb-section { margin-bottom: 24px; }
+    .sb-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--slate-pale); margin-bottom: 8px;
+    }
+    .sb-course { margin-bottom: 10px; }
+    .sb-course-name { font-size: 13px; font-weight: 600; color: var(--navy-dark); }
+    .sb-course-meta { font-size: 11px; color: var(--slate-light); }
+
+    .sb-ta { font-size: 11px; color: var(--slate); line-height: 1.6; }
+    .sb-ta strong { color: var(--navy-dark); }
+
+    .sb-eval-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; border-bottom: 1px solid var(--border); }
+    .sb-eval-row:last-child { border-bottom: none; }
+    .sb-eval-label { color: var(--slate); }
+    .sb-eval-val { font-weight: 700; color: var(--navy-dark); }
+    .sb-eval-highlight { background: var(--bg-alt); padding: 3px 4px; border-radius: 3px; }
+
+    .sb-comment { font-size: 11px; color: var(--slate); font-style: italic; padding: 4px 0; border-bottom: 1px solid var(--border); line-height: 1.4; }
+    .sb-comment:last-child { border-bottom: none; }
+
+    .sb-link { font-size: 12px; font-weight: 600; margin-top: 6px; display: inline-block; }
+    .sb-cert { font-size: 11px; color: var(--slate); line-height: 1.6; }
+
+    /* MAIN */
+    .content { min-width: 0; }
+    .section { margin-bottom: 40px; }
+    .section-title {
+      font-size: 13px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--navy);
+      padding-bottom: 8px; border-bottom: 2px solid var(--navy); margin-bottom: 20px;
+    }
+
+    /* Featured courses */
+    .featured-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    .fc {
+      display: block; text-decoration: none; color: #fff;
+      padding: 28px; border-radius: 10px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .fc:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); text-decoration: none; color: #fff; }
+    .fc-1 { background: linear-gradient(135deg, #1a365d, #2b4c7e); }
+    .fc-2 { background: linear-gradient(135deg, #1a6b5a, #2a8a7a); }
+    .fc-3 { background: linear-gradient(135deg, #78350f, #b45309); }
+    .fc-py { background: linear-gradient(135deg, #1e3a5f, #3776AB); }
+    .fc-st { background: linear-gradient(135deg, #1a5276, #148f77); }
+    .fc-r { background: linear-gradient(135deg, #1a365d, #276DC3); }
+    .fc-sql { background: linear-gradient(135deg, #7c2d12, #ea580c); }
+    .fc .fc-badge {
+      display: inline-block; padding: 3px 10px; border-radius: 4px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; background: rgba(255,255,255,0.2); margin-bottom: 10px;
+    }
+    .fc h3 { font-size: 18px; font-weight: 800; margin-bottom: 6px; line-height: 1.2; }
+    .fc .fc-desc { font-size: 12px; opacity: 0.9; line-height: 1.4; margin-bottom: 10px; }
+    .fc .fc-stats { font-size: 11px; opacity: 0.7; margin-bottom: 14px; }
+    .fc .fc-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 24px; background: #fff; color: var(--navy-dark);
+      border: none; border-radius: 6px;
+      font-size: 13px; font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .fc:hover .fc-cta { box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
+
+    /* Sim grid */
+    .sim-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .sim {
+      display: block; text-decoration: none; padding: 14px;
+      border-radius: 8px; background: var(--bg-alt); border: 1px solid var(--border);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .sim:hover { border-color: var(--navy-light); box-shadow: 0 4px 12px rgba(26,54,93,0.08); text-decoration: none; }
+    .sim-icon { font-size: 22px; margin-bottom: 6px; }
+    .sim h4 { font-size: 13px; font-weight: 700; color: var(--navy-dark); margin-bottom: 3px; }
+    .sim p { font-size: 11px; color: var(--slate-light); line-height: 1.3; margin: 0; }
+    .sim .sim-tag {
+      display: inline-block; margin-top: 6px; padding: 1px 6px; border-radius: 3px;
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      background: #047857; color: #fff;
+    }
+    .sim .sim-tag-cloud { background: #047857; }
+
+    /* SCF */
+    .scf-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .scf-pill {
+      display: inline-block; padding: 8px 14px; border-radius: 6px;
+      font-size: 12px; font-weight: 600; color: var(--navy-dark);
+      background: var(--bg-alt); border: 1px solid var(--border); text-decoration: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .scf-pill:hover { border-color: var(--navy-light); box-shadow: 0 2px 8px rgba(26,54,93,0.08); text-decoration: none; }
+    .scf-pill span { display: block; font-size: 10px; color: var(--slate-pale); font-weight: 400; margin-top: 1px; }
+
+    /* Handbook grid */
+    .hb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+    .hb {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 14px; border-radius: 8px; background: var(--bg-alt);
+      border: 1px solid var(--border); text-decoration: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .hb:hover { border-color: var(--navy-light); box-shadow: 0 4px 12px rgba(26,54,93,0.08); text-decoration: none; }
+    .hb-icon {
+      flex-shrink: 0; width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      background: #b45309; color: #fff; border-radius: 6px;
+      font-size: 11px; font-weight: 800;
+    }
+    .hb h4 { font-size: 12px; font-weight: 600; color: var(--navy-dark); margin-bottom: 2px; }
+    .hb p { font-size: 10px; color: var(--slate-light); line-height: 1.3; margin: 0; }
+
+    .site-footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--slate-pale); text-align: center; }
+    .site-footer a { color: var(--slate-light); }
+
+    @media (max-width: 1000px) {
+      .page-grid { grid-template-columns: 1fr; padding: 24px; gap: 32px; }
+      .sidebar { position: static; }
+      .featured-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .topnav { padding: 0 16px; }
+      .topnav-links a { padding: 4px 8px; font-size: 12px; }
+      .sim-grid { grid-template-columns: 1fr 1fr; }
+      .hb-grid { grid-template-columns: 1fr; }
+
+    }
+  </style>
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+  <a href="index.html" class="topnav-brand"><img alt="CZ" src="images/profile.jpg" />Chenhao Zhou</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a><a href="teaching.html" class="active">Teaching</a><a href="professional.html">Professional</a><a href="cv.html">CV</a>
+  </div>
+</div></nav>
+
+<div class="page-grid">
+
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-title">Instructor of Record</div>
+      <div class="sb-course">
+        <div class="sb-course-name">Supply Chain Analytics</div>
+        <div class="sb-course-meta">52:620:326 · Spring 2026 · Camden</div>
+      </div>
+      <div class="sb-course">
+        <div class="sb-course-name">Demand Planning &amp; Fulfillment</div>
+        <div class="sb-course-meta">29:799:310 · Summer 2025, Spring 2026 · Newark</div>
+      </div>
+      <div class="sb-course">
+        <div class="sb-course-name">Intro to Six Sigma &amp; Lean Mfg</div>
+        <div class="sb-course-meta">33:799:460 · TBA · Livingston</div>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title">Teaching Assistant</div>
+      <div class="sb-ta">
+        <strong>UG:</strong> Demand Planning (2021–25) · Process &amp; Ops Mgmt (2024) · SC Analytics (2023) · Six Sigma (2023)<br>
+        <strong>Grad:</strong> SC Finance (2024) · Global Procurement (2023–24) · SC Analytics (2023) · Ops Analysis (2023) · Project Mgmt (2022)
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title">Evaluations (Summer 2025)</div>
+      <div class="sb-eval-row sb-eval-highlight"><span class="sb-eval-label">Effectiveness</span><span class="sb-eval-val">4.91 / 5.00</span></div>
+      <div class="sb-eval-row sb-eval-highlight"><span class="sb-eval-label">Course Quality</span><span class="sb-eval-val">5.00 / 5.00</span></div>
+      <div class="sb-eval-row"><span class="sb-eval-label">Preparedness</span><span class="sb-eval-val">4.80</span></div>
+      <div class="sb-eval-row"><span class="sb-eval-label">Responsiveness</span><span class="sb-eval-val">4.90</span></div>
+      <div class="sb-eval-row"><span class="sb-eval-label">Generated Interest</span><span class="sb-eval-val">4.78</span></div>
+      <div class="sb-eval-row"><span class="sb-eval-label">Positive Attitude</span><span class="sb-eval-val">4.90</span></div>
+      <div class="sb-eval-row"><span class="sb-eval-label">Encouragement</span><span class="sb-eval-val">4.90</span></div>
+      <div class="sb-eval-row"><span class="sb-eval-label">Fairness</span><span class="sb-eval-val">4.90</span></div>
+      <a href="SIRS Summer 2025.pdf" class="sb-link">Full SIRS report →</a>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title">Student Comments</div>
+      <div class="sb-comment">"Explained difficult concepts with clarity."</div>
+      <div class="sb-comment">"Quick to respond, tailored to our needs."</div>
+      <div class="sb-comment">"Integrated Stata and Colab effectively."</div>
+      <div class="sb-comment">"Respectful, encouraging, made learning fun."</div>
+      <div class="sb-comment">"Well-organized despite fast pace."</div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title">Certification Support</div>
+      <div class="sb-cert">
+        Lean Six Sigma Green Belt (2022–25)<br>
+        Advanced Procurement Cert (2025)
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN: All interactive content ========== -->
+  <main class="content">
+
+    <!-- ONLINE COURSES -->
+    <div class="section">
+      <div class="section-title">Interactive Online Courses</div>
+      <div class="featured-row">
+        <a href="ml-course/index.html" class="fc fc-1">
+          <div class="fc-badge">Full Course</div>
+          <h3>Machine Learning: From Business Analytics to Code</h3>
+          <div class="fc-desc">A comprehensive journey from business thinking to ML implementation. Covers regression, classification, trees, ensembles, neural networks, and NLP with interactive Python labs.</div>
+          <div class="fc-stats">11 Modules · 3 Capstone Projects · Real-World Case Studies</div>
+          <span class="fc-cta">Launch Course →</span>
+        </a>
+        <a href="ml-course-2/index.html" class="fc fc-2">
+          <div class="fc-badge">Full Course</div>
+          <h3>ML Frameworks &amp; Applied Analytics</h3>
+          <div class="fc-desc">Building scalable ML systems from architecture to deployment. Covers pipeline engineering, MLOps, model serving, and production-ready frameworks.</div>
+          <div class="fc-stats">4 Core Frameworks · Pipeline Engineering · MLOps</div>
+          <span class="fc-cta">Launch Course →</span>
+        </a>
+        <a href="scf-course/index.html" class="fc fc-3">
+          <div class="fc-badge">Full Course</div>
+          <h3>Supply Chain Finance</h3>
+          <div class="fc-desc">From working capital fundamentals to stochastic pricing models. Trade credit, inventory finance, futures hedging, FinTech platforms, and Black-Scholes derivations.</div>
+          <div class="fc-stats">6 Chapters · Senior UG / Master · Applied + Quantitative</div>
+          <span class="fc-cta">Launch Course →</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- CODING GUIDES -->
+    <div class="section">
+      <div class="section-title">Coding Reference Guides (Online Books)</div>
+      <div class="featured-row">
+        <a href="python-guide/index.html" class="fc fc-py">
+          <div class="fc-badge">10 Chapters</div>
+          <h3>Python for Data Science &amp; Analytics</h3>
+          <div class="fc-desc">From first script to end-to-end data pipelines. NumPy, Pandas, Matplotlib, scikit-learn, APIs, and statistical analysis with statsmodels.</div>
+          <div class="fc-stats">Beginner to Intermediate · Business Analytics Focus</div>
+          <span class="fc-cta">Open Book →</span>
+        </a>
+        <a href="stata-guide/index.html" class="fc fc-st">
+          <div class="fc-badge">10 Chapters</div>
+          <h3>Stata for Econometrics &amp; Research</h3>
+          <div class="fc-desc">Do-files to publication-ready results. OLS, panel data, IV, DID, RDD, matching, GMM, SFA, and Heckman with diagnostic protocols.</div>
+          <div class="fc-stats">Graduate Level · Empirical Research Focus</div>
+          <span class="fc-cta">Open Book →</span>
+        </a>
+        <a href="r-guide/index.html" class="fc fc-r">
+          <div class="fc-badge">10 Chapters</div>
+          <h3>R for Statistical Computing</h3>
+          <div class="fc-desc">Tidyverse workflows, ggplot2 visualization, linear and generalized models, tidymodels ML, and reproducible research with R Markdown and Quarto.</div>
+          <div class="fc-stats">Graduate Level · Statistical Analysis Focus</div>
+          <span class="fc-cta">Open Book →</span>
+        </a>
+        <a href="sql-guide/index.html" class="fc fc-sql">
+          <div class="fc-badge">10 Chapters</div>
+          <h3>SQL for Data Analytics</h3>
+          <div class="fc-desc">Relational databases from SELECT to window functions. Joins, CTEs, aggregation, database design, query optimization, and end-to-end analytics pipelines.</div>
+          <div class="fc-stats">All Levels · Business Intelligence Focus</div>
+          <span class="fc-cta">Open Book →</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- SIMULATIONS -->
+    <div class="section">
+      <div class="section-title">Interactive Simulations &amp; Demos</div>
+      <div class="sim-grid">
+        <a href="port-simulator-strategy.html" class="sim">
+          <div class="sim-icon">🚢</div>
+          <h4>Port Operations</h4>
+          <p>4 variance strategies: throughput, cost, wait time, balanced</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="queueing_simulation.html" class="sim">
+          <div class="sim-icon">⏳</div>
+          <h4>Queueing System (M/M/c)</h4>
+          <p>Exponential, uniform, normal, Erlang, triangular</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="https://cloud.anylogic.com/model/6e989a57-0048-482d-9d1c-91801471d787" target="_blank" class="sim">
+          <div class="sim-icon">🏥</div>
+          <h4>Infusion Center Scheduling</h4>
+          <p>AnyLogic cloud model for oncology outpatient operations</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="newsvendor_game_simulator.html" class="sim">
+          <div class="sim-icon">📰</div>
+          <h4>Newsvendor Model</h4>
+          <p>Critical ratio, overage/underage costs, optimal order quantity</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="courier_tsp_simulator.html" class="sim">
+          <div class="sim-icon">🚛</div>
+          <h4>Vehicle Routing (TSP)</h4>
+          <p>Nearest Neighbor, 2-Opt, Insertion, Christofides</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="facility_location_simulator.html" class="sim">
+          <div class="sim-icon">📍</div>
+          <h4>Facility Location</h4>
+          <p>Capacitated MIP with coverage and cost trade-offs</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- SCF -->
+    <div class="section">
+      <div class="section-title">Supply Chain Finance Simulations</div>
+      <div class="sim-grid">
+        <a href="scf-simulations/SCF_01_Cash_Conversion_Cycle.html" class="sim">
+          <div class="sim-icon">💰</div>
+          <h4>Cash Conversion Cycle</h4>
+          <p>DIO, DSO, DPO and working capital impact</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="scf-simulations/SCF_02_Reverse_Factoring.html" class="sim">
+          <div class="sim-icon">🔄</div>
+          <h4>Reverse Factoring</h4>
+          <p>Buyer-led SCF program cost comparison</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="scf-simulations/SCF_03_Dynamic_Discounting.html" class="sim">
+          <div class="sim-icon">⚡</div>
+          <h4>Dynamic Discounting</h4>
+          <p>Early payment optimization, APR returns</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="scf-simulations/SCF_04_Working_Capital_Dashboard.html" class="sim">
+          <div class="sim-icon">📊</div>
+          <h4>Working Capital</h4>
+          <p>KPI tracking, trend visualization</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="scf-simulations/SCF_05_Trade_Credit_NPV.html" class="sim">
+          <div class="sim-icon">📈</div>
+          <h4>Trade Credit NPV</h4>
+          <p>Payment timing strategies and firm value</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="scf-simulations/SCF_06_Factoring_Analysis.html" class="sim">
+          <div class="sim-icon">📋</div>
+          <h4>Factoring Analysis</h4>
+          <p>Recourse vs. non-recourse, fees, advance rates</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="scf-simulations/SCF_07_Portfolio_Optimization.html" class="sim">
+          <div class="sim-icon">🎯</div>
+          <h4>Portfolio Optimization</h4>
+          <p>Mean-variance, efficient frontier</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="scf-simulations/SCF_08_VaR_Risk_Metrics.html" class="sim">
+          <div class="sim-icon">⚠️</div>
+          <h4>VaR &amp; Risk Metrics</h4>
+          <p>Historical, parametric, Monte Carlo VaR/CVaR</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="scf-simulations/SCF_09_Monte_Carlo_Simulation.html" class="sim">
+          <div class="sim-icon">🎲</div>
+          <h4>Monte Carlo Simulation</h4>
+          <p>Stochastic profit simulation, confidence intervals</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="scf-simulations/SCF_10_Credit_Scoring.html" class="sim">
+          <div class="sim-icon">🏦</div>
+          <h4>Credit Scoring</h4>
+          <p>Logistic regression, ROC curves, default prediction</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+        <a href="scf-simulations/EOQ_Interactive_Demo.html" class="sim">
+          <div class="sim-icon">📦</div>
+          <h4>EOQ Demo</h4>
+          <p>Holding costs, ordering costs, total cost curves</p>
+          <span class="sim-tag">Interactive</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- HANDBOOKS -->
+    <div class="section">
+      <div class="section-title">Handbooks &amp; Student Guides — Authored by Chenhao Zhou</div>
+      <div class="hb-grid">
+        <a href="handbooks/Data_Analysis_Handbook.pdf" class="hb">
+          <div class="hb-icon">DA</div>
+          <div><h4>Data-Driven Analysis</h4><p>EDA, correlation vs. causation, feature engineering</p></div>
+        </a>
+        <a href="handbooks/ML_Course_Handbook.pdf" class="hb">
+          <div class="hb-icon">ML</div>
+          <div><h4>ML for Business Analytics</h4><p>Predictive modeling, data-driven decisions (2026)</p></div>
+        </a>
+        <a href="handbooks/SCF_Teaching_Handbook_v6.pdf" class="hb">
+          <div class="hb-icon">SC</div>
+          <div><h4>Supply Chain Finance &amp; Operations</h4><p>CCC, discounting, reverse factoring, Monte Carlo</p></div>
+        </a>
+        <a href="handbooks/Causal_Inference_Handbook.pdf" class="hb">
+          <div class="hb-icon">CI</div>
+          <div><h4>Endogeneity &amp; Causal Inference</h4><p>IV, DID, RDD, synthetic control (2026)</p></div>
+        </a>
+        <a href="handbooks/Claude_Teaching_Handbook_Guide.pdf" class="hb">
+          <div class="hb-icon">AI</div>
+          <div><h4>Teaching with Claude AI</h4><p>Content generation, formatting workflows</p></div>
+        </a>
+        <a href="guides/Guide_1_Online_Learning_Resources.pdf" class="hb">
+          <div class="hb-icon">01</div>
+          <div><h4>Online Learning Resources</h4><p>Curated: Coursera, edX, DataCamp</p></div>
+        </a>
+        <a href="guides/Guide_2_AI_Coding_with_Claude.pdf" class="hb">
+          <div class="hb-icon">02</div>
+          <div><h4>AI-Powered Coding</h4><p>Claude Desktop, Code, MCP integrations</p></div>
+        </a>
+        <a href="guides/Guide_3_Professional_Digital_Presence.pdf" class="hb">
+          <div class="hb-icon">03</div>
+          <div><h4>Professional Digital Presence</h4><p>Website, GitHub, online branding</p></div>
+        </a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer" style="max-width: 1600px; margin: 0 auto; padding: 0 48px 32px;">
+  <p>Last updated March 2026 · © 2026 Chenhao Zhou</p>
+  <p style="margin-top: 4px;"><a href="mailto:chenhao.zhou@rutgers.edu">Email</a> · <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank">LinkedIn</a></p>
+</footer>
+
+</body>
+</html>

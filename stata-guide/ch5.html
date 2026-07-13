@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 5: Panel Data Methods | Stata Guide</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        .book-nav a.current{background:#1a5276}
+        h1{color:#1a5276}
+        h2{border-bottom:2px solid #a7f3d0}
+        .exercise{border-color:#1a5276;background:#f0f9ff}
+        .exercise h4{background:#1a5276;color:#fff}
+        .takeaway{background:linear-gradient(135deg,#1a5276,#148f77)}
+    </style>
+    <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+
+<nav class="book-nav">
+    <a href="index.html">Home</a>
+    <a href="ch1.html">Ch 1</a>
+    <a href="ch2.html">Ch 2</a>
+    <a href="ch3.html">Ch 3</a>
+    <a href="ch4.html">Ch 4</a>
+    <a href="ch5.html" class="current">Ch 5</a>
+    <a href="ch6.html">Ch 6</a>
+    <a href="ch7.html">Ch 7</a>
+    <a href="ch8.html">Ch 8</a>
+    <a href="ch9.html">Ch 9</a>
+    <a href="ch10.html">Ch 10</a>
+</nav>
+
+<h1>Chapter 5: Panel Data Methods</h1>
+<p class="subtitle">Fixed Effects, Random Effects, and the Hausman Test</p>
+
+<h2>5.1 Declaring Panel Data</h2>
+<p>Before using any panel estimator, you must tell Stata which variable identifies units and which identifies time periods. The <code>xtset</code> command does this.</p>
+
+<pre class="stata"><span class="cm">* Declare panel structure</span>
+<span class="kw">xtset</span> facility_id year
+<span class="cm">* Output: panel variable: facility_id (strongly balanced)</span>
+<span class="cm">*         time variable: year, 2015 to 2019</span>
+
+<span class="cm">* Check panel summary</span>
+<span class="kw">xtdescribe</span>
+
+<span class="cm">* Panel-level summary statistics</span>
+<span class="kw">xtsum</span> qip rn_pp sdi</pre>
+
+<div class="concept info">
+    <strong>Between vs. Within Variation</strong>
+    <code>xtsum</code> decomposes each variable into overall, between-unit, and within-unit variation. Fixed effects exploit only within-unit variation; random effects use both. If a variable has zero within variation (e.g., a time-invariant characteristic), FE cannot estimate its coefficient. Understanding this decomposition is fundamental: a variable with large between-variation but tiny within-variation may be statistically significant in RE but not in FE, because FE discards all cross-sectional variation.
+</div>
+
+<h2>5.1a Understanding Within vs. Between Estimators</h2>
+<p>Panel data supports three distinct estimators that use different sources of variation. Understanding their relationship clarifies why FE and RE give different answers.</p>
+
+<pre class="stata"><span class="cm">* Load panel data</span>
+<span class="kw">webuse</span> nlswork, clear
+<span class="kw">xtset</span> idcode year
+
+<span class="cm">* --- Within estimator (equivalent to FE) ---</span>
+<span class="cm">* Uses only variation within each unit over time</span>
+<span class="kw">xtreg</span> ln_wage age tenure hours, fe
+<span class="kw">estimates store</span> Within
+
+<span class="cm">* --- Between estimator ---</span>
+<span class="cm">* Uses only cross-sectional variation (unit means)</span>
+<span class="kw">xtreg</span> ln_wage age tenure hours, be
+<span class="kw">estimates store</span> Between
+
+<span class="cm">* --- Random effects = weighted average of within and between ---</span>
+<span class="kw">xtreg</span> ln_wage age tenure hours, re
+<span class="kw">estimates store</span> RE_model
+
+<span class="cm">* Compare all three</span>
+<span class="kw">esttab</span> Within Between RE_model, ///
+    mtitles(<span class="st">"Within (FE)"</span> <span class="st">"Between"</span> <span class="st">"RE"</span>) ///
+    se star(* 0.10 ** 0.05 *** 0.01) ///
+    scalars(<span class="st">"r2_w R-sq within"</span> <span class="st">"r2_b R-sq between"</span> <span class="st">"r2_o R-sq overall"</span>)</pre>
+
+<div class="concept tip">
+    <strong>Tip: Interpreting R-squared in Panel Models</strong>
+    <code>xtreg</code> reports three R-squared values: within (how well the model explains variation over time for each unit), between (how well it explains variation across units), and overall. FE maximizes the within R-squared. If your within R-squared is very low but between R-squared is high, your model mostly captures cross-sectional differences, and the time variation may be too noisy for FE to detect effects.
+</div>
+
+<h2>5.2 Fixed Effects (FE)</h2>
+<p>The FE estimator removes all time-invariant unobserved heterogeneity by demeaning each variable at the unit level. This is the default choice for causal inference with panel data in most OM and economics applications.</p>
+
+<pre class="stata"><span class="cm">* Fixed effects regression</span>
+<span class="kw">xtreg</span> qip rn_pp sdi i.year, fe vce(cluster facility_id)
+
+<span class="cm">* Store results for later comparison</span>
+<span class="kw">estimates store</span> FE
+
+<span class="cm">* Test joint significance of time dummies</span>
+<span class="kw">testparm</span> i.year</pre>
+
+<h2>5.3 Random Effects (RE)</h2>
+<p>The RE estimator assumes that the unobserved unit-level heterogeneity is uncorrelated with the regressors. It is more efficient than FE when this assumption holds, and it can estimate coefficients on time-invariant variables.</p>
+
+<pre class="stata"><span class="cm">* Random effects regression</span>
+<span class="kw">xtreg</span> qip rn_pp sdi i.year, re vce(cluster facility_id)
+
+<span class="cm">* Store results</span>
+<span class="kw">estimates store</span> RE
+
+<span class="cm">* Breusch-Pagan LM test: RE vs. pooled OLS</span>
+<span class="kw">xtreg</span> qip rn_pp sdi i.year, re
+<span class="kw">xttest0</span>
+<span class="cm">* H0: sigma_u^2 = 0 (no panel effects). Reject => use RE over pooled OLS</span></pre>
+
+<h2>5.4 The Hausman Test</h2>
+<p>The Hausman test compares FE and RE estimates. If they differ systematically, it means the RE assumption (no correlation between unit effects and regressors) is violated, and FE should be preferred.</p>
+
+<pre class="stata"><span class="cm">* Run FE without cluster (Hausman requires default VCE)</span>
+<span class="kw">xtreg</span> qip rn_pp sdi i.year, fe
+<span class="kw">estimates store</span> FE_h
+
+<span class="cm">* Run RE without cluster</span>
+<span class="kw">xtreg</span> qip rn_pp sdi i.year, re
+<span class="kw">estimates store</span> RE_h
+
+<span class="cm">* Hausman test</span>
+<span class="kw">hausman</span> FE_h RE_h
+<span class="cm">* H0: RE is consistent and efficient</span>
+<span class="cm">* Reject => use FE</span></pre>
+
+<div class="concept warn">
+    <strong>Hausman Test Limitations</strong>
+    The classic Hausman test requires homoskedastic errors. With clustered or heteroskedastic errors, use the robust version: <code>hausman FE_h RE_h, sigmamore</code>. Better yet, many applied researchers simply default to FE in causal designs, since the RE assumption is difficult to defend.
+</div>
+
+<h2>5.4a Time-Varying vs. Time-Invariant Variables</h2>
+<p>A common source of confusion in panel data is why certain variables "disappear" in FE estimation. The reason is that FE demeans all variables at the unit level, so any variable that is constant within a unit over time is perfectly collinear with the unit fixed effect and is absorbed.</p>
+
+<pre class="stata"><span class="cm">* Load panel data</span>
+<span class="kw">webuse</span> nlswork, clear
+<span class="kw">xtset</span> idcode year
+
+<span class="cm">* race is time-invariant => dropped by FE</span>
+<span class="kw">xtreg</span> ln_wage age tenure hours race, fe
+<span class="cm">* Note: race is omitted (collinear with unit FE)</span>
+
+<span class="cm">* RE can estimate time-invariant coefficients</span>
+<span class="kw">xtreg</span> ln_wage age tenure hours race, re
+<span class="cm">* race coefficient is estimated</span>
+
+<span class="cm">* Check within-variation for a variable</span>
+<span class="kw">xtsum</span> race
+<span class="cm">* If "within" std dev = 0, the variable is time-invariant</span></pre>
+
+<div class="concept info">
+    <strong>What If You Need Time-Invariant Coefficients?</strong>
+    If you need to estimate the effect of a time-invariant variable (like gender, race, or geographic region) while controlling for unobserved heterogeneity, you have several options: (1) Correlated Random Effects (Mundlak approach), (2) Hausman-Taylor estimator, (3) Between estimator (though this loses the causal credibility of FE). The Mundlak approach is the most common in applied research.
+</div>
+
+<h2>5.4b The Mundlak Test and Correlated Random Effects</h2>
+<p>The Mundlak (1978) approach augments the RE model with the group means of all time-varying regressors. This is equivalent to testing whether FE and RE give different results, and it allows you to estimate time-invariant coefficients while controlling for correlation between the unit effect and the regressors.</p>
+
+<pre class="stata"><span class="kw">webuse</span> nlswork, clear
+<span class="kw">xtset</span> idcode year
+
+<span class="cm">* Step 1: compute group means of time-varying regressors</span>
+<span class="kw">foreach</span> var in age tenure hours {
+    <span class="kw">egen</span> mean_`var' = mean(`var'), by(idcode)
+}
+
+<span class="cm">* Step 2: RE model augmented with group means (Mundlak approach)</span>
+<span class="kw">xtreg</span> ln_wage age tenure hours race ///
+    mean_age mean_tenure mean_hours, re vce(cluster idcode)
+
+<span class="cm">* Step 3: Test joint significance of group means</span>
+<span class="cm">* H0: group means are jointly zero => RE is consistent</span>
+<span class="cm">* Reject => FE is needed (same conclusion as Hausman test)</span>
+<span class="kw">test</span> mean_age mean_tenure mean_hours
+
+<span class="cm">* Key insight: the time-varying coefficients in CRE are numerically</span>
+<span class="cm">* identical to FE coefficients, and race is now estimable.</span></pre>
+
+<div class="concept tip">
+    <strong>Tip: CRE as a Better Alternative to Hausman</strong>
+    The Correlated Random Effects (Mundlak) approach has two advantages over the classic Hausman test. First, it works with clustered standard errors (the classic Hausman test requires the default VCE). Second, it lets you estimate time-invariant coefficients under the same assumptions as FE. Many applied researchers now prefer CRE to the standard Hausman test.
+</div>
+
+<h2>5.4c Testing Joint Significance of Fixed Effects</h2>
+<p>After estimating a model with fixed effects, you should test whether the fixed effects are jointly significant. This confirms that the panel structure matters and that pooled OLS would be inappropriate.</p>
+
+<pre class="stata"><span class="cm">* F-test for joint significance of unit FE</span>
+<span class="kw">xtreg</span> ln_wage age tenure hours, fe
+<span class="cm">* The F-test at the bottom of xtreg,fe output tests:</span>
+<span class="cm">* H0: all unit fixed effects = 0</span>
+<span class="cm">* This is reported as "F test that all u_i=0"</span>
+
+<span class="cm">* Test joint significance of time dummies</span>
+<span class="kw">xtreg</span> ln_wage age tenure hours i.year, fe
+<span class="kw">testparm</span> i.year
+<span class="cm">* H0: all year dummies are jointly zero</span>
+<span class="cm">* Reject => time effects matter, include them</span>
+
+<span class="cm">* Test subsets of regressors</span>
+<span class="kw">test</span> age tenure              <span class="cm">// joint significance of age and tenure</span></pre>
+
+<h2>5.5 High-Dimensional Fixed Effects with reghdfe</h2>
+<p>When your model has multiple sets of fixed effects (e.g., facility FE and year FE, or facility-year and state-year FE), <code>reghdfe</code> is far more efficient than <code>xtreg</code> or dummy-variable approaches.</p>
+
+<pre class="stata"><span class="cm">* Install: ssc install reghdfe, replace</span>
+<span class="cm">*          ssc install ftools, replace</span>
+
+<span class="cm">* Two-way fixed effects (facility + year)</span>
+<span class="kw">reghdfe</span> qip rn_pp sdi, absorb(facility_id year) vce(cluster facility_id)
+
+<span class="cm">* Three-way: facility + year + state-specific trends</span>
+<span class="kw">reghdfe</span> qip rn_pp sdi, absorb(facility_id year state#c.year) ///
+    vce(cluster facility_id)
+
+<span class="cm">* Store results</span>
+<span class="kw">estimates store</span> HDFE</pre>
+
+<h2>5.6 First-Differencing</h2>
+<p>First differencing is an alternative to FE that also removes time-invariant unobserved heterogeneity. With T=2 periods, FE and FD are numerically identical. With T&gt;2, FE is generally more efficient under serially uncorrelated errors, while FD is more robust to unit root processes.</p>
+
+<pre class="stata"><span class="cm">* Generate first differences manually</span>
+<span class="kw">xtset</span> facility_id year
+<span class="kw">gen</span> d_qip = D.qip
+<span class="kw">gen</span> d_rn = D.rn_pp
+<span class="kw">gen</span> d_sdi = D.sdi
+
+<span class="cm">* First-differenced regression</span>
+<span class="kw">regress</span> d_qip d_rn d_sdi i.year, vce(cluster facility_id)</pre>
+
+<h2>5.7 Interactions in Panel Models</h2>
+<p>Panel models with interactions require careful thought about what variation identifies the interaction effect. In FE models, the interaction effect is identified from within-unit changes in both interacted variables over time.</p>
+
+<pre class="stata"><span class="cm">* --- xtreg with interactions ---</span>
+<span class="kw">xtreg</span> qip c.rn_pp##c.sdi i.year, fe vce(cluster facility_id)
+
+<span class="cm">* Marginal effect of RN staffing at different SDI levels</span>
+<span class="kw">margins</span>, dydx(rn_pp) at(sdi=(0(20)100))
+<span class="kw">marginsplot</span>, ///
+    title(<span class="st">"Effect of RN Staffing on QIP by SDI"</span>) ///
+    ytitle(<span class="st">"Marginal Effect of RN/100 Patients"</span>) ///
+    xtitle(<span class="st">"Social Deprivation Index"</span>) ///
+    yline(0, lpattern(dash) lcolor(red))
+
+<span class="cm">* --- Three-way interaction ---</span>
+<span class="kw">xtreg</span> qip c.rn_pp##c.sdi##i.emp_policy i.year, ///
+    fe vce(cluster facility_id)
+
+<span class="cm">* --- reghdfe with interactions ---</span>
+<span class="kw">reghdfe</span> qip c.rn_pp##c.sdi i.emp_policy, ///
+    absorb(facility_id year) vce(cluster facility_id)
+
+<span class="cm">* reghdfe with interacted fixed effects (state-specific trends)</span>
+<span class="kw">reghdfe</span> qip rn_pp sdi, ///
+    absorb(facility_id year state#c.year) ///
+    vce(cluster facility_id)</pre>
+
+<div class="concept warn">
+    <strong>Interactions and Time-Invariant Variables in FE</strong>
+    If one variable in an interaction is time-invariant (e.g., region), FE absorbs its main effect but can still estimate the interaction with a time-varying variable. For example, <code>xtreg y c.x##i.region, fe</code> drops the main effect of <code>region</code> but estimates <code>c.x#i.region</code> (how the effect of x differs across regions over time). This is valid and commonly used.
+</div>
+
+<h2>5.8 Dynamic Panel Models</h2>
+<p>When the lagged dependent variable is a regressor, FE is biased (Nickell bias). For short panels (small T, large N), this bias can be substantial. The Arellano-Bond GMM estimator addresses this by using lagged levels as instruments for first-differenced equations.</p>
+
+<pre class="stata"><span class="cm">* Dynamic panel model: lagged dependent variable</span>
+<span class="cm">* FE is biased with lagged DV (Nickell bias)</span>
+<span class="kw">xtreg</span> ln_wage L.ln_wage age tenure, fe
+<span class="cm">* WARNING: biased for small T (T < 20-30)</span>
+
+<span class="cm">* Arellano-Bond GMM (difference GMM)</span>
+<span class="kw">xtabond</span> ln_wage age tenure, lags(1) ///
+    twostep vce(robust)
+
+<span class="cm">* System GMM (more efficient, uses both levels and differences)</span>
+<span class="cm">* ssc install xtabond2, replace</span>
+<span class="kw">xtabond2</span> ln_wage L.ln_wage age tenure i.year, ///
+    gmm(L.ln_wage, lag(2 4)) ///
+    iv(age tenure i.year) ///
+    twostep robust small
+
+<span class="cm">* Key diagnostic tests for GMM:</span>
+<span class="cm">* 1. AR(1) should be significant (expected)</span>
+<span class="cm">* 2. AR(2) should NOT be significant (no second-order autocorrelation)</span>
+<span class="cm">* 3. Hansen J test should NOT reject (instruments are valid)</span></pre>
+
+<div class="concept info">
+    <strong>When to Use Dynamic Panels</strong>
+    Dynamic panel models are appropriate when you believe the outcome persists over time (state dependence). Common examples include wages (wage at t depends on wage at t-1), firm performance, and health outcomes. If the autoregressive coefficient is close to 1, it suggests strong persistence. If it is close to 0, a static FE model may be adequate. Always report the AR(2) and Hansen tests to validate the GMM specification.
+</div>
+
+<h2>5.9 Exporting Panel Results</h2>
+
+<pre class="stata"><span class="cm">* Compare FE, RE, and HDFE side by side</span>
+<span class="kw">esttab</span> FE RE HDFE using <span class="st">"tables/panel_results.tex"</span>, ///
+    star(* 0.10 ** 0.05 *** 0.01) ///
+    se(3) b(3) ///
+    scalars(<span class="st">"r2_w R-sq (within)"</span> <span class="st">"N_g Groups"</span>) ///
+    mtitles(<span class="st">"FE"</span> <span class="st">"RE"</span> <span class="st">"HDFE"</span>) ///
+    label replace booktabs</pre>
+
+<div class="exercise">
+    <h4>Exercise 5.1</h4>
+    <p>Load the <code>nlswork</code> dataset (<code>webuse nlswork, clear</code>). Declare the panel with <code>xtset idcode year</code>. Estimate FE and RE models of <code>ln_wage</code> on <code>age</code>, <code>tenure</code>, and <code>hours</code>. Run the Hausman test. Which model is preferred?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 5.2</h4>
+    <p>Using the same data, estimate the wage equation with <code>reghdfe</code> absorbing both <code>idcode</code> and <code>year</code> fixed effects. Cluster standard errors at the individual level. Compare the coefficients with those from <code>xtreg, fe</code>.</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 5.3</h4>
+    <p>Implement the Mundlak (Correlated Random Effects) approach on the <code>nlswork</code> data. Compute group means for <code>age</code>, <code>tenure</code>, and <code>hours</code>. Include <code>race</code> as a time-invariant regressor. Run the augmented RE model and test the joint significance of the group means. Compare the time-varying coefficients to those from FE. Are they numerically identical (or very close)?</p>
+</div>
+
+<div class="exercise">
+    <h4>Exercise 5.4</h4>
+    <p>Using <code>webuse nlswork</code>, estimate a dynamic panel model of <code>ln_wage</code> with its first lag as a regressor, plus <code>age</code> and <code>tenure</code> as controls. Compare: (a) FE with lagged DV, (b) Arellano-Bond GMM via <code>xtabond</code>. Report the AR(2) test p-value from the GMM estimation. Does the coefficient on the lagged DV differ meaningfully between the two approaches?</p>
+</div>
+
+<div class="ext-resources">
+    <h4>External Resources</h4>
+    <ul>
+        <li><a href="https://www.stata.com/manuals/xtxtreg.pdf" target="_blank" rel="noopener">Stata Manual: xtreg</a> <span class="ext-badge">External</span></li>
+        <li><a href="https://stats.oarc.ucla.edu/stata/dae/fixed-effects-regression/" target="_blank" rel="noopener">UCLA OARC: Panel Data Using Stata</a> <span class="ext-badge">External</span></li>
+        <li><a href="http://scorreia.com/software/reghdfe/" target="_blank" rel="noopener">reghdfe Documentation (Correia)</a> <span class="ext-badge">External</span></li>
+    </ul>
+</div>
+
+<div class="takeaway">
+    <h3>Key Takeaways</h3>
+    <ul>
+        <li>Always use <code>xtset</code> before panel estimation and inspect balance with <code>xtdescribe</code>.</li>
+        <li>Understand the within-between decomposition: FE uses only within-unit variation, so time-invariant variables are not estimable.</li>
+        <li>FE is the safe default for causal inference; RE is only valid under strict exogeneity of the unit effect.</li>
+        <li>Use the Mundlak (CRE) approach to formally test FE vs. RE and to estimate time-invariant coefficients.</li>
+        <li>Use <code>reghdfe</code> for models with multiple high-dimensional fixed effects.</li>
+        <li>Always interpret interactions in panel models with <code>margins</code> and <code>marginsplot</code>.</li>
+        <li>For dynamic panels (lagged DV), use Arellano-Bond GMM to avoid Nickell bias; always report AR(2) and Hansen tests.</li>
+        <li>Cluster standard errors at the unit level to account for within-unit serial correlation.</li>
+    </ul>
+</div>
+
+<div class="chapter-nav">
+    <a href="ch4.html">&larr; Chapter 4: Linear Regression</a>
+    <a href="ch6.html">Chapter 6: Instrumental Variables &rarr;</a>
+</div>
+
+</body>
+</html>

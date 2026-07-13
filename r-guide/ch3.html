@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ch 3: Data Wrangling with tidyverse – R Guide</title>
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+  <style>
+    h1{color:#1a365d}
+    h2{border-bottom:2px solid #bfdbfe}
+    .book-nav a.current{background:#276DC3}
+    .exercise{border-color:#276DC3;background:#eff6ff}
+    .exercise h4{background:#276DC3;color:#fff}
+  </style>
+  <link rel="stylesheet" href="../coding-guide-shared.css">
+</head>
+<body>
+
+<!-- Topnav -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img src="../images/profile.jpg" alt="CZ">Chenhao Zhou</a>
+    <div class="topnav-links">
+      <a href="../index.html">Home</a>
+      <a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a>
+      <a href="../cv.html">CV</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Book Nav -->
+<nav class="book-nav">
+  <a href="index.html">Home</a>
+  <a href="ch1.html">1 Getting Started</a>
+  <a href="ch2.html">2 Data Structures</a>
+  <a href="ch3.html" class="current">3 Wrangling</a>
+  <a href="ch4.html">4 Visualization</a>
+  <a href="ch5.html">5 Stat Testing</a>
+  <a href="ch6.html">6 Linear Models</a>
+  <a href="ch7.html">7 GLMs</a>
+  <a href="ch8.html">8 ML / tidymodels</a>
+  <a href="ch9.html">9 Reproducible Research</a>
+  <a href="ch10.html">10 Project</a>
+</nav>
+
+<h1>Chapter 3: Data Wrangling with tidyverse</h1>
+<p class="subtitle">Transform, reshape, and summarize data using dplyr and tidyr pipes.</p>
+
+<!-- ────────────────────────────── -->
+<h2>3.1 The Pipe Operator</h2>
+
+<p>Pipes chain operations left-to-right, making code readable. R now has a native pipe (<code>|&gt;</code>, R 4.1+) alongside the magrittr pipe (<code>%&gt;%</code>).</p>
+
+<pre class="r"><span class="fn">library</span>(tidyverse)
+
+<span class="cm"># Without pipes: nested and hard to read</span>
+<span class="fn">round</span>(<span class="fn">mean</span>(<span class="fn">c</span>(<span class="nb">3.1</span>, <span class="nb">4.7</span>, <span class="nb">2.9</span>)), <span class="nb">1</span>)
+
+<span class="cm"># With pipe: reads left-to-right</span>
+<span class="fn">c</span>(<span class="nb">3.1</span>, <span class="nb">4.7</span>, <span class="nb">2.9</span>) <span class="op">|&gt;</span> <span class="fn">mean</span>() <span class="op">|&gt;</span> <span class="fn">round</span>(<span class="nb">1</span>)
+<span class="cm"># Both return 3.6</span></pre>
+
+<div class="concept info">
+  <strong>|&gt; vs. %&gt;%</strong>
+  The native pipe <code>|&gt;</code> is slightly faster and requires no package. The magrittr <code>%&gt;%</code> has extra features like <code>.</code> placeholder. For most work, either is fine. This guide uses <code>|&gt;</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>3.2 dplyr: Core Verbs</h2>
+
+<p>We will use the <code>mpg</code> dataset (bundled with ggplot2) to demonstrate each verb.</p>
+
+<h3>filter() — Select Rows</h3>
+<pre class="r"><span class="cm"># Cars with highway mpg &gt; 30 and 4 cylinders</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">filter</span>(hwy <span class="op">&gt;</span> <span class="nb">30</span>, cyl <span class="op">==</span> <span class="nb">4</span>)</pre>
+
+<h3>select() — Choose Columns</h3>
+<pre class="r">mpg <span class="op">|&gt;</span>
+  <span class="fn">select</span>(manufacturer, model, year, hwy)
+
+<span class="cm"># Helper functions: starts_with, ends_with, contains</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">select</span>(<span class="fn">starts_with</span>(<span class="st">"c"</span>))  <span class="cm"># cty, cyl, class</span></pre>
+
+<h3>mutate() — Create/Modify Columns</h3>
+<pre class="r">mpg <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(
+    kpl_city <span class="op">=</span> cty <span class="op">*</span> <span class="nb">0.4251</span>,     <span class="cm"># mpg to km/L</span>
+    efficient <span class="op">=</span> hwy <span class="op">&gt;</span> <span class="nb">30</span>         <span class="cm"># logical flag</span>
+  )</pre>
+
+<h3>arrange() — Sort Rows</h3>
+<pre class="r">mpg <span class="op">|&gt;</span>
+  <span class="fn">arrange</span>(<span class="fn">desc</span>(hwy)) <span class="op">|&gt;</span>        <span class="cm"># highest hwy first</span>
+  <span class="fn">head</span>(<span class="nb">5</span>)</pre>
+
+<h3>summarize() + group_by() — Aggregate</h3>
+<pre class="r">mpg <span class="op">|&gt;</span>
+  <span class="fn">group_by</span>(class) <span class="op">|&gt;</span>
+  <span class="fn">summarize</span>(
+    n       <span class="op">=</span> <span class="fn">n</span>(),
+    avg_hwy <span class="op">=</span> <span class="fn">mean</span>(hwy),
+    sd_hwy  <span class="op">=</span> <span class="fn">sd</span>(hwy)
+  ) <span class="op">|&gt;</span>
+  <span class="fn">arrange</span>(<span class="fn">desc</span>(avg_hwy))</pre>
+
+<div class="concept tip">
+  <strong>Tip: .by argument (dplyr 1.1+)</strong>
+  Instead of <code>group_by() |&gt; summarize()</code>, you can write <code>summarize(..., .by = class)</code>. It auto-ungroups the result.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>3.3 Combining Verbs</h2>
+
+<p>The real power of dplyr is chaining multiple verbs together:</p>
+
+<pre class="r"><span class="cm"># Which manufacturer has the most fuel-efficient 6-cylinder cars?</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">filter</span>(cyl <span class="op">==</span> <span class="nb">6</span>) <span class="op">|&gt;</span>
+  <span class="fn">group_by</span>(manufacturer) <span class="op">|&gt;</span>
+  <span class="fn">summarize</span>(avg_hwy <span class="op">=</span> <span class="fn">mean</span>(hwy), n <span class="op">=</span> <span class="fn">n</span>()) <span class="op">|&gt;</span>
+  <span class="fn">filter</span>(n <span class="op">&gt;=</span> <span class="nb">3</span>) <span class="op">|&gt;</span>
+  <span class="fn">arrange</span>(<span class="fn">desc</span>(avg_hwy))</pre>
+
+<!-- ────────────────────────────── -->
+<h2>3.4 across() for Column-wise Operations</h2>
+
+<p>When you need to apply the same transformation to multiple columns, <code>across()</code> eliminates repetitive code. It works inside <code>mutate()</code> and <code>summarize()</code>.</p>
+
+<pre class="r"><span class="cm"># Compute the mean of all numeric columns by group</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">group_by</span>(drv) <span class="op">|&gt;</span>
+  <span class="fn">summarize</span>(<span class="fn">across</span>(<span class="fn">where</span>(is.numeric), mean, .names <span class="op">=</span> <span class="st">"avg_{.col}"</span>))
+
+<span class="cm"># Round specific columns to 1 decimal place</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(<span class="fn">across</span>(<span class="fn">c</span>(cty, hwy), \(x) <span class="fn">round</span>(x <span class="op">*</span> <span class="nb">0.4251</span>, <span class="nb">1</span>),
+         .names <span class="op">=</span> <span class="st">"{.col}_kpl"</span>))
+
+<span class="cm"># Apply multiple functions at once</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">summarize</span>(<span class="fn">across</span>(<span class="fn">c</span>(cty, hwy),
+            <span class="fn">list</span>(mean <span class="op">=</span> mean, sd <span class="op">=</span> sd),
+            .names <span class="op">=</span> <span class="st">"{.col}_{.fn}"</span>))</pre>
+
+<div class="concept tip">
+  <strong>Tip: Selecting columns in across()</strong>
+  You can use all the same helpers as <code>select()</code>: <code>starts_with()</code>, <code>ends_with()</code>, <code>contains()</code>, <code>where(is.numeric)</code>, or simply a vector of column names.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>3.5 case_when() for Complex Conditionals</h2>
+
+<p><code>case_when()</code> is the tidyverse equivalent of a multi-branch if/else. It is far more readable than nested <code>ifelse()</code> calls.</p>
+
+<pre class="r"><span class="cm"># Categorize highway mpg into efficiency tiers</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(
+    efficiency <span class="op">=</span> <span class="fn">case_when</span>(
+      hwy <span class="op">&gt;=</span> <span class="nb">35</span> <span class="op">~</span> <span class="st">"excellent"</span>,
+      hwy <span class="op">&gt;=</span> <span class="nb">25</span> <span class="op">~</span> <span class="st">"good"</span>,
+      hwy <span class="op">&gt;=</span> <span class="nb">18</span> <span class="op">~</span> <span class="st">"average"</span>,
+      .default   <span class="op">=</span> <span class="st">"poor"</span>
+    )
+  ) <span class="op">|&gt;</span>
+  <span class="fn">count</span>(efficiency)
+
+<span class="cm"># Create academic letter grades from numeric scores</span>
+students <span class="op">&lt;-</span> <span class="fn">tibble</span>(name <span class="op">=</span> <span class="fn">c</span>(<span class="st">"Ana"</span>,<span class="st">"Ben"</span>,<span class="st">"Cal"</span>), score <span class="op">=</span> <span class="fn">c</span>(<span class="nb">92</span>,<span class="nb">78</span>,<span class="nb">65</span>))
+students <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(grade <span class="op">=</span> <span class="fn">case_when</span>(
+    score <span class="op">&gt;=</span> <span class="nb">90</span> <span class="op">~</span> <span class="st">"A"</span>,
+    score <span class="op">&gt;=</span> <span class="nb">80</span> <span class="op">~</span> <span class="st">"B"</span>,
+    score <span class="op">&gt;=</span> <span class="nb">70</span> <span class="op">~</span> <span class="st">"C"</span>,
+    score <span class="op">&gt;=</span> <span class="nb">60</span> <span class="op">~</span> <span class="st">"D"</span>,
+    .default   <span class="op">=</span> <span class="st">"F"</span>
+  ))</pre>
+
+<!-- ────────────────────────────── -->
+<h2>3.6 Counting and Slicing</h2>
+
+<p>Several dplyr helpers make quick counting and row selection painless.</p>
+
+<pre class="r"><span class="cm"># n() counts rows in the current group</span>
+<span class="cm"># n_distinct() counts unique values</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">group_by</span>(manufacturer) <span class="op">|&gt;</span>
+  <span class="fn">summarize</span>(
+    total_models <span class="op">=</span> <span class="fn">n</span>(),
+    unique_models <span class="op">=</span> <span class="fn">n_distinct</span>(model)
+  )
+
+<span class="cm"># slice_max() / slice_min() — top/bottom rows by a variable</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">slice_max</span>(hwy, n <span class="op">=</span> <span class="nb">5</span>)        <span class="cm"># top 5 by highway mpg</span>
+
+mpg <span class="op">|&gt;</span>
+  <span class="fn">group_by</span>(class) <span class="op">|&gt;</span>
+  <span class="fn">slice_min</span>(cty, n <span class="op">=</span> <span class="nb">1</span>)        <span class="cm"># worst city mpg per class</span>
+
+<span class="cm"># count() is a shortcut for group_by + summarize(n = n())</span>
+mpg <span class="op">|&gt;</span> <span class="fn">count</span>(class, sort <span class="op">=</span> <span class="nb">TRUE</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>3.7 relocate() and rowwise()</h2>
+
+<pre class="r"><span class="cm"># relocate() — move columns to a new position</span>
+mpg <span class="op">|&gt;</span>
+  <span class="fn">relocate</span>(hwy, cty, .before <span class="op">=</span> manufacturer)
+
+mpg <span class="op">|&gt;</span>
+  <span class="fn">relocate</span>(<span class="fn">where</span>(is.character), .after <span class="op">=</span> <span class="fn">last_col</span>())
+
+<span class="cm"># rowwise() — operate across columns within each row</span>
+scores <span class="op">&lt;-</span> <span class="fn">tibble</span>(
+  student <span class="op">=</span> <span class="fn">c</span>(<span class="st">"Ana"</span>, <span class="st">"Ben"</span>, <span class="st">"Cal"</span>),
+  exam1 <span class="op">=</span> <span class="fn">c</span>(<span class="nb">88</span>, <span class="nb">75</span>, <span class="nb">92</span>),
+  exam2 <span class="op">=</span> <span class="fn">c</span>(<span class="nb">91</span>, <span class="nb">80</span>, <span class="nb">85</span>),
+  exam3 <span class="op">=</span> <span class="fn">c</span>(<span class="nb">78</span>, <span class="nb">88</span>, <span class="nb">90</span>)
+)
+scores <span class="op">|&gt;</span>
+  <span class="fn">rowwise</span>() <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(avg <span class="op">=</span> <span class="fn">mean</span>(<span class="fn">c</span>(exam1, exam2, exam3))) <span class="op">|&gt;</span>
+  <span class="fn">ungroup</span>()</pre>
+
+<div class="concept info">
+  <strong>rowwise() vs. across()</strong>
+  Use <code>across()</code> when you want to apply the same function to each column independently (column-wise). Use <code>rowwise()</code> when you need to combine values across columns within a single row (row-wise). Always call <code>ungroup()</code> after <code>rowwise()</code> to return to normal behavior.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>3.8 nest() / unnest() and Reading Multiple Files</h2>
+
+<p>Nested data frames store entire tibbles inside cells. Combined with <code>purrr::map()</code>, this pattern is powerful for batch operations.</p>
+
+<pre class="r"><span class="fn">library</span>(tidyr)
+<span class="fn">library</span>(purrr)
+
+<span class="cm"># Nest: create a list-column of data frames</span>
+nested <span class="op">&lt;-</span> mpg <span class="op">|&gt;</span>
+  <span class="fn">group_by</span>(drv) <span class="op">|&gt;</span>
+  <span class="fn">nest</span>()
+nested    <span class="cm"># 3 rows (f, 4, r), each with a 'data' list-column</span>
+
+<span class="cm"># Apply a model to each nested group</span>
+nested <span class="op">|&gt;</span>
+  <span class="fn">mutate</span>(model <span class="op">=</span> <span class="fn">map</span>(data, \(df) <span class="fn">lm</span>(hwy <span class="op">~</span> displ, data <span class="op">=</span> df)))
+
+<span class="cm"># Unnest: flatten back to a regular tibble</span>
+nested <span class="op">|&gt;</span> <span class="fn">unnest</span>(data)</pre>
+
+<pre class="r"><span class="cm"># Read multiple CSV files at once using purrr::map</span>
+<span class="cm"># Suppose you have: data/sales_2020.csv, data/sales_2021.csv, etc.</span>
+files <span class="op">&lt;-</span> <span class="fn">list.files</span>(<span class="st">"data/"</span>, pattern <span class="op">=</span> <span class="st">"sales_.*\\.csv"</span>, full.names <span class="op">=</span> <span class="nb">TRUE</span>)
+
+all_sales <span class="op">&lt;-</span> files <span class="op">|&gt;</span>
+  <span class="fn">map</span>(read_csv) <span class="op">|&gt;</span>
+  <span class="fn">list_rbind</span>()    <span class="cm"># stack all data frames into one</span>
+
+<span class="cm"># Alternative: use purrr::map with an id column</span>
+all_sales <span class="op">&lt;-</span> files <span class="op">|&gt;</span>
+  <span class="fn">set_names</span>() <span class="op">|&gt;</span>
+  <span class="fn">map</span>(read_csv) <span class="op">|&gt;</span>
+  <span class="fn">list_rbind</span>(names_to <span class="op">=</span> <span class="st">"source_file"</span>)</pre>
+
+<div class="concept tip">
+  <strong>Tip: janitor::clean_names()</strong>
+  Real-world data often has messy column names with spaces, special characters, or inconsistent case. The <code>janitor</code> package fixes this in one step: <code>df |> janitor::clean_names()</code> converts all column names to consistent snake_case. Install it with <code>install.packages("janitor")</code>.
+</div>
+
+<!-- ────────────────────────────── -->
+<h2>3.9 Joining Data Frames</h2>
+
+<pre class="r">orders <span class="op">&lt;-</span> <span class="fn">tibble</span>(
+  id <span class="op">=</span> <span class="fn">c</span>(<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>),
+  product <span class="op">=</span> <span class="fn">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>),
+  amount <span class="op">=</span> <span class="fn">c</span>(<span class="nb">100</span>, <span class="nb">200</span>, <span class="nb">150</span>)
+)
+customers <span class="op">&lt;-</span> <span class="fn">tibble</span>(
+  id <span class="op">=</span> <span class="fn">c</span>(<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">4</span>),
+  name <span class="op">=</span> <span class="fn">c</span>(<span class="st">"Alice"</span>, <span class="st">"Bob"</span>, <span class="st">"Dana"</span>)
+)
+
+<span class="fn">left_join</span>(orders, customers, by <span class="op">=</span> <span class="st">"id"</span>)   <span class="cm"># keep all orders</span>
+<span class="fn">inner_join</span>(orders, customers, by <span class="op">=</span> <span class="st">"id"</span>)  <span class="cm"># only matching rows</span>
+<span class="fn">full_join</span>(orders, customers, by <span class="op">=</span> <span class="st">"id"</span>)   <span class="cm"># keep everything</span></pre>
+
+<!-- ────────────────────────────── -->
+<h2>3.10 tidyr: Reshaping Data</h2>
+
+<h3>pivot_longer() — Wide to Long</h3>
+<pre class="r">wide <span class="op">&lt;-</span> <span class="fn">tibble</span>(
+  country <span class="op">=</span> <span class="fn">c</span>(<span class="st">"US"</span>, <span class="st">"UK"</span>),
+  y2020 <span class="op">=</span> <span class="fn">c</span>(<span class="nb">331</span>, <span class="nb">67</span>),
+  y2021 <span class="op">=</span> <span class="fn">c</span>(<span class="nb">333</span>, <span class="nb">67</span>)
+)
+wide <span class="op">|&gt;</span>
+  <span class="fn">pivot_longer</span>(cols <span class="op">=</span> <span class="fn">starts_with</span>(<span class="st">"y"</span>),
+               names_to <span class="op">=</span> <span class="st">"year"</span>,
+               values_to <span class="op">=</span> <span class="st">"population"</span>)</pre>
+
+<h3>pivot_wider() — Long to Wide</h3>
+<pre class="r">long <span class="op">&lt;-</span> <span class="fn">tibble</span>(
+  name <span class="op">=</span> <span class="fn">c</span>(<span class="st">"A"</span>,<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"B"</span>),
+  metric <span class="op">=</span> <span class="fn">c</span>(<span class="st">"sales"</span>,<span class="st">"profit"</span>,<span class="st">"sales"</span>,<span class="st">"profit"</span>),
+  value <span class="op">=</span> <span class="fn">c</span>(<span class="nb">100</span>,<span class="nb">20</span>,<span class="nb">150</span>,<span class="nb">35</span>)
+)
+long <span class="op">|&gt;</span>
+  <span class="fn">pivot_wider</span>(names_from <span class="op">=</span> metric, values_from <span class="op">=</span> value)</pre>
+
+<h3>separate() and unite()</h3>
+<pre class="r">df <span class="op">&lt;-</span> <span class="fn">tibble</span>(date <span class="op">=</span> <span class="fn">c</span>(<span class="st">"2024-01-15"</span>, <span class="st">"2024-03-22"</span>))
+
+df <span class="op">|&gt;</span> <span class="fn">separate</span>(date, into <span class="op">=</span> <span class="fn">c</span>(<span class="st">"year"</span>,<span class="st">"month"</span>,<span class="st">"day"</span>), sep <span class="op">=</span> <span class="st">"-"</span>)
+
+<span class="cm"># unite() does the reverse</span>
+<span class="fn">tibble</span>(first <span class="op">=</span> <span class="st">"John"</span>, last <span class="op">=</span> <span class="st">"Doe"</span>) <span class="op">|&gt;</span>
+  <span class="fn">unite</span>(<span class="st">"full_name"</span>, first, last, sep <span class="op">=</span> <span class="st">" "</span>)</pre>
+
+<!-- ────────────────────────────── -->
+<h2>Exercises</h2>
+
+<div class="exercise">
+  <h4>Exercise 3.1</h4>
+  <p>Using the <code>mpg</code> dataset, find the average city and highway mpg for each <code>drv</code> (drive type: f, r, 4). Which drive type is most fuel-efficient overall? Chain at least three dplyr verbs.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 3.2</h4>
+  <p>Create a wide tibble with quarterly revenue (Q1 through Q4) for two companies. Pivot it to long format, then compute each company's total annual revenue using <code>summarize()</code>.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 3.3</h4>
+  <p>Using <code>mpg</code>, create a new column <code>fuel_grade</code> using <code>case_when()</code>: "excellent" if <code>hwy >= 30</code>, "good" if <code>hwy >= 20</code>, and "poor" otherwise. Then use <code>count()</code> to find how many cars fall into each grade. Finally, use <code>across()</code> inside <code>summarize()</code> to compute the mean and standard deviation of both <code>cty</code> and <code>hwy</code> for each <code>fuel_grade</code>.</p>
+</div>
+
+<div class="exercise">
+  <h4>Exercise 3.4</h4>
+  <p>The <code>storms</code> dataset (part of dplyr) tracks tropical storms. For each named storm (<code>name</code>), find the maximum wind speed and the maximum category reached. Then use <code>slice_max()</code> to display the 10 strongest storms by maximum wind speed. How many of them reached category 5?</p>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="ext-resources">
+  <h4>External Resources</h4>
+  <ul>
+    <li><a href="https://dplyr.tidyverse.org" target="_blank" rel="noopener">dplyr Documentation</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://tidyr.tidyverse.org" target="_blank" rel="noopener">tidyr Documentation</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://r4ds.hadley.nz/data-transform" target="_blank" rel="noopener">R4DS: Data Transformation</a> <span class="ext-badge">External</span></li>
+    <li><a href="https://www.tidyverse.org/packages/" target="_blank" rel="noopener">tidyverse Package Overview</a> <span class="ext-badge">External</span></li>
+  </ul>
+</div>
+
+<!-- ────────────────────────────── -->
+<div class="takeaway" style="background:linear-gradient(135deg,#1a365d,#276DC3)">
+  <h3>Key Takeaways</h3>
+  <ul>
+    <li>The pipe (<code>|&gt;</code>) chains verbs for readable, step-by-step transformations.</li>
+    <li>Five core dplyr verbs: <code>filter</code>, <code>select</code>, <code>mutate</code>, <code>summarize</code>, <code>arrange</code>.</li>
+    <li><code>group_by()</code> unlocks split-apply-combine for aggregation.</li>
+    <li><code>pivot_longer</code> and <code>pivot_wider</code> reshape between long and wide formats.</li>
+    <li>Joins (<code>left_join</code>, <code>inner_join</code>, etc.) merge data frames on shared keys.</li>
+  </ul>
+</div>
+
+<div class="chapter-nav">
+  <a href="ch2.html">&larr; Chapter 2: Data Structures</a>
+  <a href="ch4.html">Chapter 4: Visualization &rarr;</a>
+</div>
+
+</body>
+</html>

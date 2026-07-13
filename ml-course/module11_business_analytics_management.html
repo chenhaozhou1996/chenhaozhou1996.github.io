@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Analytics in Management | Leadership, Strategy & AI | Chenhao Zhou</title>
+    <meta name="description" content="Comprehensive module on business analytics for management - integrating leadership, strategy, and management analytics with ML/AI/Statistics.">
+    <style>
+        
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* === SITE-WIDE OVERRIDES === */
+.topnav { position: sticky; top: 0; z-index: 200; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; padding: 0 48px; margin: 0 -2rem; width: calc(100% + 4rem); }
+.topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.topnav-brand { font-weight: 700; font-size: 15px; color: #0f2442; display: flex; align-items: center; gap: 10px; text-decoration: none !important; }
+.topnav-brand:hover { text-decoration: none !important; }
+.topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.topnav-links { display: flex; gap: 4px; }
+.topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #475569; text-decoration: none !important; }
+.topnav-links a:hover { background: #f8fafc; color: #1a365d; text-decoration: none !important; }
+.topnav-links a.active { background: #f8fafc; color: #1a365d; font-weight: 600; }
+.course-nav { background: #f8fafc; padding: 10px 0; text-align: center; border-bottom: 1px solid #e2e8f0; margin: 0 -2rem 1.5em; padding-left: 2rem; padding-right: 2rem; position: sticky; top: 56px; z-index: 100; }
+.course-nav a { margin: 0 8px; text-decoration: none !important; color: #1a365d; font-weight: 600; font-size: 13px; padding: 5px 12px; border-radius: 6px; transition: background 0.15s; }
+.course-nav a:hover { background: #e2e8f0; text-decoration: none !important; }
+@media (max-width: 640px) { .topnav { padding: 0 16px; } .topnav-links a { padding: 4px 8px; font-size: 12px; } .course-nav a { margin: 0 4px; font-size: 12px; padding: 4px 8px; } }
+
+:root {
+            --primary-gradient: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+            --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+            --leadership-gradient: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            --strategy-gradient: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --text-muted: #6b7280;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --border: #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        /* Hero */
+        .hero {
+            background: var(--primary-gradient);
+            padding: 80px 20px 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            text-align: center;
+            color: white;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .module-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            margin-bottom: 32px;
+        }
+
+        /* Navigation */
+        .nav-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-bar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 60px 20px;
+        }
+
+        .section {
+            margin-bottom: 80px;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 48px;
+        }
+
+        .section-label {
+            display: inline-block;
+            color: #059669;
+            font-weight: 600;
+            font-size: 0.875rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: clamp(1.75rem, 3vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .section-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Framework Cards */
+        .framework-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 28px;
+        }
+
+        .framework-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .framework-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+        }
+
+        .framework-header {
+            padding: 28px;
+            color: white;
+        }
+
+        .framework-header.leadership { background: var(--leadership-gradient); }
+        .framework-header.strategy { background: var(--strategy-gradient); }
+        .framework-header.analytics { background: var(--accent-gradient); }
+        .framework-header.integration { background: var(--primary-gradient); }
+
+        .framework-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .framework-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .framework-subtitle {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .framework-body {
+            padding: 28px;
+        }
+
+        .framework-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .concept-list {
+            list-style: none;
+        }
+
+        .concept-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .concept-item:last-child {
+            border-bottom: none;
+        }
+
+        .concept-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .concept-text {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        /* Theory Section */
+        .theory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .theory-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            padding: 28px;
+            border-left: 4px solid #059669;
+        }
+
+        .theory-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .theory-content {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* ML Toolkit Section */
+        .toolkit-container {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            border-radius: 20px;
+            padding: 48px;
+            color: white;
+        }
+
+        .toolkit-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .toolkit-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .toolkit-subtitle {
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+
+        .toolkit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .toolkit-item {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.12);
+            transition: all 0.3s ease;
+        }
+
+        .toolkit-item:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-4px);
+        }
+
+        .toolkit-item-icon {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+
+        .toolkit-item-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .toolkit-item-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .tag {
+            background: rgba(52, 211, 153, 0.2);
+            color: #34d399;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Case Studies */
+        .case-studies {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 28px;
+        }
+
+        .case-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .case-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .case-type {
+            display: inline-block;
+            background: #d1fae5;
+            color: #065f46;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .case-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .case-desc {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .case-metrics {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #059669;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Learning Objectives */
+        .objectives-container {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 16px;
+            padding: 40px;
+        }
+
+        .objectives-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .objectives-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .objective-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .objective-number {
+            background: var(--primary-gradient);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .objective-text {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .framework-grid,
+            .toolkit-grid,
+            .case-studies {
+                grid-template-columns: 1fr;
+            }
+
+            .toolkit-container {
+                padding: 32px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="module-badge">
+                    <span>MODULE 11</span>
+                    <span>|</span>
+                    <span>MANAGEMENT ANALYTICS</span>
+                </div>
+                <h1>Business Analytics in Management</h1>
+                <p class="hero-subtitle">Integrating Leadership, Strategy, and Management Analytics with ML/AI/Statistics</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <div class="nav-wrapper">
+        <nav class="topnav"><div class="topnav-inner">
+  <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+  <div class="topnav-links">
+    <a href="../index.html">Home</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a>
+  </div>
+</div></nav>
+<div class="course-nav">
+  <a href="#frameworks">Frameworks
+            Theory
+            ML Toolkit
+            Case Studies
+            Back to Course
+        📚 Teaching</a>
+</div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+
+            <!-- Learning Objectives -->
+            <section class="section">
+                <div class="objectives-container">
+                    <h2 class="objectives-title">
+                        <span>Learning Objectives</span>
+                    </h2>
+                    <div class="objectives-grid">
+                        <div class="objective-item">
+                            <span class="objective-number">1</span>
+                            <span class="objective-text">Apply data-driven decision frameworks to leadership challenges using statistical inference and ML models</span>
+                        </div>
+                        <div class="objective-item">
+                            <span class="objective-number">2</span>
+                            <span class="objective-text">Design strategic analytics dashboards that translate complex data into executive-level insights</span>
+                        </div>
+                        <div class="objective-item">
+                            <span class="objective-number">3</span>
+                            <span class="objective-text">Implement predictive models for talent management, resource allocation, and organizational performance</span>
+                        </div>
+                        <div class="objective-item">
+                            <span class="objective-number">4</span>
+                            <span class="objective-text">Evaluate AI/ML solutions within ethical frameworks and organizational constraints</span>
+                        </div>
+                        <div class="objective-item">
+                            <span class="objective-number">5</span>
+                            <span class="objective-text">Synthesize quantitative analysis with qualitative leadership judgment for strategic decision-making</span>
+                        </div>
+                        <div class="objective-item">
+                            <span class="objective-number">6</span>
+                            <span class="objective-text">Communicate analytical findings effectively to diverse stakeholder groups</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Frameworks Section -->
+            <section id="frameworks" class="section">
+                <div class="section-header">
+                    <div class="section-label">Conceptual Foundations</div>
+                    <h2 class="section-title">Management Analytics Frameworks</h2>
+                    <p class="section-description">Four pillars that bridge data science capabilities with executive decision-making requirements</p>
+                </div>
+
+                <div class="framework-grid">
+                    <!-- Leadership Analytics -->
+                    <div class="framework-card">
+                        <div class="framework-header leadership">
+                            <div class="framework-icon">Leadership Analytics</div>
+                            <h3 class="framework-title">Leadership Analytics</h3>
+                            <p class="framework-subtitle">Data-Driven Leadership Development</p>
+                        </div>
+                        <div class="framework-body">
+                            <p class="framework-description">Leverage ML models to identify leadership potential, optimize team compositions, and predict leadership effectiveness across organizational contexts.</p>
+                            <ul class="concept-list">
+                                <li class="concept-item">
+                                    <span class="concept-icon">Classification models for leadership style identification</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Network analysis for influence mapping</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Sentiment analysis for team dynamics assessment</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Survival analysis for retention prediction</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Strategic Analytics -->
+                    <div class="framework-card">
+                        <div class="framework-header strategy">
+                            <h3 class="framework-title">Strategic Analytics</h3>
+                            <p class="framework-subtitle">Competitive Intelligence & Market Positioning</p>
+                        </div>
+                        <div class="framework-body">
+                            <p class="framework-description">Apply machine learning to strategic planning, competitive analysis, and market positioning decisions with quantifiable uncertainty measures.</p>
+                            <ul class="concept-list">
+                                <li class="concept-item">
+                                    <span class="concept-icon">Time series forecasting for market trends</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Clustering for market segmentation strategy</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Causal inference for strategic interventions</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Scenario modeling with Monte Carlo simulation</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Operations Analytics -->
+                    <div class="framework-card">
+                        <div class="framework-header analytics">
+                            <h3 class="framework-title">Management Operations Analytics</h3>
+                            <p class="framework-subtitle">Organizational Performance Optimization</p>
+                        </div>
+                        <div class="framework-body">
+                            <p class="framework-description">Optimize organizational processes, resource allocation, and operational efficiency through statistical modeling and optimization algorithms.</p>
+                            <ul class="concept-list">
+                                <li class="concept-item">
+                                    <span class="concept-icon">Regression models for KPI driver analysis</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Optimization models for resource allocation</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Process mining for workflow optimization</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Anomaly detection for risk management</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Integration Framework -->
+                    <div class="framework-card">
+                        <div class="framework-header integration">
+                            <h3 class="framework-title">AI-Management Integration</h3>
+                            <p class="framework-subtitle">Human-AI Decision Augmentation</p>
+                        </div>
+                        <div class="framework-body">
+                            <p class="framework-description">Design hybrid decision systems that combine AI capabilities with human judgment, ensuring ethical deployment and organizational alignment.</p>
+                            <ul class="concept-list">
+                                <li class="concept-item">
+                                    <span class="concept-icon">Explainable AI for executive decision support</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Bias detection and fairness auditing</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Human-in-the-loop model deployment</span>
+                                </li>
+                                <li class="concept-item">
+                                    <span class="concept-icon">Change management for AI adoption</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Theory Section -->
+            <section id="theory" class="section">
+                <div class="section-header">
+                    <div class="section-label">Theoretical Foundations</div>
+                    <h2 class="section-title">Conceptual Underpinnings</h2>
+                    <p class="section-description">Key theoretical frameworks connecting management science with analytics methodologies</p>
+                </div>
+
+                <div class="theory-grid">
+                    <div class="theory-card">
+                        <h3 class="theory-title">Bounded Rationality & ML Augmentation</h3>
+                        <p class="theory-content">Herbert Simon's bounded rationality theory explains why human decision-makers benefit from ML support. Machine learning models extend cognitive capacity for information processing while maintaining human oversight for contextual judgment.</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3 class="theory-title">Resource-Based View & Predictive Analytics</h3>
+                        <p class="theory-content">The RBV framework identifies data capabilities as strategic resources. Predictive analytics transforms data assets into competitive advantages through VRIN (Valuable, Rare, Inimitable, Non-substitutable) analytical capabilities.</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3 class="theory-title">Agency Theory & Performance Monitoring</h3>
+                        <p class="theory-content">Principal-agent problems can be addressed through analytics-driven monitoring systems. ML models enable sophisticated performance measurement while maintaining alignment between organizational and individual objectives.</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3 class="theory-title">Dynamic Capabilities & Adaptive Analytics</h3>
+                        <p class="theory-content">Teece's dynamic capabilities framework emphasizes sensing, seizing, and transforming. Analytics systems that continuously learn and adapt represent organizational capabilities for navigating uncertain environments.</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3 class="theory-title">Contingency Theory & Model Selection</h3>
+                        <p class="theory-content">No single ML approach fits all organizational contexts. Contingency theory guides model selection based on organizational structure, environmental uncertainty, and strategic priorities.</p>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3 class="theory-title">Stakeholder Theory & Ethical AI</h3>
+                        <p class="theory-content">Freeman's stakeholder theory provides ethical grounding for AI deployment. Analytics solutions must balance multiple stakeholder interests and incorporate fairness constraints into model optimization.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ML Toolkit Section -->
+            <section id="toolkit" class="section">
+                <div class="toolkit-container">
+                    <div class="toolkit-header">
+                        <h2 class="toolkit-title">ML Toolkit for Management Analytics</h2>
+                        <p class="toolkit-subtitle">Applied machine learning techniques tailored for management decision contexts</p>
+                    </div>
+
+                    <div class="toolkit-grid">
+                        <div class="toolkit-item">
+                            <div class="toolkit-item-icon">Predictive Modeling</div>
+                            <h3 class="toolkit-item-title">Predictive Modeling for HR Analytics</h3>
+                            <p class="toolkit-item-desc">Apply classification and regression models to predict employee performance, turnover risk, and promotion readiness using organizational data.</p>
+                            <div class="tags">
+                                <span class="tag">Random Forest</span>
+                                <span class="tag">XGBoost</span>
+                                <span class="tag">SHAP</span>
+                            </div>
+                        </div>
+
+                        <div class="toolkit-item">
+                            <div class="toolkit-item-icon">Time Series</div>
+                            <h3 class="toolkit-item-title">Strategic Forecasting</h3>
+                            <p class="toolkit-item-desc">Implement time series models for demand forecasting, budget planning, and strategic scenario analysis with confidence intervals.</p>
+                            <div class="tags">
+                                <span class="tag">Prophet</span>
+                                <span class="tag">ARIMA</span>
+                                <span class="tag">LSTM</span>
+                            </div>
+                        </div>
+
+                        <div class="toolkit-item">
+                            <div class="toolkit-item-icon">NLP</div>
+                            <h3 class="toolkit-item-title">Text Analytics for Leadership</h3>
+                            <p class="toolkit-item-desc">Extract insights from qualitative data sources - employee feedback, meeting transcripts, and strategic documents using NLP techniques.</p>
+                            <div class="tags">
+                                <span class="tag">Transformers</span>
+                                <span class="tag">Topic Modeling</span>
+                                <span class="tag">Sentiment</span>
+                            </div>
+                        </div>
+
+                        <div class="toolkit-item">
+                            <div class="toolkit-item-icon">Network</div>
+                            <h3 class="toolkit-item-title">Organizational Network Analysis</h3>
+                            <p class="toolkit-item-desc">Map informal organizational networks, identify key influencers, and optimize team structures using graph analytics and community detection.</p>
+                            <div class="tags">
+                                <span class="tag">NetworkX</span>
+                                <span class="tag">Centrality</span>
+                                <span class="tag">Clustering</span>
+                            </div>
+                        </div>
+
+                        <div class="toolkit-item">
+                            <div class="toolkit-item-icon">Causal</div>
+                            <h3 class="toolkit-item-title">Causal Inference for Strategy</h3>
+                            <p class="toolkit-item-desc">Move beyond correlation to establish causal relationships for strategic interventions using econometric and ML-based causal methods.</p>
+                            <div class="tags">
+                                <span class="tag">DiD</span>
+                                <span class="tag">Propensity Score</span>
+                                <span class="tag">IV</span>
+                            </div>
+                        </div>
+
+                        <div class="toolkit-item">
+                            <div class="toolkit-item-icon">Optimization</div>
+                            <h3 class="toolkit-item-title">Resource Optimization Models</h3>
+                            <p class="toolkit-item-desc">Apply mathematical optimization for workforce scheduling, budget allocation, and strategic resource deployment under constraints.</p>
+                            <div class="tags">
+                                <span class="tag">Linear Programming</span>
+                                <span class="tag">MIP</span>
+                                <span class="tag">Simulation</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Case Studies Section -->
+            <section id="cases" class="section">
+                <div class="section-header">
+                    <div class="section-label">Applied Learning</div>
+                    <h2 class="section-title">Management Analytics Case Studies</h2>
+                    <p class="section-description">Real-world applications demonstrating the integration of ML with management decisions</p>
+                </div>
+
+                <div class="case-studies">
+                    <div class="case-card">
+                        <span class="case-type">Leadership</span>
+                        <h3 class="case-title">Executive Team Composition Analytics</h3>
+                        <p class="case-desc">Apply clustering and classification to analyze high-performing executive teams, identifying optimal composition patterns and predicting team effectiveness.</p>
+                        <div class="case-metrics">
+                            <div class="metric">
+                                <div class="metric-value">23%</div>
+                                <div class="metric-label">Performance Lift</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">ML+Stats</div>
+                                <div class="metric-label">Methods</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="case-card">
+                        <span class="case-type">Strategy</span>
+                        <h3 class="case-title">Competitive Response Modeling</h3>
+                        <p class="case-desc">Build predictive models for competitor behavior analysis, enabling proactive strategic responses using game-theoretic ML frameworks.</p>
+                        <div class="case-metrics">
+                            <div class="metric">
+                                <div class="metric-value">85%</div>
+                                <div class="metric-label">Prediction Accuracy</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">Time Series</div>
+                                <div class="metric-label">Methods</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="case-card">
+                        <span class="case-type">Operations</span>
+                        <h3 class="case-title">Talent Pipeline Optimization</h3>
+                        <p class="case-desc">Design ML-driven talent management systems for succession planning, skill gap analysis, and workforce optimization using survival and classification models.</p>
+                        <div class="case-metrics">
+                            <div class="metric">
+                                <div class="metric-value">40%</div>
+                                <div class="metric-label">Turnover Reduction</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">Ensemble</div>
+                                <div class="metric-label">Methods</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+        <!-- ===== INTERACTIVE ADDITIONS ===== -->
+
+        <!-- Analytics Maturity Assessment -->
+        <section id="maturity" class="section" style="padding: 0 20px;">
+            <div class="container">
+                <div style="text-align:center; max-width:800px; margin:0 auto 48px;">
+                    <div style="display:inline-block; color:#059669; font-weight:600; font-size:0.875rem; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px;">Self-Assessment</div>
+                    <h2 style="font-size:clamp(1.75rem, 3vw, 2.5rem); font-weight:700; margin-bottom:16px;">Analytics Maturity Assessment</h2>
+                    <p style="font-size:1.1rem; color:#4a4a4a;">10 questions that score your organization across 5 dimensions of analytics maturity</p>
+                </div>
+
+                <div id="maturityQuiz" style="background:white; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.08); padding:40px; border:1px solid #e5e7eb;">
+                    <div id="maturityProgress" style="background:#e5e7eb; height:8px; border-radius:4px; margin-bottom:32px; overflow:hidden;">
+                        <div id="maturityProgressFill" style="height:100%; background:linear-gradient(135deg,#059669,#34d399); border-radius:4px; width:0%; transition:width 0.4s;"></div>
+                    </div>
+                    <div id="maturityQuestion" style="font-size:1.2em; font-weight:700; color:#1a1a1a; margin-bottom:24px;"></div>
+                    <div id="maturityOptions" style="display:grid; gap:12px;"></div>
+                    <div id="maturityResult" style="display:none; margin-top:24px;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Framework Selector -->
+        <section id="framework-selector" class="section" style="padding: 0 20px; margin-top:80px;">
+            <div class="container">
+                <div style="text-align:center; max-width:800px; margin:0 auto 48px;">
+                    <div style="display:inline-block; color:#059669; font-weight:600; font-size:0.875rem; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px;">Decision Tool</div>
+                    <h2 style="font-size:clamp(1.75rem, 3vw, 2.5rem); font-weight:700; margin-bottom:16px;">Analytics Framework Selector</h2>
+                    <p style="font-size:1.1rem; color:#4a4a4a;">Describe your business problem and get a recommended analytics approach</p>
+                </div>
+                <div style="background:white; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.08); padding:40px; border:1px solid #e5e7eb;">
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:24px;">
+                        <div>
+                            <label style="display:block; font-weight:600; margin-bottom:8px; color:#1a1a1a;">Problem Type</label>
+                            <select id="fsType" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" oninput="updateFrameworkSelector()">
+                                <option value="">Select...</option>
+                                <option value="predict">Predict future outcomes</option>
+                                <option value="explain">Explain why something happened</option>
+                                <option value="segment">Group customers / entities</option>
+                                <option value="optimize">Optimize resource allocation</option>
+                                <option value="detect">Detect anomalies / fraud</option>
+                                <option value="recommend">Generate recommendations</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block; font-weight:600; margin-bottom:8px; color:#1a1a1a;">Data Availability</label>
+                            <select id="fsData" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" oninput="updateFrameworkSelector()">
+                                <option value="">Select...</option>
+                                <option value="rich">Rich labeled dataset (10K+ rows)</option>
+                                <option value="moderate">Moderate dataset (1K–10K rows)</option>
+                                <option value="limited">Limited data (&lt;1K rows)</option>
+                                <option value="unlabeled">Unlabeled / exploratory</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block; font-weight:600; margin-bottom:8px; color:#1a1a1a;">Interpretability Need</label>
+                            <select id="fsInterp" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" oninput="updateFrameworkSelector()">
+                                <option value="">Select...</option>
+                                <option value="high">High (regulatory / exec audience)</option>
+                                <option value="medium">Medium (data-savvy team)</option>
+                                <option value="low">Low (automation / API only)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="fsResult" style="background:#f8fafc; border-radius:12px; padding:24px; min-height:80px; color:#6b7280; font-size:1em; border:1px dashed #e5e7eb;">
+                        ← Fill in all three dropdowns to get your recommendation
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Team Drag-and-Drop -->
+        <section id="team-builder" class="section" style="padding: 0 20px; margin-top:80px;">
+            <div class="container">
+                <div style="text-align:center; max-width:800px; margin:0 auto 48px;">
+                    <div style="display:inline-block; color:#059669; font-weight:600; font-size:0.875rem; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px;">Interactive Case Study</div>
+                    <h2 style="font-size:clamp(1.75rem, 3vw, 2.5rem); font-weight:700; margin-bottom:16px;">Build the Analytics Dream Team</h2>
+                    <p style="font-size:1.1rem; color:#4a4a4a;">Drag roles into the correct teams for a $50M retail analytics transformation</p>
+                </div>
+                <div style="background:white; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.08); padding:40px; border:1px solid #e5e7eb;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px;">
+                        <div>
+                            <h3 style="color:#7c3aed; font-weight:700; margin-bottom:16px; text-align:center;">Available Roles</h3>
+                            <div id="rolePool" style="min-height:200px; border:2px dashed #e5e7eb; border-radius:12px; padding:12px; background:#f8fafc;" ondragover="event.preventDefault()" ondrop="dropToPool(event)"></div>
+                        </div>
+                        <div>
+                            <h3 style="color:#0ea5e9; font-weight:700; margin-bottom:16px; text-align:center;">📊 Data Team</h3>
+                            <div id="dataTeam" class="team-drop" style="min-height:200px; border:2px dashed #0ea5e9; border-radius:12px; padding:12px; background:#f0f9ff;" ondragover="event.preventDefault()" ondrop="dropToTeam(event,'dataTeam')"></div>
+                        </div>
+                        <div>
+                            <h3 style="color:#059669; font-weight:700; margin-bottom:16px; text-align:center;">💼 Business Team</h3>
+                            <div id="bizTeam" class="team-drop" style="min-height:200px; border:2px dashed #059669; border-radius:12px; padding:12px; background:#f0fdf4;" ondragover="event.preventDefault()" ondrop="dropToTeam(event,'bizTeam')"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top:24px; text-align:center;">
+                        <button onclick="checkTeamAssignment()" style="background:linear-gradient(135deg,#059669,#10b981); color:white; border:none; padding:12px 32px; border-radius:8px; font-size:1em; font-weight:700; cursor:pointer;">✓ Check My Assignments</button>
+                        <button onclick="resetTeams()" style="background:#6b7280; color:white; border:none; padding:12px 24px; border-radius:8px; font-size:1em; font-weight:700; cursor:pointer; margin-left:12px;">↺ Reset</button>
+                    </div>
+                    <div id="teamFeedback" style="display:none; margin-top:16px; padding:16px; border-radius:8px;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ROI Calculator -->
+        <section id="roi-calc" class="section" style="padding: 0 20px; margin-top:80px;">
+            <div class="container">
+                <div style="text-align:center; max-width:800px; margin:0 auto 48px;">
+                    <div style="display:inline-block; color:#059669; font-weight:600; font-size:0.875rem; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px;">Financial Tool</div>
+                    <h2 style="font-size:clamp(1.75rem, 3vw, 2.5rem); font-weight:700; margin-bottom:16px;">Analytics ROI Calculator</h2>
+                    <p style="font-size:1.1rem; color:#4a4a4a;">Estimate the return on your analytics investment</p>
+                </div>
+                <div style="background:white; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.08); padding:40px; border:1px solid #e5e7eb;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+                        <div>
+                            <h3 style="color:#1a1a1a; margin-bottom:20px; font-weight:700;">Investment Inputs</h3>
+                            <div style="margin-bottom:16px;">
+                                <label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.9em;">Annual Revenue ($M)</label>
+                                <input type="number" id="roiRev" value="500" min="1" max="50000" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" oninput="calcROI()">
+                            </div>
+                            <div style="margin-bottom:16px;">
+                                <label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.9em;">Analytics Investment ($M)</label>
+                                <input type="number" id="roiInv" value="2" min="0.1" max="1000" step="0.1" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" oninput="calcROI()">
+                            </div>
+                            <div style="margin-bottom:16px;">
+                                <label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.9em;">Analytics Maturity Level</label>
+                                <select id="roiMaturity" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" oninput="calcROI()">
+                                    <option value="1">1 - Descriptive (Basic reporting)</option>
+                                    <option value="2">2 - Diagnostic (Root cause analysis)</option>
+                                    <option value="3" selected>3 - Predictive (Forecasting)</option>
+                                    <option value="4">4 - Prescriptive (Optimization)</option>
+                                    <option value="5">5 - Cognitive (AI-driven automation)</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom:16px;">
+                                <label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.9em;">Primary Use Case</label>
+                                <select id="roiUseCase" style="width:100%; padding:10px; border:2px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:1em;" oninput="calcROI()">
+                                    <option value="0.04">Customer Churn Reduction</option>
+                                    <option value="0.03">Demand Forecasting</option>
+                                    <option value="0.05" selected>Fraud Detection</option>
+                                    <option value="0.02">Supply Chain Optimization</option>
+                                    <option value="0.06">Personalization / Recommendation</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 style="color:#1a1a1a; margin-bottom:20px; font-weight:700;">Projected Returns</h3>
+                            <div id="roiResults" style="background:#f8fafc; border-radius:12px; padding:24px;">
+                                <div style="text-align:center; margin-bottom:20px;">
+                                    <div style="font-size:0.9em; color:#6b7280; margin-bottom:6px;">3-Year NPV</div>
+                                    <div id="roiNPV" style="font-size:3em; font-weight:700; color:#059669;">$18.4M</div>
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                                    <div style="background:white; padding:12px; border-radius:8px; text-align:center;">
+                                        <div style="font-size:0.8em; color:#6b7280;">Annual Revenue Lift</div>
+                                        <div id="roiLift" style="font-size:1.3em; font-weight:700; color:#0ea5e9;">$8.0M</div>
+                                    </div>
+                                    <div style="background:white; padding:12px; border-radius:8px; text-align:center;">
+                                        <div style="font-size:0.8em; color:#6b7280;">ROI Multiple</div>
+                                        <div id="roiMultiple" style="font-size:1.3em; font-weight:700; color:#7c3aed;">9.2x</div>
+                                    </div>
+                                    <div style="background:white; padding:12px; border-radius:8px; text-align:center;">
+                                        <div style="font-size:0.8em; color:#6b7280;">Payback Period</div>
+                                        <div id="roiPayback" style="font-size:1.3em; font-weight:700; color:#f59e0b;">3 months</div>
+                                    </div>
+                                    <div style="background:white; padding:12px; border-radius:8px; text-align:center;">
+                                        <div style="font-size:0.8em; color:#6b7280;">Break-even Month</div>
+                                        <div id="roiBreakeven" style="font-size:1.3em; font-weight:700; color:#059669;">Month 4</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Capstone Dashboard -->
+        <section id="capstone" class="section" style="padding: 0 20px; margin-top:80px; margin-bottom:80px;">
+            <div class="container">
+                <div style="text-align:center; max-width:800px; margin:0 auto 48px;">
+                    <div style="display:inline-block; color:#059669; font-weight:600; font-size:0.875rem; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px;">Capstone</div>
+                    <h2 style="font-size:clamp(1.75rem, 3vw, 2.5rem); font-weight:700; margin-bottom:16px;">🎓 Course Completion Dashboard</h2>
+                    <p style="font-size:1.1rem; color:#4a4a4a;">Track your mastery across all 11 modules</p>
+                </div>
+                <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f); border-radius:20px; padding:48px; color:white;">
+                    <div id="moduleGrid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:32px;"></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px; margin-bottom:32px; text-align:center;">
+                        <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:20px;">
+                            <div style="font-size:0.85em; opacity:0.7; margin-bottom:8px;">Modules Mastered</div>
+                            <div id="capMastered" style="font-size:2.5em; font-weight:700; color:#34d399;">0/11</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:20px;">
+                            <div style="font-size:0.85em; opacity:0.7; margin-bottom:8px;">Overall Progress</div>
+                            <div id="capProgress" style="font-size:2.5em; font-weight:700; color:#60a5fa;">0%</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:20px;">
+                            <div style="font-size:0.85em; opacity:0.7; margin-bottom:8px;">Skills Unlocked</div>
+                            <div id="capSkills" style="font-size:2.5em; font-weight:700; color:#f472b6;">0</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center;">
+                        <button onclick="toggleModule()" style="background:linear-gradient(135deg,#059669,#34d399); color:white; border:none; padding:14px 40px; border-radius:10px; font-size:1.1em; font-weight:700; cursor:pointer;">✓ Mark Module 11 Complete</button>
+                        <button onclick="resetModules()" style="background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); padding:14px 24px; border-radius:10px; font-size:1em; font-weight:700; cursor:pointer; margin-left:12px;">↺ Reset All</button>
+                    </div>
+                    <div id="capstoneMessage" style="display:none; text-align:center; margin-top:24px; font-size:1.4em; font-weight:700; color:#34d399;">
+                        🎉 Congratulations! You've completed the entire ML for Business course!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="index.html" class="footer-link">Course Home</a>
+            <a href="#frameworks" class="footer-link">Frameworks</a>
+            <a href="#toolkit" class="footer-link">ML Toolkit</a>
+            <a href="#cases" class="footer-link">Case Studies</a>
+            <a href="#maturity" class="footer-link">Self-Assessment</a>
+            <a href="#capstone" class="footer-link">Capstone</a>
+        </div>
+        <p>© 2025 Chenhao Zhou | Business Analytics in Management</p>
+    </footer>
+
+<script>
+// ===== ANALYTICS MATURITY ASSESSMENT =====
+const maturityQuestions = [
+    { q: "How does your organization primarily report on past performance?", dim: "Descriptive",
+      opts: ["Ad-hoc spreadsheets created per request", "Standardized weekly dashboards", "Real-time automated dashboards", "Predictive dashboards with forecasts"] },
+    { q: "When a KPI drops unexpectedly, your team:", dim: "Diagnostic",
+      opts: ["Asks around until someone has an intuition", "Runs manual SQL queries to investigate", "Has automated root-cause analysis tools", "Has ML models that pre-identify contributing factors"] },
+    { q: "How far ahead can your organization forecast key metrics?", dim: "Predictive",
+      opts: ["We mostly react to what already happened", "1–4 weeks with simple models", "1–6 months with statistical models", "12+ months with ML-driven scenario analysis"] },
+    { q: "How are decisions optimized in your organization?", dim: "Prescriptive",
+      opts: ["Based on manager experience and intuition", "Rules-based decision trees or playbooks", "Optimization models run by analysts", "Automated AI recommends and often executes decisions"] },
+    { q: "What is your data infrastructure maturity?", dim: "Infrastructure",
+      opts: ["Data lives in siloed Excel files", "A data warehouse exists but poorly governed", "Modern data lake with governance policies", "Cloud-native, real-time streaming analytics platform"] },
+    { q: "How is ML/AI currently used in your organization?", dim: "AI Maturity",
+      opts: ["Not used at all", "A few proof-of-concept projects", "Several production models in 2–3 use cases", "AI is embedded across the customer journey and operations"] },
+    { q: "Who can access and analyze data in your organization?", dim: "Democratization",
+      opts: ["Only IT/engineering teams", "Central analytics team handles all requests", "Self-service BI tools available for business users", "Data products are embedded in every team's workflows"] },
+    { q: "How is model performance monitored in production?", dim: "MLOps",
+      opts: ["Models are not in production", "Manual periodic checks", "Automated monitoring with alerts for drift", "Automated retraining pipelines triggered by performance degradation"] },
+    { q: "What describes your data culture?", dim: "Culture",
+      opts: ["\"We go with gut feel around here\"", "Data is used to confirm decisions already made", "Data regularly informs and sometimes changes decisions", "Data-driven culture — assumptions must be backed by evidence"] },
+    { q: "How does your organization handle model explainability?", dim: "Governance",
+      opts: ["Not a concern currently", "We know which features are used", "SHAP/LIME explanations available on request", "Automated explainability reports for every model decision"] }
+];
+
+let maturityCurrent = 0, maturityAnswers = [];
+
+function initMaturity() {
+    maturityCurrent = 0; maturityAnswers = [];
+    document.getElementById('maturityResult').style.display = 'none';
+    showMaturityQuestion();
+}
+
+function showMaturityQuestion() {
+    if (maturityCurrent >= maturityQuestions.length) { showMaturityResult(); return; }
+    const q = maturityQuestions[maturityCurrent];
+    document.getElementById('maturityProgressFill').style.width = (maturityCurrent / maturityQuestions.length * 100) + '%';
+    document.getElementById('maturityQuestion').innerHTML = `<span style="color:#059669; font-size:0.85em;">${maturityCurrent + 1}/${maturityQuestions.length} — ${q.dim}</span><br>${q.q}`;
+    const optDiv = document.getElementById('maturityOptions');
+    optDiv.innerHTML = '';
+    q.opts.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.style.cssText = 'width:100%; text-align:left; padding:14px 18px; border:2px solid #e5e7eb; border-radius:10px; background:white; cursor:pointer; font-family:inherit; font-size:0.95em; transition:all 0.2s;';
+        btn.onmouseover = () => { btn.style.borderColor = '#059669'; btn.style.background = '#f0fdf4'; };
+        btn.onmouseout = () => { btn.style.borderColor = '#e5e7eb'; btn.style.background = 'white'; };
+        btn.onclick = () => { maturityAnswers.push(i + 1); maturityCurrent++; showMaturityQuestion(); };
+        optDiv.appendChild(btn);
+    });
+}
+
+function showMaturityResult() {
+    document.getElementById('maturityProgressFill').style.width = '100%';
+    document.getElementById('maturityQuestion').textContent = 'Assessment Complete!';
+    document.getElementById('maturityOptions').innerHTML = '';
+    const total = maturityAnswers.reduce((a, b) => a + b, 0);
+    const avg = total / maturityAnswers.length;
+    const level = avg < 1.5 ? 1 : avg < 2.5 ? 2 : avg < 3.5 ? 3 : avg < 4.5 ? 4 : 5;
+    const labels = ['', 'Descriptive', 'Diagnostic', 'Predictive', 'Prescriptive', 'Cognitive/AI'];
+    const descriptions = ['',
+        'Your org uses basic reporting. Focus on: data governance, unified BI platform, data literacy training.',
+        'Root-cause analysis capability exists. Next step: invest in predictive modeling infrastructure.',
+        'You can forecast — great! Next: move toward optimization and prescriptive analytics.',
+        'Strong analytics foundation. Next: embed AI into automated decision workflows.',
+        'Top-tier analytics maturity. Focus on: responsible AI governance and continuous learning culture.'
+    ];
+    const colors = ['','#6b7280','#f59e0b','#0ea5e9','#7c3aed','#059669'];
+    const pct = Math.round((avg - 1) / 3 * 100);
+    const res = document.getElementById('maturityResult');
+    res.style.display = 'block';
+    res.innerHTML = `<div style="text-align:center; padding:24px; background:${colors[level]}15; border-radius:12px; border:2px solid ${colors[level]};">
+        <div style="font-size:0.9em; color:#6b7280; margin-bottom:8px;">Your Analytics Maturity Level</div>
+        <div style="font-size:2.5em; font-weight:700; color:${colors[level]};">Level ${level}: ${labels[level]}</div>
+        <div style="background:#e5e7eb; height:12px; border-radius:6px; margin:16px 0; overflow:hidden;">
+            <div style="height:100%; width:${pct}%; background:${colors[level]}; border-radius:6px;"></div>
+        </div>
+        <p style="color:#4a4a4a; margin-top:12px;">${descriptions[level]}</p>
+        <button onclick="initMaturity()" style="margin-top:16px; background:${colors[level]}; color:white; border:none; padding:10px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Retake Assessment</button>
+    </div>`;
+}
+initMaturity();
+
+// ===== FRAMEWORK SELECTOR =====
+const recommendations = {
+    'predict|rich|high': { title: 'Decision Tree or Logistic Regression', why: 'Transparent, auditable models perfect for regulatory contexts with large labeled datasets.', tools: ['Decision Tree', 'Logistic Regression', 'SHAP explainability'] },
+    'predict|rich|medium': { title: 'Gradient Boosting (XGBoost / LightGBM)', why: 'Best predictive performance on tabular data. Add SHAP for stakeholder communication.', tools: ['XGBoost', 'LightGBM', 'SHAP values'] },
+    'predict|rich|low': { title: 'Ensemble / Deep Learning', why: 'Maximum predictive power when interpretability is not required.', tools: ['Neural Networks', 'Random Forest', 'AutoML'] },
+    'explain|rich|high': { title: 'Causal Inference + Regression', why: 'Establishes causality with interpretable coefficients for executive storytelling.', tools: ['DiD', 'Regression Discontinuity', 'Propensity Score Matching'] },
+    'segment|unlabeled|medium': { title: 'K-Means + PCA', why: 'Dimensionality reduction + clustering reveals natural groups in high-dimensional customer data.', tools: ['PCA', 'K-Means', 't-SNE for visualization'] },
+    'optimize|rich|high': { title: 'Linear Programming + Simulation', why: 'Explainable optimization with clear business constraints for resource allocation.', tools: ['Linear Programming', 'Monte Carlo Simulation', 'Scenario Analysis'] },
+    'detect|rich|low': { title: 'Isolation Forest / Autoencoder', why: 'Unsupervised anomaly detection with high recall for fraud/risk scenarios.', tools: ['Isolation Forest', 'Autoencoder', 'One-Class SVM'] },
+    'recommend|rich|low': { title: 'Collaborative Filtering / Deep Learning', why: 'Recommendation systems scale well with rich user-item interaction data.', tools: ['Matrix Factorization', 'Neural Collaborative Filtering', 'A/B Testing'] }
+};
+
+function updateFrameworkSelector() {
+    const t = document.getElementById('fsType').value;
+    const d = document.getElementById('fsData').value;
+    const i = document.getElementById('fsInterp').value;
+    if (!t || !d || !i) return;
+
+    // Build lookup key (try various fallbacks)
+    const interpMap = { high: 'high', medium: 'medium', low: 'low' };
+    const dataMap = { rich: 'rich', moderate: 'rich', limited: 'limited', unlabeled: 'unlabeled' };
+    const key = `${t}|${dataMap[d] || 'rich'}|${interpMap[i]}`;
+    const fallback = `${t}|rich|${interpMap[i]}`;
+    const rec = recommendations[key] || recommendations[fallback] || {
+        title: 'Consult a Data Scientist',
+        why: 'This combination requires custom analysis. A data scientist can help select the right approach.',
+        tools: ['Exploratory Data Analysis', 'Feature Engineering', 'Model Selection']
+    };
+
+    document.getElementById('fsResult').innerHTML = `
+        <div style="display:flex; align-items:flex-start; gap:16px;">
+            <div style="background:linear-gradient(135deg,#059669,#34d399); color:white; padding:8px 16px; border-radius:8px; font-weight:700; white-space:nowrap; font-size:0.9em;">Recommended</div>
+            <div>
+                <div style="font-size:1.2em; font-weight:700; color:#1a1a1a; margin-bottom:8px;">${rec.title}</div>
+                <p style="color:#4a4a4a; margin-bottom:12px;">${rec.why}</p>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    ${rec.tools.map(t => `<span style="background:#d1fae5; color:#065f46; padding:4px 12px; border-radius:20px; font-size:0.8em; font-weight:600;">${t}</span>`).join('')}
+                </div>
+            </div>
+        </div>`;
+}
+
+// ===== TEAM BUILDER =====
+const roles = [
+    { id: 'ds', name: '👩‍💻 Data Scientist', team: 'data', desc: 'Builds ML models' },
+    { id: 'de', name: '🔧 Data Engineer', team: 'data', desc: 'Pipelines & infrastructure' },
+    { id: 'ba', name: '📊 Business Analyst', team: 'biz', desc: 'Translates business needs' },
+    { id: 'pm', name: '📋 Product Manager', team: 'biz', desc: 'Owns the analytics roadmap' },
+    { id: 'ml', name: '🤖 ML Engineer', team: 'data', desc: 'Deploys models to production' },
+    { id: 'exec', name: '👔 Analytics Executive', team: 'biz', desc: 'Drives org adoption' },
+    { id: 'vis', name: '🎨 Data Visualization Specialist', team: 'biz', desc: 'Turns data into insights' },
+    { id: 'dba', name: '🗄️ Database Administrator', team: 'data', desc: 'Manages data storage' }
+];
+
+function initTeams() {
+    const pool = document.getElementById('rolePool');
+    pool.innerHTML = '';
+    document.getElementById('dataTeam').innerHTML = '';
+    document.getElementById('bizTeam').innerHTML = '';
+    roles.forEach(r => pool.appendChild(createRoleCard(r)));
+}
+
+function createRoleCard(role) {
+    const card = document.createElement('div');
+    card.id = 'role-' + role.id;
+    card.draggable = true;
+    card.dataset.role = role.id;
+    card.style.cssText = 'background:white; border:2px solid #e5e7eb; border-radius:8px; padding:10px 14px; margin-bottom:8px; cursor:grab; user-select:none; transition:all 0.2s;';
+    card.innerHTML = `<div style="font-weight:700; font-size:0.9em;">${role.name}</div><div style="font-size:0.8em; color:#6b7280;">${role.desc}</div>`;
+    card.ondragstart = e => e.dataTransfer.setData('text/plain', role.id);
+    return card;
+}
+
+function dropToTeam(e, teamId) {
+    e.preventDefault();
+    const roleId = e.dataTransfer.getData('text/plain');
+    const card = document.getElementById('role-' + roleId);
+    if (card) document.getElementById(teamId).appendChild(card);
+}
+
+function dropToPool(e) {
+    e.preventDefault();
+    const roleId = e.dataTransfer.getData('text/plain');
+    const card = document.getElementById('role-' + roleId);
+    if (card) document.getElementById('rolePool').appendChild(card);
+}
+
+function checkTeamAssignment() {
+    let correct = 0, total = 0;
+    const fb = document.getElementById('teamFeedback');
+    let issues = [];
+    roles.forEach(r => {
+        const card = document.getElementById('role-' + r.id);
+        if (!card) return;
+        const parent = card.parentElement.id;
+        if (parent === 'rolePool') return;
+        total++;
+        const expectedTeam = r.team === 'data' ? 'dataTeam' : 'bizTeam';
+        if (parent === expectedTeam) {
+            correct++;
+            card.style.borderColor = '#059669';
+        } else {
+            card.style.borderColor = '#dc2626';
+            issues.push(`${r.name} belongs in the ${r.team === 'data' ? 'Data' : 'Business'} team`);
+        }
+    });
+    fb.style.display = 'block';
+    if (issues.length === 0 && total > 0) {
+        fb.style.background = '#d1fae5'; fb.style.borderLeft = '4px solid #059669';
+        fb.innerHTML = `✅ ${correct}/${total} correct! Great team structure! Data team handles technical execution; Business team drives adoption and communication.`;
+    } else {
+        fb.style.background = '#fee2e2'; fb.style.borderLeft = '4px solid #dc2626';
+        fb.innerHTML = `⚠️ ${correct}/${total} correct. Issues:<br>` + issues.map(i => `• ${i}`).join('<br>');
+    }
+}
+
+function resetTeams() {
+    document.getElementById('teamFeedback').style.display = 'none';
+    initTeams();
+}
+initTeams();
+
+// ===== ROI CALCULATOR =====
+function calcROI() {
+    const rev = parseFloat(document.getElementById('roiRev').value) || 500;
+    const inv = parseFloat(document.getElementById('roiInv').value) || 2;
+    const mat = parseInt(document.getElementById('roiMaturity').value) || 3;
+    const uplift = parseFloat(document.getElementById('roiUseCase').value) || 0.05;
+    const maturityMultiplier = [0, 0.3, 0.6, 1.0, 1.5, 2.2][mat];
+    const annualLift = rev * uplift * maturityMultiplier;
+    const npv3 = annualLift * 2.5 - inv;
+    const roiMultiple = npv3 / inv;
+    const paybackMonths = Math.ceil(inv / (annualLift / 12));
+
+    document.getElementById('roiNPV').textContent = '$' + npv3.toFixed(1) + 'M';
+    document.getElementById('roiLift').textContent = '$' + annualLift.toFixed(1) + 'M';
+    document.getElementById('roiMultiple').textContent = roiMultiple.toFixed(1) + 'x';
+    document.getElementById('roiPayback').textContent = paybackMonths < 12 ? paybackMonths + ' months' : (paybackMonths / 12).toFixed(1) + ' years';
+    document.getElementById('roiBreakeven').textContent = 'Month ' + (paybackMonths + 1);
+}
+calcROI();
+
+// ===== CAPSTONE DASHBOARD =====
+const moduleNames = [
+    'Linear Regression', 'Logistic Regression', 'Neural Networks', 'Decision Trees',
+    'Ensemble Methods', 'Boosting Lab', 'Dimensionality Reduction', 'Clustering',
+    'Time Series', 'NLP', 'Business Analytics'
+];
+const moduleSkills = [
+    ['Linear regression', 'OLS assumptions', 'Feature engineering'],
+    ['Classification', 'Logistic loss', 'ROC/AUC'],
+    ['Backpropagation', 'Activation functions', 'Regularization'],
+    ['Information gain', 'Gini impurity', 'Tree pruning'],
+    ['Bagging', 'Random forest', 'Feature importance'],
+    ['Boosting', 'XGBoost', 'Hyperparameter tuning'],
+    ['PCA', 't-SNE', 'Autoencoders'],
+    ['K-Means', 'DBSCAN', 'Cluster evaluation'],
+    ['ARIMA', 'Seasonality', 'Forecasting'],
+    ['Tokenization', 'Embeddings', 'Sentiment analysis'],
+    ['Analytics maturity', 'ROI modeling', 'Stakeholder communication']
+];
+let completedModules = new Set();
+
+function renderModuleGrid() {
+    const grid = document.getElementById('moduleGrid');
+    grid.innerHTML = '';
+    moduleNames.forEach((name, i) => {
+        const done = completedModules.has(i);
+        const card = document.createElement('div');
+        card.style.cssText = `background:${done ? 'rgba(52,211,153,0.15)' : 'rgba(255,255,255,0.06)'}; border:2px solid ${done ? '#34d399' : 'rgba(255,255,255,0.1)'}; border-radius:10px; padding:14px; cursor:pointer; transition:all 0.3s; text-align:center;`;
+        card.innerHTML = `<div style="font-size:1.5em; margin-bottom:6px;">${done ? '✅' : '📖'}</div><div style="font-size:0.8em; font-weight:600; color:${done ? '#34d399' : 'rgba(255,255,255,0.8)'};">M${i+1}</div><div style="font-size:0.75em; color:rgba(255,255,255,0.5); margin-top:4px;">${name}</div>`;
+        card.onclick = () => { if (completedModules.has(i)) completedModules.delete(i); else completedModules.add(i); renderModuleGrid(); updateCapstoneStats(); };
+        grid.appendChild(card);
+    });
+}
+
+function updateCapstoneStats() {
+    const n = completedModules.size;
+    const skills = [...completedModules].reduce((acc, i) => acc + moduleSkills[i].length, 0);
+    document.getElementById('capMastered').textContent = n + '/11';
+    document.getElementById('capProgress').textContent = Math.round(n / 11 * 100) + '%';
+    document.getElementById('capSkills').textContent = skills;
+    document.getElementById('capstoneMessage').style.display = n === 11 ? 'block' : 'none';
+}
+
+function toggleModule() {
+    if (completedModules.has(10)) completedModules.delete(10); else completedModules.add(10);
+    renderModuleGrid(); updateCapstoneStats();
+}
+
+function resetModules() { completedModules.clear(); renderModuleGrid(); updateCapstoneStats(); }
+
+renderModuleGrid(); updateCapstoneStats();
+</script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1: Foundations of Supply Chain Finance</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        .topnav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;padding:0 48px;margin:0 -2rem;width:calc(100% + 4rem)}.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}.topnav-brand{font-weight:700;font-size:15px;color:#0f2442;display:flex;align-items:center;gap:10px;text-decoration:none!important}.topnav-brand:hover{text-decoration:none!important}.topnav-brand img{width:32px;height:32px;border-radius:50%;object-fit:cover}.topnav-links{display:flex;gap:4px}.topnav-links a{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;color:#475569;text-decoration:none!important}.topnav-links a:hover{background:#f8fafc;color:#1a365d}.topnav-links a.active{background:#f8fafc;color:#1a365d;font-weight:600}
+        .course-nav{background:#f8fafc;padding:10px 0;text-align:center;border-bottom:1px solid #e2e8f0;margin:0 -2rem 1.5em;padding-left:2rem;padding-right:2rem;position:sticky;top:56px;z-index:100}.course-nav a{margin:0 8px;color:#1a365d;font-weight:600;font-size:13px;text-decoration:none}.course-nav a:hover{color:#92400e;text-decoration:underline}.course-nav a.current{color:#92400e;border-bottom:2px solid #92400e;padding-bottom:2px}
+
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',-apple-system,sans-serif;max-width:900px;margin:0 auto;padding:2rem;background:#fff;color:#1e293b;line-height:1.7;font-size:15px;-webkit-font-smoothing:antialiased}
+        h1{font-size:clamp(24px,3.5vw,32px);font-weight:800;color:#78350f;margin-bottom:8px;line-height:1.2}
+        .subtitle{font-size:16px;color:#92400e;font-weight:500;margin-bottom:32px}
+        h2{font-size:20px;font-weight:700;color:#1a365d;margin:40px 0 16px;padding-bottom:8px;border-bottom:2px solid #fde68a}
+        h3{font-size:16px;font-weight:700;color:#475569;margin:24px 0 10px}
+        p{margin-bottom:14px;color:#334155}
+        ul,ol{margin:0 0 16px 20px;color:#334155}
+        li{margin-bottom:6px}
+        strong{color:#1e293b}
+
+        .key-concept{background:#fffbeb;border-left:4px solid #d97706;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .key-concept strong{color:#92400e}
+        .formula-box{background:#f1f5f9;border:1px solid #e2e8f0;padding:20px;border-radius:8px;margin:20px 0;text-align:center;font-size:16px;font-weight:600;color:#1e293b;letter-spacing:0.02em}
+        .example-box{background:#f0fdf4;border-left:4px solid #22c55e;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px}
+        .example-box strong{color:#166534}
+        .table-wrapper{overflow-x:auto;margin:20px 0}
+        table{width:100%;border-collapse:collapse;font-size:13px}
+        th{background:#f8fafc;color:#1a365d;font-weight:700;text-align:left;padding:10px 14px;border-bottom:2px solid #e2e8f0}
+        td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#334155}
+        .takeaway{background:linear-gradient(135deg,#78350f,#b45309);color:#fff;padding:24px;border-radius:10px;margin:40px 0}
+        .takeaway h3{color:#fef3c7;margin-top:0}
+        .takeaway ul{color:#fef3c7}
+
+        .exercise-box{background:#fffbeb;border-left:4px solid #d97706;padding:16px 20px;border-radius:0 8px 8px 0;margin:16px 0;font-size:14px}
+        .exercise-box h4{color:#92400e;font-size:14px;font-weight:700;margin-bottom:8px;background:#fef3c7;display:inline-block;padding:2px 10px;border-radius:4px}
+        .exercise-box .solution{color:#64748b;font-style:italic;margin-top:8px}
+
+        .interactive-section{background:#f8fafc;border:2px solid #d97706;border-radius:12px;padding:24px;margin:40px 0}
+        .interactive-section h2{border:none;margin:0 0 16px;font-size:18px;color:#92400e}
+        .slider-group{margin-bottom:14px}
+        .slider-group label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px}
+        .slider-group input[type="range"]{width:100%;height:6px;border-radius:3px;-webkit-appearance:none;background:#e2e8f0;outline:none}
+        .slider-group input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#d97706;cursor:pointer}
+        .result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+        .result-card{background:#fff;border-radius:8px;padding:14px;text-align:center;border:1px solid #e2e8f0}
+        .result-card .label{font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:4px}
+        .result-card .value{font-size:24px;font-weight:800}
+        .result-card .value.positive{color:#dc2626}
+        .result-card .value.negative{color:#16a34a}
+
+        @media(max-width:640px){body{padding:1rem}.topnav{padding:0 16px;margin:0 -1rem;width:calc(100% + 2rem)}.course-nav{margin:0 -1rem 1em;padding-left:1rem;padding-right:1rem}.result-grid{grid-template-columns:repeat(2,1fr)}}
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+    <a href="../index.html" class="topnav-brand"><img alt="CZ" src="../images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links"><a href="../index.html">Home</a><a href="../teaching.html" class="active">Teaching</a><a href="../professional.html">Professional</a><a href="../cv.html">CV</a></div>
+</div></nav>
+<div class="course-nav">
+    <a href="index.html">🏠 Course Home</a>
+    <a href="chapter1_foundations.html" class="current">Ch 1</a>
+    <a href="chapter2_trade_credit.html">Ch 2</a>
+    <a href="chapter3_inventory_finance.html">Ch 3</a>
+    <a href="chapter4_futures_hedging.html">Ch 4</a>
+    <a href="chapter5_fintech_blockchain.html">Ch 5</a>
+    <a href="chapter6_quantitative_models.html">Ch 6</a>
+</div>
+
+<h1>Chapter 1: Foundations of Supply Chain Finance</h1>
+<p class="subtitle">Working Capital, Cash Conversion, and the SCF Ecosystem</p>
+
+<div class="key-concept">
+    <strong>Learning Objectives:</strong> After completing this chapter, students should be able to:
+    <ol style="margin:8px 0 0 16px">
+        <li>Compute the CCC from financial statement data and interpret each component (DIO, DSO, DPO) in operational terms</li>
+        <li>Calculate the net working capital requirement and annual financing cost implied by a given CCC</li>
+        <li>Evaluate the financial impact of targeted improvements in any single CCC component</li>
+        <li>Explain why firms such as Amazon and Dell have achieved negative CCC values</li>
+    </ol>
+</div>
+
+<!-- ============================================ -->
+<h2>1.1 What Is Supply Chain Finance?</h2>
+
+<p>Supply Chain Finance (SCF) refers to a set of technology-based solutions that optimize cash flows by allowing businesses to extend payment terms to suppliers while providing those suppliers with the option to receive early payment. It sits at the intersection of three disciplines: operations management, corporate finance, and banking.</p>
+
+<p>Traditional corporate finance treats the firm as an isolated entity. SCF recognizes that a firm's financial health is deeply intertwined with its supply chain partners. When a key supplier faces a liquidity crisis, it becomes the buyer's problem too.</p>
+
+<div class="key-concept">
+    <strong>Core Principle:</strong> SCF is not about one firm's balance sheet. It exploits the credit differential between a high-rated buyer and lower-rated suppliers to reduce the overall cost of financing across the supply chain.
+</div>
+
+<h3>The Three Pillars of SCF</h3>
+<ol>
+    <li><strong>Physical Flow:</strong> Goods move from raw materials through manufacturing to the end customer.</li>
+    <li><strong>Information Flow:</strong> Purchase orders, invoices, shipping documents, and confirmations travel between parties.</li>
+    <li><strong>Financial Flow:</strong> Payments, credit terms, and financing arrangements govern when and how money moves.</li>
+</ol>
+
+<p>SCF optimizes the third pillar by leveraging information from the first two. When a buyer confirms receipt of goods (physical flow) and approves an invoice (information flow), a financier can confidently advance payment to the supplier at a low rate, because the buyer's obligation to pay is now established.</p>
+
+<!-- ============================================ -->
+<h2>1.2a Notation</h2>
+
+<p>The following symbols are used throughout this chapter and the remainder of the course.</p>
+
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Symbol</th><th>Definition</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><em>D</em></td><td>Annual revenue, measured in dollars</td></tr>
+        <tr><td>COGS</td><td>Cost of goods sold, annual, measured in dollars</td></tr>
+        <tr><td>DIO</td><td>Days Inventory Outstanding: average number of days inventory is held before sale</td></tr>
+        <tr><td>DSO</td><td>Days Sales Outstanding: average number of days to collect accounts receivable</td></tr>
+        <tr><td>DPO</td><td>Days Payable Outstanding: average number of days the firm defers payment to suppliers</td></tr>
+        <tr><td><em>r</em></td><td>Weighted average cost of capital (WACC), expressed as an annual rate</td></tr>
+        <tr><td>CCC</td><td>Cash Conversion Cycle, measured in days</td></tr>
+        <tr><td>OC</td><td>Operating Cycle = DIO + DSO, measured in days</td></tr>
+        <tr><td>NWC</td><td>Net Working Capital required, measured in dollars</td></tr>
+    </tbody>
+</table>
+</div>
+
+<!-- ============================================ -->
+<h2>1.2 The Working Capital Challenge</h2>
+
+<p>Working capital is the lifeblood of operations. It represents the short-term capital a firm needs to finance its day-to-day activities. For any firm, the fundamental tension is this: you pay for inputs before you collect revenue from outputs.</p>
+
+<div class="formula-box">
+    Net Working Capital = Current Assets &minus; Current Liabilities
+</div>
+
+<p>More specifically, operational working capital focuses on three components:</p>
+
+<ul>
+    <li><strong>Accounts Receivable (AR):</strong> Money owed to you by customers</li>
+    <li><strong>Inventory:</strong> Raw materials, work-in-progress, and finished goods</li>
+    <li><strong>Accounts Payable (AP):</strong> Money you owe to suppliers</li>
+</ul>
+
+<p>Every dollar tied up in receivables or inventory is a dollar that cannot be invested, used to repay debt, or returned to shareholders. Conversely, every additional day of payables is a day of free financing from your suppliers.</p>
+
+<div class="example-box">
+    <strong>Example:</strong> A manufacturer buys $1M in raw materials on 30-day terms, spends 20 days in production, and sells finished goods on 45-day credit. The firm needs to fund ~95 days of operations before cash comes back. If the cost of capital is 8%, this timing gap costs roughly $1M &times; (95/365) &times; 0.08 = $20,822 per cycle.
+</div>
+
+<!-- ============================================ -->
+<h2>1.3 Cash Conversion Cycle</h2>
+
+<p>The Cash Conversion Cycle (CCC) measures how many days it takes for a firm to convert its investments in inventory and other resources into cash from sales. It is the single most important metric in supply chain finance.</p>
+
+<div class="formula-box">
+    CCC = DIO + DSO &minus; DPO
+</div>
+
+<p>Where:</p>
+<ul>
+    <li><strong>DIO (Days Inventory Outstanding):</strong> Average number of days inventory is held before being sold. DIO = (Inventory / COGS) &times; 365</li>
+    <li><strong>DSO (Days Sales Outstanding):</strong> Average number of days to collect payment after a sale. DSO = (AR / Revenue) &times; 365</li>
+    <li><strong>DPO (Days Payable Outstanding):</strong> Average number of days a firm takes to pay its suppliers. DPO = (AP / COGS) &times; 365</li>
+</ul>
+
+<div class="key-concept">
+    <strong>Interpretation:</strong> A lower CCC is generally better. It means the firm converts its investments to cash faster. A negative CCC (like Amazon or Dell historically) means the firm collects from customers before it pays suppliers, effectively using supplier credit to fund operations.
+</div>
+
+<h3>Industry Benchmarks</h3>
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Industry</th><th>Typical DIO</th><th>Typical DSO</th><th>Typical DPO</th><th>CCC</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Grocery Retail</td><td>20</td><td>3</td><td>30</td><td>&minus;7</td></tr>
+        <tr><td>Automotive Mfg</td><td>45</td><td>50</td><td>60</td><td>35</td></tr>
+        <tr><td>Pharmaceutical</td><td>100</td><td>65</td><td>45</td><td>120</td></tr>
+        <tr><td>Electronics</td><td>35</td><td>40</td><td>55</td><td>20</td></tr>
+        <tr><td>Apparel</td><td>90</td><td>35</td><td>40</td><td>85</td></tr>
+    </tbody>
+</table>
+</div>
+
+<p>Notice that grocery retailers enjoy a negative CCC because they sell perishable goods quickly (low DIO), customers pay immediately (low DSO), and they negotiate long payment terms with suppliers (high DPO). Pharmaceutical companies, by contrast, carry large inventories and wait months for hospital payments.</p>
+
+<!-- ============================================ -->
+<h3>1.3a Net Working Capital and Financing Cost</h3>
+
+<p>The CCC tells us how many days capital is tied up; the next step is to translate days into dollars. We begin with the Operating Cycle, which captures the full duration from purchasing inventory to collecting cash from customers.</p>
+
+<div class="formula-box">
+    Operating Cycle (OC) = DIO + DSO
+</div>
+
+<p>Net Working Capital combines inventory investment, receivables, and the offsetting benefit of payables. Because DIO and DPO are measured against COGS while DSO is measured against revenue, the dollar conversion uses different bases:</p>
+
+<div class="formula-box">
+    NWC = (COGS / 365) &times; DIO + (<em>D</em> / 365) &times; DSO &minus; (COGS / 365) &times; DPO
+</div>
+
+<p>The annual cost of carrying this working capital is simply NWC multiplied by the firm's weighted average cost of capital:</p>
+
+<div class="formula-box">
+    Annual Financing Cost = NWC &times; <em>r</em>
+</div>
+
+<p>A useful shortcut for sensitivity analysis is the marginal value of reducing the CCC by one day. Approximating with revenue as the common base:</p>
+
+<div class="formula-box">
+    &Delta;Cost per Day = (<em>D</em> / 365) &times; <em>r</em>
+</div>
+
+<p>The marginal value formula shows that each day of CCC reduction saves a fixed dollar amount, regardless of whether the starting CCC is 100 days or 10 days. This linearity makes the sensitivity chart (financing cost vs. CCC) a straight line through the origin.</p>
+
+<!-- ============================================ -->
+<h2>1.4 The SCF Ecosystem</h2>
+
+<p>Modern supply chain finance involves four categories of participants:</p>
+
+<h3>1. Buyers (Anchors)</h3>
+<p>Large corporations with strong credit ratings (investment-grade) who anchor SCF programs. They benefit from extended payment terms without harming suppliers. Examples: Walmart, Unilever, Procter &amp; Gamble.</p>
+
+<h3>2. Suppliers</h3>
+<p>Typically smaller firms with higher borrowing costs. They benefit from access to financing at rates close to the buyer's credit quality. A supplier that borrows at 8% on its own might access SCF funding at 3%, saving 500 basis points.</p>
+
+<h3>3. Financial Intermediaries</h3>
+<p>Banks and non-bank financiers that provide the capital. They face lower risk because the buyer has already approved the invoice, making the repayment obligation nearly certain. Major players include Citi, HSBC, BNP Paribas, and Standard Chartered.</p>
+
+<h3>4. Technology Platforms</h3>
+<p>Platforms that connect all parties, automate invoice approval, and facilitate early payment. Examples include Taulia (SAP), C2FO, PrimeRevenue, and Tradeshift. These platforms reduce transaction costs and enable SCF at scale.</p>
+
+<div class="key-concept">
+    <strong>The Credit Arbitrage:</strong> SCF works because the buyer's credit rating is better than the supplier's. The financier lends at a rate slightly above the buyer's cost of capital but well below the supplier's standalone borrowing rate. This spread creates value for all three parties: the buyer extends terms, the supplier gets cheaper financing, and the bank earns a margin on a low-risk asset.
+</div>
+
+<!-- ============================================ -->
+<h2>1.5 SCF Instruments Overview</h2>
+
+<p>The SCF toolkit includes several instruments, each suited to different supply chain positions and financing needs. We will study each in detail in subsequent chapters.</p>
+
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr><th>Instrument</th><th>Who Initiates</th><th>Collateral</th><th>Typical Use</th><th>Chapter</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Trade Credit</td><td>Supplier</td><td>None (trust)</td><td>Standard payment terms (net 30/60/90)</td><td>Ch 2</td></tr>
+        <tr><td>Factoring</td><td>Supplier</td><td>Receivables</td><td>Immediate cash from outstanding invoices</td><td>Ch 2</td></tr>
+        <tr><td>Reverse Factoring</td><td>Buyer</td><td>Approved payables</td><td>Buyer-led early payment programs</td><td>Ch 2</td></tr>
+        <tr><td>Dynamic Discounting</td><td>Buyer</td><td>None</td><td>Sliding-scale early payment discounts</td><td>Ch 2</td></tr>
+        <tr><td>Inventory Finance</td><td>Borrower</td><td>Physical inventory</td><td>Unlock capital tied in warehoused goods</td><td>Ch 3</td></tr>
+        <tr><td>Warehouse Receipts</td><td>Depositor</td><td>Stored commodities</td><td>Agricultural and commodity financing</td><td>Ch 3</td></tr>
+        <tr><td>Futures/Forwards</td><td>Either party</td><td>Margin</td><td>Commodity price hedging</td><td>Ch 4</td></tr>
+        <tr><td>Purchase Order Finance</td><td>Supplier</td><td>PO from buyer</td><td>Pre-shipment production funding</td><td>Ch 5</td></tr>
+    </tbody>
+</table>
+</div>
+
+<!-- ============================================ -->
+<h2>1.6 Why SCF Matters Now</h2>
+
+<p>Several forces have made SCF increasingly important in the past decade:</p>
+
+<ol>
+    <li><strong>Globalization of supply chains:</strong> Longer chains mean longer cash cycles. A component manufactured in Vietnam, assembled in China, and sold in the US can involve 120+ days from cash outlay to collection.</li>
+    <li><strong>Post-2008 credit tightening:</strong> Banks reduced lending to SMEs. SCF offered an alternative channel where the buyer's creditworthiness, not the supplier's, determines the financing rate.</li>
+    <li><strong>Working capital as a strategic lever:</strong> CFOs increasingly view working capital optimization as a source of competitive advantage, not just a treasury function.</li>
+    <li><strong>Technology enablement:</strong> Cloud platforms, APIs, and blockchain have reduced the transaction costs of SCF programs, making them accessible to mid-market firms.</li>
+    <li><strong>Supply chain resilience:</strong> COVID-19 exposed supplier fragility. Firms that had invested in SCF programs were better able to support distressed suppliers and maintain supply continuity.</li>
+</ol>
+
+<!-- ============================================ -->
+<div class="interactive-section">
+    <h2>Interactive: Cash Conversion Cycle Calculator</h2>
+    <p style="font-size:13px;color:#64748b;margin-bottom:16px">Adjust the sliders to see how each component affects the CCC in real time.</p>
+
+    <div class="slider-group">
+        <label><span>Revenue ($M)</span><span id="val-revenue">100</span></label>
+        <input type="range" id="sl-revenue" min="10" max="500" value="100" step="1" oninput="updateCCC()">
+    </div>
+    <div class="slider-group">
+        <label><span>COGS ($M)</span><span id="val-cogs">60</span></label>
+        <input type="range" id="sl-cogs" min="5" max="400" value="60" step="1" oninput="updateCCC()">
+    </div>
+    <div class="slider-group">
+        <label><span>Accounts Receivable ($M)</span><span id="val-ar">25</span></label>
+        <input type="range" id="sl-ar" min="1" max="100" value="25" step="1" oninput="updateCCC()">
+    </div>
+    <div class="slider-group">
+        <label><span>Inventory ($M)</span><span id="val-inv">15</span></label>
+        <input type="range" id="sl-inv" min="1" max="100" value="15" step="1" oninput="updateCCC()">
+    </div>
+    <div class="slider-group">
+        <label><span>Accounts Payable ($M)</span><span id="val-ap">20</span></label>
+        <input type="range" id="sl-ap" min="1" max="100" value="20" step="1" oninput="updateCCC()">
+    </div>
+
+    <div class="result-grid">
+        <div class="result-card"><div class="label">DIO</div><div class="value" id="out-dio" style="color:#3b82f6">--</div></div>
+        <div class="result-card"><div class="label">DSO</div><div class="value" id="out-dso" style="color:#f59e0b">--</div></div>
+        <div class="result-card"><div class="label">DPO</div><div class="value" id="out-dpo" style="color:#16a34a">--</div></div>
+        <div class="result-card"><div class="label">CCC</div><div class="value" id="out-ccc">--</div></div>
+    </div>
+
+    <canvas id="ccc-chart" width="800" height="180" style="width:100%;border-radius:8px;background:#fff;border:1px solid #e2e8f0"></canvas>
+</div>
+
+<script>
+function updateCCC(){
+    var revenue=+document.getElementById('sl-revenue').value;
+    var cogs=+document.getElementById('sl-cogs').value;
+    var ar=+document.getElementById('sl-ar').value;
+    var inv=+document.getElementById('sl-inv').value;
+    var ap=+document.getElementById('sl-ap').value;
+
+    document.getElementById('val-revenue').textContent=revenue;
+    document.getElementById('val-cogs').textContent=cogs;
+    document.getElementById('val-ar').textContent=ar;
+    document.getElementById('val-inv').textContent=inv;
+    document.getElementById('val-ap').textContent=ap;
+
+    var dio=Math.round((inv/cogs)*365);
+    var dso=Math.round((ar/revenue)*365);
+    var dpo=Math.round((ap/cogs)*365);
+    var ccc=dio+dso-dpo;
+
+    document.getElementById('out-dio').textContent=dio+' d';
+    document.getElementById('out-dso').textContent=dso+' d';
+    document.getElementById('out-dpo').textContent=dpo+' d';
+
+    var cccEl=document.getElementById('out-ccc');
+    cccEl.textContent=ccc+' d';
+    cccEl.className='value '+(ccc>=0?'positive':'negative');
+
+    drawChart(dio,dso,dpo,ccc);
+}
+
+function drawChart(dio,dso,dpo,ccc){
+    var canvas=document.getElementById('ccc-chart');
+    var ctx=canvas.getContext('2d');
+    var dpr=window.devicePixelRatio||1;
+    canvas.width=canvas.offsetWidth*dpr;
+    canvas.height=180*dpr;
+    ctx.scale(dpr,dpr);
+    var W=canvas.offsetWidth,H=180;
+    ctx.clearRect(0,0,W,H);
+
+    var items=[
+        {label:'DIO',value:dio,color:'#3b82f6'},
+        {label:'DSO',value:dso,color:'#f59e0b'},
+        {label:'DPO',value:dpo,color:'#16a34a'},
+        {label:'CCC',value:ccc,color:ccc>=0?'#dc2626':'#16a34a'}
+    ];
+    var maxVal=Math.max(Math.abs(dio),Math.abs(dso),Math.abs(dpo),Math.abs(ccc),1);
+    var barH=28,gap=12,left=60,right=40;
+    var barArea=W-left-right;
+    var startY=(H-items.length*(barH+gap)+gap)/2;
+
+    ctx.font='600 12px Inter, sans-serif';
+    ctx.textBaseline='middle';
+
+    for(var i=0;i<items.length;i++){
+        var y=startY+i*(barH+gap);
+        var bw=Math.abs(items[i].value)/maxVal*barArea*0.85;
+        var bx=items[i].value>=0?left:left-bw;
+
+        ctx.fillStyle='#f1f5f9';
+        ctx.beginPath();
+        ctx.roundRect(left,y,barArea,barH,4);
+        ctx.fill();
+
+        ctx.fillStyle=items[i].color;
+        ctx.globalAlpha=0.85;
+        ctx.beginPath();
+        if(items[i].value>=0){
+            ctx.roundRect(left,y,bw,barH,4);
+        }else{
+            ctx.roundRect(left,y,bw,barH,4);
+            ctx.roundRect(left-bw+left-left,y,bw,barH,4);
+        }
+        ctx.fill();
+        ctx.globalAlpha=1;
+
+        ctx.fillStyle='#475569';
+        ctx.textAlign='right';
+        ctx.fillText(items[i].label,left-10,y+barH/2);
+
+        ctx.fillStyle=items[i].color;
+        ctx.textAlign='left';
+        var tx=items[i].value>=0?left+bw+8:left-bw-8;
+        if(items[i].value<0) ctx.textAlign='right';
+        ctx.fillText(items[i].value+' days',items[i].value>=0?left+bw+8:left+bw-8, y+barH/2);
+    }
+}
+
+updateCCC();
+</script>
+
+<!-- ============================================ -->
+<div class="example-box">
+    <strong>Worked Example: Large Manufacturer (Revenue = $80M, COGS = 60%)</strong>
+    <p style="margin-top:10px"><strong>Step 1:</strong> Set Revenue = $80M, COGS = 60% of revenue = $48M. Set DIO = 45, DSO = 50, DPO = 25.</p>
+    <p><strong>Step 2:</strong> CCC = 45 + 50 &minus; 25 = 70 days. Operating Cycle = 45 + 50 = 95 days.</p>
+    <p><strong>Step 3:</strong> Inventory = ($48M / 365) &times; 45 = $5,917,808. AR = ($80M / 365) &times; 50 = $10,958,904. AP = ($48M / 365) &times; 25 = $3,287,671.</p>
+    <p><strong>Step 4:</strong> NWC = $5,917,808 + $10,958,904 &minus; $3,287,671 = $13,589,041.</p>
+    <p><strong>Step 5:</strong> At <em>r</em> = 6%: Annual Financing Cost = $13,589,041 &times; 0.06 = $815,342.</p>
+    <p><strong>Step 6:</strong> One-day CCC reduction value: ($80M / 365) &times; 0.06 = $13,151/year.</p>
+    <p><strong>Step 7:</strong> Try adjusting DPO from 25 to 70 in the dashboard. CCC drops from 70 to 25 days, NWC falls by approximately $5.92M, and financing cost drops by about $355K. This demonstrates how extending payment terms frees substantial working capital.</p>
+</div>
+
+<!-- ============================================ -->
+<h2>Classroom Exercises</h2>
+
+<div class="exercise-box">
+    <h4>Exercise 1: DSO vs. DPO Levers</h4>
+    <p>A 10-day DSO reduction and a 10-day DPO increase both reduce CCC by 10 days. However, the NWC impact differs because DSO is computed on revenue while DPO is computed on COGS. Using the default parameters (Revenue = $50M, COGS = 65% of revenue = $32.5M), compute the exact dollar difference in working capital freed by each lever.</p>
+    <p class="solution"><strong>Solution:</strong> The DSO reduction frees $50M / 365 &times; 10 = $1,369,863, while the DPO extension frees $32.5M / 365 &times; 10 = $890,411. The DSO lever releases 54% more capital.</p>
+</div>
+
+<div class="exercise-box">
+    <h4>Exercise 2: Negative CCC</h4>
+    <p>Set revenue to $100M and DPO to 120 days while keeping DIO = 35 and DSO = 40. Observe that CCC becomes negative (&minus;45 days). Discuss: Amazon's CCC was approximately &minus;30 days in recent years. What business model features enable this?</p>
+    <p class="solution"><strong>Discussion points:</strong> Consignment inventory (suppliers own goods until sale), credit card settlement in 1&ndash;2 days (near-zero DSO), and 60&ndash;90 day supplier payment terms (high DPO). Is this sustainable for the ecosystem, or does it shift financial burden disproportionately onto smaller suppliers?</p>
+</div>
+
+<div class="exercise-box">
+    <h4>Exercise 3: Interest Rate Sensitivity</h4>
+    <p>Vary the cost of capital from 2% to 15%. Observe how the sensitivity line steepens. For a high-interest-rate environment (e.g., an emerging market at 12%), the same CCC of 45 days costs $739K/year instead of $296K at a 5% rate. Discuss: How should a CFO in a high-rate environment prioritize CCC reduction differently from one in a low-rate environment?</p>
+    <p class="solution"><strong>Discussion points:</strong> In high-rate environments, every day of CCC reduction saves proportionally more, making aggressive working capital management a first-order strategic priority rather than a back-office optimization. CFOs should invest more resources in supply chain finance programs, negotiate harder on payment terms, and consider factoring or reverse factoring even at seemingly high fees, since the alternative cost of capital is higher still.</p>
+</div>
+
+<div class="takeaway">
+    <h3>Chapter 1 Takeaways</h3>
+    <ul>
+        <li>SCF optimizes the financial flow of supply chains by exploiting credit differentials between buyers and suppliers.</li>
+        <li>The Cash Conversion Cycle (CCC = DIO + DSO &minus; DPO) is the central metric. Every day you shorten the CCC unlocks cash.</li>
+        <li>Four participants power the ecosystem: buyers, suppliers, financiers, and technology platforms.</li>
+        <li>SCF instruments range from simple trade credit to structured commodity finance. The right instrument depends on the position in the supply chain and the nature of the underlying asset.</li>
+        <li>Globalization, credit tightening, and technology are driving rapid SCF adoption.</li>
+    </ul>
+</div>
+
+</body>
+</html>
