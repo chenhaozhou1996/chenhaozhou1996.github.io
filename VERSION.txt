@@ -6,7 +6,7 @@ Changes:
 - Nine student research tracks, each with prerequisites, an interest fit check, and career/research pathways
 - Research → classroom map linking each research stream to its open teaching artifact
 - Five-level participation ladder: 1-2 hrs/week at entry, co-authorship from 4 hrs/week,
-  first authorship at 10+ hrs/week when the student brings the question
+  shared first authorship at 6-8 hrs/week when the student brings the question
 - Five-week self-paced onboarding sequence
 - Authorship, data ethics, reproducibility, and academic credit norms stated explicitly
 - Homepage gains a Research section; teaching page gains a research-integration banner
