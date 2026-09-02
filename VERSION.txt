@@ -1,9 +1,10 @@
-Site bundle: v10 (redesigned)
-Built: 2025-01-12 00:00:00 UTC
+Site bundle: v11 (research-teaching integration)
+Built: 2026-09-02 00:00:00 UTC
 Changes:
-- Unified design system across all pages
-- Enhanced SEO with Open Graph and Schema.org
-- Added Back-to-Top button with smooth scroll
-- Improved accessibility (ARIA labels, semantic HTML)
-- Consistent navigation and footer
-- Comprehensive README documentation
+- New page: research-teaching.html — research-to-teaching integration and student research tracks
+- Nine student research tracks, each with prerequisites, an interest fit check, and career/research pathways
+- Research → classroom map linking each research stream to its open teaching artifact
+- Four-level participation ladder and a five-week self-paced onboarding sequence
+- Authorship, data ethics, reproducibility, and academic credit norms stated explicitly
+- Homepage gains a Research section; teaching page gains a research-integration banner
+- "Research" added to the top navigation across all 93 pages

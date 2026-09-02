@@ -148,6 +148,29 @@
     .hb h4 { font-size: 12px; font-weight: 600; color: var(--navy-dark); margin-bottom: 2px; }
     .hb p { font-size: 10px; color: var(--slate-light); line-height: 1.3; margin: 0; }
 
+    /* Research-integration banner */
+    .rt-banner {
+      display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center;
+      padding: 24px 28px; border-radius: 10px; margin-bottom: 40px;
+      background: linear-gradient(135deg, #0f2442 0%, #1a365d 55%, #2b4c7e 100%);
+      color: #fff; text-decoration: none;
+    }
+    .rt-banner:hover { text-decoration: none; color: #fff; box-shadow: 0 8px 32px rgba(15,36,66,0.22); }
+    .rt-banner .rt-badge {
+      display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 10px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      background: rgba(255,255,255,0.2); margin-bottom: 8px;
+    }
+    .rt-banner h3 { font-size: 19px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; }
+    .rt-banner p { font-size: 13px; opacity: 0.88; line-height: 1.5; max-width: 640px; }
+    .rt-banner .rt-meta { font-size: 11px; opacity: 0.7; margin-top: 8px; }
+    .rt-banner .rt-cta {
+      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+      padding: 11px 24px; background: #fff; color: #0f2442; border-radius: 6px;
+      font-size: 13px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    @media (max-width: 700px) { .rt-banner { grid-template-columns: 1fr; gap: 16px; } }
+
     .site-footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--slate-pale); text-align: center; }
     .site-footer a { color: var(--slate-light); }
 
@@ -170,7 +193,7 @@
 <nav class="topnav"><div class="topnav-inner">
   <a href="index.html" class="topnav-brand"><img alt="CZ" src="images/profile.jpg" />Chenhao Zhou</a>
   <div class="topnav-links">
-    <a href="index.html">Home</a><a href="teaching.html" class="active">Teaching</a><a href="professional.html">Professional</a><a href="cv.html">CV</a>
+    <a href="index.html">Home</a><a href="research-teaching.html">Research</a><a href="teaching.html" class="active">Teaching</a><a href="professional.html">Professional</a><a href="cv.html">CV</a>
   </div>
 </div></nav>
 
@@ -225,6 +248,14 @@
     </div>
 
     <div class="sb-section">
+      <div class="sb-title">Student Research</div>
+      <div class="sb-ta">
+        Nine research tracks students can join, each with prerequisites and career pathways.<br>
+        <a href="research-teaching.html" class="sb-link">Research → Teaching integration →</a>
+      </div>
+    </div>
+
+    <div class="sb-section">
       <div class="sb-title">Certification Support</div>
       <div class="sb-cert">
         Lean Six Sigma Green Belt (2022–25)<br>
@@ -235,6 +266,17 @@
 
   <!-- ========== MAIN: All interactive content ========== -->
   <main class="content">
+
+    <!-- RESEARCH INTEGRATION -->
+    <a href="research-teaching.html" class="rt-banner">
+      <div>
+        <span class="rt-badge">Research → Teaching</span>
+        <h3>My research is the syllabus — and it is open to students</h3>
+        <p>Nine tracks drawn from live projects in healthcare operations, workforce dynamics, and quality measurement. Each one lists what you would actually do, the prerequisites, an honest check on whether it crosses your interests, and where it leads professionally. Plus a five-week onboarding sequence you can start today without asking anyone.</p>
+        <div class="rt-meta">9 student tracks · 4 levels of involvement · No prior research experience required</div>
+      </div>
+      <span class="rt-cta">See the tracks →</span>
+    </a>
 
     <!-- ONLINE COURSES -->
     <div class="section">
