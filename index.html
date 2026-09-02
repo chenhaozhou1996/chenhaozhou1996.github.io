@@ -238,7 +238,24 @@
     }
     .skills-col .sidebar-tags { margin-bottom: 12px; }
 
-    /* Footer */
+    /* Research → Teaching */
+    .rt-lede { font-size: 14px; color: var(--slate); line-height: 1.6; margin-bottom: 14px; }
+    .rt-streams { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .rt-stream { border: 1px solid var(--border); border-radius: 6px; padding: 11px 13px; background: var(--bg-alt); }
+    .rt-stream h4 { font-size: 12.5px; font-weight: 700; color: var(--navy-dark); line-height: 1.3; margin-bottom: 3px; }
+    .rt-stream p { font-size: 11.5px; color: var(--slate-light); line-height: 1.4; }
+    .rt-callout {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 14px 18px; border-radius: 8px; background: var(--navy); color: #fff;
+    }
+    .rt-callout div { font-size: 13px; line-height: 1.5; max-width: 620px; }
+    .rt-callout strong { font-weight: 700; }
+    .rt-callout a {
+      white-space: nowrap; padding: 9px 20px; background: #fff; color: var(--navy-dark) !important;
+      border-radius: 6px; font-size: 12.5px; font-weight: 700; text-decoration: none !important;
+    }
+
+    /* Footer
     .site-footer {
       margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border);
       font-size: 12px; color: var(--slate-pale); text-align: center;
@@ -260,6 +277,7 @@
       }
       .sidebar-photo { margin-bottom: 0; }
       .skills-3col { grid-template-columns: 1fr 1fr; }
+      .rt-streams { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
       .sidebar { grid-template-columns: 1fr; }
@@ -284,7 +302,7 @@
       </a>
       <div class="topnav-links">
         <a href="index.html" class="active">Home</a>
-        <a href="teaching.html">Teaching</a>
+        <a href="research-teaching.html">Research</a><a href="teaching.html">Teaching</a>
         <a href="professional.html">Professional</a>
         <a href="cv.html">CV</a>
       </div>
@@ -312,6 +330,7 @@
           <a href="mailto:chenhao.zhou@rutgers.edu">chenhao.zhou@rutgers.edu</a><br>
           (929) 314-1613<br>
           <a href="https://linkedin.com/in/chenhao-zhou-773499115" target="_blank">LinkedIn</a> ·
+          <a href="research-teaching.html">Research</a> ·
           <a href="cv.html">CV</a> ·
           <a href="Chenhao_Zhou_CV_2026.pdf" target="_blank">PDF</a>
         </div>
@@ -369,6 +388,30 @@
       
 
       
+
+      <!-- RESEARCH -->
+      <div class="section">
+        <div class="section-title">Research</div>
+        <p class="rt-lede">I study how healthcare organizations turn people, schedules, and measurement systems into service outcomes — using simulation and optimization where the question is about design, and panel econometrics where the question is about consequence. Fifteen papers are active across three streams.</p>
+        <div class="rt-streams">
+          <div class="rt-stream">
+            <h4>Service delivery &amp; scheduling</h4>
+            <p>Oncology outpatient flow, emergency department congestion, and forward-looking chemotherapy scheduling. Simulation-based optimization and deep reinforcement learning.</p>
+          </div>
+          <div class="rt-stream">
+            <h4>Workforce &amp; organizational capacity</h4>
+            <p>Workforce fissuring and service quality, cross-level staffing and clinician turnover, and empowerment as an operational resource under the Quadruple Aim.</p>
+          </div>
+          <div class="rt-stream">
+            <h4>Ownership, measurement &amp; equity</h4>
+            <p>Private equity transitions in long-term care, quality scorecard redesign, yardstick competition, and access in disadvantaged communities.</p>
+          </div>
+        </div>
+        <div class="rt-callout">
+          <div><strong>Research feeds the classroom, and the classroom feeds back.</strong> Each stream leaves behind a simulator, handbook, or dataset students can open — and nine of these projects have tracks students can join, with prerequisites and career pathways spelled out.</div>
+          <a href="research-teaching.html">Research → Teaching →</a>
+        </div>
+      </div>
 
       <!-- TEACHING -->
       <div class="section">

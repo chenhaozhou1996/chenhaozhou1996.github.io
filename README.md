@@ -32,7 +32,7 @@ This is a modern, responsive, and accessible academic personal website built wit
 ```
 chenhaozhou1996.github.io/
 ├── index.html              # Homepage
-├── research.html           # Research & Publications
+├── research-teaching.html  # Research → Teaching integration & student research tracks
 ├── cv.html                 # Curriculum Vitae (Online + PDF preview)
 ├── teaching.html           # Teaching Experience & Evaluations
 ├── conference.html         # Conferences & Presentations
@@ -120,6 +120,21 @@ chenhaozhou1996.github.io/
   <td>Scheduled/Completed</td>
 </tr>
 ```
+
+### Adding or Editing a Student Research Track
+
+**File**: `research-teaching.html`
+
+Each track is a self-contained `.track` block. Copy an existing one and update:
+
+1. `id="trackN"` and the `Track NN` label, plus a matching entry in the sidebar `.sb-nav` list
+2. `data-skills="..."` — space-separated values from: `nocode stata python sim writing geo field`.
+   These drive the filter buttons; a value not in that list will never match a filter.
+3. `style="--tc:#hex"` — the accent color for the card border, number, and block headings
+4. The four blocks in order: what you would do, prerequisites, interest fit check, where it leads
+
+The filter counter text lives in the `labels` object in the inline script at the bottom of the
+page. If you add a filter chip, add a matching label there and update the "Show all N" button.
 
 ### Updating Teaching Evaluations
 
