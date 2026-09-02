@@ -15,11 +15,11 @@ body {
 
 /* ─── Topnav ─── */
 .topnav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid #e2e8f0;padding:0 48px;margin:0 -2rem;width:calc(100% + 4rem)}
-.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+.topnav-inner{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;min-height: 56px}
 .topnav-brand{font-weight:700;font-size:15px;color:#0f2442;display:flex;align-items:center;gap:10px;text-decoration:none!important}
 .topnav-brand:hover{text-decoration:none!important;opacity:0.8}
 .topnav-brand img{width:32px;height:32px;border-radius:50%;object-fit:cover}
-.topnav-links{display:flex;gap:4px}
+.topnav-links{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px}
 .topnav-links a{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:500;color:#475569;text-decoration:none!important;transition:all 0.15s}
 .topnav-links a:hover{background:rgba(26,54,93,0.06);color:#1a365d}
 .topnav-links a.active{background:#f8fafc;color:#1a365d;font-weight:600}
@@ -113,7 +113,7 @@ tbody tr:hover{background:rgba(26,54,93,0.03)}
   h1{font-size:clamp(22px,5vw,28px)!important}
   h2{font-size:clamp(17px,4vw,20px)!important}
   .topnav{padding:0 12px;margin:0 -1rem;width:calc(100% + 2rem)}
-  .topnav-inner{height:48px}
+  .topnav-inner{min-height:48px}
   .topnav-links a{padding:4px 8px;font-size:11px}
   .book-nav{margin:0 -1rem 1em;padding:8px;top:48px;gap:3px}
   .book-nav a{padding:4px 8px;font-size:10px}
