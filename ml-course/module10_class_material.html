@@ -10,11 +10,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 /* === SITE-WIDE OVERRIDES === */
 .topnav { position: sticky; top: 0; z-index: 200; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; padding: 0 48px; margin: 0 -2rem; width: calc(100% + 4rem); }
-.topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; min-height: 56px; }
 .topnav-brand { font-weight: 700; font-size: 15px; color: #0f2442; display: flex; align-items: center; gap: 10px; text-decoration: none !important; }
 .topnav-brand:hover { text-decoration: none !important; }
 .topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
-.topnav-links { display: flex; gap: 4px; }
+.topnav-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
 .topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #475569; text-decoration: none !important; }
 .topnav-links a:hover { background: #f8fafc; color: #1a365d; text-decoration: none !important; }
 .topnav-links a.active { background: #f8fafc; color: #1a365d; font-weight: 600; }

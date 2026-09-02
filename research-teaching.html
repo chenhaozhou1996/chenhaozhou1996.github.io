@@ -27,10 +27,10 @@
 
     /* === NAV === */
     .topnav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 48px; }
-    .topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+    .topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; min-height: 56px; }
     .topnav-brand { font-weight: 700; font-size: 15px; color: var(--navy-dark); display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
-    .topnav-links { display: flex; gap: 4px; }
+    .topnav-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
     .topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--slate); text-decoration: none; }
     .topnav-links a:hover { background: var(--bg-alt); color: var(--navy); }
     .topnav-links a.active { background: var(--bg-alt); color: var(--navy); font-weight: 600; }
@@ -878,7 +878,7 @@
       </div>
 
       <!-- ===== TRACK 9 ===== -->
-      <div class="track" id="track9" data-skills="python sim nocode writing" style="--tc:#4c1d95">
+      <div class="track" id="track9" data-skills="python sim writing" style="--tc:#4c1d95">
         <div class="track-head">
           <div class="track-eyebrow">
             <span class="track-num">Track 09</span>
