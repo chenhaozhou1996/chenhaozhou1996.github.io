@@ -73,13 +73,6 @@
     .section-lede { font-size: 14px; color: var(--slate); margin-bottom: 20px; max-width: 860px; }
     h3.sub { font-size: 15px; font-weight: 700; color: var(--navy-dark); margin: 24px 0 10px; }
 
-    /* Principles */
-    .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .principle { border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; background: var(--bg-alt); }
-    .principle .p-num { font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate-pale); }
-    .principle h4 { font-size: 14px; font-weight: 700; color: var(--navy-dark); margin: 4px 0 6px; }
-    .principle p { font-size: 12.5px; color: var(--slate); line-height: 1.55; }
-
     /* Map table */
     .map-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .map-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--slate-pale); font-weight: 700; padding: 0 12px 8px 0; border-bottom: 1px solid var(--border); }
@@ -100,14 +93,12 @@
     .status-note { font-size: 12.5px; color: var(--slate-light); margin-top: 12px; padding-left: 12px; border-left: 2px solid var(--border); line-height: 1.55; }
 
     /* Ladder */
-    .ladder { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .ladder { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
     .rung { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
     .rung-head { padding: 12px 14px; color: #fff; }
     .rung-1 .rung-head { background: #64748b; }
     .rung-2 .rung-head { background: #2b4c7e; }
-    .rung-3 .rung-head { background: #1a365d; }
-    .rung-4 .rung-head { background: #163055; }
-    .rung-5 .rung-head { background: #0f2442; }
+    .rung-3 .rung-head { background: #0f2442; }
     .rung-head .lvl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.72; }
     .rung-head h4 { font-size: 15px; font-weight: 800; margin-top: 2px; }
     .rung-head .commit { font-size: 11px; opacity: 0.82; margin-top: 3px; }
@@ -205,8 +196,7 @@
     .site-footer a { color: var(--slate-light); }
 
     @media (max-width: 1100px) {
-      .principles { grid-template-columns: 1fr; }
-      .ladder { grid-template-columns: 1fr 1fr; }
+      .ladder { grid-template-columns: 1fr; }
       .weeks { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 1000px) {
@@ -249,7 +239,7 @@
     <div class="hero-stats">
       <div class="hero-stat"><b>15</b><span>Active projects</span></div>
       <div class="hero-stat"><b>9</b><span>Open to students</span></div>
-      <div class="hero-stat"><b>5</b><span>Ways to enter</span></div>
+      <div class="hero-stat"><b>3</b><span>Ways to enter</span></div>
       <div class="hero-stat"><b>1–2</b><span>Hours a week to start</span></div>
     </div>
   </div>
@@ -264,7 +254,7 @@
       <ul class="sb-nav">
         <li><a href="#status">Where each project stands</a></li>
         <li><a href="#map">Research → classroom map</a></li>
-        <li><a href="#ladder">Five levels of involvement</a></li>
+        <li><a href="#ladder">Three levels of involvement</a></li>
         <li><a href="#tracks">The nine tracks</a></li>
         <li class="sb-sub"><a href="#track1">1 · Oncology flow &amp; simulation</a></li>
         <li class="sb-sub"><a href="#track2">2 · Emergency department flow</a></li>
@@ -408,8 +398,8 @@
 
     <!-- ========== LADDER ========== -->
     <div class="section" id="ladder">
-      <div class="section-title">Five Levels of Involvement</div>
-      <p class="section-lede">Five ways to enter, listed with the hours they actually take. The estimates are deliberately low — a semester with two midterms does not have ten spare hours in it, and a commitment you cannot keep helps neither of us. Everything below four hours a week is contributing work. Past four hours, co-authorship is on the table. At six to eight, with a question you brought yourself, so is shared first authorship. Each level ends in something finished, so stopping after Level 1 is a normal ending rather than a dropout.</p>
+      <div class="section-title">Three Levels of Involvement</div>
+      <p class="section-lede">Three ways to enter, listed with the hours they actually take. The estimates are deliberately low — a semester with two midterms does not have ten spare hours in it, and a commitment you cannot keep helps neither of us. Past four hours a week, co-authorship is on the table; at six to eight, with a question you brought yourself, so is shared first authorship. Each level ends in something finished, so stopping after Level 1 is a normal ending rather than a dropout.</p>
       <div class="ladder">
         <div class="rung rung-1">
           <div class="rung-head">
@@ -424,67 +414,39 @@
               <li>Write one page: what you would test next, and what would change your mind</li>
             </ul>
           </div>
-          <div class="rung-out"><b>You walk away with</b>Written feedback on your one-pager, and a genuine answer to whether research suits you. No prior experience assumed.</div>
+          <div class="rung-out"><b>You walk away with</b>Written feedback on your one-pager, and a genuine answer to whether research suits you. No prior experience assumed, and leaving here costs you nothing.</div>
         </div>
         <div class="rung rung-2">
           <div class="rung-head">
             <div class="lvl">Level 2</div>
             <h4>Contributor</h4>
-            <div class="commit">2–3 hrs/week · one semester</div>
+            <div class="commit">2–4 hrs/week · one or two semesters</div>
           </div>
           <div class="rung-body">
             <ul>
               <li>Own a defined, checkable task: cleaning, a codebook, a literature table, one constructed measure</li>
               <li>Keep a reproducible script that runs top to bottom</li>
+              <li>Grow into an analytical component of your own — a robustness table, a scenario set, a mapping module</li>
               <li>Biweekly 30-minute check-in with a written agenda</li>
             </ul>
           </div>
-          <div class="rung-out"><b>You walk away with</b>A named acknowledgment in the project's data documentation, a reference letter grounded in specifics, and a portfolio artifact.</div>
+          <div class="rung-out"><b>You walk away with</b>A named acknowledgment in the project's data documentation, a reference letter grounded in specifics, a portfolio artifact, and conference abstract or poster co-authorship where the contribution supports it.</div>
         </div>
         <div class="rung rung-3">
           <div class="rung-head">
             <div class="lvl">Level 3</div>
-            <h4>Analyst</h4>
-            <div class="commit">3–4 hrs/week · two semesters</div>
-          </div>
-          <div class="rung-body">
-            <ul>
-              <li>Own an analytical component end to end — a robustness table, a scenario set, a mapping module</li>
-              <li>Defend your choices when I push back on them</li>
-              <li>Draft the methods paragraph describing your own work</li>
-            </ul>
-          </div>
-          <div class="rung-out"><b>You walk away with</b>Conference abstract or poster co-authorship where the contribution supports it, and INFORMS/DSI student session experience.</div>
-        </div>
-        <div class="rung rung-4">
-          <div class="rung-head">
-            <div class="lvl">Level 4</div>
             <h4>Co-author</h4>
-            <div class="commit">4–6 hrs/week · a year or so</div>
+            <div class="commit">4–8 hrs/week · a year or so</div>
           </div>
           <div class="rung-body">
             <ul>
-              <li>Four hours a week, sustained, is the threshold — not a heroic semester</li>
+              <li>Four hours a week, sustained, is the co-authorship threshold — not a heroic semester</li>
               <li>Contribute to design, data, or analysis, and write part of the paper</li>
+              <li>At six to eight hours, with a question you brought yourself, we share the first-author position</li>
               <li>Respond to referee comments alongside me</li>
             </ul>
           </div>
-          <div class="rung-out"><b>You walk away with</b>Manuscript co-authorship, a writing sample, and doctoral application support. The bar is sustained contribution, not seniority.</div>
-        </div>
-        <div class="rung rung-5">
-          <div class="rung-head">
-            <div class="lvl">Level 5</div>
-            <h4>Shared first author</h4>
-            <div class="commit">6–8 hrs/week · your own question</div>
-          </div>
-          <div class="rung-body">
-            <ul>
-              <li>You bring the question. We start from what interests you, not from my agenda</li>
-              <li>You drive design, execution, and the writing; I supervise and push back</li>
-              <li>Usually an honors thesis, capstone, or funded appointment</li>
-            </ul>
-          </div>
-          <div class="rung-out"><b>You walk away with</b>Shared first authorship, with an equal-contribution footnote. If the question is yours and you drove it, your name sits alongside mine rather than after it.</div>
+          <div class="rung-out"><b>You walk away with</b>Manuscript co-authorship — or shared first authorship, with an equal-contribution footnote, when the question is yours and you drove it. Plus a writing sample and doctoral application support.</div>
         </div>
       </div>
     </div>
@@ -1053,7 +1015,7 @@
           <h4>Ways to get credit for this</h4>
           <ul>
             <li><b>Independent study</b> — arranged with your department, graded on the deliverables above</li>
-            <li><b>Honors thesis or capstone</b> — the natural home for Levels 4 and 5</li>
+            <li><b>Honors thesis or capstone</b> — the natural home for Level 3</li>
             <li><b>Paid research assistantship</b> — when grant funding allows; I will tell you plainly whether it does</li>
             <li><b>Portfolio only</b> — entirely legitimate, and what most Level 1 and 2 students choose</li>
           </ul>
