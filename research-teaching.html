@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Research → Teaching | Student Research Integration – Chenhao Zhou</title>
-  <meta name="description" content="How my research becomes classroom material, and how students join it. Nine research tracks in healthcare operations, workforce, and quality measurement — each with prerequisites, an interest fit check, and where it leads professionally." />
+  <title>Research Projects &amp; Student Participation – Chenhao Zhou</title>
+  <meta name="description" content="The fifteen projects I have running, with the current stage of each, and the nine a student can join. Every track lists the work, the prerequisites, whether it is likely to fit you, and where it leads." />
   <meta name="keywords" content="undergraduate research, research assistant, healthcare operations research, student research opportunities, research-teaching integration, Rutgers, Chenhao Zhou" />
   <meta name="author" content="Chenhao Zhou" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://chenhaozhou1996.github.io/research-teaching.html" />
-  <meta property="og:title" content="Research → Teaching | Student Research Integration" />
-  <meta property="og:description" content="Nine research tracks students can join — each with prerequisites, an interest fit check, and where it leads professionally." />
+  <meta property="og:title" content="Research Projects &amp; Student Participation" />
+  <meta property="og:description" content="Fifteen active projects with their current stage, and the nine a student can join." />
   <meta property="og:image" content="https://chenhaozhou1996.github.io/images/profile.jpg" />
   <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
   <style>
@@ -92,6 +92,12 @@
     .st-review { background: #dbeafe; color: #1e40af; }
     .st-wp { background: #fef3c7; color: #92400e; }
     .st-data { background: #e0e7ff; color: #3730a3; }
+
+    .status-table td:first-child { width: 46%; }
+    .status-table td:nth-child(2) { width: 40%; }
+    .status-table td:last-child { width: 14%; }
+    .status-table .stage { margin-left: 4px; vertical-align: middle; }
+    .status-note { font-size: 12.5px; color: var(--slate-light); margin-top: 12px; padding-left: 12px; border-left: 2px solid var(--border); line-height: 1.55; }
 
     /* Ladder */
     .ladder { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
@@ -234,16 +240,15 @@
 
 <section class="hero">
   <div class="hero-inner">
-    <div class="hero-badge">Research → Teaching Integration</div>
-    <h1>My research is the syllabus. <span>And the syllabus is open to students.</span></h1>
-    <p>Every question I study — why an infusion chair sits empty while patients wait, what happens to care when a nursing home changes owners, whether a redesigned scorecard moves real resources — starts as a live research problem and ends as something a student can open, run, and argue with in a classroom.</p>
-    <p>This page runs the loop in both directions. The first half shows what each research stream became in class. The second half breaks those same streams into <strong>nine tracks students can actually join</strong> — each one listing what you would do, what you need before you start, an honest check on whether it crosses your interests, and where it leads after graduation.</p>
+    <div class="hero-badge">Open Projects · Student Participation</div>
+    <h1>What I am working on, <span>and where students can join it.</span></h1>
+    <p>Fifteen projects are running right now, across healthcare operations, workforce and staffing, and quality measurement. Four are in review or revision at journals, several are drafts, and two are still collecting data. The next section lists every one of them with its current stage, including the ones that are moving slowly.</p>
+    <p>Nine have work a student can pick up. Each track below states what the work is, what you need before starting, whether it is likely to match what you care about, and where it leads. The teaching materials these projects produced are linked throughout — simulators, handbooks, and coding guides, all open, no login, nothing to sign up for.</p>
     <div class="hero-stats">
-      <div class="hero-stat"><b>9</b><span>Student tracks</span></div>
-      <div class="hero-stat"><b>15</b><span>Active papers</span></div>
-      <div class="hero-stat"><b>4</b><span>Entry levels</span></div>
-      <div class="hero-stat"><b>17</b><span>Open teaching artifacts</span></div>
-      <div class="hero-stat"><b>0</b><span>Prior research required</span></div>
+      <div class="hero-stat"><b>15</b><span>Active projects</span></div>
+      <div class="hero-stat"><b>9</b><span>Open to students</span></div>
+      <div class="hero-stat"><b>4</b><span>Ways to enter</span></div>
+      <div class="hero-stat"><b>1–2</b><span>Hours a week to start</span></div>
     </div>
   </div>
 </section>
@@ -255,7 +260,7 @@
     <div class="sb-section">
       <div class="sb-title">On This Page</div>
       <ul class="sb-nav">
-        <li><a href="#philosophy">How the loop works</a></li>
+        <li><a href="#status">Where each project stands</a></li>
         <li><a href="#map">Research → classroom map</a></li>
         <li><a href="#ladder">Four levels of involvement</a></li>
         <li><a href="#tracks">The nine tracks</a></li>
@@ -269,10 +274,10 @@
         <li class="sb-sub"><a href="#track8">8 · Development operations</a></li>
         <li class="sb-sub"><a href="#track9">9 · Research → teaching build</a></li>
         <li><a href="#onboarding">Onboarding: five weeks</a></li>
-        <li><a href="#prep">Prepare on your own</a></li>
+        <li><a href="#prep">Materials to prepare with</a></li>
         <li><a href="#norms">Credit, authorship, ethics</a></li>
         <li><a href="#apply">How to apply</a></li>
-        <li><a href="#faq">Questions students ask</a></li>
+        <li><a href="#faq">Common questions</a></li>
       </ul>
     </div>
 
@@ -313,26 +318,32 @@
   <main class="content">
 
     <!-- ========== PHILOSOPHY ========== -->
-    <div class="section" id="philosophy">
-      <div class="section-title">How the Loop Works</div>
-      <p class="section-lede">I do not treat research and teaching as two jobs competing for the same week. A finding that cannot be explained to a sophomore is usually a finding I do not yet understand, and a classroom exercise that cannot survive contact with real data is usually a story rather than a lesson. Three commitments hold the loop together.</p>
-      <div class="principles">
-        <div class="principle">
-          <div class="p-num">Commitment 01</div>
-          <h4>Every paper owes the classroom an artifact</h4>
-          <p>When a study finishes, it leaves behind something students can touch — a simulator, a dataset, a handbook chapter, a decision the class has to make with incomplete information. The seventeen simulations and handbooks on this site are all residue from research questions, not decorations added afterward.</p>
-        </div>
-        <div class="principle">
-          <div class="p-num">Commitment 02</div>
-          <h4>Students see the unfinished version</h4>
-          <p>Published work hides its own history: the measure that failed, the specification that collapsed, the interview that changed the question. Students who join a track see the draft while it is still wrong. That is the part of research a textbook cannot transmit.</p>
-        </div>
-        <div class="principle">
-          <div class="p-num">Commitment 03</div>
-          <h4>The work has to be worth their time even if they leave</h4>
-          <p>Most students who start will not finish a paper with me, and that is a normal outcome rather than a failure. So each track is built to pay out early — a skill, a portfolio artifact, a clearer sense of what they do and do not want — from the first month, not from an eventual publication.</p>
-        </div>
-      </div>
+    <div class="section" id="status">
+      <div class="section-title">Where Each Project Stands, As Of March 2026</div>
+      <p class="section-lede">The full list, with the honest stage of each one. Drafts sit for months. Data collection runs longer than planned. Three of these have been through more than one round of review. I keep this list current rather than showing only the finished work, because the stage determines what kind of help is useful — a paper in revision needs different work than one still assembling a dataset.</p>
+      <table class="map-table status-table">
+        <thead>
+          <tr><th>Project</th><th>Stage</th><th>Student track</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Enhancing Efficiency and Workflow in Oncology Outpatient Services by Simulation-Based Optimization</td><td>Forthcoming, <em>Annals of Operations Research</em> <span class="stage st-accepted">Accepted</span></td><td><a href="#track1">Track 1</a></td></tr>
+          <tr><td>Balancing Workforce Fissuring and Service Quality</td><td>Second round of revision, <em>Journal of Operations Management</em>; resubmitted Sep 2025 <span class="stage st-review">R&amp;R 2</span></td><td><a href="#track3">Track 3</a></td></tr>
+          <tr><td>Exploring the Triple Aim Through Clinician Empowerment</td><td>First round of revision, <em>Journal of Operations Management</em>; revision submitted <span class="stage st-review">R&amp;R 1</span></td><td><a href="#track6">Track 6</a></td></tr>
+          <tr><td>Enhancing Healthcare Operation in Disadvantaged Communities</td><td>Under review, <em>Health Care Management Science</em>; submitted Feb 2025 <span class="stage st-review">Under review</span></td><td><a href="#track7">Track 7</a></td></tr>
+          <tr><td>Engagement Without Responsibility: Ownership Transitions and Stakeholder Welfare in U.S. Nursing Homes</td><td>Preparing for submission <span class="stage st-wp">Draft</span></td><td><a href="#track4">Track 4</a></td></tr>
+          <tr><td>Private Equity in Healthcare: Ownership Transitions in Global South Health Systems</td><td>Draft complete, awaiting a special issue deadline <span class="stage st-wp">Draft</span></td><td><a href="#track4">Track 4</a></td></tr>
+          <tr><td>Chain-Level Quality Competition Under Yardstick Incentives (U.S. dialysis)</td><td>Draft complete <span class="stage st-wp">Draft</span></td><td><a href="#track5">Track 5</a></td></tr>
+          <tr><td>When Stars Fall: Quality Instability, Consumer Choice, and the Demand for Long-Term Care</td><td>Draft complete <span class="stage st-wp">Draft</span></td><td><a href="#track5">Track 5</a></td></tr>
+          <tr><td>When the Scorecard Changes: Quality Measurement Redesign and Resource Reallocation</td><td>Draft complete <span class="stage st-wp">Draft</span></td><td><a href="#track5">Track 5</a></td></tr>
+          <tr><td>From Triple Aim to Quadruple Aim</td><td>Draft nearing completion <span class="stage st-wp">Draft</span></td><td><a href="#track6">Track 6</a></td></tr>
+          <tr><td>Extension Services, Market Remoteness, and Agricultural Productivity in Ethiopia</td><td>In progress, targeting a mid-2026 deadline <span class="stage st-wp">In progress</span></td><td><a href="#track8">Track 8</a></td></tr>
+          <tr><td>Deep Reinforcement Learning for Forward-Looking Chemotherapy Appointment Scheduling</td><td>In progress, targeting a mid-2026 deadline <span class="stage st-wp">In progress</span></td><td><a href="#track1">Track 1</a></td></tr>
+          <tr><td>Systems Approach to Addressing Emergency Department Congestion</td><td>Data processing <span class="stage st-data">Data</span></td><td><a href="#track2">Track 2</a></td></tr>
+          <tr><td>Do Cross-Level Staffing Patterns Influence Clinician Turnover and Care Operations</td><td>Data collection and early analysis <span class="stage st-data">Data</span></td><td><a href="#track3">Track 3</a></td></tr>
+          <tr><td>Improving Emergency Department Flow</td><td>IRB approved; data collection in progress <span class="stage st-data">Data</span></td><td><a href="#track2">Track 2</a></td></tr>
+        </tbody>
+      </table>
+      <p class="status-note">A stage is not a promise. Papers get rejected, drafts get restructured, and collection timelines slip. If a track interests you, the stage tells you what the work would look like this month — not how it will end.</p>
     </div>
 
     <!-- ========== MAP ========== -->
@@ -396,13 +407,13 @@
     <!-- ========== LADDER ========== -->
     <div class="section" id="ladder">
       <div class="section-title">Four Levels of Involvement</div>
-      <p class="section-lede">Nobody starts at the top and nobody is expected to reach it. Each level is a complete unit with its own payoff, so stopping after Level 1 is a legitimate ending rather than a dropout. Move up only when the previous level went well for both of us.</p>
+      <p class="section-lede">Four ways to enter, listed with the hours they actually take. The estimates are deliberately low — a semester with two midterms does not have ten spare hours in it, and a commitment you cannot keep helps neither of us. Each level ends in something finished, so stopping after Level 1 is a normal ending rather than a dropout. Move up only if the previous level went well.</p>
       <div class="ladder">
         <div class="rung rung-1">
           <div class="rung-head">
             <div class="lvl">Level 1</div>
             <h4>Explorer</h4>
-            <div class="commit">2–3 hrs/week · 3–4 weeks</div>
+            <div class="commit">1–2 hrs/week · 3–4 weeks</div>
           </div>
           <div class="rung-body">
             <ul>
@@ -417,7 +428,7 @@
           <div class="rung-head">
             <div class="lvl">Level 2</div>
             <h4>Contributor</h4>
-            <div class="commit">4–6 hrs/week · one semester</div>
+            <div class="commit">3–4 hrs/week · one semester</div>
           </div>
           <div class="rung-body">
             <ul>
@@ -432,7 +443,7 @@
           <div class="rung-head">
             <div class="lvl">Level 3</div>
             <h4>Analyst</h4>
-            <div class="commit">6–10 hrs/week · two semesters</div>
+            <div class="commit">4–6 hrs/week · two semesters</div>
           </div>
           <div class="rung-body">
             <ul>
@@ -447,11 +458,11 @@
           <div class="rung-head">
             <div class="lvl">Level 4</div>
             <h4>Co-author</h4>
-            <div class="commit">10+ hrs/week · a year or more</div>
+            <div class="commit">6–8 hrs/week · a year or more</div>
           </div>
           <div class="rung-body">
             <ul>
-              <li>Own a question inside the stream: design, execution, writing</li>
+              <li>Own a question inside the project: design, execution, writing</li>
               <li>Typically an honors thesis, capstone, or funded RA appointment</li>
               <li>Respond to referee comments alongside me</li>
             </ul>
@@ -464,7 +475,7 @@
     <!-- ========== TRACKS ========== -->
     <div class="section" id="tracks">
       <div class="section-title">The Nine Tracks</div>
-      <p class="section-lede">Each track is a live piece of my current work, cut down to something a student can hold. Filter by the skills you already have — the tracks that stay visible are the ones you could start this month. Nothing here requires prior research experience; several require nothing beyond a spreadsheet and patience.</p>
+      <p class="section-lede">Each track is a piece of one of the projects listed above, scoped down to something a student can take on. Filter by the skills you already have — what stays visible is what you could start this month. None of it requires prior research experience, and several require nothing beyond a spreadsheet and patience.</p>
 
       <div class="filter-bar" id="filterBar">
         <button class="chip" data-filter="all" aria-pressed="true">Show all 9</button>
@@ -569,7 +580,7 @@
             <ul>
               <li><b>Jobs:</b> clinical research coordinator, health system analytics, quality and safety departments, hospital administration fellowships, healthcare consulting</li>
               <li><b>Research:</b> health services research, health economics, health policy doctoral programs; the CITI credential and documented IRB experience are read as real signals</li>
-              <li><b>For medical school applicants:</b> a rare kind of research experience — systems-level rather than bench-level, and directly relevant to the wards you will work on</li>
+              <li><b>For medical school applicants:</b> systems-level research rather than bench-level, on the operational problems of the wards you would work on</li>
             </ul>
           </div>
         </div>
@@ -620,7 +631,7 @@
             <ul>
               <li><b>Jobs:</b> economic consulting (Analysis Group, Cornerstone, Charles River), people and workforce analytics, policy research organizations such as Mathematica, RAND, or Urban, and healthcare strategy groups</li>
               <li><b>Research:</b> the most direct preparation on this page for OM, applied economics, or health policy doctoral study — panel data fluency is the price of admission</li>
-              <li><b>Portfolio:</b> a public replication package on GitHub, which is worth more in an interview than a transcript line</li>
+              <li><b>Portfolio:</b> a public replication package on GitHub that an interviewer can open and read</li>
             </ul>
           </div>
         </div>
@@ -671,7 +682,7 @@
             <ul>
               <li><b>Jobs:</b> healthcare investment and commercial due diligence, regulatory and compliance analytics, policy analysis, ESG and impact research, litigation support</li>
               <li><b>Research:</b> event-study and difference-in-differences design fluency transfers to finance, strategy, health policy, and law-and-economics questions</li>
-              <li><b>Underrated skill:</b> data provenance — being the person who can say exactly where every row came from is a career asset in any analytics organization</li>
+              <li><b>Also:</b> data provenance — being able to say exactly where every row came from, which any analytics team needs somebody to do</li>
             </ul>
           </div>
         </div>
@@ -722,7 +733,7 @@
             <ul>
               <li><b>Jobs:</b> performance management, KPI and scorecard design, business intelligence, product analytics, accreditation and ratings organizations, regulatory analytics</li>
               <li><b>Research:</b> incentive design, measurement validity, and quality competition — questions that cross OM, accounting, strategy, and public policy</li>
-              <li><b>The durable lesson:</b> you will never again accept a dashboard metric without asking who chose the weights and what happens when they change</li>
+              <li><b>Also:</b> a habit of asking who chose the weights behind any dashboard metric, and what moves when they change</li>
             </ul>
           </div>
         </div>
@@ -794,7 +805,7 @@
           <h3>Access and Equity: Being Near a Service Is Not the Same as Reaching It</h3>
           <div class="track-source">Builds on <em>Enhancing Healthcare Operation in Disadvantaged Communities</em> (under review, <em>Health Care Management Science</em>) and the health-disparities component of the clinician empowerment study.</div>
         </div>
-        <div class="track-why">Two neighborhoods sit four miles from the same hospital. One reaches it in twelve minutes by car; the other takes an hour on two buses with a transfer that does not run on Sundays. Straight-line distance says they are equivalent. Every operational outcome says they are not. This track treats access as an operations variable that can be measured properly — and it produces the most visually persuasive artifacts of any track here, because a map argues faster than a regression table.</div>
+        <div class="track-why">Two neighborhoods sit four miles from the same hospital. One reaches it in twelve minutes by car; the other takes an hour on two buses with a transfer that does not run on Sundays. Straight-line distance says they are equivalent. Every operational outcome says they are not. This track treats access as an operations variable and measures it properly. Much of the output is maps, which tend to communicate a gap faster than a table of coefficients does.</div>
         <div class="track-grid">
           <div class="tblock">
             <h5>What you would actually do</h5>
@@ -824,7 +835,7 @@
             <ul>
               <li><b>Jobs:</b> public health analytics, city and state government data teams, health equity roles inside payers and health systems, urban planning, nonprofit and foundation research</li>
               <li><b>Research:</b> spatial methods open doors across public health, economics, urban planning, and operations — and remain relatively rare among business school applicants</li>
-              <li><b>Portfolio:</b> a published map is the single most shareable artifact any of these tracks produces</li>
+              <li><b>Portfolio:</b> a published map, which is easy to share and easy for a non-specialist to read</li>
             </ul>
           </div>
         </div>
@@ -875,7 +886,7 @@
             <ul>
               <li><b>Jobs:</b> World Bank, IFC, and development finance analytics, international NGO monitoring and evaluation, development consulting, agricultural supply chain and ag-tech roles</li>
               <li><b>Research:</b> development economics, agricultural economics, and the growing socially-responsible operations field — where M&amp;SOM and POM now run dedicated special issues</li>
-              <li><b>Rare combination:</b> operations methods plus development microdata fluency is uncommon enough to be a genuine differentiator</li>
+              <li><b>Also:</b> operations methods combined with development microdata is an uncommon pairing, and it shows on an application</li>
             </ul>
           </div>
         </div>
@@ -896,7 +907,7 @@
           <h3>Closing the Loop: Turn a Finding Into the Next Teaching Artifact</h3>
           <div class="track-source">Builds on the full set of simulations and handbooks on this site — and on the premise that the last step of a research project is making it teachable.</div>
         </div>
-        <div class="track-why">Every simulator linked from my <a href="teaching.html">teaching page</a> started as a research finding that was too abstract to survive a lecture. Someone had to decide which parameters a student should control, which detail to discard, and what has to happen on screen for the insight to land. That translation is intellectually harder than it looks, and it is the fastest way to discover whether you actually understand a result. Students on this track build the artifact the next cohort learns from — with their name on it, in public.</div>
+        <div class="track-why">Every simulator linked from my <a href="teaching.html">teaching page</a> started as a research finding that was too abstract to survive a lecture. Someone had to decide which parameters a student should control, which detail to discard, and what has to happen on screen for the insight to land. That translation is harder than it looks, and it surfaces quickly whether you understand a result or only recognize it. Work on this track becomes an artifact the next class uses, with your name on it, in public.</div>
         <div class="track-grid">
           <div class="tblock">
             <h5>What you would actually do</h5>
@@ -926,7 +937,7 @@
             <ul>
               <li><b>Jobs:</b> educational technology, corporate learning and development, technical writing, data journalism, developer relations, product roles where explaining is the product</li>
               <li><b>Research:</b> pedagogy and simulation-based learning are publishable in their own right; teaching-focused academic careers start with exactly this portfolio</li>
-              <li><b>Immediate payoff:</b> a public, linkable artifact used by an actual class — the clearest evidence of competence a student can hand an employer</li>
+              <li><b>Also:</b> a public, linkable artifact used by an actual class — something concrete to point an employer at</li>
             </ul>
           </div>
         </div>
@@ -940,8 +951,8 @@
 
     <!-- ========== ONBOARDING ========== -->
     <div class="section" id="onboarding">
-      <div class="section-title">Onboarding: Five Weeks, Self-Paced, No Permission Required</div>
-      <p class="section-lede">This is the course portion, and it runs whether or not you ever email me. Everything it asks for is already open on this site. Students who arrive having finished week three are working on real tasks within days; students who arrive cold spend their first month here anyway. If you complete week five, send me the output — that single artifact tells me more than a transcript does.</p>
+      <div class="section-title">Onboarding: Five Weeks, Self-Paced</div>
+      <p class="section-lede">This part runs whether or not you ever email me. Everything it asks for is already open on this site, and it is roughly the same ground anyone joining a track has to cover anyway. Five weeks at one to two hours each. If you finish week five, send me the output — a one-page proposal tells me far more than a transcript does.</p>
       <div class="weeks">
         <div class="week">
           <div class="wk">Week 1</div>
@@ -978,7 +989,7 @@
 
     <!-- ========== PREP ========== -->
     <div class="section" id="prep">
-      <div class="section-title">Prepare On Your Own — Everything Here Is Free</div>
+      <div class="section-title">Materials To Prepare With</div>
       <p class="section-lede">These are my own teaching materials, written for students in exactly this position. No enrollment, no login, no cost. Work through the ones your track names in its prerequisites.</p>
       <div class="prep-grid">
         <a href="python-guide/index.html" class="prep"><div class="prep-icon">PY</div><div><h4>Python for Data Science</h4><p>Tracks 1, 5, 7, 9 · start with chapters 1–5</p></div></a>
@@ -1000,7 +1011,7 @@
       <div class="norms">
         <div class="norm">
           <h4>Authorship is earned, and discussed in advance</h4>
-          <p>Co-authorship requires a substantial contribution to design, data, or analysis, plus involvement in the writing and the ability to defend the work publicly. We discuss author order before the work starts, not after. Contributions that do not reach that bar are acknowledged by name in the paper — which is a real and citable credit, not a consolation prize. I will never quietly absorb a student's work.</p>
+          <p>Co-authorship requires a substantial contribution to design, data, or analysis, plus involvement in the writing and the ability to defend the work publicly. We discuss author order before the work starts, not after. Contributions that do not reach that bar are acknowledged by name in the paper, which is a real and citable credit. No one's work gets used without attribution.</p>
         </div>
         <div class="norm">
           <h4>Data rules are absolute, not aspirational</h4>
@@ -1071,12 +1082,12 @@
 
     <!-- ========== FAQ ========== -->
     <div class="section" id="faq">
-      <div class="section-title">Questions Students Actually Ask</div>
+      <div class="section-title">Common Questions</div>
       <details class="faq"><summary>I have never coded. Is there anything here for me?</summary>
         <p>Yes — Track 4 begins in a spreadsheet, and Track 6 begins with reading and writing. Both build toward code at your own pace rather than demanding it on arrival. The onboarding sequence above also exists precisely for this: five weeks of self-paced work that takes you from nothing to a running script, using free materials already on this site. Students who arrive having done it are not beginners anymore.</p>
       </details>
       <details class="faq"><summary>Do I need to be a supply chain major?</summary>
-        <p>No, and the mix is usually better when students are not. These tracks have been built to be legible to students from economics, statistics, public health, computer science, nursing, psychology, and business generally. What matters is whether the question holds your attention when the work gets tedious — because it will get tedious, in every track, at some point.</p>
+        <p>No. These tracks are written to be legible to students from economics, statistics, public health, computer science, nursing, psychology, and business generally. What matters is whether the question holds your attention when the work gets tedious — because it will get tedious, in every track, at some point.</p>
       </details>
       <details class="faq"><summary>Will I get paid?</summary>
         <p>Sometimes, when grant funding covers it, and I will tell you plainly whether it does at the moment you ask rather than leaving it vague. Most Level 1 and 2 positions are for credit or for the portfolio. I would rather you know that before you invest a semester than discover it afterward.</p>
@@ -1088,13 +1099,13 @@
         <p>It helps in the ways admissions committees can actually verify: a letter that describes specific work rather than general enthusiasm, a writing sample, a reproducible analysis they can look at, and — at Level 3 and above — a conference presentation. It does not substitute for grades or test scores, and I will not claim otherwise. What it reliably provides is evidence that you have done research rather than only taken courses.</p>
       </details>
       <details class="faq"><summary>How is this different from a class project?</summary>
-        <p>There is no answer key, and no guarantee the question has an answer. Real data arrives broken. A measure you spend three weeks building sometimes has to be discarded. Findings come out null, and a null result still has to be written up honestly. Students often describe this as the first time coursework stopped feeling like a simulation of the thing.</p>
+        <p>There is no answer key, and no guarantee the question has an answer. Real data arrives broken. A measure you spend three weeks building sometimes has to be discarded. Findings come out null, and a null result still has to be written up honestly. Nothing about the work is arranged in advance to come out well.</p>
       </details>
       <details class="faq"><summary>Can I propose my own question instead?</summary>
         <p>Yes, if it sits close enough to these streams that I can supervise it competently. The realistic path is entering through a track, learning the setting and the data, and then proposing your extension in week five of onboarding or at the end of Level 2. Questions proposed from inside the data are almost always better than questions proposed from outside it.</p>
       </details>
       <details class="faq"><summary>How much time does this really take?</summary>
-        <p>The hours listed on each level are honest, but they are unevenly distributed. Some weeks are three quiet hours; the week before a submission deadline is not. I plan around your exam schedule when you tell me about it in advance. The most common failure I see is a student taking on Level 3 hours during a semester that could only support Level 1.</p>
+        <p>The hours on each level are set low on purpose, but they are unevenly distributed — some weeks are quiet, the week before a submission deadline is not. Tell me your exam schedule in advance and I will plan around it. If you are unsure between two levels, take the lower one. Level 1 at one to two hours a week is a real option, and moving up later costs nothing.</p>
       </details>
     </div>
 
