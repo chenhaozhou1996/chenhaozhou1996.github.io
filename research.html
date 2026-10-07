@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Research – Chenhao Zhou</title>
+  <meta name="description" content="Research by Chenhao Zhou: healthcare operations and workforce management, buyer-supplier relationships and innovation, public policy and sustainability in operations, AI placement in service processes. Publications, manuscripts under review, and working papers." />
+  <meta name="author" content="Chenhao Zhou" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://chenhaozhou1996.github.io/research.html" />
+  <meta property="og:title" content="Research – Chenhao Zhou" />
+  <meta property="og:description" content="Publications, manuscripts under review, and working papers." />
+  <meta property="og:image" content="https://chenhaozhou1996.github.io/images/profile.jpg" />
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1a365d; --navy-light: #2b4c7e; --navy-dark: #0f2442;
+      --slate: #475569; --slate-light: #64748b; --slate-pale: #94a3b8;
+      --bg: #ffffff; --bg-alt: #f8fafc; --border: #e2e8f0;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', -apple-system, sans-serif; font-size: 15px; line-height: 1.6; color: #1e293b; background: var(--bg); -webkit-font-smoothing: antialiased; }
+    a { color: var(--navy); text-decoration: none; } a:hover { color: var(--navy-light); text-decoration: underline; }
+
+    .topnav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 48px; }
+    .topnav-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; min-height: 56px; }
+    .topnav-brand { font-weight: 700; font-size: 15px; color: var(--navy-dark); display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .topnav-brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+    .topnav-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
+    .topnav-links a { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--slate); text-decoration: none; }
+    .topnav-links a:hover { background: var(--bg-alt); color: var(--navy); }
+    .topnav-links a.active { background: var(--bg-alt); color: var(--navy); font-weight: 600; }
+
+    .page-grid {
+      max-width: 1600px; margin: 0 auto; padding: 48px;
+      display: grid; grid-template-columns: 280px 1fr; gap: 48px;
+      align-items: start;
+    }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: calc(56px + 48px); }
+    .sb-section { margin-bottom: 24px; }
+    .sb-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--slate-pale); margin-bottom: 8px;
+    }
+    .sb-text { font-size: 12px; color: var(--slate); line-height: 1.6; }
+    .sb-text strong { color: var(--navy-dark); }
+    .sb-link { font-size: 12px; font-weight: 600; margin-top: 6px; display: inline-block; }
+    .sb-nav { list-style: none; }
+    .sb-nav li { margin-bottom: 2px; }
+    .sb-nav a { display: block; font-size: 13px; color: var(--slate); padding: 4px 0; }
+    .sb-nav a:hover { color: var(--navy); text-decoration: none; }
+    .sb-count { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; border-bottom: 1px solid var(--border); }
+    .sb-count:last-child { border-bottom: none; }
+    .sb-count span:last-child { font-weight: 700; color: var(--navy-dark); }
+
+    /* MAIN */
+    .content { min-width: 0; }
+    .section { margin-bottom: 40px; }
+    .section-title {
+      font-size: 13px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--navy);
+      padding-bottom: 8px; border-bottom: 2px solid var(--navy); margin-bottom: 20px;
+    }
+    .lede { font-size: 15px; color: var(--slate); max-width: 820px; margin-bottom: 14px; }
+    .interests { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .interests span { font-size: 12.5px; font-weight: 600; color: var(--navy-dark); background: var(--bg-alt); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; }
+
+    .diss { border-left: 3px solid var(--navy); background: var(--bg-alt); padding: 14px 18px; border-radius: 0 8px 8px 0; max-width: 820px; }
+    .diss-title { font-weight: 700; color: var(--navy-dark); font-size: 15px; margin-bottom: 4px; }
+    .diss p { font-size: 13.5px; color: var(--slate); }
+    .diss .meta { font-size: 12px; color: var(--slate-light); margin-top: 6px; }
+
+    .sub { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate-light); margin: 22px 0 10px; }
+
+    .paper { display: grid; grid-template-columns: 36px 1fr; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .paper:last-child { border-bottom: none; }
+    .num { font-size: 12px; font-weight: 700; color: var(--slate-pale); padding-top: 2px; }
+    .p-title { font-weight: 600; color: var(--navy-dark); font-size: 14.5px; line-height: 1.4; }
+    .p-authors { font-size: 13px; color: var(--slate); margin-top: 2px; }
+    .p-authors b { color: var(--navy-dark); font-weight: 600; }
+    .p-venue { font-size: 13px; color: var(--slate); margin-top: 3px; }
+    .p-venue em { color: var(--navy-dark); }
+    .p-note { font-size: 12.5px; color: var(--slate); margin-top: 5px; max-width: 760px; }
+    .tag { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+    .tag-pub { background: var(--navy); color: #fff; }
+    .tag-rev { background: #e8edf5; color: var(--navy-dark); }
+    .tag-hid { background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; }
+    .note { font-size: 13px; color: var(--slate); margin: -8px 0 14px; max-width: 820px; }
+    .tag-diss { background: #fff; border: 1px solid var(--border); color: var(--slate); }
+
+    .students { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 20px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-alt); }
+    .students p { font-size: 13.5px; color: var(--slate); margin: 0; }
+    .students a.btn { white-space: nowrap; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 6px; background: var(--navy); color: #fff; }
+    .students a.btn:hover { background: var(--navy-light); text-decoration: none; }
+
+    @media (max-width: 1000px) {
+      .page-grid { grid-template-columns: 1fr; padding: 24px; gap: 32px; }
+      .sidebar { position: static; }
+      .students { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 600px) {
+      .topnav { padding: 0 16px; }
+      .topnav-links a { padding: 4px 8px; font-size: 12px; }
+      .paper { grid-template-columns: 28px 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="topnav"><div class="topnav-inner">
+  <a href="index.html" class="topnav-brand"><img alt="CZ" src="images/profile.jpg" />Chenhao Zhou</a>
+  <div class="topnav-links">
+    <a href="index.html">Home</a><a href="research.html" class="active">Research</a><a href="teaching.html">Teaching</a><a href="professional.html">Professional</a><a href="cv.html">CV</a>
+  </div>
+</div></nav>
+
+<div class="page-grid">
+
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-title">On This Page</div>
+      <ul class="sb-nav">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#dissertation">Dissertation</a></li>
+        <li><a href="#publications">Publications</a></li>
+        <li><a href="#review">Under Review &amp; In Revision</a></li>
+        <li><a href="#working">Working Papers</a></li>
+        <li><a href="#conference">Conference Proceedings</a></li>
+      </ul>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title">At a Glance</div>
+      <div class="sb-count"><span>Published</span><span>1</span></div>
+      <div class="sb-count"><span>Under review / in revision</span><span>11</span></div>
+      <div class="sb-count"><span>Working papers</span><span>2</span></div>
+      <div class="sb-count"><span>Conference proceedings</span><span>2</span></div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title">Methods</div>
+      <div class="sb-text">
+        Panel econometrics and causal inference (IV, control function, event studies) · Simulation-based optimization · Deep reinforcement learning · Curvilinear (U-shape) analysis
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title">Research with Students</div>
+      <div class="sb-text">
+        Three projects are open to student participation.<br>
+        <a href="for-students.html" class="sb-link">Open projects &amp; how to join (under Teaching) →</a>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title">Full Record</div>
+      <div class="sb-text"><a href="cv.html" class="sb-link">Curriculum vitae →</a></div>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN ========== -->
+  <main class="content">
+
+    <!-- OVERVIEW -->
+    <div class="section" id="overview">
+      <div class="section-title">Research</div>
+      <p class="lede">I study how operating organizations, mostly in health care, absorb change that comes from outside them: a shifting workforce, a new policy or payment rule, a new technology placed into a service line. The work combines panel econometrics where the question is about consequence with simulation and optimization where the question is about design.</p>
+      <div class="interests">
+        <span>Healthcare operations &amp; workforce</span>
+        <span>Buyer–supplier relationships &amp; innovation</span>
+        <span>Public policy &amp; sustainability in operations</span>
+        <span>AI placement in service processes</span>
+        <span>Causal inference methods</span>
+      </div>
+    </div>
+
+    <!-- DISSERTATION -->
+    <div class="section" id="dissertation">
+      <div class="section-title">Dissertation</div>
+      <div class="diss">
+        <div class="diss-title">How Health Care Delivery Organizations Absorb External Change: Workforce, Policy, and Technology</div>
+        <p>Three kinds of external change, one published base study and three essays. The same two conditions govern each case: whether the organization is operating under high demand, and how far the affected groups differ in their capacity to adapt. Read together, the essays rank three responses from weakest to strongest: a single institution's own operating decisions, system-level policy support, and placing technology where it actually binds.</p>
+        <div class="meta">Papers [1]–[4] below · Defense scheduled May 2027 · Rutgers Business School</div>
+      </div>
+    </div>
+
+    <!-- PUBLICATIONS -->
+    <div class="section" id="publications">
+      <div class="section-title">Journal Publications</div>
+
+      <div class="paper">
+        <div class="num">[1]</div>
+        <div>
+          <div class="p-title">Enhancing Efficiency and Workflow in Oncology Outpatient Services Through Simulation-Based Optimization <span class="tag tag-pub">Published</span><span class="tag tag-diss">Dissertation</span></div>
+          <div class="p-authors"><b>Zhou, C.</b>, Ding, X., Chen, W., Lei, L., Norrell, J., Tray, A., &amp; Evens, A.M. (2026)</div>
+          <div class="p-venue"><em>Annals of Operations Research</em>, 362(1), 457–482 · <a href="https://doi.org/10.1007/s10479-026-07181-2" target="_blank" rel="noopener">doi.org/10.1007/s10479-026-07181-2</a></div>
+          <div class="p-note">An on-site laboratory combined with optimized scheduling reduces average visit length by 75–90 minutes (roughly 30 percent) at an NCI-designated cancer center; joint implementation dominates any single change.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNDER REVIEW -->
+    <div class="section" id="review">
+      <div class="section-title">Manuscripts Under Review and In Revision</div>
+      <p class="note">Eleven manuscripts. Titles in this section are lightly paraphrased and marked <span class="tag tag-hid" style="margin-left:0">Hidden name</span> so that the blind review of each paper is not compromised; venues and review stages are exact.</p>
+
+      <div class="paper">
+        <div class="num">[2]</div>
+        <div>
+          <div class="p-title">Fissured Workforces and Service Quality in Dialysis Care <span class="tag tag-hid">Hidden name</span><span class="tag tag-rev">Under review (3rd round)</span><span class="tag tag-diss">Dissertation · Job market paper</span></div>
+          <div class="p-authors"><b>Zhou, C.</b>, Lin, T., Ding, X., &amp; Chen, W.</div>
+          <div class="p-venue">Under review (3rd round), <em>Journal of Operations Management</em>, Special Issue on the Fissured Workforce Economy</div>
+        </div>
+      </div>
+
+      <div class="paper">
+        <div class="num">[3]</div>
+        <div>
+          <div class="p-title">Clinician Empowerment and the Triple Aim: Resources, Disparities, and Quality <span class="tag tag-hid">Hidden name</span><span class="tag tag-rev">Under review (3rd round)</span><span class="tag tag-diss">Dissertation</span></div>
+          <div class="p-authors"><b>Zhou, C.</b>, Dreyfus, D., &amp; Bagchi, A.</div>
+          <div class="p-venue">Under review (3rd round), <em>Journal of Operations Management</em></div>
+        </div>
+      </div>
+
+      <div class="paper">
+        <div class="num">[4]</div>
+        <div>
+          <div class="p-title">Where AI Sits in a Sequential Care Line, and What It Yields <span class="tag tag-hid">Hidden name</span><span class="tag tag-rev">Under review</span><span class="tag tag-diss">Dissertation</span></div>
+          <div class="p-authors"><b>Zhou, C.</b>, &amp; Li, W.</div>
+          <div class="p-venue">Under review, <em>Journal of Operations Management</em></div>
+        </div>
+      </div>
+
+      <div class="paper">
+        <div class="num">[5]</div>
+        <div>
+          <div class="p-title">Chain Affiliation, Dynamic Capabilities, and Care Quality in Disadvantaged Communities <span class="tag tag-hid">Hidden name</span><span class="tag tag-rev">Under review</span></div>
+          <div class="p-authors">Dreyfus, D., <b>Zhou, C.</b>, &amp; Lin, T.</div>
+          <div class="p-venue">Under review, <em>Health Care Management Science</em>, Special Issue on Underserved Populations</div>
+        </div>
+      </div>
+
+      <div class="paper">
+        <div class="num">[6]</div>
+        <div>
+          <div class="p-title">Quality Instability and Consumer Choice in Long-Term Care <span class="tag tag-hid">Hidden name</span><span class="tag tag-rev">Under review</span></div>
+          <div class="p-authors"><b>Zhou, C.</b>, &amp; Li, W.</div>
+          <div class="p-venue">Under review, <em>Decision Sciences</em></div>
+        </div>
+      </div>
+
+      <div class="paper">
+        <div class="num">[7]</div>
+        <div>
+          <div class="p-title">Partial Fixes: Sustainable Waste Routing and Toxic Releases <span class="tag tag-hid">Hidden name</span><span class="tag tag-rev">Under revision</span></div>
+          <div class="p-authors"><b>Zhou, C.</b>, Li, W., &amp; Alshalfan, A.</div>
+          <div class="p-venue">Under revision, <em>Production and Operations Management</em></div>
+        </div>
+      </div>
+
+      <div class="sub">Invited</div>
+
+      <div class="paper">
+        <div class="num">[8]</div>
+        <div>
+          <div class="p-title">Owner-Operator Reliance, Mandated Reclassification, and Motor Carrier Safety <span class="tag tag-hid">Hidden name</span><span class="tag tag-rev">In process (2nd stage)</span></div>
+          <div class="p-authors"><b>Zhou, C.</b>, &amp; Li, W.</div>
+          <div class="p-venue">In process (second stage; full manuscript invited), <em>Journal of Business Logistics</em>, Special Topic Forum on AI-Integrated Research</div>
+        </div>
+      </div>
+
+      <div class="sub">Recently Submitted</div>
+
+      <div class="paper">
+        <div class="num">[9]</div>
+        <div>
+          <div class="p-title">Trade-Policy Turbulence, Customer Turnover, and Firm Innovation <span class="tag tag-hid">Hidden name</span><span class="tag tag-rev">Recently submitted</span></div>
+          <div class="p-authors"><b>Zhou, C.</b></div>
+          <div class="p-venue">Recently submitted, <em>Production and Operations Management</em></div>
+        </div>
+      </div>
+
+      <div class="paper">
+        <div class="num">[10]</div>
+        <div>
+          <div class="p-title">Dynamic Incentives in Healthcare Value-Based Purchasing <span class="tag tag-hid">Hidden name</span><span class="tag tag-rev">Recently submitted</span></div>
+          <div class="p-authors"><b>Zhou, C.</b>, &amp; Li, W.</div>
+          <div class="p-venue">Recently submitted, <em>Management Science</em></div>
+        </div>
+      </div>
+
+      <div class="paper">
+        <div class="num">[11]</div>
+        <div>
+          <div class="p-title">Curvilinear Local Projections of Supplier Replacement on Lasting Innovation <span class="tag tag-hid">Hidden name</span><span class="tag tag-rev">Recently submitted</span></div>
+          <div class="p-authors"><b>Zhou, C.</b></div>
+          <div class="p-venue">Recently submitted, <em>Journal of Operations Management</em></div>
+        </div>
+      </div>
+
+      <div class="paper">
+        <div class="num">[12]</div>
+        <div>
+          <div class="p-title">Causal Inference for Operating Decisions Under U- and Inverted U-Shaped Relationships <span class="tag tag-hid">Hidden name</span><span class="tag tag-rev">Recently submitted</span></div>
+          <div class="p-authors"><b>Zhou, C.</b></div>
+          <div class="p-venue">Recently submitted, <em>Journal of Operations Management</em></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORKING PAPERS -->
+    <div class="section" id="working">
+      <div class="section-title">Working Papers</div>
+
+      <div class="paper">
+        <div class="num">[13]</div>
+        <div>
+          <div class="p-title">Deep Reinforcement Learning for Forward-Looking Chemotherapy Appointment Scheduling</div>
+          <div class="p-authors"><b>Zhou, C.</b></div>
+          <div class="p-venue">Manuscript complete</div>
+        </div>
+      </div>
+
+      <div class="paper">
+        <div class="num">[14]</div>
+        <div>
+          <div class="p-title">Extension Services, Market Remoteness, and Agricultural Productivity: Evidence from Ethiopian Smallholder Farms</div>
+          <div class="p-authors"><b>Zhou, C.</b>, Li, W., &amp; Rogers, D.</div>
+          <div class="p-venue">Manuscript complete</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFERENCE PROCEEDINGS -->
+    <div class="section" id="conference">
+      <div class="section-title">Conference Proceedings</div>
+
+      <div class="paper">
+        <div class="num">[15]</div>
+        <div>
+          <div class="p-title">House Price Prediction Using Polynomial Regression with Particle Swarm Optimization</div>
+          <div class="p-authors"><b>Zhou, C.</b> (2021)</div>
+          <div class="p-venue"><em>Journal of Physics: Conference Series</em>, 1802(3), 032034 · <a href="https://doi.org/10.1088/1742-6596/1802/3/032034" target="_blank" rel="noopener">doi.org/10.1088/1742-6596/1802/3/032034</a></div>
+        </div>
+      </div>
+
+      <div class="paper">
+        <div class="num">[16]</div>
+        <div>
+          <div class="p-title">Quantitative Investment Strategy Analysis Based on Machine Learning for Share Dealing</div>
+          <div class="p-authors"><b>Zhou, C.</b> (2020)</div>
+          <div class="p-venue"><em>2020 7th International Conference on Information Science and Control Engineering (ICISCE)</em>, 1051–1057 · <a href="https://doi.org/10.1109/ICISCE50968.2020.00215" target="_blank" rel="noopener">doi.org/10.1109/ICISCE50968.2020.00215</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDENTS -->
+    <div class="section">
+      <div class="students">
+        <p><strong>Students:</strong> three of these projects are open to participation, with prerequisites and time commitment stated up front.</p>
+        <a href="for-students.html" class="btn">Open projects →</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>
