@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class Updater – Chenhao Zhou</title>
+  <meta name="description" content="Homework, discussions, and extra-credit activities for Chenhao Zhou's classes.">
+  <link rel="stylesheet" href="styles/class-updater.css">
+  <link rel="stylesheet" href="styles/site-navigation.css">
+  <script src="scripts/class-updater.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to class updates</a>
+  <nav class="topnav" aria-label="Main navigation"><div class="topnav-inner">
+    <a href="index.html" class="topnav-brand"><img alt="" src="images/profile.jpg">Chenhao Zhou</a>
+    <div class="topnav-links">
+      <a href="index.html">Home</a><a href="research.html">Research</a><a href="teaching.html">Teaching</a><a href="class-updater.html" class="active" aria-current="page">Class Updater</a><a href="professional.html">Professional</a><a href="cv.html">CV</a>
+    </div>
+  </div></nav>
+
+  <main id="main" class="page">
+    <header class="page-heading">
+      <p class="eyebrow">For current students</p>
+      <h1>Class Updater</h1>
+      <p class="intro">Homework, discussion materials, and extra-credit activities.</p>
+    </header>
+    <nav class="category-nav" aria-label="Class update categories">
+      <a href="#hw" id="tab-hw">HW</a>
+      <a href="#discussion" id="tab-discussion">Discussion <span class="count" aria-label="1 update">1</span></a>
+      <a href="#extra" id="tab-extra">Extra <span class="count" aria-label="1 update">1</span></a>
+    </nav>
+
+    <section id="hw" class="update-panel">
+      <h2 class="panel-title">HW</h2>
+      <div class="empty-state"><p>No homework updates posted here yet.</p></div>
+    </section>
+
+    <section id="discussion" class="update-panel">
+      <h2 class="panel-title">Discussion</h2>
+      <article class="update">
+        <header class="update-header">
+          <div class="meta"><span class="tag">Demand Planning &amp; Fulfillment</span><time datetime="2026-10-09">Posted October 9, 2026</time></div>
+          <h3 class="update-title">Discussion 2: Lines, Arrows, and Curves</h3>
+          <p class="deadline">Due Thursday, <time datetime="2026-10-15">October 15, 2026</time></p>
+        </header>
+        <div class="update-body">
+          <p>Read the discussion document, find a real relationship involving demand, and explain what it means for a planner. The document includes the reading and the instructions for your share.</p>
+          <div class="actions"><a class="button" href="materials/discussion/Discussion_2.pdf">Read Discussion 2 (PDF)</a><a class="button secondary" href="materials/discussion/Discussion_2.pdf" download>Download PDF</a></div>
+          <ul class="support-links">
+            <li><a href="materials/discussion/Week2_2_Example.pdf">Example share (PDF)</a></li>
+            <li><a href="materials/discussion/Week2_3_Additional.zip">Additional materials: Colab guide, bonus question, and data (ZIP)</a></li>
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    <section id="extra" class="update-panel">
+      <h2 class="panel-title">Extra</h2>
+      <article class="update">
+        <header class="update-header">
+          <div class="meta"><span class="tag">Demand Planning &amp; Fulfillment</span><time datetime="2026-10-09">Updated October 9, 2026</time></div>
+          <h3 class="update-title">Linear Programming in Supply Chains</h3>
+        </header>
+        <div class="update-body">
+          <div class="assignment" id="lp-assignment">
+            <p><strong>Handwrite both models. You may use Google Colab to draw the graph.</strong></p>
+<h3>Question 1: Where Does the Best Shipment Lie?</h3>
+<p>A relief organization is sending food and water after a tsunami. A food container weighs 30 pounds, occupies 8 cubic feet, and provides 8 daily food servings. A water container weighs 120 pounds, occupies 2 cubic feet, and provides 12 daily water servings. The aircraft can carry up to 24,000 pounds and has 4,000 cubic feet of cargo space. The goal is to maximize total daily aid servings, counting food servings and water servings separately.</p>
+<p><strong>Handwrite the LP model. Draw the constraint lines and shade the feasible region. Then guess where the total aid delivered peaks:</strong> circle your predicted best point and explain it in one or two sentences. Colab is allowed for plotting; an optimization solver is not needed.</p>
+<h3>Question 2: Build Your Own Truck-Loading Model</h3>
+<p>A distributor needs to send two products from a warehouse to stores, such as bottled water and paper towels. Both products share the same delivery truck, so weight and space may limit what can be shipped.</p>
+<p><strong>Search for a few reasonable figures</strong> for the products&#39; shipping weight, space requirements, and value, along with the truck&#39;s capacity. Industry averages, supplier listings, and equipment specifications are all acceptable; exact data from a particular company are not required.</p>
+<p>Use those figures to <strong>handwrite a simple LP with two decision variables</strong> that chooses how much of each product to load and maximizes the value carried. Include your source links and briefly explain any simplifying assumptions. You do not need to solve this model.</p>
+<p><strong>Submit:</strong> your two handwritten models, the Question 1 graph and prediction, and the source links for Question 2. Use continuous quantities for this introductory exercise; whole-number restrictions are not required.</p>
+<p><em>Question 1 is adapted from <a href="https://openstax.org/books/contemporary-mathematics/pages/5-11-linear-programming">OpenStax, Contemporary Mathematics, Section 5.11, Exercise 24</a>, using its published teaching inputs. The adapted Question 1 is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>. <a href="https://openstax.org/books/contemporary-mathematics/pages/1-introduction">Access the book for free</a>.</em></p>
+
+          </div>
+          <div class="actions"><a class="button secondary" href="materials/extra/linear-programming-supply-chains.md" download>Download the questions</a></div>
+        </div>
+      </article>
+    </section>
+  </main>
+  <footer class="site-footer">Updated October 9, 2026 · © 2026 Chenhao Zhou · <a href="mailto:chenhao.zhou@rutgers.edu">Email</a></footer>
+</body>
+</html>
