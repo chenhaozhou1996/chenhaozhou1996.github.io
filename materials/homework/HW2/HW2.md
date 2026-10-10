@@ -3,6 +3,8 @@
 Demand Planning & Fulfillment  
 **Due Saturday, October 17, 2026 · Total: 100 points · Estimated time: 90–120 minutes**
 
+Short examples of how to present your answers to Questions 1 and 2 are available in **HW2_Examples.pdf** on the homework page. Use your own results and wording.
+
 There are three questions. Begin by interpreting a provided graph (Question 1, 20 points), then upload data and fit a line in Colab (Question 2, 30 points), and finally learn the formula through AI dialogue and apply it by hand (Question 3, 50 points). No confidence intervals, hypothesis tests, or multiple regression are required.
 
 ## Question 1: Explain the provided graph — 20 points
@@ -30,7 +32,7 @@ Find a CSV dataset that interests you, or download **one** of the original files
 | `mpg.csv` | A car model | `weight` (pounds) | `mpg` (miles per gallon) |
 | `penguins.csv` | A penguin | `flipper_length_mm` (mm) | `body_mass_g` (grams) |
 
-The provided CSVs are unchanged historical practice files from the [seaborn example-data repository](https://github.com/mwaskom/seaborn-data). If you find your own data, include its source link.
+The CSV files listed above are ready to download from the homework page. Choose one, save it on your computer, and upload it to Colab. If you find your own data, include its source link.
 
 Create a **blank Google Colab notebook** and upload the raw CSV yourself. Write your own prompts to Colab's AI assistant to read the file, fit a simple linear regression with an intercept, and display a regression table and a scatterplot with the fitted straight line. Request the intercept, slope, observation count, and R-squared. Ask for clearly labeled axes with units and no confidence band.
 
