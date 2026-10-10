@@ -5,7 +5,7 @@
   const keys = tabs.map(tab => tab.hash.slice(1));
 
   function select(key, focus = false) {
-    const selected = keys.includes(key) ? key : 'extra';
+    const selected = keys.includes(key) ? key : 'hw';
     tabs.forEach(tab => {
       const active = tab.hash === `#${selected}`;
       tab.setAttribute('aria-selected', String(active));
