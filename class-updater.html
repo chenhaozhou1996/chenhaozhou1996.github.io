@@ -24,6 +24,18 @@
       <h1>Class Updater</h1>
       <p class="intro">Assignments, discussion materials, and extra-credit activities.</p>
     </header>
+    <section class="update" aria-labelledby="review-videos-title">
+      <header class="update-header"><h2 id="review-videos-title" class="update-title">Review videos in Canvas</h2></header>
+      <div class="update-body">
+        <p>Use these recordings to review the corresponding class topics. Sign in to Rutgers Canvas to watch.</p>
+        <ul class="support-links">
+          <li><a href="https://rutgers.instructure.com/courses/419454/modules/items/15018426">A/B test — From Regression to Experiments</a> — review the regression-to-experiment discussion. HW2 does not require confidence intervals.</li>
+          <li><a href="https://rutgers.instructure.com/courses/419454/modules/items/15018424">Linear Programming (LP) — Introduction</a> — review models and graphs before the supply-chain LP extra-credit questions.</li>
+          <li><a href="https://rutgers.instructure.com/courses/419454/modules/items/14932748">eop(BENANDLOGISTICINUS)</a> — review Ben’s ordering problem and EOQ.</li>
+          <li><a href="https://rutgers.instructure.com/courses/419454/modules/items/14978324">causal inference video (NBAHEAT)</a> — review the NBA example and causal interpretation.</li>
+        </ul>
+      </div>
+    </section>
     <nav class="category-nav" aria-label="Class update categories">
       <a href="#hw" id="tab-hw">Assignment <span class="count" aria-label="1 update">1</span></a>
       <a href="#discussion" id="tab-discussion">Discussion <span class="count" aria-label="1 update">1</span></a>
@@ -42,10 +54,11 @@
           <p><strong>Question 1 — 20 points:</strong> interpret the provided delivery graph and simple coefficient table in your own words.</p>
           <p><strong>Question 2 — 30 points:</strong> upload a raw CSV to a blank Colab notebook, write your own prompts to obtain the regression table and fitted line, and explain your prompts, the results, and an AI interpretation.</p>
           <p><strong>Question 3 — 50 points:</strong> use your own AI conversation to learn how a best-fit line is calculated and why the method is reasonable. Then hand-calculate the line for five small data points and draw it on paper using a ruler. Explain your learning, calculation, and judgment of the method.</p>
-          <p><strong>Question 4 — optional extra credit:</strong> use two mechanism diagrams to explain your own management examples of A − B and A × D producing a possible inverted U. Completing it satisfactorily multiplies your score on Questions 1–3 by 1.05.</p>
+          <p><strong>Question 4 — optional extra credit:</strong> use the two simple diagrams to give one management example for subtraction and one for multiplication. Explain the two sides and why doing too much might become harmful. Completing it satisfactorily multiplies your score on Questions 1–3 by 1.05.</p>
           <p><strong>Submit Word or handwritten answers with screenshots. Question 3's calculation and ruler-drawn graph must be handwritten.</strong> No confidence intervals or hypothesis tests are required.</p>
-          <div class="actions"><a class="button" href="materials/homework/HW2/HW2.pdf">Read Homework 2 (PDF)</a><a class="button secondary" href="materials/homework/HW2/HW2_files.zip" download>Download all original files (ZIP)</a></div>
+          <div class="actions"><a class="button" href="materials/homework/HW2/HW2.pdf">Read Homework 2 + optional article (PDF)</a><a class="button secondary" href="materials/homework/HW2/HW2_files.zip" download>Download all original files (ZIP)</a></div>
           <ul class="support-links">
+            <li><a href="materials/homework/HW2/HW2_questions_only.pdf">Questions only (4-page PDF)</a></li>
             <li><a href="materials/homework/HW2/HW2_Examples.pdf">Short presentation examples for Questions 1 and 2 (PDF)</a></li>
             <li><a href="https://colab.research.google.com/">Open Google Colab</a> — create a blank notebook, upload your CSV, and write your prompts. The PDF explains each step.</li>
             <li><a href="materials/homework/HW2/tips.csv" download>Restaurant bills and tips (CSV)</a></li>
@@ -87,6 +100,7 @@
         <div class="update-body">
           <div class="assignment" id="lp-assignment">
             <p><strong>Handwrite both models. You may use Google Colab to draw the graph.</strong></p>
+<p><a href="https://rutgers.instructure.com/courses/419454/modules/items/15018424">Watch Linear Programming (LP) — Introduction in Canvas</a> to review the model and graph.</p>
 <h3>Question 1: Where Does the Best Shipment Lie?</h3>
 <p>A relief organization is sending food and water after a tsunami. A food container weighs 30 pounds, occupies 8 cubic feet, and provides 8 daily food servings. A water container weighs 120 pounds, occupies 2 cubic feet, and provides 12 daily water servings. The aircraft can carry up to 24,000 pounds and has 4,000 cubic feet of cargo space. The goal is to maximize total daily aid servings, counting food servings and water servings separately.</p>
 <p><strong>Handwrite the LP model. Draw the constraint lines and shade the feasible region. Then guess where the total aid delivered peaks:</strong> circle your predicted best point and explain it in one or two sentences. Colab is allowed for plotting; an optimization solver is not needed.</p>

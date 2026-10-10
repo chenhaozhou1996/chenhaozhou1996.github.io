@@ -90,38 +90,32 @@ Colab guidance: [official Colab FAQ](https://research.google.com/colaboratory/fa
 
 ## Question 4: One action, two sides — optional extra credit
 
-**Reward:** completing this optional question satisfactorily multiplies your score on Questions 1–3 by **1.05**. For example, 80 becomes 84. Allow about 15–20 additional minutes. No regression calculation is required.
+**Reward:** a satisfactory answer multiplies your score on Questions 1–3 by **1.05** (80 becomes 84). Allow about 10–15 extra minutes. No calculations, code, or detailed research are needed.
 
-A managerial action can help in one way and hurt in another. The diagrams show two ways those effects can combine to produce an inverted U: the outcome first rises and then falls. These are conceptual teaching curves, not measured data. The shapes and relative changes matter; subtraction or multiplication alone does not guarantee an inverted U.
+Sometimes doing more of something helps at first but becomes harmful when we do too much. The diagrams show two simple ways this can happen.
 
-### Route 1: Subtract a cost from a benefit — A − B
+### A − B: benefit minus cost
 
-![A benefit minus a cost can produce an inverted-U net outcome](HW2_bonus_subtract.png)
+![An increasing benefit and a decreasing negative cost effect can produce an inverted U](HW2_bonus_subtract.png)
 
-**What subtraction means:** take a benefit and deduct a cost measured in the same units. For example, training may create productivity savings but also cost money and take time away from service. Convert both to dollars over the same period to discuss net value. If added costs eventually grow faster than added benefits, the net outcome can rise and then fall.
+Example: more training can help workers perform better, but training also costs money and takes time away from work. A is the benefit, B is the cost, and A − B is what remains. The middle graph shows **−B**, the negative effect of the cost: a downward curve means the cost is becoming more harmful. Subtraction makes sense when benefit and cost use the same units, such as dollars.
 
-### Route 2: Multiply opportunities by a success proportion — A × D
+### A × D: opportunities times a success proportion
 
-![Opportunities times a declining success proportion can produce an inverted-U outcome](HW2_bonus_multiply.png)
+![An increasing opportunity curve and a decreasing success proportion can produce an inverted U](HW2_bonus_multiply.png)
 
-**What multiplication means:** opportunities produce results only to the extent they succeed. For example, customers reached × the proportion who buy gives the number of buyers. More aggressive outreach might reach more people but reduce the proportion who buy. The product can eventually fall if the lower success proportion more than offsets the greater reach. These factors are not a benefit and cost that can simply be subtracted.
+Example: more advertising may reach more customers (A), but the share who buy (D) may fall as we reach less interested people. Customers reached × the share who buy gives the number of buyers. That is why we multiply these two quantities.
 
-### Why we still need evidence
+### Your answer
 
-Opposing effects do not guarantee a visible inverted U. If the benefit grows much faster than the cost, the net outcome may keep rising throughout the observed range; if the cost dominates, it may keep falling. For A × D, rapid growth in opportunities can outweigh a small fall in the success proportion. Similar opposing changes may leave the outcome almost flat.
+Give **one management example for A − B and one for A × D**. For each, briefly explain:
 
-For example, training benefits could continue to outweigh costs over every training level in our data, even if costs would dominate at much higher levels. The peak would lie outside the observed range, so we would see only the rising side. A different sample might cover only the falling side. Curves can also be shallow, steep, or too weak relative to the noise to see clearly. “Nearly flat” does not by itself mean the two mechanisms are absent.
+- What are we doing more of? What are its two sides?
+- What do the two quantities mean, and why should we subtract or multiply them?
+- Why might the result improve at first but worsen when we do too much?
 
-This is why the management story is a prediction to investigate with actual data: we need evidence about the relative strengths, shape, peak location, and range we observe. We cannot establish a nonlinear relationship simply by guessing that an action has both good and bad effects.
+Finish with one or two sentences about why this helps a manager think beyond “more is always better.” Use your own words. You do not need to prove the curve or discuss advanced statistics.
 
-### Your two management examples
+**Keep in mind:** two opposite effects do not always give a visible inverted U. One may be much stronger than the other, so the result keeps rising or falling. It may look nearly flat, or the peak may be outside the range we see. This is why we check actual data instead of relying only on a story. These diagrams are illustrations, not observed data.
 
-Give **one example for A − B and one for A × D**, preferably different from the illustrations above. For each, explain in your own words:
-
-- What action are we increasing, and what outcome do we care about? Identify the two sides and what A and B, or A and D, mean, including units.
-- Why does subtraction or multiplication make sense in your example? Explain the operation, not just the symbols.
-- Why could the outcome improve at first but worsen when we do too much? Explain both parts of the curve and the assumptions your prediction needs. What could instead make the observed relationship rise, fall, or look nearly flat?
-
-Finally, explain why considering a nonlinear relationship is useful for a manager here. What would a straight-line “more is always better” or “more is always worse” story miss? Your examples are reasoned predictions, not claims that an inverted U has already been proven. Add your answer to your usual submission.
-
-The original teaching diagrams use the mechanism framework discussed by [Haans, Pieters, and He (2016), Thinking about U](https://doi.org/10.1002/smj.2399). Reading the paper is not required.
+**Optional reading:** Haans, Pieters, and He (2016), *Thinking about U: Theorizing and testing U- and inverted U-shaped relationships in strategy research*. The article is attached after the questions for reference. You do not need to read the whole article or its equations. If interested, look at Table 1 for the mechanism pictures. [Article record](https://doi.org/10.1002/smj.2399).
