@@ -1,11 +1,11 @@
 # Homework 2: Read, Explore, Calculate, and Explain
 
 Demand Planning & Fulfillment  
-**Due Saturday, October 17, 2026 · Total: 100 points · Estimated time: 90–120 minutes**
+**Due Saturday, October 17, 2026 · Total: 100 points · Required work: 90–120 minutes**
 
 Short examples of how to present your answers to Questions 1 and 2 are available in **HW2_Examples.pdf** on the homework page. Use your own results and wording.
 
-There are three questions. Begin by interpreting a provided graph (Question 1, 20 points), then upload data and fit a line in Colab (Question 2, 30 points), and finally learn the formula through AI dialogue and apply it by hand (Question 3, 50 points). No confidence intervals, hypothesis tests, or multiple regression are required.
+There are four questions: Questions 1–3 are required and Question 4 is optional extra credit. Begin by interpreting a provided graph (Question 1, 20 points), then upload data and fit a line in Colab (Question 2, 30 points), and finally learn the formula through AI dialogue and apply it by hand (Question 3, 50 points). No confidence intervals, hypothesis tests, or multiple regression are required.
 
 ## Question 1: Explain the provided graph — 20 points
 
@@ -84,6 +84,44 @@ In your own words, explain what you think “best fit” means and what the form
 
 ## What to submit
 
-Submit a **Word document or clear scans/photos of handwritten answers**, with your AI learning conversation, actual prompts, screenshots, and your own explanations. **Question 3's calculations and ruler-drawn graph must be handwritten**, even if the rest is typed. Include all three answers. Copied AI explanations or screenshots alone are incomplete. No code or notebook submission is required.
+Submit a **Word document or clear scans/photos of handwritten answers**, with your AI learning conversation, actual prompts, screenshots, and your own explanations. **Question 3's calculations and ruler-drawn graph must be handwritten**, even if the rest is typed. Include answers to Questions 1–3; add Question 4 if you choose the extra credit. Copied AI explanations or screenshots alone are incomplete. No code or notebook submission is required.
 
 Colab guidance: [official Colab FAQ](https://research.google.com/colaboratory/faq.html).
+
+## Question 4: One action, two sides — optional extra credit
+
+**Reward:** completing this optional question satisfactorily multiplies your score on Questions 1–3 by **1.05**. For example, 80 becomes 84. Allow about 15–20 additional minutes. No regression calculation is required.
+
+A managerial action can help in one way and hurt in another. The diagrams show two ways those effects can combine to produce an inverted U: the outcome first rises and then falls. These are conceptual teaching curves, not measured data. The shapes and relative changes matter; subtraction or multiplication alone does not guarantee an inverted U.
+
+### Route 1: Subtract a cost from a benefit — A − B
+
+![A benefit minus a cost can produce an inverted-U net outcome](HW2_bonus_subtract.png)
+
+**What subtraction means:** take a benefit and deduct a cost measured in the same units. For example, training may create productivity savings but also cost money and take time away from service. Convert both to dollars over the same period to discuss net value. If added costs eventually grow faster than added benefits, the net outcome can rise and then fall.
+
+### Route 2: Multiply opportunities by a success proportion — A × D
+
+![Opportunities times a declining success proportion can produce an inverted-U outcome](HW2_bonus_multiply.png)
+
+**What multiplication means:** opportunities produce results only to the extent they succeed. For example, customers reached × the proportion who buy gives the number of buyers. More aggressive outreach might reach more people but reduce the proportion who buy. The product can eventually fall if the lower success proportion more than offsets the greater reach. These factors are not a benefit and cost that can simply be subtracted.
+
+### Why we still need evidence
+
+Opposing effects do not guarantee a visible inverted U. If the benefit grows much faster than the cost, the net outcome may keep rising throughout the observed range; if the cost dominates, it may keep falling. For A × D, rapid growth in opportunities can outweigh a small fall in the success proportion. Similar opposing changes may leave the outcome almost flat.
+
+For example, training benefits could continue to outweigh costs over every training level in our data, even if costs would dominate at much higher levels. The peak would lie outside the observed range, so we would see only the rising side. A different sample might cover only the falling side. Curves can also be shallow, steep, or too weak relative to the noise to see clearly. “Nearly flat” does not by itself mean the two mechanisms are absent.
+
+This is why the management story is a prediction to investigate with actual data: we need evidence about the relative strengths, shape, peak location, and range we observe. We cannot establish a nonlinear relationship simply by guessing that an action has both good and bad effects.
+
+### Your two management examples
+
+Give **one example for A − B and one for A × D**, preferably different from the illustrations above. For each, explain in your own words:
+
+- What action are we increasing, and what outcome do we care about? Identify the two sides and what A and B, or A and D, mean, including units.
+- Why does subtraction or multiplication make sense in your example? Explain the operation, not just the symbols.
+- Why could the outcome improve at first but worsen when we do too much? Explain both parts of the curve and the assumptions your prediction needs. What could instead make the observed relationship rise, fall, or look nearly flat?
+
+Finally, explain why considering a nonlinear relationship is useful for a manager here. What would a straight-line “more is always better” or “more is always worse” story miss? Your examples are reasoned predictions, not claims that an inverted U has already been proven. Add your answer to your usual submission.
+
+The original teaching diagrams use the mechanism framework discussed by [Haans, Pieters, and He (2016), Thinking about U](https://doi.org/10.1002/smj.2399). Reading the paper is not required.
