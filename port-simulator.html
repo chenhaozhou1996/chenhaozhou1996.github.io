@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Port Operations Simulator | Strategic Analytics</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .header-content {
+      max-width: 1800px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; }
+
+    .logo-icon {
+      width: 46px;
+      height: 46px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+    }
+
+    .logo h1 { font-size: 18px; color: #fff; }
+    .logo p { font-size: 11px; color: #64748b; }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .main {
+      max-width: 1800px;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 280px 1fr 340px;
+      gap: 20px;
+    }
+
+    @media (max-width: 1400px) {
+      .main { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      border-radius: 14px;
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(71, 85, 105, 0.2);
+    }
+
+    .card-header h3 { font-size: 14px; font-weight: 600; color: #fff; }
+
+    .clock-container {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(59, 130, 246, 0.1));
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .clock-label {
+      font-size: 10px;
+      color: #06b6d4;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .clock-display {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .clock-segment {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      border-radius: 6px;
+      padding: 6px 10px;
+    }
+
+    .clock-segment span {
+      font-size: 26px;
+      font-weight: 700;
+      font-family: 'Courier New', monospace;
+      color: #fff;
+    }
+
+    .clock-colon {
+      font-size: 26px;
+      font-weight: 700;
+      color: #06b6d4;
+      animation: pulse 1s infinite;
+    }
+
+    .clock-date { font-size: 11px; color: #94a3b8; }
+
+    .sim-time {
+      text-align: center;
+      padding: 14px;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
+    .sim-time-label { font-size: 10px; color: #64748b; margin-bottom: 4px; }
+    .sim-time-value { font-size: 24px; font-weight: 700; font-family: 'Courier New', monospace; color: #f59e0b; }
+
+    .btn-group { display: flex; gap: 8px; margin-bottom: 14px; }
+
+    .btn {
+      flex: 1;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+    }
+
+    .btn-primary.running { background: linear-gradient(135deg, #f59e0b, #ea580c); }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      flex: 0 0 auto;
+      padding: 10px 16px;
+    }
+
+    .speed-group { display: flex; gap: 6px; margin-bottom: 14px; }
+
+    .speed-btn {
+      flex: 1;
+      padding: 8px;
+      background: rgba(51, 65, 85, 0.5);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      border-radius: 6px;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .speed-btn.active {
+      background: rgba(6, 182, 212, 0.2);
+      border-color: rgba(6, 182, 212, 0.5);
+      color: #22d3ee;
+    }
+
+    .strategy-selector { margin-bottom: 16px; }
+    .strategy-label { font-size: 11px; color: #94a3b8; margin-bottom: 8px; display: block; }
+    .strategy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .strategy-btn {
+      padding: 12px 10px;
+      background: rgba(30, 41, 59, 0.6);
+      border: 2px solid rgba(71, 85, 105, 0.3);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .strategy-btn:hover {
+      border-color: rgba(71, 85, 105, 0.6);
+      background: rgba(30, 41, 59, 0.8);
+    }
+
+    .strategy-btn.active {
+      border-color: var(--strategy-color);
+      background: var(--strategy-bg);
+    }
+
+    .strategy-btn .icon { font-size: 20px; margin-bottom: 4px; }
+    .strategy-btn .name { font-size: 11px; font-weight: 600; color: #fff; }
+    .strategy-btn .desc { font-size: 9px; color: #64748b; margin-top: 2px; }
+
+    .strategy-btn[data-strategy="throughput"] { --strategy-color: #10b981; --strategy-bg: rgba(16, 185, 129, 0.15); }
+    .strategy-btn[data-strategy="cost"] { --strategy-color: #f59e0b; --strategy-bg: rgba(245, 158, 11, 0.15); }
+    .strategy-btn[data-strategy="wait"] { --strategy-color: #3b82f6; --strategy-bg: rgba(59, 130, 246, 0.15); }
+    .strategy-btn[data-strategy="balanced"] { --strategy-color: #8b5cf6; --strategy-bg: rgba(139, 92, 246, 0.15); }
+
+    .param-group { margin-bottom: 16px; }
+    .param-label { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; }
+    .param-label span:first-child { color: #94a3b8; }
+
+    .param-value {
+      color: #22d3ee;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+      background: rgba(6, 182, 212, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 5px;
+      border-radius: 3px;
+      background: rgba(71, 85, 105, 0.4);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #06b6d4, #0891b2);
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
+    }
+
+    .canvas-wrapper {
+      background: linear-gradient(180deg, #0c4a6e 0%, #164e63 50%, #1e293b 100%);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .canvas-header {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .canvas-badge {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background: #ef4444;
+      border-radius: 50%;
+      animation: pulse 1s infinite;
+    }
+
+    #portCanvas { width: 100%; height: 320px; display: block; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .metric-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      border-radius: 10px;
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .metric-card.cyan::before { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+    .metric-card.emerald::before { background: linear-gradient(90deg, #10b981, #34d399); }
+    .metric-card.amber::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .metric-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+    .metric-card.rose::before { background: linear-gradient(90deg, #f43f5e, #fb7185); }
+    .metric-card.blue::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+
+    .metric-icon { font-size: 20px; margin-bottom: 6px; }
+    .metric-value { font-size: 22px; font-weight: 700; color: #fff; font-family: 'Courier New', monospace; }
+    .metric-label { font-size: 10px; color: #94a3b8; margin-top: 4px; }
+
+    .metric-trend {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .metric-trend.up { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .metric-trend.down { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+    .variance-section { margin-top: 16px; }
+    .variance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .variance-card {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .variance-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .variance-card.throughput::before { background: linear-gradient(90deg, #10b981, #34d399); }
+    .variance-card.cost::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .variance-card.wait::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .variance-card.balanced::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+    .variance-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+
+    .variance-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .variance-card.throughput .variance-icon { background: rgba(16, 185, 129, 0.2); }
+    .variance-card.cost .variance-icon { background: rgba(245, 158, 11, 0.2); }
+    .variance-card.wait .variance-icon { background: rgba(59, 130, 246, 0.2); }
+    .variance-card.balanced .variance-icon { background: rgba(139, 92, 246, 0.2); }
+
+    .variance-title { font-size: 13px; font-weight: 600; color: #fff; }
+    .variance-subtitle { font-size: 10px; color: #64748b; }
+
+    .variance-purpose {
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      padding: 10px;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 8px;
+      border-left: 3px solid;
+    }
+
+    .variance-card.throughput .variance-purpose { border-color: #10b981; }
+    .variance-card.cost .variance-purpose { border-color: #f59e0b; }
+    .variance-card.wait .variance-purpose { border-color: #3b82f6; }
+    .variance-card.balanced .variance-purpose { border-color: #8b5cf6; }
+
+    .variance-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .variance-metric {
+      background: rgba(30, 41, 59, 0.5);
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .variance-metric-label { font-size: 9px; color: #64748b; margin-bottom: 4px; }
+    .variance-metric-value { font-size: 16px; font-weight: 700; font-family: 'Courier New', monospace; }
+
+    .variance-card.throughput .variance-metric-value { color: #34d399; }
+    .variance-card.cost .variance-metric-value { color: #fbbf24; }
+    .variance-card.wait .variance-metric-value { color: #60a5fa; }
+    .variance-card.balanced .variance-metric-value { color: #a78bfa; }
+
+    .variance-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(71, 85, 105, 0.2);
+    }
+
+    .variance-score { font-size: 11px; color: #94a3b8; }
+    .variance-score span { font-weight: 700; font-size: 14px; }
+
+    .variance-badge {
+      font-size: 9px;
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .variance-badge.good { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .variance-badge.warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .variance-badge.critical { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+    .progress-group { margin-bottom: 14px; }
+    .progress-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; }
+    .progress-header span:first-child { color: #94a3b8; }
+    .progress-header span:last-child { color: #fff; font-weight: 600; }
+
+    .progress-bar {
+      height: 6px;
+      background: rgba(51, 65, 85, 0.5);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .progress-fill.cyan { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+    .progress-fill.emerald { background: linear-gradient(90deg, #10b981, #34d399); }
+    .progress-fill.amber { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+    .ai-badge {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.15));
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    .ai-badge-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+
+    .ai-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .ai-info h4 { color: #fff; font-size: 14px; }
+    .ai-info p { color: #a78bfa; font-size: 10px; }
+
+    .ai-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+    .ai-stat {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    .ai-stat-label { font-size: 9px; color: #64748b; margin-bottom: 2px; }
+    .ai-stat-value { font-size: 11px; color: #fff; font-weight: 600; }
+
+    .recommendation {
+      background: rgba(15, 23, 42, 0.5);
+      border-left: 4px solid;
+      border-radius: 0 10px 10px 0;
+      padding: 12px;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .recommendation.critical { border-color: #f43f5e; background: rgba(244, 63, 94, 0.1); }
+    .recommendation.high { border-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+    .recommendation.medium { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+    .recommendation.low { border-color: #64748b; background: rgba(100, 116, 139, 0.1); }
+    .recommendation.success { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+
+    .rec-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+
+    .rec-priority {
+      font-size: 8px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .recommendation.critical .rec-priority { background: rgba(244, 63, 94, 0.3); color: #fb7185; }
+    .recommendation.high .rec-priority { background: rgba(245, 158, 11, 0.3); color: #fbbf24; }
+    .recommendation.medium .rec-priority { background: rgba(59, 130, 246, 0.3); color: #60a5fa; }
+    .recommendation.low .rec-priority { background: rgba(100, 116, 139, 0.3); color: #94a3b8; }
+    .recommendation.success .rec-priority { background: rgba(16, 185, 129, 0.3); color: #34d399; }
+
+    .rec-title { font-size: 12px; font-weight: 600; color: #fff; }
+    .rec-desc { font-size: 11px; color: #94a3b8; line-height: 1.4; margin-bottom: 8px; }
+    .rec-impact { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #34d399; }
+
+    .empty-state { text-align: center; padding: 30px 16px; color: #64748b; }
+
+    .empty-state-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .active-strategy-banner {
+      background: linear-gradient(135deg, var(--banner-from), var(--banner-to));
+      border: 1px solid var(--banner-border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .active-strategy-banner .icon { font-size: 24px; }
+    .active-strategy-banner .info h4 { font-size: 13px; color: #fff; font-weight: 600; }
+    .active-strategy-banner .info p { font-size: 10px; color: rgba(255,255,255,0.7); }
+
+    .footer {
+      border-top: 1px solid rgba(71, 85, 105, 0.3);
+      padding: 16px 20px;
+      margin-top: 20px;
+    }
+
+    .footer-content {
+      max-width: 1800px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .footer-status { display: flex; align-items: center; gap: 6px; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <div class="logo-icon">🚢</div>
+        <div>
+          <h1>Port Operations Simulator</h1>
+          <p>Strategic Analytics • 4 Variance Strategies</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="status-badge">
+          <span style="color: #94a3b8;">Strategy:</span>
+          <span style="font-weight: 600;" id="headerStrategy">Balanced</span>
+        </div>
+        <div class="status-badge">
+          <div class="status-dot"></div>
+          <span style="color: #10b981; font-weight: 600;">Online</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="left-panel">
+      <div class="clock-container">
+        <div class="clock-label">🕐 Current Time</div>
+        <div class="clock-display">
+          <div class="clock-segment"><span id="clockHours">00</span></div>
+          <span class="clock-colon">:</span>
+          <div class="clock-segment"><span id="clockMinutes">00</span></div>
+          <span class="clock-colon">:</span>
+          <div class="clock-segment"><span id="clockSeconds">00</span></div>
+        </div>
+        <div class="clock-date" id="clockDate">Loading...</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span>⚙️</span>
+          <h3>Simulation Control</h3>
+        </div>
+
+        <div class="sim-time">
+          <div class="sim-time-label">Simulation Time</div>
+          <div class="sim-time-value" id="simTime">00:00:00</div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" id="startBtn" onclick="toggleSimulation()">
+            <span id="startIcon">▶</span>
+            <span id="startText">Start</span>
+          </button>
+          <button class="btn btn-danger" onclick="resetSimulation()">↺</button>
+        </div>
+
+        <div style="margin-bottom: 6px; font-size: 10px; color: #94a3b8;">Speed</div>
+        <div class="speed-group">
+          <button class="speed-btn active" onclick="setSpeed(1)">1×</button>
+          <button class="speed-btn" onclick="setSpeed(2)">2×</button>
+          <button class="speed-btn" onclick="setSpeed(4)">4×</button>
+          <button class="speed-btn" onclick="setSpeed(8)">8×</button>
+        </div>
+
+        <div class="strategy-selector">
+          <span class="strategy-label">🎯 Optimization Strategy</span>
+          <div class="strategy-grid">
+            <div class="strategy-btn" data-strategy="throughput" onclick="setStrategy('throughput')">
+              <div class="icon">📈</div>
+              <div class="name">Max Throughput</div>
+              <div class="desc">Maximize volume</div>
+            </div>
+            <div class="strategy-btn" data-strategy="cost" onclick="setStrategy('cost')">
+              <div class="icon">💰</div>
+              <div class="name">Cost Efficiency</div>
+              <div class="desc">Minimize cost</div>
+            </div>
+            <div class="strategy-btn" data-strategy="wait" onclick="setStrategy('wait')">
+              <div class="icon">⏱️</div>
+              <div class="name">Min Wait Time</div>
+              <div class="desc">Reduce delays</div>
+            </div>
+            <div class="strategy-btn active" data-strategy="balanced" onclick="setStrategy('balanced')">
+              <div class="icon">⚖️</div>
+              <div class="name">Balanced</div>
+              <div class="desc">Optimize all</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 16px;">
+        <div class="card-header">
+          <span>🎛️</span>
+          <h3>Parameters</h3>
+        </div>
+
+        <div class="param-group">
+          <div class="param-label">
+            <span>🚢 Arrival Rate</span>
+            <span class="param-value" id="arrivalRateValue">4 ships/h</span>
+          </div>
+          <input type="range" id="arrivalRate" min="1" max="10" value="4" oninput="updateParam('arrivalRate')">
+        </div>
+
+        <div class="param-group">
+          <div class="param-label">
+            <span>🏗️ Crane Speed</span>
+            <span class="param-value" id="craneSpeedValue">30 TEU/h</span>
+          </div>
+          <input type="range" id="craneSpeed" min="15" max="50" value="30" oninput="updateParam('craneSpeed')">
+        </div>
+
+        <div class="param-group">
+          <div class="param-label">
+            <span>⏱️ Handling Time</span>
+            <span class="param-value" id="handlingTimeValue">3 hours</span>
+          </div>
+          <input type="range" id="handlingTime" min="1" max="8" value="3" oninput="updateParam('handlingTime')">
+        </div>
+
+        <div class="param-group" style="margin-bottom: 0;">
+          <div class="param-label">
+            <span>⚓ Queue Capacity</span>
+            <span class="param-value" id="queueCapacityValue">8 ships</span>
+          </div>
+          <input type="range" id="queueCapacity" min="4" max="16" value="8" oninput="updateParam('queueCapacity')">
+        </div>
+      </div>
+    </div>
+
+    <div class="center-panel">
+      <div class="active-strategy-banner" id="strategyBanner" style="--banner-from: rgba(139, 92, 246, 0.2); --banner-to: rgba(139, 92, 246, 0.1); --banner-border: rgba(139, 92, 246, 0.3);">
+        <div class="icon" id="bannerIcon">⚖️</div>
+        <div class="info">
+          <h4 id="bannerTitle">Balanced Strategy Active</h4>
+          <p id="bannerDesc">Optimizing all KPIs with equal weight distribution</p>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="canvas-wrapper">
+          <div class="canvas-header">
+            <div class="canvas-badge">
+              <div class="live-dot"></div>
+              <span>LIVE</span>
+            </div>
+            <div class="canvas-badge" id="shipCountBadge">Ships: 0</div>
+          </div>
+          <canvas id="portCanvas"></canvas>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card cyan">
+          <div class="metric-icon">🚢</div>
+          <div class="metric-value" id="metricShips">0</div>
+          <div class="metric-label">Ships Processed</div>
+          <div class="metric-trend up" id="shipsTrend">+0%</div>
+        </div>
+        <div class="metric-card emerald">
+          <div class="metric-icon">📦</div>
+          <div class="metric-value" id="metricContainers">0</div>
+          <div class="metric-label">Containers (TEU)</div>
+          <div class="metric-trend up">+0%</div>
+        </div>
+        <div class="metric-card amber">
+          <div class="metric-icon">⏱️</div>
+          <div class="metric-value" id="metricWait">0m</div>
+          <div class="metric-label">Avg Wait Time</div>
+          <div class="metric-trend down">-0%</div>
+        </div>
+        <div class="metric-card purple">
+          <div class="metric-icon">🚛</div>
+          <div class="metric-value" id="metricTrucks">0</div>
+          <div class="metric-label">Trucks Dispatched</div>
+          <div class="metric-trend up">+0%</div>
+        </div>
+        <div class="metric-card rose">
+          <div class="metric-icon">⚓</div>
+          <div class="metric-value" id="metricQueue">0</div>
+          <div class="metric-label">Ships in Queue</div>
+        </div>
+        <div class="metric-card blue">
+          <div class="metric-icon">⚡</div>
+          <div class="metric-value" id="metricThroughput">0</div>
+          <div class="metric-label">TEU/hour</div>
+          <div class="metric-trend up">+0%</div>
+        </div>
+      </div>
+
+      <div class="variance-section">
+        <div class="card-header" style="margin-top: 16px;">
+          <span>📊</span>
+          <h3>4 Variance Strategies Analysis</h3>
+        </div>
+        <div class="variance-grid" id="varianceGrid"></div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="ai-badge">
+        <div class="ai-badge-header">
+          <div class="ai-icon">🤖</div>
+          <div class="ai-info">
+            <h4>AI Rules Engine</h4>
+            <p>Local • Strategy-Aware</p>
+          </div>
+        </div>
+        <div class="ai-stats">
+          <div class="ai-stat">
+            <div class="ai-stat-label">Status</div>
+            <div class="ai-stat-value" style="color: #34d399;">● Active</div>
+          </div>
+          <div class="ai-stat">
+            <div class="ai-stat-label">Mode</div>
+            <div class="ai-stat-value">Offline</div>
+          </div>
+          <div class="ai-stat">
+            <div class="ai-stat-label">Rules</div>
+            <div class="ai-stat-value">12 Active</div>
+          </div>
+          <div class="ai-stat">
+            <div class="ai-stat-label">Strategy</div>
+            <div class="ai-stat-value" id="aiStrategy">Balanced</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span>💡</span>
+          <h3>AI Recommendations</h3>
+        </div>
+        <div id="recommendationsList">
+          <div class="empty-state">
+            <div class="empty-state-icon">🤖</div>
+            <div style="font-size: 13px; margin-bottom: 4px;">AI Engine Ready</div>
+            <div style="font-size: 11px;">Start simulation for recommendations</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 16px;">
+        <div class="card-header">
+          <span>📈</span>
+          <h3>Resource Utilization</h3>
+        </div>
+        <div class="progress-group">
+          <div class="progress-header">
+            <span>Crane Utilization</span>
+            <span id="craneUtilValue">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill cyan" id="craneUtilBar" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div class="progress-group">
+          <div class="progress-header">
+            <span>Yard Capacity</span>
+            <span id="yardCapValue">45%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill emerald" id="yardCapBar" style="width: 45%;"></div>
+          </div>
+        </div>
+        <div class="progress-group" style="margin-bottom: 0;">
+          <div class="progress-header">
+            <span>Berth Occupancy</span>
+            <span id="berthUtilValue">0/4</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill amber" id="berthUtilBar" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div>Port Simulator v3.0 • 4 Variance Strategies • Local AI Engine</div>
+      <div class="footer-status">
+        <div class="status-dot"></div>
+        <span>All Systems Operational</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    let isRunning = false;
+    let speed = 1;
+    let elapsedTime = 0;
+    let intervalId = null;
+    let currentStrategy = 'balanced';
+
+    const params = { arrivalRate: 4, craneSpeed: 30, handlingTime: 3, queueCapacity: 8 };
+
+    const metrics = {
+      shipsProcessed: 0, containersMoved: 0, craneUtilization: 0, avgWaitTime: 0,
+      yardCapacity: 45, trucksDispatched: 0, shipsInQueue: 0, berthsOccupied: 0, throughputRate: 0
+    };
+
+    const strategies = {
+      throughput: { name: 'Max Throughput', icon: '📈', color: '#10b981', purpose: 'Maximize container volume and vessel processing rate. Best for peak season operations when demand exceeds capacity.', targets: { throughput: 150, ships: 15, efficiency: 90 }, weights: { throughput: 0.5, cost: 0.1, wait: 0.2, balance: 0.2 } },
+      cost: { name: 'Cost Efficiency', icon: '💰', color: '#f59e0b', purpose: 'Minimize operational costs while maintaining acceptable service levels. Ideal for off-peak periods and budget optimization.', targets: { throughput: 100, ships: 10, efficiency: 75 }, weights: { throughput: 0.2, cost: 0.5, wait: 0.15, balance: 0.15 } },
+      wait: { name: 'Min Wait Time', icon: '⏱️', color: '#3b82f6', purpose: 'Prioritize vessel turnaround time and customer satisfaction. Critical for premium service contracts and time-sensitive cargo.', targets: { throughput: 120, ships: 12, efficiency: 85 }, weights: { throughput: 0.2, cost: 0.15, wait: 0.5, balance: 0.15 } },
+      balanced: { name: 'Balanced', icon: '⚖️', color: '#8b5cf6', purpose: 'Equal weight optimization across all KPIs. Recommended for normal operations with stable demand patterns.', targets: { throughput: 130, ships: 12, efficiency: 85 }, weights: { throughput: 0.25, cost: 0.25, wait: 0.25, balance: 0.25 } }
+    };
+
+    const ships = [];
+    const trucks = [];
+    let craneAngles = [0, 0, 0, 0];
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clockHours').textContent = now.getHours().toString().padStart(2, '0');
+      document.getElementById('clockMinutes').textContent = now.getMinutes().toString().padStart(2, '0');
+      document.getElementById('clockSeconds').textContent = now.getSeconds().toString().padStart(2, '0');
+      document.getElementById('clockDate').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    const canvas = document.getElementById('portCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = 320;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function initObjects() {
+      ships.length = 0;
+      trucks.length = 0;
+      for (let i = 0; i < 4; i++) {
+        ships.push({ x: -80 - i * 120, y: 35 + Math.random() * 45, speed: 0.25 + Math.random() * 0.15, color: ['#475569', '#64748b', '#94a3b8', '#334155'][i] });
+      }
+      for (let i = 0; i < 5; i++) {
+        trucks.push({ x: 50 + i * 120, y: 265, speed: 0.4 + Math.random() * 0.3, dir: i % 2 === 0 ? 1 : -1 });
+      }
+    }
+    initObjects();
+
+    function drawPort() {
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      const oceanGrad = ctx.createLinearGradient(0, 0, 0, H * 0.5);
+      oceanGrad.addColorStop(0, '#0c4a6e');
+      oceanGrad.addColorStop(1, '#164e63');
+      ctx.fillStyle = oceanGrad;
+      ctx.fillRect(0, 0, W, H * 0.42);
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(34, 211, 238, ${0.04 + i * 0.015})`;
+        ctx.lineWidth = 1;
+        for (let x = 0; x < W; x += 4) {
+          const y = 25 + i * 18 + Math.sin((x + elapsedTime * 25 + i * 25) / 32) * 4;
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, H * 0.4, W, H * 0.6);
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(0, H * 0.4, W, 5);
+      const berthW = Math.min(75, (W - 80) / 4), berthGap = (W - 60) / 4;
+      for (let i = 0; i < 4; i++) {
+        const bx = 30 + i * berthGap, active = i < metrics.berthsOccupied;
+        ctx.fillStyle = active ? '#0891b2' : '#374151';
+        ctx.fillRect(bx, H * 0.36, berthW, 16);
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = 'bold 8px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`B${i+1}`, bx + berthW/2, H * 0.36 + 11);
+        const cx = bx + 8;
+        ctx.fillStyle = active ? '#22d3ee' : '#64748b';
+        ctx.fillRect(cx, H * 0.4, 3, 60);
+        ctx.fillRect(cx + berthW - 22, H * 0.4, 3, 60);
+        ctx.fillRect(cx - 8, H * 0.4, berthW - 2, 4);
+        if (active && isRunning) {
+          craneAngles[i] += 0.04;
+          const tx = cx + berthW/2 - 12 + Math.sin(craneAngles[i]) * 22;
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(tx - 1, H * 0.4 - 22, 3, 24);
+          ctx.fillStyle = ['#ef4444', '#10b981', '#3b82f6', '#f59e0b'][i];
+          ctx.fillRect(tx - 6, H * 0.4 - 32, 14, 8);
+        }
+      }
+      ships.forEach(ship => {
+        ctx.fillStyle = ship.color;
+        ctx.beginPath();
+        ctx.moveTo(ship.x, ship.y);
+        ctx.lineTo(ship.x + 50, ship.y);
+        ctx.lineTo(ship.x + 60, ship.y + 11);
+        ctx.lineTo(ship.x + 50, ship.y + 22);
+        ctx.lineTo(ship.x, ship.y + 22);
+        ctx.lineTo(ship.x - 8, ship.y + 11);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(ship.x + 6, ship.y + 4, 34, 14);
+        if (isRunning) {
+          ship.x += ship.speed * speed;
+          ship.y += Math.sin(elapsedTime / 12 + ship.x / 80) * 0.15;
+          if (ship.x > W + 70) { ship.x = -70; ship.y = 35 + Math.random() * 45; }
+        }
+      });
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(20, H * 0.7, W - 40, H * 0.22);
+      const stacks = Math.floor(metrics.yardCapacity / 10), colors = ['#ef4444', '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'];
+      for (let i = 0; i < stacks; i++) {
+        for (let j = 0; j < 2; j++) {
+          ctx.fillStyle = colors[(i + j) % 5];
+          ctx.fillRect(35 + i * 32, H * 0.84 - j * 11, 26, 9);
+        }
+      }
+      trucks.forEach(truck => {
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(truck.x, truck.y, 28, 12);
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(truck.x + 20, truck.y + 2, 9, 8);
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(truck.x + 6, truck.y + 12, 3.5, 0, Math.PI * 2);
+        ctx.arc(truck.x + 21, truck.y + 12, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        if (isRunning) {
+          truck.x += truck.speed * truck.dir * speed;
+          if (truck.x > W - 35) truck.dir = -1;
+          if (truck.x < 15) truck.dir = 1;
+        }
+      });
+      ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+      ctx.fillRect(W - 145, 8, 137, 78);
+      ctx.strokeStyle = 'rgba(71, 85, 105, 0.4)';
+      ctx.strokeRect(W - 145, 8, 137, 78);
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(`⚡ ${metrics.throughputRate} TEU/h`, W - 137, 25);
+      ctx.fillText(`⏳ ${metrics.shipsInQueue} in queue`, W - 137, 42);
+      ctx.fillText(`🏗️ ${metrics.berthsOccupied}/4 berths`, W - 137, 59);
+      ctx.fillText(`📦 ${metrics.yardCapacity}% yard`, W - 137, 76);
+      requestAnimationFrame(drawPort);
+    }
+    drawPort();
+
+    function setStrategy(strategy) {
+      currentStrategy = strategy;
+      const s = strategies[strategy];
+      document.querySelectorAll('.strategy-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.strategy === strategy); });
+      const colors = {
+        throughput: { from: 'rgba(16, 185, 129, 0.2)', to: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.3)' },
+        cost: { from: 'rgba(245, 158, 11, 0.2)', to: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.3)' },
+        wait: { from: 'rgba(59, 130, 246, 0.2)', to: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)' },
+        balanced: { from: 'rgba(139, 92, 246, 0.2)', to: 'rgba(139, 92, 246, 0.1)', border: 'rgba(139, 92, 246, 0.3)' }
+      };
+      const c = colors[strategy], banner = document.getElementById('strategyBanner');
+      banner.style.setProperty('--banner-from', c.from);
+      banner.style.setProperty('--banner-to', c.to);
+      banner.style.setProperty('--banner-border', c.border);
+      document.getElementById('bannerIcon').textContent = s.icon;
+      document.getElementById('bannerTitle').textContent = s.name + ' Strategy Active';
+      document.getElementById('bannerDesc').textContent = s.purpose.split('.')[0];
+      document.getElementById('headerStrategy').textContent = s.name;
+      document.getElementById('aiStrategy').textContent = s.name;
+      updateVarianceCards();
+    }
+
+    function updateVarianceCards() {
+      const grid = document.getElementById('varianceGrid');
+      let html = '';
+      Object.entries(strategies).forEach(([key, s]) => {
+        const isActive = key === currentStrategy, score = calculateStrategyScore(key), status = score >= 80 ? 'good' : score >= 50 ? 'warning' : 'critical';
+        html += `<div class="variance-card ${key}" style="${isActive ? 'border: 2px solid ' + s.color + ';' : ''}"><div class="variance-header"><div class="variance-icon">${s.icon}</div><div><div class="variance-title">${s.name}</div><div class="variance-subtitle">${isActive ? '● Active Strategy' : 'Alternative'}</div></div></div><div class="variance-purpose">${s.purpose}</div><div class="variance-metrics"><div class="variance-metric"><div class="variance-metric-label">Target TEU/h</div><div class="variance-metric-value">${s.targets.throughput}</div></div><div class="variance-metric"><div class="variance-metric-label">Actual TEU/h</div><div class="variance-metric-value">${metrics.throughputRate}</div></div><div class="variance-metric"><div class="variance-metric-label">Target Ships</div><div class="variance-metric-value">${s.targets.ships}</div></div><div class="variance-metric"><div class="variance-metric-label">Actual Ships</div><div class="variance-metric-value">${metrics.shipsProcessed}</div></div></div><div class="variance-status"><div class="variance-score">Score: <span style="color: ${s.color};">${score}%</span></div><div class="variance-badge ${status}">${status}</div></div></div>`;
+      });
+      grid.innerHTML = html;
+    }
+
+    function calculateStrategyScore(strategyKey) {
+      const s = strategies[strategyKey];
+      if (metrics.shipsProcessed === 0) return 0;
+      const throughputScore = Math.min(100, (metrics.throughputRate / s.targets.throughput) * 100);
+      const shipsScore = Math.min(100, (metrics.shipsProcessed / s.targets.ships) * 100);
+      const efficiencyScore = Math.min(100, (metrics.craneUtilization / s.targets.efficiency) * 100);
+      const waitScore = Math.max(0, 100 - metrics.avgWaitTime * 2);
+      return Math.round(throughputScore * s.weights.throughput + efficiencyScore * s.weights.cost + waitScore * s.weights.wait + ((throughputScore + shipsScore + efficiencyScore) / 3) * s.weights.balance);
+    }
+
+    function updateSimulation() {
+      elapsedTime++;
+      const hours = elapsedTime / 3600, arrivalFactor = params.arrivalRate / 4, craneFactor = params.craneSpeed / 30, handlingFactor = (100 - params.handlingTime * 5) / 100;
+      let throughputMod = 1, waitMod = 1;
+      if (currentStrategy === 'throughput') { throughputMod = 1.15; waitMod = 1.1; }
+      if (currentStrategy === 'cost') { throughputMod = 0.9; waitMod = 0.95; }
+      if (currentStrategy === 'wait') { throughputMod = 0.95; waitMod = 0.7; }
+      metrics.shipsProcessed = Math.floor(hours * params.arrivalRate * 0.85);
+      metrics.containersMoved = Math.floor(hours * params.arrivalRate * 0.85 * 125 * craneFactor * handlingFactor * throughputMod);
+      metrics.craneUtilization = Math.min(98, Math.floor(55 + hours * 6 * arrivalFactor + Math.sin(elapsedTime / 30) * 5));
+      metrics.avgWaitTime = Math.max(3, Math.floor((25 - params.craneSpeed / 4 + arrivalFactor * 8) * waitMod + Math.sin(elapsedTime / 20) * 3));
+      metrics.yardCapacity = Math.min(90, Math.floor(40 + hours * params.arrivalRate * 3.5));
+      metrics.trucksDispatched = Math.floor(hours * params.arrivalRate * 16 * craneFactor);
+      metrics.shipsInQueue = Math.min(params.queueCapacity, Math.floor(arrivalFactor * 3 + Math.random() * 2));
+      metrics.berthsOccupied = Math.min(4, Math.max(1, Math.floor(1 + arrivalFactor * 2 + Math.random())));
+      metrics.throughputRate = Math.floor(params.craneSpeed * 4.2 * handlingFactor * throughputMod);
+      updateUI();
+      if (elapsedTime % 15 === 0) { updateRecommendations(); updateVarianceCards(); }
+    }
+
+    function updateUI() {
+      const h = Math.floor(elapsedTime / 3600), m = Math.floor((elapsedTime % 3600) / 60), sec = elapsedTime % 60;
+      document.getElementById('simTime').textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+      document.getElementById('metricShips').textContent = metrics.shipsProcessed;
+      document.getElementById('metricContainers').textContent = metrics.containersMoved.toLocaleString();
+      document.getElementById('metricWait').textContent = metrics.avgWaitTime + 'm';
+      document.getElementById('metricTrucks').textContent = metrics.trucksDispatched;
+      document.getElementById('metricQueue').textContent = metrics.shipsInQueue;
+      document.getElementById('metricThroughput').textContent = metrics.throughputRate;
+      document.getElementById('craneUtilValue').textContent = metrics.craneUtilization + '%';
+      document.getElementById('craneUtilBar').style.width = metrics.craneUtilization + '%';
+      document.getElementById('yardCapValue').textContent = metrics.yardCapacity + '%';
+      document.getElementById('yardCapBar').style.width = metrics.yardCapacity + '%';
+      document.getElementById('berthUtilValue').textContent = metrics.berthsOccupied + '/4';
+      document.getElementById('berthUtilBar').style.width = (metrics.berthsOccupied * 25) + '%';
+      document.getElementById('shipCountBadge').textContent = 'Ships: ' + ships.length;
+    }
+
+    function updateRecommendations() {
+      const recs = [], s = strategies[currentStrategy];
+      if (currentStrategy === 'throughput' && metrics.throughputRate < s.targets.throughput * 0.8) recs.push({ priority: 'high', title: 'Below Throughput Target', desc: `Current ${metrics.throughputRate} TEU/h vs target ${s.targets.throughput}. Increase crane speed or reduce handling time.`, impact: '+20% throughput' });
+      if (currentStrategy === 'wait' && metrics.avgWaitTime > 15) recs.push({ priority: 'high', title: 'Wait Time Above Target', desc: `Average wait ${metrics.avgWaitTime}min exceeds 15min target. Optimize berth allocation.`, impact: '-40% wait time' });
+      if (currentStrategy === 'cost' && metrics.craneUtilization < 60) recs.push({ priority: 'medium', title: 'Low Equipment Utilization', desc: `Crane utilization at ${metrics.craneUtilization}%. Consider reducing active equipment.`, impact: '-15% operating cost' });
+      if (metrics.craneUtilization > 90) recs.push({ priority: 'critical', title: 'Crane Overload', desc: `Utilization at ${metrics.craneUtilization}% - risk of breakdown. Add capacity immediately.`, impact: '+15% reliability' });
+      if (metrics.yardCapacity > 75) recs.push({ priority: 'medium', title: 'Yard Congestion', desc: `Yard at ${metrics.yardCapacity}%. Accelerate truck dispatches.`, impact: '-20% yard usage' });
+      if (metrics.shipsInQueue > params.queueCapacity * 0.7) recs.push({ priority: 'high', title: 'Queue Building Up', desc: `${metrics.shipsInQueue} vessels waiting. Adjust arrival scheduling.`, impact: '-30% queue length' });
+      if (recs.length === 0 && metrics.shipsProcessed > 0) recs.push({ priority: 'success', title: 'Strategy On Track', desc: `${s.name} strategy performing within targets. Continue current approach.`, impact: 'Stable' });
+      renderRecommendations(recs.slice(0, 4));
+    }
+
+    function renderRecommendations(recs) {
+      if (recs.length === 0) { document.getElementById('recommendationsList').innerHTML = `<div class="empty-state"><div class="empty-state-icon">🤖</div><div style="font-size: 13px; margin-bottom: 4px;">AI Engine Ready</div><div style="font-size: 11px;">Start simulation for recommendations</div></div>`; return; }
+      let html = '';
+      recs.forEach((r, i) => { html += `<div class="recommendation ${r.priority}" style="animation-delay: ${i * 80}ms;"><div class="rec-header"><span class="rec-priority">${r.priority}</span><span class="rec-title">${r.title}</span></div><div class="rec-desc">${r.desc}</div><div class="rec-impact">📈 ${r.impact}</div></div>`; });
+      document.getElementById('recommendationsList').innerHTML = html;
+    }
+
+    function toggleSimulation() {
+      isRunning = !isRunning;
+      document.getElementById('startIcon').textContent = isRunning ? '⏸' : '▶';
+      document.getElementById('startText').textContent = isRunning ? 'Pause' : 'Start';
+      document.getElementById('startBtn').classList.toggle('running', isRunning);
+      if (isRunning) intervalId = setInterval(updateSimulation, 1000 / speed);
+      else clearInterval(intervalId);
+    }
+
+    function resetSimulation() {
+      isRunning = false;
+      elapsedTime = 0;
+      clearInterval(intervalId);
+      document.getElementById('startIcon').textContent = '▶';
+      document.getElementById('startText').textContent = 'Start';
+      document.getElementById('startBtn').classList.remove('running');
+      Object.assign(metrics, { shipsProcessed: 0, containersMoved: 0, craneUtilization: 0, avgWaitTime: 0, yardCapacity: 45, trucksDispatched: 0, shipsInQueue: 0, berthsOccupied: 0, throughputRate: 0 });
+      craneAngles = [0, 0, 0, 0];
+      initObjects();
+      updateUI();
+      updateVarianceCards();
+      renderRecommendations([]);
+    }
+
+    function setSpeed(s) {
+      speed = s;
+      document.querySelectorAll('.speed-btn').forEach((btn, i) => { btn.classList.toggle('active', [1, 2, 4, 8][i] === s); });
+      if (isRunning) { clearInterval(intervalId); intervalId = setInterval(updateSimulation, 1000 / speed); }
+    }
+
+    function updateParam(name) {
+      const val = parseInt(document.getElementById(name).value);
+      params[name] = val;
+      const units = { arrivalRate: ' ships/h', craneSpeed: ' TEU/h', handlingTime: ' hours', queueCapacity: ' ships' };
+      document.getElementById(name + 'Value').textContent = val + units[name];
+    }
+
+    updateUI();
+    updateVarianceCards();
+  </script>
+</body>
+</html>

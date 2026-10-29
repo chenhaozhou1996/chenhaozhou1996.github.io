@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DFP Final — Formula Sheet</title>
+<meta name="robots" content="noindex,nofollow">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --rule: #cc0033;
+    --soft: #f5f3ee;
+    --frame: #b8a98a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Latin Modern Roman', Georgia, 'Times New Roman', serif;
+    color: var(--ink);
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 32px 28px 80px;
+    background: #fff;
+    line-height: 1.55;
+  }
+  header {
+    text-align: center;
+    border-bottom: 2px solid var(--rule);
+    padding-bottom: 14px;
+    margin-bottom: 22px;
+  }
+  header .school { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #555; }
+  header h1 { font-size: 26px; margin: 6px 0 4px; font-weight: 700; }
+  header .subtitle { font-size: 14px; color: #555; font-style: italic; }
+  .box {
+    border: 1px solid var(--frame);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 18px 0;
+    background: #fafaf7;
+  }
+  .box h2 {
+    font-size: 16px;
+    margin: 0 0 8px;
+    color: var(--rule);
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4px;
+  }
+  .box .sym { font-size: 13px; color: #444; margin-bottom: 8px; }
+  table { border-collapse: collapse; margin: 8px 0; font-size: 14px; }
+  table th, table td { padding: 4px 14px 4px 0; text-align: left; vertical-align: top; }
+  table th { font-weight: 600; }
+  .formula-block { font-size: 17px; margin: 10px 0; text-align: center; }
+  .inline-formulas { font-size: 15px; line-height: 2; }
+  footer { text-align: center; font-size: 12px; color: #888; margin-top: 36px; font-style: italic; }
+  hr.thin { border: none; border-top: 1px dashed #bbb; margin: 14px 0; }
+  .muted { color: #666; font-size: 13px; }
+  @media print {
+    body { padding: 0; }
+    .no-print { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="school">Rutgers Business School &middot; Demand Plan & Fulfil 29:799:310</div>
+  <h1>DFP Final — Formula Sheet</h1>
+  <div class="subtitle">Appendix &middot; Reference material provided during the examination. You are not required to memorize these formulas.</div>
+</header>
+
+<div class="box">
+  <h2>M/M/1 Single-Server Queue</h2>
+  <div class="sym"><strong>Symbols.</strong> $\lambda$ = arrival rate; &nbsp; $\mu$ = service rate; &nbsp; $\rho = \lambda/\mu$ = utilization. Stability requires $\lambda < \mu$.</div>
+  <table>
+    <tr><th>Measure</th><th>Symbol</th><th>Formula</th></tr>
+    <tr><td>Utilization</td><td>$\rho$</td><td>$\lambda/\mu$</td></tr>
+    <tr><td>Avg. number in system</td><td>$L$</td><td>$\rho/(1-\rho)$</td></tr>
+    <tr><td>Avg. time in system</td><td>$W$</td><td>$1/(\mu-\lambda)$</td></tr>
+    <tr><td>Avg. number in queue</td><td>$L_q$</td><td>$\rho^{2}/(1-\rho)$</td></tr>
+    <tr><td>Avg. wait in queue</td><td>$W_q$</td><td>$\lambda/[\mu(\mu-\lambda)]$</td></tr>
+  </table>
+</div>
+
+<div class="box">
+  <h2>Little's Law</h2>
+  <div class="formula-block">$L = \lambda \cdot W \qquad L_q = \lambda \cdot W_q$</div>
+</div>
+
+<div class="box">
+  <h2>Basic EOQ Model</h2>
+  <div class="sym"><strong>Symbols.</strong> $D$ = annual demand; &nbsp; $S$ = ordering cost per order; &nbsp; $H$ = holding cost per unit per year; &nbsp; $W$ = working days per year.</div>
+  <div class="formula-block">$Q^{*}=\sqrt{\dfrac{2DS}{H}} \qquad TC^{*}_{\text{order}+\text{hold}}=\sqrt{2DSH}$</div>
+  <div class="formula-block">$N=\dfrac{D}{Q^{*}} \qquad T=\dfrac{W}{N}=\dfrac{Q^{*}}{D}\cdot W$</div>
+</div>
+
+<div class="box">
+  <h2>Reorder Point (constant lead time)</h2>
+  <div class="formula-block">$d=\dfrac{D}{W} \qquad \text{ROP}=d\cdot L$</div>
+</div>
+
+<div class="box">
+  <h2>EOQ with Purchase Cost</h2>
+  <div class="formula-block">$TC_{\text{total}}(Q)=\dfrac{D}{Q}\cdot S + \dfrac{Q}{2}\cdot H + D\cdot P$</div>
+</div>
+
+<div class="box">
+  <h2>Economic Production Quantity (EPQ)</h2>
+  <div class="sym">When a firm produces and consumes simultaneously at production rate $p$ (units/day) and usage rate $d$ (units/day), with $p>d$:</div>
+  <div class="formula-block">$Q_{p}^{*}=\sqrt{\dfrac{2DS}{H\bigl(1-d/p\bigr)}} \qquad I_{\max}=Q_{p}^{*}\Bigl(1-\dfrac{d}{p}\Bigr)$</div>
+  <div class="formula-block">$TC=\dfrac{D}{Q_{p}^{*}}\cdot S + \dfrac{I_{\max}}{2}\cdot H$</div>
+</div>
+
+<div class="box">
+  <h2>Sensitivity (Square-Root Rule)</h2>
+  <div class="sym">Both $Q^{*}$ and $TC^{*}$ are proportional to $\sqrt{D}$.</div>
+  <table>
+    <tr><th>Demand multiplier</th><th>$Q^{*}$ and $TC^{*}$ multiplier</th><th>% change</th></tr>
+    <tr><td>$\times 2$</td><td>$\times \sqrt{2} \approx 1.414$</td><td>$+41.4\%$</td></tr>
+    <tr><td>$\times 4$</td><td>$\times 2$</td><td>$+100\%$</td></tr>
+    <tr><td>$\times 0.5$</td><td>$\times \sqrt{0.5} \approx 0.707$</td><td>$-29.3\%$</td></tr>
+  </table>
+</div>
+
+<div class="box">
+  <h2>Simple Exponential Smoothing</h2>
+  <div class="formula-block">$F_{t+1} = \alpha \cdot A_{t} + (1-\alpha)\cdot F_{t}$</div>
+  <div class="muted" style="text-align:center;">Equivalently: &nbsp; $F_{t+1} = F_{t} + \alpha\cdot(A_{t}-F_{t})$</div>
+</div>
+
+<footer>
+  &copy; Chenhao Zhou &middot; For classroom use only &middot; Permitted reference during DFP final
+</footer>
+
+</body>
+</html>

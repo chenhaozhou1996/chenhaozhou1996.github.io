@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Queueing System Simulation</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      padding: 1.5rem;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #fff;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    /* Header */
+    .header { text-align: center; margin-bottom: 1.5rem; }
+    .header h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      background: linear-gradient(90deg, #22d3ee, #60a5fa, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header p { color: #94a3b8; margin-top: 0.25rem; }
+    .header .notation { color: #22d3ee; font-family: monospace; font-size: 1.25rem; }
+    
+    /* Cards */
+    .card {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(71, 85, 105, 0.5);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    
+    /* Grid layouts */
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1rem; }
+    @media (max-width: 768px) {
+      .grid-6 { grid-template-columns: repeat(3, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    
+    /* Distribution panels */
+    .dist-panel {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 0.75rem;
+      padding: 1rem;
+    }
+    .dist-panel.cyan { border: 1px solid rgba(34, 211, 238, 0.3); }
+    .dist-panel.green { border: 1px solid rgba(52, 211, 153, 0.3); }
+    .dist-panel.purple { border: 1px solid rgba(168, 85, 247, 0.3); }
+    .dist-title { font-size: 0.875rem; font-weight: bold; margin-bottom: 0.75rem; }
+    .dist-title.cyan { color: #22d3ee; }
+    .dist-title.green { color: #34d399; }
+    .dist-title.purple { color: #a855f7; }
+    
+    /* Form elements */
+    select, input[type="number"] {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      color: #fff;
+      font-size: 0.875rem;
+      outline: none;
+    }
+    select:focus, input[type="number"]:focus { border-color: #22d3ee; }
+    select { margin-bottom: 0.75rem; cursor: pointer; }
+    
+    .param-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .param-row label { font-size: 0.75rem; color: #94a3b8; width: 3rem; }
+    .param-row input { flex: 1; }
+    
+    input[type="range"] {
+      width: 100%;
+      height: 0.5rem;
+      background: #334155;
+      border-radius: 0.25rem;
+      outline: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 1rem;
+      height: 1rem;
+      background: #a855f7;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 0.625rem 1rem;
+      border-radius: 0.75rem;
+      font-weight: bold;
+      font-size: 0.875rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-start {
+      flex: 1;
+      background: linear-gradient(90deg, #06b6d4, #3b82f6);
+      color: #fff;
+    }
+    .btn-start:hover { filter: brightness(1.1); }
+    .btn-start.running {
+      background: linear-gradient(90deg, #ef4444, #f97316);
+    }
+    .btn-reset {
+      background: #334155;
+      color: #fff;
+    }
+    .btn-reset:hover { background: #475569; }
+    .btn-group { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    
+    /* Status bar */
+    .status-bar {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: rgba(51, 65, 85, 0.5);
+      border: 1px solid #475569;
+    }
+    .status-bar.stable { background: rgba(52, 211, 153, 0.2); border-color: rgba(52, 211, 153, 0.5); }
+    .status-bar.unstable { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); }
+    .status-values { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.875rem; }
+    .status-values .cyan { color: #22d3ee; font-family: monospace; }
+    .status-values .green { color: #34d399; font-family: monospace; }
+    .status-values .purple { color: #a855f7; font-family: monospace; }
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      display: none;
+    }
+    .badge.stable { display: inline; background: #10b981; }
+    .badge.unstable { display: inline; background: #ef4444; animation: pulse 1s infinite; }
+    
+    /* Queue visualization */
+    .queue-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .queue-title {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .indicator {
+      width: 0.625rem;
+      height: 0.625rem;
+      border-radius: 50%;
+      background: #64748b;
+    }
+    .indicator.running { background: #22c55e; animation: pulse 1s infinite; }
+    .time-display {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-family: monospace;
+    }
+    .time-display .value { color: #22d3ee; }
+    
+    .queue-flow {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-height: 8rem;
+      overflow-x: auto;
+      padding: 0.5rem 0;
+    }
+    .flow-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 4rem;
+      position: relative;
+    }
+    .flow-node .icon { font-size: 2.5rem; margin-bottom: 0.25rem; }
+    .flow-node .label { font-size: 0.75rem; color: #94a3b8; }
+    .flow-arrow { color: #64748b; font-size: 1.25rem; }
+    
+    .queue-box {
+      flex: 1;
+      min-width: 12rem;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      border: 2px dashed #475569;
+      min-height: 5rem;
+      position: relative;
+    }
+    .queue-box .tag {
+      position: absolute;
+      top: -0.625rem;
+      left: 0.75rem;
+      background: #334155;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .queue-customers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding-top: 0.25rem;
+    }
+    .queue-empty { color: #64748b; font-size: 0.75rem; font-style: italic; }
+    
+    /* Customers */
+    .customer {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      position: relative;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    .customer::before, .customer::after {
+      content: '';
+      position: absolute;
+      width: 0.5rem;
+      height: 0.5rem;
+      background: #fff;
+      border-radius: 50%;
+      top: 0.625rem;
+    }
+    .customer::before { left: 0.5rem; }
+    .customer::after { right: 0.5rem; }
+    .customer .pupil {
+      position: absolute;
+      width: 0.25rem;
+      height: 0.25rem;
+      background: #1f2937;
+      border-radius: 50%;
+      top: 0.75rem;
+    }
+    .customer .pupil.left { left: 0.625rem; }
+    .customer .pupil.right { right: 0.625rem; }
+    .customer .mouth {
+      position: absolute;
+      bottom: 0.625rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0.75rem;
+      height: 0.375rem;
+      border-bottom: 2px solid #1f2937;
+      border-radius: 0 0 0.5rem 0.5rem;
+    }
+    
+    /* Servers */
+    .servers-container { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .server {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .server-box {
+      position: relative;
+      width: 5rem;
+      height: 6rem;
+      border-radius: 1rem;
+      border: 4px solid #475569;
+      background: rgba(30, 41, 59, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+    .server-box.busy {
+      border-color: #34d399;
+      background: linear-gradient(180deg, rgba(52, 211, 153, 0.3), rgba(16, 185, 129, 0.3));
+    }
+    .server-box .tag {
+      position: absolute;
+      top: -0.75rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #334155;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .server-box .idle-icon { font-size: 1.75rem; opacity: 0.3; }
+    .server-box .progress {
+      position: absolute;
+      bottom: 0.25rem;
+      left: 0.25rem;
+      right: 0.25rem;
+      height: 0.375rem;
+      background: #334155;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .server-box .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #34d399, #22d3ee);
+      transition: width 0.1s;
+    }
+    .server-status {
+      margin-top: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #64748b;
+    }
+    .server-status.busy { color: #34d399; }
+    
+    /* Stats cards */
+    .stat-card {
+      background: rgba(30, 41, 59, 0.6);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      border: 1px solid rgba(71, 85, 105, 0.5);
+      text-align: center;
+    }
+    .stat-card .icon { font-size: 1.25rem; }
+    .stat-card .value { font-size: 1.25rem; font-weight: bold; margin: 0.25rem 0; }
+    .stat-card .label { font-size: 0.75rem; color: #94a3b8; }
+    .stat-card .value.cyan { color: #22d3ee; }
+    .stat-card .value.green { color: #34d399; }
+    .stat-card .value.amber { color: #fbbf24; }
+    .stat-card .value.orange { color: #fb923c; }
+    .stat-card .value.purple { color: #a855f7; }
+    .stat-card .value.pink { color: #ec4899; }
+    
+    /* Charts */
+    .chart-title { font-size: 0.875rem; font-weight: bold; margin-bottom: 0.75rem; color: #e2e8f0; }
+    .chart-container { height: 180px; }
+    
+    /* Animations */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-15px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translateX(0) scale(1); }
+      to { opacity: 0; transform: translateX(30px) scale(0.5); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .animate-slideIn { animation: slideIn 0.3s ease-out; }
+    .animate-fadeOut { animation: fadeOut 0.6s ease-out forwards; }
+    .animate-bounce { animation: bounce 0.5s ease-in-out infinite; }
+    .animate-pulse { animation: pulse 1s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Queueing System Simulation</h1>
+      <p><span id="queueNotation" class="notation">M/M/1</span> Queue with Custom Distributions</p>
+    </div>
+
+    <!-- Controls -->
+    <div class="card">
+      <div class="grid-3">
+        <!-- Arrival -->
+        <div class="dist-panel cyan">
+          <div class="dist-title cyan">📥 Interarrival Time</div>
+          <select id="arrivalType">
+            <option value="exponential">Exponential (M)</option>
+            <option value="uniform">Uniform</option>
+            <option value="normal">Normal (truncated)</option>
+            <option value="deterministic">Deterministic (D)</option>
+            <option value="erlang">Erlang-k</option>
+            <option value="triangular">Triangular</option>
+          </select>
+          <div id="arrivalParams"></div>
+        </div>
+
+        <!-- Service -->
+        <div class="dist-panel green">
+          <div class="dist-title green">⚙️ Service Time</div>
+          <select id="serviceType">
+            <option value="exponential">Exponential (M)</option>
+            <option value="uniform">Uniform</option>
+            <option value="normal">Normal (truncated)</option>
+            <option value="deterministic">Deterministic (D)</option>
+            <option value="erlang">Erlang-k</option>
+            <option value="triangular">Triangular</option>
+          </select>
+          <div id="serviceParams"></div>
+        </div>
+
+        <!-- Servers -->
+        <div class="dist-panel purple">
+          <div class="dist-title purple">🖥️ Servers & Control</div>
+          <div style="margin-bottom: 0.5rem;">
+            <label style="font-size: 0.75rem; color: #94a3b8;">Number of Servers: <span id="serverCount">1</span></label>
+            <input type="range" id="numServers" min="1" max="6" value="1">
+          </div>
+          <div class="btn-group">
+            <button id="startBtn" class="btn btn-start">▶ START</button>
+            <button id="resetBtn" class="btn btn-reset">↺</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div id="systemStatus" class="status-bar">
+        <div class="status-values">
+          <span>λ ≈ <span id="lambdaValue" class="cyan">0.00</span>/unit</span>
+          <span>μ ≈ <span id="muValue" class="green">0.00</span>/unit</span>
+          <span>ρ = <span id="rhoValue" class="purple">0.000</span></span>
+        </div>
+        <span id="stabilityBadge" class="badge">✓ STABLE</span>
+      </div>
+    </div>
+
+    <!-- Queue Visualization -->
+    <div class="card">
+      <div class="queue-header">
+        <div class="queue-title">
+          <span id="runningIndicator" class="indicator"></span>
+          Live Queue
+        </div>
+        <span class="time-display">t = <span id="timeValue" class="value">0.0</span></span>
+      </div>
+      
+      <div class="queue-flow">
+        <div class="flow-node">
+          <div class="icon">🚶</div>
+          <div class="label">IN</div>
+          <div id="arrivingCustomer" style="position: absolute; top: 0.5rem; display: none;"></div>
+        </div>
+        
+        <span class="flow-arrow">→</span>
+        
+        <div class="queue-box">
+          <div class="tag">QUEUE (<span id="queueLength">0</span>)</div>
+          <div id="queueContainer" class="queue-customers">
+            <span class="queue-empty">Empty</span>
+          </div>
+        </div>
+        
+        <span class="flow-arrow">→</span>
+        
+        <div id="serversContainer" class="servers-container"></div>
+        
+        <span class="flow-arrow">→</span>
+        
+        <div class="flow-node">
+          <div class="icon">🚪</div>
+          <div class="label">OUT</div>
+          <div id="exitingCustomers" style="position: absolute; top: 0.5rem;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid-6" style="margin-bottom: 1rem;">
+      <div class="stat-card">
+        <div class="icon">📥</div>
+        <div id="totalArrivals" class="value cyan">0</div>
+        <div class="label">Arrivals</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">✅</div>
+        <div id="totalServed" class="value green">0</div>
+        <div class="label">Served</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">👥</div>
+        <div id="inQueue" class="value amber">0</div>
+        <div class="label">In Queue</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">⏳</div>
+        <div id="avgWait" class="value orange">0.00</div>
+        <div class="label">Avg Wait</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">📊</div>
+        <div id="avgLq" class="value purple">0.00</div>
+        <div class="label">Avg Lq</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">⚡</div>
+        <div id="utilization" class="value pink">0.0</div>
+        <div class="label">Util %</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="chart-title">Queue Length Over Time</div>
+        <div class="chart-container"><canvas id="queueChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="chart-title">Server Utilization (%)</div>
+        <div class="chart-container"><canvas id="utilChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Distribution configs
+    const distInfo = {
+      exponential: { code: 'M', params: { mean: 0.4 }, fields: [{ key: 'mean', label: 'Mean', min: 0.1, max: 5, step: 0.1 }] },
+      uniform: { code: 'G', params: { min: 0.1, max: 0.7 }, fields: [{ key: 'min', label: 'Min', min: 0.01, max: 2, step: 0.05 }, { key: 'max', label: 'Max', min: 0.1, max: 3, step: 0.05 }] },
+      normal: { code: 'G', params: { mean: 0.4, std: 0.1 }, fields: [{ key: 'mean', label: 'Mean', min: 0.1, max: 3, step: 0.1 }, { key: 'std', label: 'Std', min: 0.01, max: 1, step: 0.05 }] },
+      deterministic: { code: 'D', params: { value: 0.4 }, fields: [{ key: 'value', label: 'Value', min: 0.1, max: 3, step: 0.1 }] },
+      erlang: { code: 'G', params: { k: 2, mean: 0.4 }, fields: [{ key: 'k', label: 'k', min: 1, max: 10, step: 1 }, { key: 'mean', label: 'Mean', min: 0.1, max: 3, step: 0.1 }] },
+      triangular: { code: 'G', params: { min: 0.1, mode: 0.3, max: 0.6 }, fields: [{ key: 'min', label: 'Min', min: 0.01, max: 2, step: 0.05 }, { key: 'mode', label: 'Mode', min: 0.05, max: 2.5, step: 0.05 }, { key: 'max', label: 'Max', min: 0.1, max: 3, step: 0.05 }] }
+    };
+
+    // Distribution generators
+    const dist = {
+      exponential: p => -p.mean * Math.log(1 - Math.random()),
+      uniform: p => p.min + Math.random() * (p.max - p.min),
+      normal: p => { const u1 = Math.random(), u2 = Math.random(); return Math.max(0.01, p.mean + Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2) * p.std); },
+      deterministic: p => p.value,
+      erlang: p => { let s = 0; for (let i = 0; i < p.k; i++) s -= Math.log(1 - Math.random()) * p.mean / p.k; return s; },
+      triangular: p => { const u = Math.random(), fc = (p.mode - p.min) / (p.max - p.min); return u < fc ? p.min + Math.sqrt(u * (p.max - p.min) * (p.mode - p.min)) : p.max - Math.sqrt((1 - u) * (p.max - p.min) * (p.max - p.mode)); }
+    };
+
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'];
+
+    // State
+    let S = {
+      running: false, time: 0, nextArr: 0, queue: [], servers: [], cid: 0,
+      arrType: 'exponential', arrParams: { mean: 0.4 },
+      svcType: 'exponential', svcParams: { mean: 0.33 },
+      numSrv: 1,
+      stats: { arrivals: 0, served: 0, waits: [], qLens: [], busyT: 0, interarrs: [], svcTimes: [] },
+      metrics: { t: [], q: [], u: [] }
+    };
+    let intv = null;
+
+    // Charts
+    const qChart = new Chart(document.getElementById('queueChart'), {
+      type: 'line',
+      data: { labels: [], datasets: [{ data: [], borderColor: '#06B6D4', backgroundColor: 'rgba(6,182,212,0.1)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: '#374151' }, ticks: { color: '#9CA3AF', maxTicksLimit: 8 } }, y: { grid: { color: '#374151' }, ticks: { color: '#9CA3AF' }, beginAtZero: true } }, plugins: { legend: { display: false } }, animation: { duration: 0 } }
+    });
+    const uChart = new Chart(document.getElementById('utilChart'), {
+      type: 'line',
+      data: { labels: [], datasets: [{ data: [], borderColor: '#8B5CF6', backgroundColor: 'rgba(139,92,246,0.1)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: '#374151' }, ticks: { color: '#9CA3AF', maxTicksLimit: 8 } }, y: { grid: { color: '#374151' }, ticks: { color: '#9CA3AF' }, min: 0, max: 100 } }, plugins: { legend: { display: false } }, animation: { duration: 0 } }
+    });
+
+    function mkCustomer(id) {
+      const d = document.createElement('div');
+      d.className = 'customer animate-slideIn';
+      d.style.backgroundColor = colors[id % colors.length];
+      d.innerHTML = '<div class="pupil left"></div><div class="pupil right"></div><div class="mouth"></div>';
+      return d;
+    }
+
+    function renderParams(cid, type, params, cb) {
+      const c = document.getElementById(cid);
+      c.innerHTML = '';
+      distInfo[type].fields.forEach(f => {
+        const d = document.createElement('div');
+        d.className = 'param-row';
+        d.innerHTML = `<label>${f.label}:</label><input type="number" value="${params[f.key]}" min="${f.min}" max="${f.max}" step="${f.step}" data-key="${f.key}">`;
+        d.querySelector('input').addEventListener('change', e => { params[f.key] = parseFloat(e.target.value) || f.min; cb(params); });
+        c.appendChild(d);
+      });
+    }
+
+    function renderServers() {
+      const c = document.getElementById('serversContainer');
+      c.innerHTML = '';
+      for (let i = 0; i < S.numSrv; i++) {
+        if (!S.servers[i]) S.servers[i] = { id: i + 1, busy: false, cust: null, end: 0, start: 0 };
+        const sv = S.servers[i];
+        const d = document.createElement('div');
+        d.className = 'server';
+        const prog = sv.busy && sv.start ? Math.min(100, (S.time - sv.start) / (sv.end - sv.start) * 100) : 0;
+        d.innerHTML = `
+          <div class="server-box ${sv.busy ? 'busy' : ''}">
+            <div class="tag">S${sv.id}</div>
+            <div id="sc${i}">${sv.busy ? '' : '<span class="idle-icon">🖥️</span>'}</div>
+            ${sv.busy ? `<div class="progress"><div class="progress-bar" style="width:${prog}%"></div></div>` : ''}
+          </div>
+          <div class="server-status ${sv.busy ? 'busy' : ''}">${sv.busy ? 'BUSY' : 'IDLE'}</div>`;
+        c.appendChild(d);
+        if (sv.busy && sv.cust) {
+          const cust = mkCustomer(sv.cust.id);
+          cust.classList.add('animate-pulse');
+          document.getElementById(`sc${i}`).appendChild(cust);
+        }
+      }
+      S.servers = S.servers.slice(0, S.numSrv);
+    }
+
+    function renderQueue() {
+      const c = document.getElementById('queueContainer');
+      document.getElementById('queueLength').textContent = S.queue.length;
+      document.getElementById('inQueue').textContent = S.queue.length;
+      if (S.queue.length === 0) {
+        c.innerHTML = '<span class="queue-empty">Empty</span>';
+      } else {
+        c.innerHTML = '';
+        S.queue.slice(0, 15).forEach(cu => c.appendChild(mkCustomer(cu.id)));
+        if (S.queue.length > 15) { const sp = document.createElement('span'); sp.style.cssText = 'color:#94a3b8;font-size:0.75rem;'; sp.textContent = `+${S.queue.length - 15}`; c.appendChild(sp); }
+      }
+    }
+
+    function updateStats() {
+      const st = S.stats;
+      document.getElementById('totalArrivals').textContent = st.arrivals;
+      document.getElementById('totalServed').textContent = st.served;
+      const avgW = st.waits.length ? st.waits.reduce((a, b) => a + b, 0) / st.waits.length : 0;
+      const avgQ = st.qLens.length ? st.qLens.reduce((a, b) => a + b, 0) / st.qLens.length : 0;
+      const util = S.time > 0 ? st.busyT / (S.time * S.numSrv) * 100 : 0;
+      document.getElementById('avgWait').textContent = avgW.toFixed(2);
+      document.getElementById('avgLq').textContent = avgQ.toFixed(2);
+      document.getElementById('utilization').textContent = util.toFixed(1);
+      document.getElementById('timeValue').textContent = S.time.toFixed(1);
+
+      const avgIA = st.interarrs.length ? st.interarrs.reduce((a, b) => a + b, 0) / st.interarrs.length : 0;
+      const avgST = st.svcTimes.length ? st.svcTimes.reduce((a, b) => a + b, 0) / st.svcTimes.length : 0;
+      const lam = avgIA > 0 ? 1 / avgIA : 0, mu = avgST > 0 ? 1 / avgST : 0, rho = mu > 0 ? lam / (S.numSrv * mu) : 0;
+      document.getElementById('lambdaValue').textContent = lam.toFixed(2);
+      document.getElementById('muValue').textContent = mu.toFixed(2);
+      document.getElementById('rhoValue').textContent = rho.toFixed(3);
+
+      const badge = document.getElementById('stabilityBadge'), bar = document.getElementById('systemStatus');
+      if (S.time > 1) {
+        badge.style.display = 'inline';
+        if (rho < 1) { badge.className = 'badge stable'; badge.textContent = '✓ STABLE'; bar.className = 'status-bar stable'; }
+        else { badge.className = 'badge unstable'; badge.textContent = '⚠ UNSTABLE'; bar.className = 'status-bar unstable'; }
+      }
+    }
+
+    function updateCharts() {
+      qChart.data.labels = S.metrics.t;
+      qChart.data.datasets[0].data = S.metrics.q;
+      qChart.update('none');
+      uChart.data.labels = S.metrics.t;
+      uChart.data.datasets[0].data = S.metrics.u;
+      uChart.update('none');
+    }
+
+    function updateNotation() {
+      document.getElementById('queueNotation').textContent = `${distInfo[S.arrType].code}/${distInfo[S.svcType].code}/${S.numSrv}`;
+    }
+
+    function showArr(cu) {
+      const c = document.getElementById('arrivingCustomer');
+      c.innerHTML = '';
+      const d = mkCustomer(cu.id);
+      d.classList.add('animate-bounce');
+      c.appendChild(d);
+      c.style.display = 'block';
+      setTimeout(() => c.style.display = 'none', 300);
+    }
+
+    function showExit(cu) {
+      const c = document.getElementById('exitingCustomers');
+      const d = mkCustomer(cu.id);
+      d.classList.remove('animate-slideIn');
+      d.classList.add('animate-fadeOut');
+      c.appendChild(d);
+      setTimeout(() => d.remove(), 600);
+    }
+
+    function tick() {
+      const dt = 0.05;
+      S.time += dt;
+
+      // Arrivals
+      if (S.time >= S.nextArr) {
+        S.cid++;
+        const cu = { id: S.cid, arr: S.time };
+        S.stats.arrivals++;
+        const ia = dist[S.arrType](S.arrParams);
+        S.stats.interarrs.push(ia);
+        S.nextArr = S.time + ia;
+        showArr(cu);
+
+        let assigned = false;
+        for (let i = 0; i < S.servers.length; i++) {
+          if (!S.servers[i].busy) {
+            const st = dist[S.svcType](S.svcParams);
+            S.stats.svcTimes.push(st);
+            S.servers[i] = { ...S.servers[i], busy: true, cust: cu, end: S.time + st, start: S.time };
+            S.stats.waits.push(0);
+            assigned = true;
+            break;
+          }
+        }
+        if (!assigned) S.queue.push(cu);
+      }
+
+      // Completions
+      for (let i = 0; i < S.servers.length; i++) {
+        const sv = S.servers[i];
+        if (sv.busy && S.time >= sv.end) {
+          showExit(sv.cust);
+          S.stats.served++;
+          if (S.queue.length > 0) {
+            const nx = S.queue.shift();
+            S.stats.waits.push(S.time - nx.arr);
+            const st = dist[S.svcType](S.svcParams);
+            S.stats.svcTimes.push(st);
+            S.servers[i] = { ...sv, busy: true, cust: nx, end: S.time + st, start: S.time };
+          } else {
+            S.servers[i] = { ...sv, busy: false, cust: null, end: 0, start: 0 };
+          }
+        }
+      }
+
+      S.stats.qLens.push(S.queue.length);
+      S.stats.busyT += S.servers.filter(s => s.busy).length * dt;
+
+      const util = S.time > 0 ? S.stats.busyT / (S.time * S.numSrv) * 100 : 0;
+      S.metrics.t.push(S.time.toFixed(1));
+      S.metrics.q.push(S.queue.length);
+      S.metrics.u.push(util);
+      if (S.metrics.t.length > 200) { S.metrics.t.shift(); S.metrics.q.shift(); S.metrics.u.shift(); }
+
+      renderServers();
+      renderQueue();
+      updateStats();
+      updateCharts();
+    }
+
+    function start() {
+      if (!S.running) {
+        S.running = true;
+        document.getElementById('startBtn').textContent = '⏸ PAUSE';
+        document.getElementById('startBtn').classList.add('running');
+        document.getElementById('runningIndicator').classList.add('running');
+        intv = setInterval(tick, 50);
+      } else {
+        S.running = false;
+        document.getElementById('startBtn').textContent = '▶ START';
+        document.getElementById('startBtn').classList.remove('running');
+        document.getElementById('runningIndicator').classList.remove('running');
+        clearInterval(intv);
+      }
+    }
+
+    function reset() {
+      S.running = false;
+      clearInterval(intv);
+      S.time = 0; S.nextArr = 0; S.queue = []; S.cid = 0; S.servers = [];
+      S.stats = { arrivals: 0, served: 0, waits: [], qLens: [], busyT: 0, interarrs: [], svcTimes: [] };
+      S.metrics = { t: [], q: [], u: [] };
+      document.getElementById('startBtn').textContent = '▶ START';
+      document.getElementById('startBtn').classList.remove('running');
+      document.getElementById('runningIndicator').classList.remove('running');
+      document.getElementById('stabilityBadge').style.display = 'none';
+      document.getElementById('systemStatus').className = 'status-bar';
+      renderServers(); renderQueue(); updateStats(); updateCharts();
+    }
+
+    // Events
+    document.getElementById('startBtn').addEventListener('click', start);
+    document.getElementById('resetBtn').addEventListener('click', reset);
+    document.getElementById('numServers').addEventListener('input', e => {
+      S.numSrv = parseInt(e.target.value);
+      document.getElementById('serverCount').textContent = S.numSrv;
+      renderServers();
+      updateNotation();
+    });
+    document.getElementById('arrivalType').addEventListener('change', e => {
+      S.arrType = e.target.value;
+      S.arrParams = { ...distInfo[S.arrType].params };
+      renderParams('arrivalParams', S.arrType, S.arrParams, p => S.arrParams = p);
+      updateNotation();
+    });
+    document.getElementById('serviceType').addEventListener('change', e => {
+      S.svcType = e.target.value;
+      S.svcParams = { ...distInfo[S.svcType].params };
+      renderParams('serviceParams', S.svcType, S.svcParams, p => S.svcParams = p);
+      updateNotation();
+    });
+
+    // Init
+    renderParams('arrivalParams', S.arrType, S.arrParams, p => S.arrParams = p);
+    renderParams('serviceParams', S.svcType, S.svcParams, p => S.svcParams = p);
+    renderServers();
+    renderQueue();
+    updateNotation();
+  </script>
+</body>
+</html>

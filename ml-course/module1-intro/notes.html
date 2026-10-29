@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1 Class Notes: Business Analytics Foundations - Teaching Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            background: #fafafa;
+            color: #333;
+            line-height: 1.8;
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .notes-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+        
+        .notes-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .notes-meta {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        /* Navigation */
+        .section-nav {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        /* Content Sections */
+        .note-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .section-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        h2 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        h3 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Key Points */
+        .key-point {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border-left: 4px solid #667eea;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+        
+        .key-point strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Teaching Tips */
+        .teaching-tip {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+        
+        .teaching-tip::before {
+            content: "💡 Teaching Tip: ";
+            font-weight: bold;
+            color: #856404;
+        }
+        
+        /* Code Examples */
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        
+        .code-comment {
+            color: #95a99c;
+            font-style: italic;
+        }
+        
+        /* Discussion Questions */
+        .discussion-box {
+            background: #e7f3ff;
+            border: 2px solid #0366d6;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .discussion-box h4 {
+            color: #0366d6;
+            margin-bottom: 1rem;
+        }
+        
+        .discussion-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .discussion-box li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .discussion-box li::before {
+            content: "🤔";
+            position: absolute;
+            left: 0;
+        }
+        
+        /* Activity Box */
+        .activity-box {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .activity-box h4 {
+            color: #155724;
+            margin-bottom: 1rem;
+        }
+        
+        /* Time Markers */
+        .time-marker {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+        }
+        
+        /* Summary Box */
+        .summary-box {
+            background: linear-gradient(135deg, #667eea20, #764ba220);
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .summary-box h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        
+        th, td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        li {
+            margin: 0.5rem 0;
+        }
+        
+        /* Important Notes */
+        .important-note {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+        
+        .important-note::before {
+            content: "⚠️ Important: ";
+            font-weight: bold;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="notes-header">
+        <h1>Module 1: Business Analytics Foundations</h1>
+        <p class="notes-meta">Teaching Guide | Duration: 90 minutes | Interactive Class Format</p>
+    </div>
+
+    <nav class="section-nav">
+        <div class="nav-links">
+            <a href="#objectives">Learning Objectives</a>
+            <a href="#opening">Opening (10 min)</a>
+            <a href="#core">Core Content (60 min)</a>
+            <a href="#practice">Practice (15 min)</a>
+            <a href="#closing">Closing (5 min)</a>
+            <a href="class-material.html">View Student Material</a>
+        </div>
+    </nav>
+
+    <!-- Learning Objectives -->
+    <div class="note-section" id="objectives">
+        <span class="section-number">OBJECTIVES</span>
+        <h2>Module Learning Objectives</h2>
+        
+        <p>By the end of this module, students will be able to:</p>
+        
+        <ol>
+            <li><strong>Distinguish</strong> between intuition-based and data-driven decision making</li>
+            <li><strong>Translate</strong> vague business requirements into measurable metrics</li>
+            <li><strong>Identify</strong> the four types of business analytics and their applications</li>
+            <li><strong>Calculate</strong> ROI for analytics investments</li>
+            <li><strong>Recognize</strong> patterns in data that humans typically miss</li>
+        </ol>
+        
+        <div class="teaching-tip">
+            Start by asking students about their worst business decision. Most will realize it was based on "gut feeling" rather than data. This creates immediate buy-in for the module.
+        </div>
+    </div>
+
+    <!-- Opening Section -->
+    <div class="note-section" id="opening">
+        <span class="section-number">PART 1</span>
+        <h2><span class="time-marker">10 min</span> Opening: The Coffee Shop Crisis</h2>
+        
+        <h3>Hook Story</h3>
+        <div class="key-point">
+            <strong>The $2M Mistake</strong>
+            CoffeeChain opened 15 new stores based on "prime locations" - high foot traffic areas near offices. Six months later, half are failing. Their competitor across the street? Thriving. Why?
+        </div>
+        
+        <div class="discussion-box">
+            <h4>Quick Poll (2 min)</h4>
+            <ul>
+                <li>Ask: "Who here has made a decision based on gut feeling?"</li>
+                <li>Follow up: "How did that work out?"</li>
+                <li>Reveal: "73% of business decisions are still intuition-based"</li>
+            </ul>
+        </div>
+        
+        <h3>The Big Reveal</h3>
+        <p>Show the data: Competitor's "worse" location has parking. 73% of coffee revenue now comes from mobile orders for pickup. Foot traffic doesn't matter if customers can't park!</p>
+        
+        <div class="important-note">
+            This isn't about replacing human judgment - it's about enhancing it with data. Intuition + Data = Powerful decisions.
+        </div>
+    </div>
+
+    <!-- Core Content -->
+    <div class="note-section" id="core">
+        <span class="section-number">PART 2</span>
+        <h2><span class="time-marker">60 min</span> Core Content: The Four Pillars</h2>
+        
+        <h3>Section 1: Business vs. Data Thinking (15 min)</h3>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Traditional Thinking</th>
+                    <th>Data-Driven Thinking</th>
+                    <th>Real Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>"Good location"</td>
+                    <td>Specific metrics: traffic, parking, demographics</td>
+                    <td>Starbucks uses 25+ variables</td>
+                </tr>
+                <tr>
+                    <td>"Young customers"</td>
+                    <td>Age 18-34, income $30-60k, college educated</td>
+                    <td>Netflix segments by behavior, not age</td>
+                </tr>
+                <tr>
+                    <td>"Popular product"</td>
+                    <td>Sales velocity, repeat purchase rate, margin</td>
+                    <td>Amazon's "frequently bought together"</td>
+                </tr>
+                <tr>
+                    <td>"Good employee"</td>
+                    <td>Productivity metrics, retention risk score</td>
+                    <td>Google's Project Oxygen findings</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="activity-box">
+            <h4>🎯 Interactive Exercise (5 min)</h4>
+            <p>Give students a vague business requirement: "We need happy customers"</p>
+            <p>Have them translate it into 5 measurable metrics. Share and discuss.</p>
+        </div>
+        
+        <h3>Section 2: The Four Types of Analytics (20 min)</h3>
+        
+        <div class="key-point">
+            <strong>1. Descriptive Analytics - What Happened?</strong>
+            Example: "Sales dropped 15% last quarter"<br>
+            Tools: Dashboards, reports, basic statistics<br>
+            Business Value: Understand current state
+        </div>
+        
+        <div class="key-point">
+            <strong>2. Diagnostic Analytics - Why Did It Happen?</strong>
+            Example: "Sales dropped because competitor launched promotion"<br>
+            Tools: Drill-down, correlation analysis, root cause<br>
+            Business Value: Learn from the past
+        </div>
+        
+        <div class="key-point">
+            <strong>3. Predictive Analytics - What Will Happen?</strong>
+            Example: "Sales will increase 20% during back-to-school season"<br>
+            Tools: Forecasting, machine learning, trends<br>
+            Business Value: Prepare for the future
+        </div>
+        
+        <div class="key-point">
+            <strong>4. Prescriptive Analytics - What Should We Do?</strong>
+            Example: "Move 2 staff from Store A to Store B on Tuesdays"<br>
+            Tools: Optimization, simulation, decision models<br>
+            Business Value: Optimize operations
+        </div>
+        
+        <div class="teaching-tip">
+            Use the same business scenario (coffee shop) to demonstrate all four types. This shows progression from basic to advanced analytics using familiar context.
+        </div>
+        
+        <h3>Section 3: Your First Code (15 min)</h3>
+        
+        <p>Introduce Python as "Excel on steroids" - don't scare non-technical students!</p>
+        
+        <div class="code-example">
+<span class="code-comment"># Instead of 30 minutes in Excel...</span>
+import pandas as pd
+
+<span class="code-comment"># Read ALL your data in one line</span>
+data = pd.read_csv('sales_data.csv')
+
+<span class="code-comment"># Find best performing store instantly</span>
+best_store = data.groupby('store')['revenue'].sum().max()
+
+<span class="code-comment"># What took 30 minutes now takes 3 seconds!</span>
+        </div>
+        
+        <div class="discussion-box">
+            <h4>Address Common Fears</h4>
+            <ul>
+                <li>"I'm not technical" → You don't need to be! It's like learning Excel formulas</li>
+                <li>"It looks complicated" → We'll start with 5 simple commands</li>
+                <li>"Why not just use Excel?" → Show example of analyzing 1 million rows</li>
+            </ul>
+        </div>
+        
+        <h3>Section 4: ROI Calculation (10 min)</h3>
+        
+        <p>Make it real with numbers that matter to business:</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Manual Process</th>
+                    <th>With Analytics</th>
+                    <th>Savings</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Time per report</td>
+                    <td>8 hours</td>
+                    <td>30 minutes</td>
+                    <td>7.5 hours</td>
+                </tr>
+                <tr>
+                    <td>Reports per month</td>
+                    <td>10</td>
+                    <td>50</td>
+                    <td>5x more insights</td>
+                </tr>
+                <tr>
+                    <td>Bad decisions/month</td>
+                    <td>3 @ $50k</td>
+                    <td>0.5 @ $50k</td>
+                    <td>$125k/month</td>
+                </tr>
+                <tr>
+                    <td><strong>Annual Impact</strong></td>
+                    <td><strong>-$1.8M loss</strong></td>
+                    <td><strong>-$300k loss</strong></td>
+                    <td><strong>$1.5M saved</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="important-note">
+            Real companies see 5-10x ROI on analytics investments within the first year. This isn't theoretical - it's proven.
+        </div>
+    </div>
+
+    <!-- Practice Section -->
+    <div class="note-section" id="practice">
+        <span class="section-number">PART 3</span>
+        <h2><span class="time-marker">15 min</span> Guided Practice</h2>
+        
+        <h3>Mini Case Study: Restaurant Location Analysis</h3>
+        
+        <div class="activity-box">
+            <h4>🏃 Quick Exercise</h4>
+            <p><strong>Scenario:</strong> A pizza chain wants to open a new location. Management says: "Find us a spot with good vibes and young people who eat out a lot."</p>
+            
+            <p><strong>Student Task (5 min):</strong></p>
+            <ol>
+                <li>Break into pairs</li>
+                <li>Translate each vague term into 3 measurable metrics</li>
+                <li>Identify what data sources you'd need</li>
+                <li>Share with class</li>
+            </ol>
+        </div>
+        
+        <h3>Live Coding Demo (10 min)</h3>
+        
+        <div class="code-example">
+<span class="code-comment"># Live demo - show how easy it is!</span>
+
+<span class="code-comment"># Step 1: Load restaurant data</span>
+data = pd.read_csv('restaurant_locations.csv')
+
+<span class="code-comment"># Step 2: Find patterns humans miss</span>
+data.corr()['success_rate'].sort_values()
+
+<span class="code-comment"># Surprise! Parking matters more than foot traffic!</span>
+<span class="code-comment"># Students always have an "aha!" moment here</span>
+        </div>
+        
+        <div class="teaching-tip">
+            Let students suggest what to analyze next. When they see their question answered in one line of code, they're hooked!
+        </div>
+    </div>
+
+    <!-- Closing Section -->
+    <div class="note-section" id="closing">
+        <span class="section-number">PART 4</span>
+        <h2><span class="time-marker">5 min</span> Closing & Assignment</h2>
+        
+        <div class="summary-box">
+            <h3>Key Takeaways</h3>
+            <ol>
+                <li>Every "gut feeling" can be translated into measurable data</li>
+                <li>Data reveals patterns humans consistently miss</li>
+                <li>Analytics isn't replacing judgment - it's enhancing it</li>
+                <li>The ROI is immediate and measurable</li>
+                <li>You don't need to be "technical" to use data</li>
+            </ol>
+        </div>
+        
+        <h3>Homework Assignment</h3>
+        <div class="key-point">
+            <strong>Real-World Application</strong>
+            Find a decision your company (or a company you know) made based on intuition. 
+            Write 1 page on:
+            <ul>
+                <li>What data could have informed this decision?</li>
+                <li>How would you measure success?</li>
+                <li>What might the data have revealed?</li>
+            </ul>
+        </div>
+        
+        <div class="discussion-box">
+            <h4>Exit Question</h4>
+            <ul>
+                <li>"What's one decision you'll approach differently after today?"</li>
+                <li>Have 2-3 students share before dismissing</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Teaching Resources -->
+    <div class="note-section">
+        <span class="section-number">RESOURCES</span>
+        <h2>Additional Teaching Resources</h2>
+        
+        <h3>Common Student Questions & Answers</h3>
+        
+        <div class="key-point">
+            <strong>Q: "Do I need to know math/statistics?"</strong>
+            A: No more than you need for Excel. The computer does the math - you interpret results.
+        </div>
+        
+        <div class="key-point">
+            <strong>Q: "Will AI replace analysts?"</strong>
+            A: AI is a tool that makes analysts more powerful, not obsolete. Someone needs to ask the right questions and interpret results in business context.
+        </div>
+        
+        <div class="key-point">
+            <strong>Q: "How is this different from regular reporting?"</strong>
+            A: Reporting tells you what happened. Analytics tells you why, predicts what's next, and recommends actions.
+        </div>
+        
+        <h3>Troubleshooting Tips</h3>
+        <ul>
+            <li>If students seem overwhelmed: Return to Excel comparison, show side-by-side</li>
+            <li>If too technical: Focus on business outcomes, not code</li>
+            <li>If too basic: Add competitive analysis angle - "your competitors are already doing this"</li>
+            <li>For skeptics: Show real company case studies (Netflix, Amazon, Uber)</li>
+        </ul>
+        
+        <h3>Extension Activities</h3>
+        <ol>
+            <li>Bring in a real dataset from your organization</li>
+            <li>Have students analyze their own online shopping behavior</li>
+            <li>Compare two competing businesses using public data</li>
+            <li>Create a mini dashboard for coffee shop data</li>
+        </ol>
+    </div>
+</body>
+</html>

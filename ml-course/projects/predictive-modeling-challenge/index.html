@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Predictive Modeling Challenge (Regression) | ML Course</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #0f172a;
+      color: #0f172a;
+      line-height: 1.7;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 14px 22px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .topbar a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+    .topbar a:hover { opacity: 1; }
+    .hero {
+      padding: 64px 22px 52px;
+      color: white;
+      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: -50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 65%);
+      transform: rotate(20deg);
+    }
+    .hero-inner {
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    h1 { font-size: clamp(2rem, 4vw, 3.2rem); margin-bottom: 12px; }
+    .subtitle { font-size: 1.15rem; opacity: 0.95; max-width: 820px; }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 22px 80px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 28px;
+      margin: 18px 0;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.20);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+    .card h2 { margin-bottom: 12px; font-size: 1.35rem; color: #0f172a; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .pill {
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(29,78,216,0.15);
+    }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid transparent;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+      color: white;
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(37, 99, 235, 0.35); }
+    .btn-secondary {
+      background: #0f172a;
+      color: white;
+      border-color: rgba(255,255,255,0.08);
+    }
+    .btn-secondary:hover { transform: translateY(-2px); }
+    ul { padding-left: 18px; }
+    code { background: #0b1220; color: #e2e8f0; padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div><strong>📈 Predictive Modeling Challenge</strong></div>
+    <div style="display:flex; gap:14px; flex-wrap:wrap;">
+      <a href="../../index.html">Course Home</a>
+      <a href="../../interactive_ml_course_module.html">Module 2 (Interactive)</a>
+      <a href="../../module2.pdf" target="_blank" rel="noopener noreferrer">Module 2 Notes (PDF)</a>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <h1>Predictive Modeling Challenge</h1>
+      <p class="subtitle">
+        Build a production‑ready regression model that predicts a continuous business KPI (sales, demand, revenue, price, or cycle time).
+        Your goal is not only accuracy — it’s decision impact.
+      </p>
+      <div class="pill-row">
+        <span class="pill">Regression</span>
+        <span class="pill">Feature Engineering</span>
+        <span class="pill">Train/Test Discipline</span>
+        <span class="pill">Business Metrics</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>✅ Deliverables</h2>
+      <ul>
+        <li><strong>Problem statement</strong>: what you’re predicting, who uses it, and why it matters.</li>
+        <li><strong>Dataset + data dictionary</strong>: sources, target definition, leakage checks.</li>
+        <li><strong>Baseline model</strong>: simple regression baseline and error analysis.</li>
+        <li><strong>Final model</strong>: improved features + validated performance.</li>
+        <li><strong>Business translation</strong>: how prediction error becomes dollars / operations impact.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>🎯 Recommended evaluation</h2>
+      <ul>
+        <li><strong>Core metrics</strong>: MAE, RMSE, \(R^2\)</li>
+        <li><strong>Business-aligned metric</strong>: e.g., under‑forecast penalty vs over‑forecast penalty</li>
+        <li><strong>Validation</strong>: time-aware split if the data is temporal; otherwise stratified sampling by key segments</li>
+      </ul>
+      <p style="margin-top: 12px;">
+        If your data is time-ordered, avoid random shuffles; use a chronological holdout and/or rolling validation.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>🧩 Suggested project themes</h2>
+      <ul>
+        <li><strong>Retail</strong>: weekly store demand forecasting</li>
+        <li><strong>Hospitality</strong>: nightly occupancy / ADR prediction</li>
+        <li><strong>Operations</strong>: lead time / throughput / backlog prediction</li>
+        <li><strong>Marketing</strong>: incremental revenue prediction from campaigns</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>🚀 Start here</h2>
+      <p>
+        If you want a guided refresher before building the project, start with the interactive Module 2 storyline and then move to the PDF notes.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="../../interactive_ml_course_module.html">Open Module 2 Interactive →</a>
+        <a class="btn btn-secondary" href="../../index.html">Back to Course Home</a>
+      </div>
+      <p style="margin-top: 12px; color: #475569;">
+        Tip: keep your final artifact reproducible (same split, same seed, same features). If you share code, include a <code>README</code> with run steps.
+      </p>
+    </section>
+  </main>
+</body>
+</html>
+
+

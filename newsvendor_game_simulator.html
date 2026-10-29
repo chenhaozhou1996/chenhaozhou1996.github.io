@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsvendor Model: Decision-Making Under Uncertainty | OM/SCM/BA Core Curriculum</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+Pro:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a5f;
+            --secondary: #2d5a87;
+            --accent: #c9a227;
+            --accent-light: #e8d48a;
+            --success: #2d8659;
+            --warning: #d4a839;
+            --danger: #a63d40;
+            --bg-dark: #0d1b2a;
+            --bg-medium: #1b2838;
+            --bg-light: #243447;
+            --text-primary: #f0f4f8;
+            --text-secondary: #a8b4c0;
+            --text-muted: #6b7d8f;
+            --border: rgba(201, 162, 39, 0.2);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .container { max-width: 1900px; margin: 0 auto; padding: 20px; }
+        
+        /* Academic Header */
+        .academic-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--bg-medium) 100%);
+            border-bottom: 3px solid var(--accent);
+            padding: 25px 30px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .institution-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo-placeholder {
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--bg-dark);
+        }
+        .course-info h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .course-info .subtitle {
+            font-size: 0.95rem;
+            color: var(--accent-light);
+            font-weight: 400;
+        }
+        .instructor-info {
+            text-align: right;
+            padding: 10px 20px;
+            background: rgba(201, 162, 39, 0.1);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+        .instructor-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .instructor-title {
+            font-size: 0.85rem;
+            color: var(--accent-light);
+        }
+        .module-title {
+            text-align: center;
+        }
+        .module-title h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .module-title p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+        }
+
+        /* Learning Objectives Panel */
+        .learning-panel {
+            background: linear-gradient(180deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin-bottom: 20px;
+        }
+        .learning-panel h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .objectives-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        .objective-item {
+            background: rgba(201, 162, 39, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .objective-item .number {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            background: var(--accent);
+            color: var(--bg-dark);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+        .objective-item p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Main Dashboard */
+        .dashboard { 
+            display: grid; 
+            grid-template-columns: 300px 1fr 340px; 
+            gap: 20px; 
+        }
+        .panel {
+            background: var(--bg-medium);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+        .panel-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        /* Controls */
+        .control-group { margin-bottom: 16px; }
+        .control-group label { 
+            display: block; 
+            font-size: 0.75rem; 
+            color: var(--text-secondary); 
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-light);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(201, 162, 39, 0.4);
+        }
+        .value-display { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 6px; 
+        }
+        .value-display span { 
+            font-size: 0.7rem; 
+            color: var(--text-muted); 
+        }
+        .value-display .current-value { 
+            font-size: 0.9rem; 
+            font-weight: 700; 
+            color: var(--accent); 
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Buttons */
+        .btn-group { display: flex; gap: 8px; margin-top: 15px; }
+        .btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--accent), #b8912a); 
+            color: var(--bg-dark); 
+        }
+        .btn-secondary { 
+            background: var(--bg-light); 
+            color: var(--text-secondary); 
+            border: 1px solid var(--border);
+        }
+        .btn-game { 
+            background: linear-gradient(135deg, var(--success), #1e6b43); 
+            color: white; 
+            margin-top: 10px; 
+        }
+        .btn:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(201, 162, 39, 0.25); 
+        }
+
+        /* Theory Box */
+        .theory-box {
+            background: rgba(13, 27, 42, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid var(--accent);
+        }
+        .theory-box h4 { 
+            color: var(--accent); 
+            font-size: 0.8rem; 
+            margin-bottom: 8px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+        }
+        .formula { 
+            font-family: 'JetBrains Mono', monospace; 
+            color: var(--text-primary); 
+            font-size: 0.85rem; 
+            line-height: 1.8;
+            background: rgba(201, 162, 39, 0.08);
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+        .tags { 
+            display: flex; 
+            gap: 6px; 
+            margin-top: 15px; 
+            flex-wrap: wrap; 
+        }
+        .tag {
+            padding: 4px 10px;
+            background: rgba(201, 162, 39, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            font-size: 0.65rem;
+            color: var(--accent-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Center Section */
+        .center-section { display: flex; flex-direction: column; gap: 15px; }
+        .simulation-canvas {
+            height: 360px;
+            background: linear-gradient(180deg, var(--bg-medium) 0%, var(--bg-dark) 100%);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        #factoryCanvas { width: 100%; height: 100%; }
+        
+        /* Metrics */
+        .metrics-row { 
+            display: grid; 
+            grid-template-columns: repeat(6, 1fr); 
+            gap: 12px; 
+        }
+        .metric-card {
+            background: var(--bg-medium);
+            border-radius: 10px;
+            padding: 15px 10px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+        .metric-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .metric-icon { font-size: 1.4rem; margin-bottom: 5px; }
+        .metric-value { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: var(--accent); 
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .metric-value.success { color: var(--success); }
+        .metric-value.warning { color: var(--warning); }
+        .metric-value.danger { color: var(--danger); }
+        .metric-label { 
+            font-size: 0.7rem; 
+            color: var(--text-muted); 
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Charts */
+        .charts-row { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+        }
+        .chart-container { height: 190px; }
+
+        /* Right Panel */
+        .right-panel { display: flex; flex-direction: column; gap: 15px; }
+        .player-card {
+            background: rgba(13, 27, 42, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid;
+        }
+        .player-card.player1 { border-color: #4a90d9; }
+        .player-card.player2 { border-color: #d94a8c; }
+        .player-card.ai { border-color: var(--success); }
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .player-name { 
+            font-weight: 600; 
+            font-size: 0.9rem;
+            font-family: 'Playfair Display', serif;
+        }
+        .player-profit { font-size: 1.2rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .player-card.player1 .player-name { color: #4a90d9; }
+        .player-card.player2 .player-name { color: #d94a8c; }
+        .player-card.ai .player-name { color: var(--success); }
+        .player-stats { font-size: 0.75rem; color: var(--text-secondary); }
+        .player-stats div { display: flex; justify-content: space-between; padding: 4px 0; }
+        .order-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .order-input input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .order-input input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Status Items */
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+        .status-item .label { color: var(--text-muted); }
+        .status-item .value { font-weight: 600; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+
+        /* Insights */
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(13, 27, 42, 0.5);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+        }
+        .insight-icon { font-size: 1.2rem; }
+        .insight-text { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; }
+        .insight-text strong { color: var(--accent); }
+
+        /* Game Mode */
+        .game-mode-toggle {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+        .game-mode-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        .game-mode-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(201, 162, 39, 0.1);
+        }
+
+        /* Speed Control */
+        .speed-control { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+        .speed-control label { font-size: 0.75rem; color: var(--text-muted); }
+        .speed-btn {
+            padding: 5px 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .speed-btn.active { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+            background: rgba(201, 162, 39, 0.1); 
+        }
+
+        /* Managerial Insights Footer */
+        .insights-footer {
+            background: linear-gradient(135deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin-top: 20px;
+        }
+        .insights-footer h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .insight-block h4 {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .insight-block p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* References */
+        .references {
+            background: var(--bg-medium);
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin-top: 20px;
+            border: 1px solid var(--border);
+        }
+        .references h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+        .references p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        @media (max-width: 1400px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .charts-row { grid-template-columns: 1fr; }
+            .objectives-grid { grid-template-columns: repeat(2, 1fr); }
+            .insights-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Academic Header -->
+        <header class="academic-header">
+            <div class="header-top">
+                <div class="institution-info">
+                    <div class="logo-placeholder">Σ</div>
+                    <div class="course-info">
+                        <h1>OM / SCM / BA</h1>
+                        <p class="subtitle">Interactive Learning Module</p>
+                    </div>
+                </div>
+                <div class="instructor-info">
+                    <div class="instructor-name">Chenhao Zhou</div>
+                    <div class="instructor-title">PhD Candidate | Lecturer</div>
+                </div>
+            </div>
+            <div class="module-title">
+                <h2>The Newsvendor Model: Decision-Making Under Uncertainty</h2>
+                <p>Single-Period Inventory Optimization with Stochastic Demand</p>
+            </div>
+        </header>
+
+        <!-- Learning Objectives -->
+        <section class="learning-panel">
+            <h3>📚 Learning Objectives</h3>
+            <div class="objectives-grid">
+                <div class="objective-item">
+                    <span class="number">1</span>
+                    <p>Understand the trade-off between overage costs (excess inventory) and underage costs (lost sales) in single-period inventory decisions</p>
+                </div>
+                <div class="objective-item">
+                    <span class="number">2</span>
+                    <p>Apply the critical ratio formula to determine the optimal order quantity Q* that maximizes expected profit</p>
+                </div>
+                <div class="objective-item">
+                    <span class="number">3</span>
+                    <p>Analyze how changes in cost structure, demand variability, and service level requirements impact optimal ordering decisions</p>
+                </div>
+                <div class="objective-item">
+                    <span class="number">4</span>
+                    <p>Develop intuition for risk-return trade-offs in operations and strategic implications for capacity planning</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Dashboard -->
+        <div class="dashboard">
+            <!-- Left Panel - Parameters -->
+            <div class="panel">
+                <div class="panel-title">⚙️ Model Parameters</div>
+                
+                <div class="control-group">
+                    <label>Unit Selling Price (p)</label>
+                    <input type="range" id="sellingPrice" min="20" max="100" value="50" oninput="updateParams()">
+                    <div class="value-display">
+                        <span>$20</span>
+                        <span class="current-value">$<span id="priceValue">50</span></span>
+                        <span>$100</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Unit Cost (c)</label>
+                    <input type="range" id="unitCost" min="5" max="80" value="30" oninput="updateParams()">
+                    <div class="value-display">
+                        <span>$5</span>
+                        <span class="current-value">$<span id="costValue">30</span></span>
+                        <span>$80</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Salvage Value (s)</label>
+                    <input type="range" id="salvageValue" min="0" max="25" value="10" oninput="updateParams()">
+                    <div class="value-display">
+                        <span>$0</span>
+                        <span class="current-value">$<span id="salvageValueDisplay">10</span></span>
+                        <span>$25</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Mean Demand (μ)</label>
+                    <input type="range" id="meanDemand" min="50" max="200" value="100" oninput="updateParams()">
+                    <div class="value-display">
+                        <span>50</span>
+                        <span class="current-value"><span id="meanValue">100</span> units</span>
+                        <span>200</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Demand Std. Deviation (σ)</label>
+                    <input type="range" id="stdDemand" min="10" max="50" value="25" oninput="updateParams()">
+                    <div class="value-display">
+                        <span>10</span>
+                        <span class="current-value"><span id="stdValue">25</span> units</span>
+                        <span>50</span>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="runSimulation()">▶ Run Round</button>
+                    <button class="btn btn-secondary" onclick="resetGame()">↻ Reset</button>
+                </div>
+
+                <div class="theory-box">
+                    <h4>Critical Ratio Formula</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px;">
+                        The optimal order quantity Q* satisfies:
+                    </p>
+                    <div class="formula">
+                        F(Q*) = (p - c) / (p - s)<br>
+                        <span style="color: var(--accent);">CR = Cᵤ / (Cᵤ + Cₒ)</span>
+                    </div>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 8px;">
+                        Where Cᵤ = underage cost, Cₒ = overage cost
+                    </p>
+                </div>
+
+                <div class="tags">
+                    <span class="tag">Stochastic Demand</span>
+                    <span class="tag">Single-Period</span>
+                    <span class="tag">Risk-Pooling</span>
+                    <span class="tag">Service Level</span>
+                </div>
+            </div>
+
+            <!-- Center Section -->
+            <div class="center-section">
+                <div class="simulation-canvas panel">
+                    <canvas id="factoryCanvas"></canvas>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-card">
+                        <div class="metric-icon">📊</div>
+                        <div class="metric-value" id="roundNumber">0</div>
+                        <div class="metric-label">Round</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📦</div>
+                        <div class="metric-value" id="orderQty">0</div>
+                        <div class="metric-label">Order Qty</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">👥</div>
+                        <div class="metric-value" id="actualDemand">0</div>
+                        <div class="metric-label">Demand</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">✅</div>
+                        <div class="metric-value success" id="unitsSold">0</div>
+                        <div class="metric-label">Units Sold</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🎯</div>
+                        <div class="metric-value" id="optimalQ">0</div>
+                        <div class="metric-label">Optimal Q*</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📈</div>
+                        <div class="metric-value" id="criticalRatio">0%</div>
+                        <div class="metric-label">Critical Ratio</div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="panel">
+                        <div class="panel-title">📈 Profit Analysis Over Rounds</div>
+                        <div class="chart-container">
+                            <canvas id="profitChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-title">📊 Order vs Demand Distribution</div>
+                        <div class="chart-container">
+                            <canvas id="demandChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <div class="panel">
+                    <div class="panel-title">🎮 Game Mode</div>
+                    <div class="game-mode-toggle">
+                        <button class="game-mode-btn active" onclick="setGameMode('single')" id="singleBtn">vs. AI (Optimal)</button>
+                        <button class="game-mode-btn" onclick="setGameMode('multi')" id="multiBtn">2-Player</button>
+                    </div>
+
+                    <div class="player-card player1">
+                        <div class="player-header">
+                            <span class="player-name">👤 Your Decision</span>
+                            <span class="player-profit">$<span id="player1Profit">0</span></span>
+                        </div>
+                        <div class="order-input">
+                            <input type="number" id="player1Order" placeholder="Enter order quantity..." min="0" max="300">
+                        </div>
+                        <div class="player-stats">
+                            <div><span>Cumulative Profit:</span><span id="player1Total">$0</span></div>
+                            <div><span>Avg. Fill Rate:</span><span id="player1FillRate">0%</span></div>
+                        </div>
+                    </div>
+
+                    <div class="player-card ai" id="aiCard">
+                        <div class="player-header">
+                            <span class="player-name">🤖 Optimal Strategy (Q*)</span>
+                            <span class="player-profit">$<span id="aiProfit">0</span></span>
+                        </div>
+                        <div class="player-stats">
+                            <div><span>Order Quantity:</span><span id="aiOrder">Q*</span></div>
+                            <div><span>Cumulative Profit:</span><span id="aiTotal">$0</span></div>
+                        </div>
+                    </div>
+
+                    <div class="player-card player2" id="player2Card" style="display: none;">
+                        <div class="player-header">
+                            <span class="player-name">👤 Player 2</span>
+                            <span class="player-profit">$<span id="player2Profit">0</span></span>
+                        </div>
+                        <div class="order-input">
+                            <input type="number" id="player2Order" placeholder="Enter order quantity..." min="0" max="300">
+                        </div>
+                        <div class="player-stats">
+                            <div><span>Cumulative Profit:</span><span id="player2Total">$0</span></div>
+                        </div>
+                    </div>
+
+                    <div class="speed-control">
+                        <label>Animation:</label>
+                        <button class="speed-btn" onclick="setSpeed(0.5)">0.5x</button>
+                        <button class="speed-btn active" onclick="setSpeed(1)">1x</button>
+                        <button class="speed-btn" onclick="setSpeed(2)">2x</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">📋 Performance Analysis</div>
+                    <div class="status-item">
+                        <span class="label">Critical Ratio (CR)</span>
+                        <span class="value" id="statusCR">0.00</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Optimal Q* (Z-score)</span>
+                        <span class="value" id="statusZ">0.00</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Expected Profit at Q*</span>
+                        <span class="value" id="statusExpProfit">$0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Service Level</span>
+                        <span class="value" id="statusSL">0%</span>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">💡 Strategic Insights</div>
+                    <div id="insights">
+                        <div class="insight-item">
+                            <span class="insight-icon">📌</span>
+                            <span class="insight-text">
+                                Configure parameters and enter your order quantity to begin. Compare your performance against the optimal newsvendor solution.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Managerial Insights Footer -->
+        <section class="insights-footer">
+            <h3>🎯 Key Managerial Insights</h3>
+            <div class="insights-grid">
+                <div class="insight-block">
+                    <h4>The Overage-Underage Trade-off</h4>
+                    <p>The newsvendor model captures the fundamental tension between ordering too much (overage cost: holding unsold inventory) and ordering too little (underage cost: lost profit from unmet demand). The optimal order quantity balances these competing risks.</p>
+                </div>
+                <div class="insight-block">
+                    <h4>Profit Margin Drives Risk Appetite</h4>
+                    <p>Higher profit margins (larger p-c relative to c-s) justify higher service levels and larger order quantities. Low-margin products require conservative ordering to minimize inventory risk.</p>
+                </div>
+                <div class="insight-block">
+                    <h4>Demand Variability Matters</h4>
+                    <p>Higher demand variability (σ) increases the importance of getting the order quantity right. Risk-pooling strategies, better forecasting, and flexible supply arrangements become more valuable as uncertainty grows.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- References -->
+        <section class="references">
+            <h3>📚 Academic References</h3>
+            <p>
+                Cachon, G., & Terwiesch, C. (2013). <em>Matching Supply with Demand: An Introduction to Operations Management</em> (3rd ed.). McGraw-Hill. • 
+                Silver, E. A., Pyke, D. F., & Peterson, R. (1998). <em>Inventory Management and Production Planning and Scheduling</em>. Wiley. • 
+                Porteus, E. L. (2002). <em>Foundations of Stochastic Inventory Theory</em>. Stanford University Press. •
+                Chopra, S., & Meindl, P. (2016). <em>Supply Chain Management: Strategy, Planning, and Operation</em> (6th ed.). Pearson.
+            </p>
+        </section>
+    </div>
+
+    <script>
+        // Game State
+        let params = {
+            sellingPrice: 50,
+            unitCost: 30,
+            salvageValue: 10,
+            meanDemand: 100,
+            stdDemand: 25
+        };
+
+        let gameMode = 'single';
+        let roundNumber = 0;
+        let simSpeed = 1;
+        let optimalQ = 0;
+        let criticalRatio = 0;
+        let currentDemand = 0;
+
+        let players = {
+            player1: { order: 0, profit: 0, totalProfit: 0, totalSold: 0, totalDemand: 0 },
+            player2: { order: 0, profit: 0, totalProfit: 0, totalSold: 0, totalDemand: 0 },
+            ai: { order: 0, profit: 0, totalProfit: 0, totalSold: 0, totalDemand: 0 }
+        };
+
+        let profitHistory = { player1: [], ai: [], player2: [] };
+        let demandHistory = [];
+        let orderHistory = [];
+
+        // Canvas
+        const canvas = document.getElementById('factoryCanvas');
+        const ctx = canvas.getContext('2d');
+        let products = [];
+        let customers = [];
+
+        // Charts
+        let profitChart, demandChart;
+
+        function init() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            updateParams();
+            initCharts();
+            render();
+        }
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+
+        function initCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        position: 'top',
+                        labels: { color: '#a8b4c0', font: { size: 11 } }
+                    }
+                },
+                scales: {
+                    x: { 
+                        grid: { color: 'rgba(201, 162, 39, 0.1)' },
+                        ticks: { color: '#6b7d8f' }
+                    },
+                    y: { 
+                        grid: { color: 'rgba(201, 162, 39, 0.1)' },
+                        ticks: { color: '#6b7d8f' }
+                    }
+                }
+            };
+
+            profitChart = new Chart(document.getElementById('profitChart'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Your Profit',
+                            data: [],
+                            borderColor: '#4a90d9',
+                            backgroundColor: 'rgba(74, 144, 217, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Optimal (AI)',
+                            data: [],
+                            borderColor: '#2d8659',
+                            backgroundColor: 'rgba(45, 134, 89, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: chartOptions
+            });
+
+            demandChart = new Chart(document.getElementById('demandChart'), {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Your Order',
+                            data: [],
+                            backgroundColor: 'rgba(74, 144, 217, 0.7)',
+                            borderColor: '#4a90d9',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Actual Demand',
+                            data: [],
+                            backgroundColor: 'rgba(201, 162, 39, 0.7)',
+                            borderColor: '#c9a227',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: chartOptions
+            });
+        }
+
+        function updateParams() {
+            params.sellingPrice = parseInt(document.getElementById('sellingPrice').value);
+            params.unitCost = parseInt(document.getElementById('unitCost').value);
+            params.salvageValue = parseInt(document.getElementById('salvageValue').value);
+            params.meanDemand = parseInt(document.getElementById('meanDemand').value);
+            params.stdDemand = parseInt(document.getElementById('stdDemand').value);
+
+            document.getElementById('priceValue').textContent = params.sellingPrice;
+            document.getElementById('costValue').textContent = params.unitCost;
+            document.getElementById('salvageValueDisplay').textContent = params.salvageValue;
+            document.getElementById('meanValue').textContent = params.meanDemand;
+            document.getElementById('stdValue').textContent = params.stdDemand;
+
+            calculateOptimal();
+            updateStatusPanel();
+        }
+
+        function calculateOptimal() {
+            const cu = params.sellingPrice - params.unitCost; // Underage cost
+            const co = params.unitCost - params.salvageValue; // Overage cost
+            criticalRatio = cu / (cu + co);
+            
+            // Inverse normal for critical ratio
+            const z = inverseNormalCDF(criticalRatio);
+            optimalQ = Math.round(params.meanDemand + z * params.stdDemand);
+            optimalQ = Math.max(0, optimalQ);
+
+            document.getElementById('optimalQ').textContent = optimalQ;
+            document.getElementById('criticalRatio').textContent = (criticalRatio * 100).toFixed(0) + '%';
+        }
+
+        function inverseNormalCDF(p) {
+            // Approximation of inverse normal CDF
+            if (p <= 0) return -Infinity;
+            if (p >= 1) return Infinity;
+            if (p === 0.5) return 0;
+            
+            const a1 = -3.969683028665376e+01;
+            const a2 = 2.209460984245205e+02;
+            const a3 = -2.759285104469687e+02;
+            const a4 = 1.383577518672690e+02;
+            const a5 = -3.066479806614716e+01;
+            const a6 = 2.506628277459239e+00;
+            
+            const b1 = -5.447609879822406e+01;
+            const b2 = 1.615858368580409e+02;
+            const b3 = -1.556989798598866e+02;
+            const b4 = 6.680131188771972e+01;
+            const b5 = -1.328068155288572e+01;
+            
+            const c1 = -7.784894002430293e-03;
+            const c2 = -3.223964580411365e-01;
+            const c3 = -2.400758277161838e+00;
+            const c4 = -2.549732539343734e+00;
+            const c5 = 4.374664141464968e+00;
+            const c6 = 2.938163982698783e+00;
+            
+            const d1 = 7.784695709041462e-03;
+            const d2 = 3.224671290700398e-01;
+            const d3 = 2.445134137142996e+00;
+            const d4 = 3.754408661907416e+00;
+            
+            const p_low = 0.02425;
+            const p_high = 1 - p_low;
+            let q, r;
+            
+            if (p < p_low) {
+                q = Math.sqrt(-2 * Math.log(p));
+                return (((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6) / ((((d1*q+d2)*q+d3)*q+d4)*q+1);
+            } else if (p <= p_high) {
+                q = p - 0.5;
+                r = q * q;
+                return (((((a1*r+a2)*r+a3)*r+a4)*r+a5)*r+a6)*q / (((((b1*r+b2)*r+b3)*r+b4)*r+b5)*r+1);
+            } else {
+                q = Math.sqrt(-2 * Math.log(1 - p));
+                return -(((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6) / ((((d1*q+d2)*q+d3)*q+d4)*q+1);
+            }
+        }
+
+        function normalCDF(x, mean, std) {
+            return 0.5 * (1 + erf((x - mean) / (std * Math.sqrt(2))));
+        }
+
+        function erf(x) {
+            const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+            const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+            const sign = x < 0 ? -1 : 1;
+            x = Math.abs(x);
+            const t = 1 / (1 + p * x);
+            const y = 1 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t * Math.exp(-x*x);
+            return sign * y;
+        }
+
+        function generateDemand() {
+            // Box-Muller transform for normal distribution
+            const u1 = Math.random();
+            const u2 = Math.random();
+            const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+            return Math.max(0, Math.round(params.meanDemand + z * params.stdDemand));
+        }
+
+        function calculateProfit(order, demand) {
+            const sold = Math.min(order, demand);
+            const excess = Math.max(0, order - demand);
+            const revenue = sold * params.sellingPrice;
+            const cost = order * params.unitCost;
+            const salvage = excess * params.salvageValue;
+            return revenue - cost + salvage;
+        }
+
+        function runSimulation() {
+            const userOrder = parseInt(document.getElementById('player1Order').value);
+            if (isNaN(userOrder) || userOrder < 0) {
+                alert('Please enter a valid order quantity (≥ 0)');
+                return;
+            }
+
+            roundNumber++;
+            currentDemand = generateDemand();
+
+            // Player 1 (User)
+            players.player1.order = userOrder;
+            players.player1.profit = calculateProfit(userOrder, currentDemand);
+            players.player1.totalProfit += players.player1.profit;
+            players.player1.totalSold += Math.min(userOrder, currentDemand);
+            players.player1.totalDemand += currentDemand;
+
+            // AI (Optimal)
+            players.ai.order = optimalQ;
+            players.ai.profit = calculateProfit(optimalQ, currentDemand);
+            players.ai.totalProfit += players.ai.profit;
+            players.ai.totalSold += Math.min(optimalQ, currentDemand);
+            players.ai.totalDemand += currentDemand;
+
+            if (gameMode === 'multi') {
+                const p2Order = parseInt(document.getElementById('player2Order').value) || optimalQ;
+                players.player2.order = p2Order;
+                players.player2.profit = calculateProfit(p2Order, currentDemand);
+                players.player2.totalProfit += players.player2.profit;
+            }
+
+            // Update histories
+            profitHistory.player1.push(players.player1.profit);
+            profitHistory.ai.push(players.ai.profit);
+            demandHistory.push(currentDemand);
+            orderHistory.push(userOrder);
+
+            updateDisplays();
+            updateCharts();
+            updateInsights();
+            spawnAnimationElements();
+            render();
+        }
+
+        function updateDisplays() {
+            document.getElementById('roundNumber').textContent = roundNumber;
+            document.getElementById('orderQty').textContent = players.player1.order;
+            document.getElementById('actualDemand').textContent = currentDemand;
+            document.getElementById('unitsSold').textContent = Math.min(players.player1.order, currentDemand);
+
+            document.getElementById('player1Profit').textContent = players.player1.profit.toFixed(0);
+            document.getElementById('player1Total').textContent = '$' + players.player1.totalProfit.toFixed(0);
+            const fillRate1 = players.player1.totalDemand > 0 ? 
+                (players.player1.totalSold / players.player1.totalDemand * 100).toFixed(1) : 0;
+            document.getElementById('player1FillRate').textContent = fillRate1 + '%';
+
+            document.getElementById('aiProfit').textContent = players.ai.profit.toFixed(0);
+            document.getElementById('aiOrder').textContent = optimalQ;
+            document.getElementById('aiTotal').textContent = '$' + players.ai.totalProfit.toFixed(0);
+
+            if (gameMode === 'multi') {
+                document.getElementById('player2Profit').textContent = players.player2.profit.toFixed(0);
+                document.getElementById('player2Total').textContent = '$' + players.player2.totalProfit.toFixed(0);
+            }
+        }
+
+        function updateStatusPanel() {
+            document.getElementById('statusCR').textContent = criticalRatio.toFixed(3);
+            const z = inverseNormalCDF(criticalRatio);
+            document.getElementById('statusZ').textContent = z.toFixed(2);
+            
+            // Expected profit calculation
+            const expProfit = calculateExpectedProfit(optimalQ);
+            document.getElementById('statusExpProfit').textContent = '$' + expProfit.toFixed(0);
+            document.getElementById('statusSL').textContent = (criticalRatio * 100).toFixed(1) + '%';
+        }
+
+        function calculateExpectedProfit(Q) {
+            // Simplified expected profit
+            const cu = params.sellingPrice - params.unitCost;
+            const co = params.unitCost - params.salvageValue;
+            const expSales = Q - params.stdDemand * expectedLoss((Q - params.meanDemand) / params.stdDemand);
+            return cu * expSales - co * (Q - expSales);
+        }
+
+        function expectedLoss(z) {
+            // Standard normal loss function approximation
+            const phi = Math.exp(-z*z/2) / Math.sqrt(2 * Math.PI);
+            const Phi = normalCDF(z, 0, 1);
+            return phi - z * (1 - Phi);
+        }
+
+        function updateCharts() {
+            const labels = profitHistory.player1.map((_, i) => 'R' + (i + 1));
+            
+            profitChart.data.labels = labels;
+            profitChart.data.datasets[0].data = profitHistory.player1;
+            profitChart.data.datasets[1].data = profitHistory.ai;
+            profitChart.update();
+
+            const recentLabels = labels.slice(-8);
+            const recentOrders = orderHistory.slice(-8);
+            const recentDemands = demandHistory.slice(-8);
+            
+            demandChart.data.labels = recentLabels;
+            demandChart.data.datasets[0].data = recentOrders;
+            demandChart.data.datasets[1].data = recentDemands;
+            demandChart.update();
+        }
+
+        function updateInsights() {
+            const userOrder = players.player1.order;
+            const diff = players.player1.profit - players.ai.profit;
+            
+            let insights = '';
+            
+            if (diff > 0) {
+                insights += `
+                    <div class="insight-item">
+                        <span class="insight-icon">🎉</span>
+                        <span class="insight-text">
+                            Excellent! You outperformed the optimal by <strong>$${diff.toFixed(0)}</strong> this round due to favorable demand realization.
+                        </span>
+                    </div>
+                `;
+            } else if (diff < 0) {
+                insights += `
+                    <div class="insight-item">
+                        <span class="insight-icon">📊</span>
+                        <span class="insight-text">
+                            The optimal strategy earned <strong>$${Math.abs(diff).toFixed(0)}</strong> more this round. 
+                        </span>
+                    </div>
+                `;
+            }
+
+            if (userOrder > optimalQ) {
+                insights += `
+                    <div class="insight-item">
+                        <span class="insight-icon">⚠️</span>
+                        <span class="insight-text">
+                            You ordered <strong>${userOrder - optimalQ}</strong> units above Q*. Higher risk of overage costs.
+                        </span>
+                    </div>
+                `;
+            } else if (userOrder < optimalQ) {
+                insights += `
+                    <div class="insight-item">
+                        <span class="insight-icon">📉</span>
+                        <span class="insight-text">
+                            You ordered <strong>${optimalQ - userOrder}</strong> units below Q*. Higher risk of stockouts.
+                        </span>
+                    </div>
+                `;
+            }
+
+            if (roundNumber >= 5) {
+                const avgDiff = (players.ai.totalProfit - players.player1.totalProfit) / roundNumber;
+                insights += `
+                    <div class="insight-item">
+                        <span class="insight-icon">📈</span>
+                        <span class="insight-text">
+                            Over ${roundNumber} rounds, optimal averages <strong>$${avgDiff.toFixed(0)}</strong> ${avgDiff > 0 ? 'more' : 'less'} per round.
+                        </span>
+                    </div>
+                `;
+            }
+
+            document.getElementById('insights').innerHTML = insights || `
+                <div class="insight-item">
+                    <span class="insight-icon">📌</span>
+                    <span class="insight-text">Round ${roundNumber} complete. Continue playing to see performance patterns.</span>
+                </div>
+            `;
+        }
+
+        function setGameMode(mode) {
+            gameMode = mode;
+            document.getElementById('singleBtn').classList.toggle('active', mode === 'single');
+            document.getElementById('multiBtn').classList.toggle('active', mode === 'multi');
+            document.getElementById('aiCard').style.display = mode === 'single' ? 'block' : 'none';
+            document.getElementById('player2Card').style.display = mode === 'multi' ? 'block' : 'none';
+        }
+
+        function setSpeed(speed) {
+            simSpeed = speed;
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.toggle('active', parseFloat(btn.textContent) === speed);
+            });
+        }
+
+        function resetGame() {
+            roundNumber = 0;
+            currentDemand = 0;
+            players = {
+                player1: { order: 0, profit: 0, totalProfit: 0, totalSold: 0, totalDemand: 0 },
+                player2: { order: 0, profit: 0, totalProfit: 0, totalSold: 0, totalDemand: 0 },
+                ai: { order: 0, profit: 0, totalProfit: 0, totalSold: 0, totalDemand: 0 }
+            };
+            profitHistory = { player1: [], ai: [], player2: [] };
+            demandHistory = [];
+            orderHistory = [];
+            products = [];
+            customers = [];
+            
+            document.getElementById('player1Order').value = '';
+            updateDisplays();
+            profitChart.data.labels = [];
+            profitChart.data.datasets.forEach(ds => ds.data = []);
+            profitChart.update();
+            demandChart.data.labels = [];
+            demandChart.data.datasets.forEach(ds => ds.data = []);
+            demandChart.update();
+            
+            document.getElementById('insights').innerHTML = `
+                <div class="insight-item">
+                    <span class="insight-icon">📌</span>
+                    <span class="insight-text">Game reset. Enter your order quantity to begin a new simulation.</span>
+                </div>
+            `;
+            render();
+        }
+
+        function spawnAnimationElements() {
+            products = [];
+            customers = [];
+            const order = players.player1.order;
+            
+            for (let i = 0; i < Math.min(order / 8, 35); i++) {
+                products.push({
+                    x: 100 + Math.random() * 220,
+                    y: 120 + Math.random() * 140,
+                    sold: i < currentDemand / 8
+                });
+            }
+
+            for (let i = 0; i < Math.min(currentDemand / 12, 25); i++) {
+                customers.push({
+                    x: canvas.width - 160 + Math.random() * 120,
+                    y: 80 + Math.random() * 220,
+                    served: i < players.player1.order / 12
+                });
+            }
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+            drawFactory();
+            drawProducts();
+            drawCustomers();
+            drawDemandCurve();
+            drawHUD();
+        }
+
+        function drawBackground() {
+            ctx.fillStyle = '#0d1b2a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = 'rgba(201, 162, 39, 0.03)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 45) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 45) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawFactory() {
+            const fx = 60, fy = 70;
+            
+            // Main building
+            ctx.fillStyle = '#2d5a87';
+            ctx.fillRect(fx, fy, 200, 160);
+            
+            // Roof
+            ctx.fillStyle = '#1e3a5f';
+            ctx.beginPath();
+            ctx.moveTo(fx - 15, fy);
+            ctx.lineTo(fx + 100, fy - 50);
+            ctx.lineTo(fx + 215, fy);
+            ctx.closePath();
+            ctx.fill();
+
+            // Chimney
+            ctx.fillStyle = '#4a5568';
+            ctx.fillRect(fx + 150, fy - 70, 30, 50);
+
+            // Windows
+            ctx.fillStyle = '#c9a227';
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 2; j++) {
+                    ctx.fillRect(fx + 25 + i * 60, fy + 30 + j * 55, 40, 35);
+                }
+            }
+
+            // Door
+            ctx.fillStyle = '#c9a227';
+            ctx.fillRect(fx + 80, fy + 120, 45, 40);
+
+            // Label
+            ctx.fillStyle = '#f0f4f8';
+            ctx.font = 'bold 14px Source Sans Pro';
+            ctx.textAlign = 'center';
+            ctx.fillText('PRODUCTION', fx + 100, fy + 185);
+        }
+
+        function drawProducts() {
+            products.forEach(p => {
+                ctx.fillStyle = p.sold ? '#2d8659' : '#a63d40';
+                ctx.fillRect(p.x, p.y, 16, 16);
+                ctx.strokeStyle = p.sold ? '#4ade80' : '#f87171';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(p.x, p.y, 16, 16);
+            });
+
+            // Inventory zone
+            ctx.strokeStyle = '#c9a227';
+            ctx.setLineDash([6, 6]);
+            ctx.lineWidth = 2;
+            ctx.strokeRect(90, 110, 240, 160);
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#c9a227';
+            ctx.font = '11px Source Sans Pro';
+            ctx.textAlign = 'center';
+            ctx.fillText('INVENTORY', 210, 285);
+        }
+
+        function drawCustomers() {
+            customers.forEach(c => {
+                ctx.fillStyle = c.served ? '#2d8659' : '#4a5568';
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 14, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#e8d48a';
+                ctx.beginPath();
+                ctx.arc(c.x, c.y - 20, 9, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Market zone
+            ctx.fillStyle = '#1e3a5f';
+            ctx.fillRect(canvas.width - 190, 70, 170, 220);
+            ctx.fillStyle = '#c9a227';
+            ctx.font = 'bold 14px Source Sans Pro';
+            ctx.textAlign = 'center';
+            ctx.fillText('MARKET', canvas.width - 105, 305);
+            ctx.font = '11px Source Sans Pro';
+            ctx.fillStyle = '#a8b4c0';
+            ctx.fillText(`Demand: ${currentDemand}`, canvas.width - 105, 322);
+        }
+
+        function drawDemandCurve() {
+            const cx = canvas.width / 2;
+            const cy = 55;
+            const width = 220;
+            const height = 45;
+
+            // Distribution curve
+            ctx.strokeStyle = '#c9a227';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let i = 0; i <= width; i++) {
+                const x = cx - width/2 + i;
+                const demandVal = params.meanDemand - 3*params.stdDemand + (6*params.stdDemand * i / width);
+                const z = (demandVal - params.meanDemand) / params.stdDemand;
+                const y = cy - height * Math.exp(-z*z/2);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Current demand marker
+            if (currentDemand > 0) {
+                const demandX = cx - width/2 + width * (currentDemand - (params.meanDemand - 3*params.stdDemand)) / (6*params.stdDemand);
+                ctx.fillStyle = '#d4a839';
+                ctx.beginPath();
+                ctx.arc(demandX, cy, 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Q* marker
+            const optX = cx - width/2 + width * (optimalQ - (params.meanDemand - 3*params.stdDemand)) / (6*params.stdDemand);
+            ctx.strokeStyle = '#2d8659';
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(optX, cy - height - 5);
+            ctx.lineTo(optX, cy + 12);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = '#a8b4c0';
+            ctx.font = '10px Source Sans Pro';
+            ctx.textAlign = 'center';
+            ctx.fillText('Demand Distribution ~ N(μ, σ²)', cx, cy + 28);
+            ctx.fillStyle = '#2d8659';
+            ctx.fillText(`Q*=${optimalQ}`, optX, cy + 42);
+        }
+
+        function drawHUD() {
+            ctx.fillStyle = '#c9a227';
+            ctx.font = 'bold 16px Source Sans Pro';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Round ${roundNumber}`, 25, 35);
+
+            if (roundNumber > 0) {
+                ctx.fillStyle = '#4a90d9';
+                ctx.font = '14px JetBrains Mono';
+                ctx.fillText(`You: $${Math.round(players.player1.profit)}`, 25, 55);
+                
+                ctx.fillStyle = '#2d8659';
+                ctx.fillText(`Optimal: $${Math.round(players.ai.profit)}`, 140, 55);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
