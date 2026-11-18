@@ -1,0 +1,63 @@
+/* Midterm group feedback form. Loaded after the shared class-updater styles. */
+.class-updater-content [hidden] { display: none !important; }
+.back-link { margin: 0 0 14px; font-size: 13px; }
+.back-link a { color: #606764; }
+.guidance { margin: 12px 0 28px; padding-left: 20px; max-width: 76ch; }
+.guidance li { margin: 6px 0; }
+
+.feedback-form .field { margin: 0 0 26px; max-width: 460px; }
+.feedback-form .field.wide { max-width: 760px; }
+.feedback-form label,
+.feedback-form legend { display: block; margin: 0 0 6px; padding: 0; color: #222a29; font-weight: 600; }
+.optional { color: #606764; font-weight: 400; }
+.feedback-form input[type="text"],
+.feedback-form select,
+.feedback-form textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.feedback-form select { min-height: 40px; }
+.feedback-form textarea { min-height: 40px; resize: vertical; }
+.feedback-form input:focus,
+.feedback-form select:focus,
+.feedback-form textarea:focus { border-color: #2563eb; outline: 2px solid #2563eb; outline-offset: 0; }
+.feedback-form [aria-invalid="true"] { border-color: #b42318; background: #fff7f6; }
+
+.members { min-width: 0; margin: 0 0 30px; padding: 0; border: 0; }
+.hint { margin: 0 0 10px; color: #606764; font-size: 14px; }
+.member-table { width: 100%; margin: 0 0 14px; border-collapse: collapse; }
+.member-table th { padding: 0 10px 8px 0; border-bottom: 1px solid #e2e8f0; color: #606764; font-size: 12px; font-weight: 600; text-align: left; }
+.member-table td { padding: 10px 10px 10px 0; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+.member-table th:nth-child(1) { width: 30%; }
+.member-table th:nth-child(2) { width: 130px; }
+.member-table th:nth-child(4) { width: 46px; }
+.member-table .remove-cell { padding-right: 0; }
+.remove-row { width: 38px; height: 40px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #606764; font-size: 20px; line-height: 1; cursor: pointer; }
+.remove-row:hover { border-color: #b42318; color: #b42318; }
+
+.feedback-form button.button { font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.feedback-form button.button:disabled { opacity: .6; cursor: progress; }
+.feedback-form .actions { margin-top: 6px; }
+.form-message { max-width: 760px; margin: 0 0 16px; padding: 12px 14px; border: 1px solid #fecdca; border-radius: 6px; background: #fef3f2; color: #912018; font-size: 14px; }
+.form-message ul { margin: 6px 0 0; padding-left: 20px; }
+.thanks { padding: 10px 0 4px; }
+.thanks:focus { outline: none; }
+.thanks h3 { margin: 6px 0 12px; color: #0f2442; font-size: 21px; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .member-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .member-table, .member-table tbody, .member-table tr, .member-table td { display: block; width: 100%; }
+  .member-table tr { position: relative; margin: 0 0 12px; padding: 12px 12px 2px; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .member-table td { min-width: 0; padding: 0 0 10px; border: 0; }
+  .member-table td:first-child { padding-right: 48px; }
+  .member-table td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 4px; color: #606764; font-size: 12px; font-weight: 600; }
+  .member-table .remove-cell { position: absolute; top: 10px; right: 10px; width: 38px; padding: 0; }
+}
